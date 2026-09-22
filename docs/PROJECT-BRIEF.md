@@ -1,0 +1,306 @@
+# Portfolio Site — Project Brief
+
+**Version:** 2 (supersedes everything earlier)
+**Status:** design mockup complete in Claude Design; no code written yet
+
+---
+
+## 0. Read this first
+
+All earlier planning and design documents for this project are **void**. Any
+earlier visual direction, palette, typography or interaction concept is
+discarded and must not be reintroduced.
+
+There is exactly one source of truth for how this looks: the **Claude Design
+mockup**, and the `docs/DESIGN-SPEC.md` extracted from it. This brief covers
+everything that is *not* visual — stack, architecture, data, phases, rules.
+
+Where this brief and the mockup disagree about structure (which sections exist,
+what a section contains), **the mockup wins** and this document gets corrected.
+
+---
+
+## 1. What this is
+
+A personal portfolio website for a software developer, plus an auth-secured
+admin portal for editing its content.
+
+Two readers to serve at once: a recruiter skimming on a phone for 40 seconds,
+and an engineer who might actually read the detail.
+
+The custom admin exists because building it is part of the demonstration, not
+because an off-the-shelf CMS wouldn't work.
+
+### About the developer (for copy and framing)
+
+- Frontend engineer at ION Group, India. Roughly two years in the industry.
+- Day job: TypeScript and Angular (plus some AngularJS), building trading
+  interfaces — dense, real-time, data-heavy UI where performance genuinely matters.
+- Also covers backend, some data science and ML, DSA, and CI/CD at project level.
+
+---
+
+## 2. Stack
+
+| Layer | Choice |
+|---|---|
+| Framework | **Next.js** (App Router, latest stable) |
+| Language | **TypeScript**, `strict: true` |
+| Styling | **Tailwind CSS**, driven by design tokens as CSS custom properties |
+| Data (later) | **Supabase** — Postgres + Auth + Storage |
+| Data (now) | **Typed in-repo fixtures** — see §5 |
+| Auth (later) | Supabase Auth, single-admin allowlist, no public signup |
+| Hosting | **Vercel** |
+| Testing | Vitest + Testing Library; Playwright for critical paths |
+
+Verify current stable versions before scaffolding rather than trusting this file.
+
+---
+
+## 3. Non-negotiable constraints
+
+Gates, not aspirations. A phase is not complete if it breaks one.
+
+### Performance
+- **LCP under 2.0s** on simulated 4G / mid-tier mobile.
+- **CLS under 0.1.** Reserve space for every image and every sticky element.
+- No entrance animation may delay the largest text from painting. **LCP ignores
+  elements at `opacity: 0`, and clipped or masked content is not painted** — so
+  a hero fade or wipe costs its own duration in LCP. Animate properties that
+  don't hide text.
+- Fonts self-hosted via `next/font`, variable, subset, with `size-adjust`
+  fallback metrics so swapping doesn't shift layout.
+- Below-the-fold content lazy-loaded; images with explicit dimensions.
+
+### Accessibility
+- **WCAG 2.1 AA.** Body text ≥ 4.5:1, large text and UI ≥ 3:1.
+- Everything interactive reachable and operable by keyboard, with a visible
+  focus ring.
+- Icon-only controls always carry accessible names.
+- Touch targets ≥ 44×44px.
+- `prefers-reduced-motion` handled in the token layer from Phase 1. Reduced
+  motion must leave a fully usable site, not a broken one.
+- Axe clean, plus a manual keyboard pass and one screen-reader pass before ship.
+
+### Mobile
+Mobile is the **primary** target. Every component is designed and built at
+390px first; desktop is the enhancement. Nothing load-bearing may depend on
+hover or a cursor.
+
+### Motion
+- `transform` and `opacity` only. Never animate layout properties.
+- **No scroll hijacking.** No Lenis, Locomotive or ScrollSmoother. Native scroll
+  plus CSS scroll-driven animation.
+- Springs for user-initiated interaction; duration easing for entrances.
+- View Transitions API for any page-to-page navigation.
+
+### Content robustness
+Content is variable-length and unknown at build time. Every component must
+survive a long name, an empty optional field, and five bullets where the mockup
+showed two. A layout that only works with perfect placeholder text is a bug.
+
+---
+
+## 4. Architecture guardrails
+
+### The repository boundary — the most important rule in this document
+
+All data access goes through **repository interfaces**. Components never import
+fixtures directly and never call Supabase directly.
+
+```
+lib/
+  domain/
+    types.ts                      // domain models — Project, Experience, ...
+    repositories.ts               // the interfaces
+  repositories/
+    fixtures/
+      project.repository.ts       // Phase 2 implementation
+      ...
+      data/                       // the hardcoded content itself
+    supabase/
+      project.repository.ts       // Phase 6 implementation
+      ...
+  container.ts                    // composition root: picks the implementation
+```
+
+Rules that make the later swap a non-event:
+
+1. **Every repository method is `async` and returns a Promise**, even though
+   fixtures are synchronous. If components are written against sync calls, the
+   migration to Supabase becomes a rewrite of every component.
+2. **Domain types only.** No fixture-shaped or Supabase-row-shaped type ever
+   reaches a component.
+3. **One composition root.** Switching the whole app from fixtures to Supabase
+   is a change in `lib/container.ts` and nothing else. Ideally driven by an env
+   var so both can be run side by side during migration.
+4. Repository tests are written against the interface, so the same test suite
+   runs against both implementations. If the Supabase implementation passes the
+   fixture implementation's tests, the migration is done.
+
+Do not let this erode. It is the entire reason Phase 1 can ship before the
+database exists.
+
+### File structure
+
+```
+app/
+  (site)/page.tsx                 // the public page
+  admin/                          // Phase 7+, route group, auth-guarded
+components/
+  sections/                       // one per page section
+  ui/                             // primitives: Button, Card, Field, ...
+  admin/
+lib/
+  domain/  repositories/  utils/
+styles/
+  tokens.css                      // design tokens, both modes, reduced-motion
+types/
+docs/
+  PROJECT-BRIEF.md  DESIGN-SPEC.md  design/
+```
+
+### Conventions
+- Files `kebab-case.ts`. Components `PascalCase`, one per file.
+- **Component files ≤ 200 lines.** Past that, extract.
+- **Server Components by default.** `'use client'` only where interaction
+  genuinely requires it.
+- **No granular CSS.** Tailwind utilities do the work. Hand-written CSS is
+  limited to `tokens.css` and things utilities genuinely cannot express.
+- **No magic values.** Colours, spacing and type come from tokens. If something
+  needs a value that isn't in the system, fix the system.
+- Conventional commits. Lint, typecheck and tests block merge in CI.
+- Never commit `.env*` or any Supabase key.
+
+---
+
+## 5. Content model
+
+Fixtures in Phase 2 mirror this exactly, so the Phase 6 schema is a
+transcription rather than a redesign. All entities carry `id`, and a
+`sort_order` wherever ordering is user-controlled.
+
+| Entity | Fields |
+|---|---|
+| `profile` | name, headline, standfirst, about, location, portrait_url, resume_url, email |
+| `experience` | role, org, location, start_date, end_date (null = current), bullets[], stack[] |
+| `education` | qualification, institution, start_date, end_date, notes[] |
+| `skill` | name, tier (`daily` \| `regular` \| `familiar`), brand_color, icon_slug (nullable) |
+| `project` | title, summary, tags[], repo_url, live_url (nullable), featured |
+| `blog_post` | title, slug, excerpt, external_url (nullable), body (nullable), published_at |
+| `social_link` | label, url, sort_order |
+
+**Reconcile against the mockup.** If the design has sections or fields this
+table doesn't cover, extend the table before writing fixtures — not afterwards.
+
+### Standing content decisions
+- **Projects have no detail route.** The GitHub README is the write-up. Cards
+  link out.
+- **Blog uses a nullable-body pattern.** `body IS NULL` → the card links to the
+  external URL (e.g. Medium). `body` present → an on-site route at
+  `/blog/[slug]`. Ships with zero posts, needs no rework later.
+- **Contact is `mailto:` plus social links.** No form, no email service, no spam
+  handling, no inbox.
+
+---
+
+## 6. Phases
+
+Incremental. Each phase ends with a verification checklist that must pass before
+the next begins. **Do not work ahead.**
+
+### Milestone A — a live public site, no database
+
+The goal of this milestone is a deployed, complete, good-looking portfolio.
+All content comes from hardcoded fixtures. No Supabase, no auth, no admin.
+
+**Phase 0 — Repo and design extraction**
+Scaffold Next.js, git init, `docs/` folder. Pull the Claude Design mockup in and
+write `docs/DESIGN-SPEC.md`: exact hexes for both modes, font families and any
+variable-font axis settings, type scale at mobile and desktop, spacing scale,
+radii, shadows, and every animation with its property, duration and easing.
+Save reference screenshots to `docs/design/`.
+*Verify:* the spec contains values, not adjectives. Anything undetermined is
+listed explicitly rather than guessed.
+
+**Phase 1 — Foundation**
+Token layer from the spec (both modes, reduced-motion), Tailwind theme wired to
+those tokens, TypeScript strict, lint/format/typecheck scripts, CI that blocks on
+all three, Vercel deploy.
+*Verify:* deployed URL renders a token test page showing every token in both
+modes; CI rejects a deliberately introduced lint error.
+
+**Phase 2 — Domain and fixtures**
+Domain types, repository interfaces, fixture implementations, composition root,
+realistic content covering the developer's actual career. Content must include
+deliberately awkward cases: a long role title, an entry with five bullets, a
+project with no live URL, an empty optional field.
+*Verify:* repository tests pass against the interface; no component imports
+fixture data; every method returns a Promise.
+
+**Phase 3 — Public site**
+Every section built from the mockup and served through the repositories. Mobile
+layout first, then desktop. No motion yet.
+*Verify:* side-by-side against `docs/design/` screenshots at 390px and 1440px —
+compared by eye, not asserted; Lighthouse mobile ≥ 95 performance and 100
+accessibility; axe clean.
+
+**Phase 4 — Motion and the signature interaction**
+Everything in the motion section of the spec.
+*Verify:* LCP unchanged from Phase 3; reduced motion gives a static but fully
+usable site; the signature interaction works on touch and by keyboard.
+
+**Phase 5 — Ship**
+Metadata, OG images, sitemap, robots, structured data (`Person`), analytics,
+résumé PDF, custom domain.
+*Verify:* rich-results test passes; OG card renders correctly in a real preview;
+tested on an actual phone, not a simulator.
+
+**Milestone A is a shippable product.** It can sit live indefinitely while
+Milestone B is built.
+
+### Milestone B — database and admin
+
+**Phase 6 — Supabase**
+Schema transcribed from the fixtures, RLS policies, seed from the fixture data,
+Supabase repository implementations, composition root switched over.
+*Verify:* the fixture repositories' test suite passes unchanged against the
+Supabase implementations; anonymous writes are rejected at the database level;
+the public site is byte-for-byte unchanged to a visitor.
+
+**Phase 7 — Admin auth**
+Middleware guard, login, session handling, single-admin allowlist.
+*Verify:* unauthenticated `/admin` redirects; a non-allowlisted account cannot
+get in; **RLS is the real boundary, the route guard is defence in depth.**
+
+**Phase 8 — Admin portal**
+⚠️ **The admin portal design does not exist yet.** It gets its own design pass in
+Claude Design before this phase starts, producing a `docs/ADMIN-DESIGN-SPEC.md`.
+Do not improvise a UI.
+
+Functional requirements, independent of how it looks: CRUD for every entity,
+image upload to Storage, drag-to-reorder for anything with `sort_order`,
+validation, and optimistic updates. Same accessibility bar as the public site.
+
+**Phase 9 — Optional**
+Blog (on-site posts or Medium RSS), `/uses`, whatever still seems worth it.
+
+---
+
+## 7. Out of scope
+
+Contact form and inbox. Project detail routes. Case studies. i18n. Comments,
+guestbook, newsletter.
+
+---
+
+## 8. Working agreement
+
+- Plan before code. Every phase gets a short written plan and a verification
+  checklist, approved before implementation.
+- **No one-shotting.** One phase at a time, one task per conversation.
+- Use plan mode for anything touching more than two files.
+- Push back on decisions that look wrong rather than implementing them silently.
+- When something can't be verified, say so instead of guessing. "Matches the
+  design" is not a claim to make without actually comparing the two images.
+- Commit at the end of every phase.

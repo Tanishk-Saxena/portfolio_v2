@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F5F0E7;-webkit-font-smoothing:antialiased}
+  a{color:#B4532A;text-decoration:none}
+  a:hover{color:#23201C}
+  code{font-family:'IBM Plex Mono',monospace;font-size:.88em;background:#EDE6DA;padding:1px 5px;border-radius:3px}
+</style>
+</helmet>
+
+<div style="background:#F5F0E7;color:#23201C;font-family:'IBM Plex Sans',system-ui,sans-serif;min-height:100vh;padding:clamp(34px,6vw,76px) clamp(24px,5vw,56px)">
+  <div style="max-width:78ch;margin:0 auto">
+
+    <p style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#7A7268;margin:0 0 12px">Handoff — behaviour spec</p>
+    <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:clamp(32px,5vw,50px);line-height:1.12;margin:0 0 14px">Developer notes</h1>
+    <p style="font-size:16px;line-height:1.75;color:#7A7268;margin:0 0 10px;max-width:62ch">Behaviour that the static mockups cannot show. Screens live in <a href="Portfolio.dc.html">Portfolio</a> and <a href="Article.dc.html">Article</a>; <a href="Mobile preview.dc.html">Mobile preview</a> frames the page at 390×844 with the same controls.</p>
+    <p style="font-size:16px;line-height:1.75;color:#7A7268;margin:0 0 clamp(36px,5vw,56px);max-width:62ch">Numbers given here are the values used in the mockup, not requirements — keep the relationships, tune the constants.</p>
+
+    <sc-for list="{{ groups }}" as="g" hint-placeholder-count="7">
+      <section style="padding:clamp(22px,3vw,30px) 0;border-top:1px solid #DED5C6">
+        <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.6vw,27px);line-height:1.2;color:#B4532A;margin:0 0 18px">{{ g.title }}</h2>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+            <li style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:15px;line-height:1.7;color:#4A443C">
+              <span style="width:5px;height:5px;border-radius:50%;background:#B4532A;margin-top:10px"></span>
+              <span>{{ it }}</span>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-for>
+
+    <p style="margin:clamp(34px,5vw,52px) 0 0;padding-top:24px;border-top:1px solid #DED5C6;font-size:13px;color:#7A7268">Tanishk Saxena — portfolio, September 2026</p>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const GROUPS = [
+  { title: 'Routing', items: [
+    'Single-page scroll for the portfolio. Sections are in-page anchors: about, experience, projects, writing, skills, quotes, contact.',
+    'Articles are the only real route: /articles/[id]. The mockup stands in for this with Article.dc.html?id=[id].',
+    'Deep links into a list (for example #post-[id]) must expand the list far enough to contain that row, then scroll to it after render — the hash cannot resolve before the rows exist.'
+  ] },
+  { title: 'Signature intro', items: [
+    'Plays on a genuine page load of either route. Skipped when the visitor arrives from an internal link: set a session flag on click, consume it on arrival.',
+    'Letters reveal one at a time (~55ms apart) by fade and rise. Do not use a clip mask — script glyphs overhang their boxes and get sliced.',
+    'Measure the mark and its navbar slot after the webfont has loaded, then animate the transform between the two measured rects.',
+    'The hand-off is a single swap on the frame the flip lands: the large mark hides and the navbar mark shows at once. Cross-fading the two copies double-draws the strokes and reads as a flicker.',
+    'Clicking the navbar signature scrolls to top on the main page; from an article it returns to the top of the main page.'
+  ] },
+  { title: 'Floating navigation', items: [
+    'The menu button appears only after the hero has been scrolled past; back-to-top appears after roughly 420px.',
+    'Both are sticky, not fixed: they stop above the contact/footer separator instead of overlapping the footer line. The footer height is derived from the same offset the buttons use, so the rule passes through the centre of the gap between them at every width.',
+    'The menu opens on an arc centred on the button with a blurred curtain behind it; items travel out on a rotating arm so the motion spirals, and unwinds in reverse on close.',
+    'Labels sit below their icons. Escape or a tap on the curtain closes the menu.',
+    'The centre-wheel variant slides the button to the middle of the viewport and lays the items in a full circle around it.'
+  ] },
+  { title: 'Project modal', items: [
+    'Opening scales the card out of the row that was clicked — capture the clicked element rect and animate from it.',
+    'Fixed dimensions regardless of content: image beside the text on desktop, image above it on mobile. Content must fit without internal scrolling; trim the copy rather than letting the card grow.',
+    'Background scroll is locked by pinning the body at its current offset (position: fixed; top: -y). On close, restore the offset with smooth scrolling temporarily disabled, so the page never animates back.',
+    'The live and source icons on a card open their links directly and must not open the modal — stop propagation.',
+    'Escape, the close button, and the curtain all close it.'
+  ] },
+  { title: 'Lists and sections', items: [
+    'Projects and writing render three at a time; "Show more" appends three until the list is exhausted, then the button disappears.',
+    'A partial last row of project cards is centred, not left-aligned.',
+    'Experience rows expand to their measured content height, never to a fixed cap — a cap makes the motion finish early and feel abrupt.',
+    'The quote block rotates every seven seconds inside a fixed-height box so nothing below it shifts. Pause the rotation when the tab is hidden.'
+  ] },
+  { title: 'Interaction and motion', items: [
+    'Every button and link has a hover state and a pressed state that inverts its fill and text colour.',
+    'The scroll cue in the hero fades out after a few seconds or on the first scroll, whichever comes first.',
+    'Honour prefers-reduced-motion: skip the intro, the spiral, and the card scale, and keep the colour and opacity changes.',
+    'Hover-only affordances (the project card overlay) must be visible by default on touch devices.'
+  ] },
+  { title: 'Theming and options', items: [
+    'Light and dark share one accent. Derive the dark accent from the light one rather than hand-picking a second value.',
+    'Colour mode, accent, grain amount, nav position and menu style are all driven from a single theme object in the mockup — wire whichever you keep the same way instead of duplicating literals.',
+    'The paper grain is a fixed noise layer over the whole page, multiplying in light mode and screening in dark.',
+    'Article text-to-speech is optional and behind a flag; it reads the article body with the platform speech API and toggles to a stop state while playing.'
+  ] },
+  { title: 'Content still to supply', items: [
+    'Real résumé PDF, portrait, project screenshots, live and repository URLs.',
+    'Real role history, project write-ups and article bodies — all copy in the mockup is placeholder.',
+    'Social links and the contact address.'
+  ] }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return { groups: GROUPS };
+  }
+}
+</script>
+</body>
+</html>

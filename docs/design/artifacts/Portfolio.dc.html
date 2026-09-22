@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,300;1,6..72,400&family=IBM+Plex+Sans:wght@400;500&family=Caveat:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;-webkit-font-smoothing:antialiased;scrollbar-width:none}
+  body::-webkit-scrollbar,html::-webkit-scrollbar{width:0;height:0;display:none}
+  a{color:inherit;text-decoration:none}
+  a:hover{color:var(--accent,#2F5D72)}
+  ::selection{background:var(--accent,#2F5D72);color:#FDF8F0}
+  @keyframes charIn{from{opacity:0;transform:translateY(7px) rotate(-2deg)}to{opacity:1;transform:none}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes wheel{0%{transform:translateY(0);opacity:0}18%{opacity:1}68%{transform:translateY(15px);opacity:0}100%{transform:translateY(15px);opacity:0}}
+  @keyframes sigdraw{to{stroke-dashoffset:0}}
+</style>
+</helmet>
+
+<div style="{{ theme }}">
+<div style="position:relative;background:var(--paper,#F5F0E7);color:var(--ink,#23201C);font-family:'IBM Plex Sans',system-ui,sans-serif;min-height:100vh;transition:background-color .45s ease,color .45s ease;overflow-x:clip">
+
+  <div style="{{ grainStyle }}"></div>
+
+  <div style="{{ overlayStyle }}">
+    <div style="{{ overlayBgStyle }}"></div>
+    <div ref="{{ setBig }}" style="{{ bigSigStyle }}">
+      <div style="{{ writeStyle }}">
+        <span ref="{{ setBigText }}" style="{{ bigTextStyle }}"><sc-for list="{{ bigChars }}" as="c" hint-placeholder-count="14"><span style="{{ c.style }}">{{ c.ch }}</span></sc-for></span>
+        <svg viewBox="0 0 300 12" preserveAspectRatio="none" fill="none" style="width:100%;height:9px;margin-top:2px;overflow:visible">
+          <path pathLength="1" d="M4,7 C70,2 214,1 292,6 C298,6.5 299,9 290,10" stroke="var(--accent,#B4532A)" stroke-width="1.8" stroke-linecap="round" style="{{ strokeStyle }}"></path>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <header style="position:fixed;top:0;left:0;right:0;z-index:50;backdrop-filter:blur(10px);background:var(--paperFade,rgba(245,240,231,.8));border-bottom:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 62%);transition:background-color .45s ease">
+    <div style="width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;height:76px;display:flex;align-items:center;justify-content:space-between;gap:16px">
+      <a href="#hero" onClick="{{ toTop }}" ref="{{ setSlot }}" style="{{ slotStyle }}" aria-label="Top of page">
+        <span ref="{{ setSlotText }}" style="{{ slotTextStyle }}">Tanishk Saxena</span>
+        <svg viewBox="0 0 300 12" preserveAspectRatio="none" fill="none" style="width:100%;height:5px;margin-top:1px;overflow:visible">
+          <path d="M4,7 C70,2 214,1 292,6 C298,6.5 299,9 290,10" stroke="var(--accent,#B4532A)" stroke-width="2.6" stroke-linecap="round"></path>
+        </svg>
+      </a>
+      <button type="button" onClick="{{ toggleTheme }}" aria-label="Toggle colour mode" style="width:46px;height:46px;flex:none;border-radius:50%;border:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 55%);background:transparent;cursor:pointer;display:grid;place-items:center;padding:0;transition:border-color .3s ease,background-color .2s ease" style-hover="border-color:var(--accent,#2F5D72)" style-active="background:var(--accent,#2F5D72);border-color:var(--accent,#2F5D72)">
+        <span style="{{ dialStyle }}"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section id="hero" data-screen-label="Hero" style="position:relative;scroll-margin-top:76px;width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:116px 0 78px">
+      <p style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted,#7A7268);margin:0 0 28px;animation:fadeUp .8s cubic-bezier(.2,.85,.25,1) both;animation-delay:calc(var(--enter) + .05s)">Tanishk Saxena — SDE, Delhi</p>
+      <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:clamp(40px,7.4vw,92px);line-height:1.05;letter-spacing:-.02em;margin:0;max-width:16ch;text-wrap:pretty;animation:fadeUp .85s cubic-bezier(.2,.85,.25,1) both;animation-delay:calc(var(--enter) + .14s)">I build quiet, careful software for the <em style="{{ webStyle }}">web</em>.</h1>
+      <p style="font-size:clamp(16px,1.5vw,18px);line-height:1.75;color:var(--muted,#7A7268);max-width:52ch;margin:32px 0 0;animation:fadeUp .85s cubic-bezier(.2,.85,.25,1) both;animation-delay:calc(var(--enter) + .24s)">Six years turning tangled requirements into interfaces people can actually use. Currently working on developer tooling and design systems.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:44px;animation:fadeUp .85s cubic-bezier(.2,.85,.25,1) both;animation-delay:calc(var(--enter) + .34s)">
+        <a href="#" download style="display:inline-flex;align-items:center;gap:10px;height:50px;padding:0 24px;border-radius:999px;background:var(--accent,#2F5D72);color:#FDF8F0;font-size:15px;font-weight:500;border:1px solid var(--accent,#2F5D72);transition:transform .25s ease,opacity .25s ease,background-color .18s ease,color .18s ease" style-hover="transform:translateY(-2px);opacity:.92;color:#FDF8F0" style-active="background:var(--paper,#F5F0E7);color:var(--accent,#2F5D72);transform:translateY(0)">Download résumé
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v9m0 0 3.4-3.4M7 10 3.6 6.6M1.5 12.5h11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg>
+        </a>
+        <a href="#contact" style="display:inline-flex;align-items:center;height:50px;padding:0 24px;border-radius:999px;border:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 55%);font-size:15px;transition:border-color .25s ease,background-color .18s ease,color .18s ease" style-hover="border-color:var(--accent,#2F5D72)" style-active="background:var(--accent,#2F5D72);border-color:var(--accent,#2F5D72);color:#FDF8F0">Get in touch</a>
+      </div>
+      <div style="{{ cueStyle }}">
+        <svg width="26" height="42" viewBox="0 0 26 42" fill="none">
+          <rect x="1" y="1" width="24" height="40" rx="12" stroke="currentColor" stroke-width="1.4"></rect>
+          <rect x="11.6" y="8" width="2.8" height="7" rx="1.4" fill="currentColor" style="animation:wheel 1.9s cubic-bezier(.4,0,.3,1) infinite"></rect>
+        </svg>
+        <span style="font-size:10px;letter-spacing:.18em;text-transform:uppercase">Scroll</span>
+      </div>
+    </section>
+
+    <section id="about" data-screen-label="About" style="scroll-margin-top:76px;background:var(--accent,#2F5D72);padding:clamp(76px,12vh,140px) 0;transition:background-color .45s ease">
+      <div style="width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;--ink:#FDF8F0;--muted:rgba(253,248,240,.88);--paper2:rgba(253,248,240,.13);--accent:#FDF8F0;color:#FDF8F0">
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.5vw,28px);line-height:1;color:var(--accent,#2F5D72);margin:0 0 42px">About</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:clamp(30px,5vw,72px);align-items:start">
+        <div style="aspect-ratio:4/5;background:var(--paper2,#EDE6DA);border:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 62%);border-radius:3px;display:grid;place-items:center;max-width:360px">
+          <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted,#7A7268)">Portrait</span>
+        </div>
+        <div style="max-width:60ch">
+          <p style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:clamp(23px,3vw,34px);line-height:1.35;margin:0 0 28px;text-wrap:pretty">I care about the unglamorous parts: the empty state, the error copy, the second render.</p>
+          <p style="font-size:16px;line-height:1.8;color:var(--muted,#7A7268);margin:0 0 20px">I started out writing Django views for a logistics company and stayed because I liked watching people use the thing I made. Since then I have worked mostly at the seam between design and engineering — building component libraries, arguing about spacing scales, and shipping the boring infrastructure that makes a product feel fast.</p>
+          <p style="font-size:16px;line-height:1.8;color:var(--muted,#7A7268);margin:0">Away from the editor I read a lot of non-fiction, run slowly, and keep a notebook of interfaces I wish existed. If you are building something thoughtful, I would like to hear about it.</p>
+        </div>
+      </div>
+      </div>
+    </section>
+
+    <section id="experience" data-screen-label="Experience" style="scroll-margin-top:76px;width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;padding:clamp(72px,11vh,132px) 0;border-top:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 52%)">
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.5vw,28px);line-height:1;color:var(--accent,#2F5D72);margin:0 0 42px">Experience</h2>
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
+          <div style="border-top:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 68%)">
+            <button type="button" onClick="{{ r.toggle }}" aria-expanded="{{ r.expanded }}" style="{{ r.headStyle }}" style-active="background:color-mix(in oklab, var(--accent,#B4532A), transparent 88%)">
+              <span style="{{ r.metaStyle }}">
+                <span style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.4vw,27px);line-height:1.2">{{ r.role }}</span>
+                <span style="font-size:14px;color:var(--muted,#7A7268)">{{ r.company }}</span>
+              </span>
+              <span style="font-size:13px;letter-spacing:.06em;color:var(--accent,#2F5D72);font-variant-numeric:tabular-nums;white-space:nowrap">{{ r.years }}</span>
+              <span style="{{ r.caretStyle }}">
+                <svg width="11" height="7" viewBox="0 0 11 7" fill="none"><path d="M1 1.2 5.5 5.6 10 1.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+              </span>
+            </button>
+            <div ref="{{ r.setBody }}" style="{{ r.bodyStyle }}">
+              <div style="min-height:0;overflow:hidden">
+                <p style="font-size:15px;line-height:1.75;color:var(--muted,#7A7268);margin:0;padding:0 0 26px;max-width:62ch">{{ r.note }}</p>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="projects" data-screen-label="Projects" style="scroll-margin-top:76px;width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;padding:clamp(72px,11vh,132px) 0;border-top:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 52%)">
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.5vw,28px);line-height:1;color:var(--accent,#2F5D72);margin:0 0 42px">Projects</h2>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(16px,2.4vw,26px)">
+        <sc-for list="{{ projects }}" as="p" hint-placeholder-count="3">
+          <div onClick="{{ p.open }}" onMouseEnter="{{ p.enter }}" onMouseLeave="{{ p.leave }}" role="button" tabindex="0" style="{{ p.cardStyle }}">
+            <div style="{{ p.shotStyle }}">
+              <span style="{{ p.holderStyle }}">Project image</span>
+            </div>
+            <div style="{{ p.veilStyle }}"></div>
+            <div style="{{ p.linksStyle }}">
+              <a href="{{ p.live }}" onClick="{{ p.stop }}" target="_blank" rel="noreferrer" aria-label="Live site" style="{{ p.iconStyle }}" style-active="background:var(--accent,#B4532A);color:#FDF8F0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.5"></circle><path d="M3.6 12h16.8M12 3.6c2.2 2.3 3.3 5.2 3.3 8.4S14.2 18.1 12 20.4c-2.2-2.3-3.3-5.2-3.3-8.4S9.8 5.9 12 3.6z" stroke="currentColor" stroke-width="1.5"></path></svg>
+              </a>
+              <a href="{{ p.repo }}" onClick="{{ p.stop }}" target="_blank" rel="noreferrer" aria-label="Source" style="{{ p.iconStyle }}" style-active="background:var(--accent,#B4532A);color:#FDF8F0">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2a9.8 9.8 0 0 0-3.1 19.1c.5.1.7-.2.7-.5v-1.8c-2.7.6-3.3-1.3-3.3-1.3-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.2-4.5-1.1-4.5-4.9 0-1.1.4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.5 1 2.6 0 3.8-2.3 4.6-4.5 4.9.4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5A9.8 9.8 0 0 0 12 2.2z"></path></svg>
+              </a>
+            </div>
+            <div style="{{ p.capStyle }}">
+              <span style="{{ p.nameStyle }}">{{ p.name }}</span>
+              <span style="{{ p.kindStyle }}">{{ p.kind }} — {{ p.year }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ moreProjects }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;justify-content:center;margin-top:clamp(26px,4vw,38px)">
+          <button type="button" onClick="{{ showMoreProjects }}" style="{{ moreBtnStyle }}" style-active="background:var(--accent,#B4532A);color:#FDF8F0;border-color:var(--accent,#B4532A)">{{ moreProjectsLabel }}</button>
+        </div>
+      </sc-if>
+    </section>
+
+    <section id="writing" data-screen-label="Writing" style="scroll-margin-top:76px;width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;padding:clamp(72px,11vh,132px) 0;border-top:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 52%)">
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.5vw,28px);line-height:1;color:var(--accent,#2F5D72);margin:0 0 42px">Writing</h2>
+      <div style="display:flex;flex-direction:column">
+        <sc-for list="{{ posts }}" as="w" hint-placeholder-count="3">
+          <a href="{{ w.href }}" id="{{ w.anchor }}" onClick="{{ w.go }}" style="scroll-margin-top:120px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 20px;padding:24px 16px 24px 0;border-top:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 68%);transition:padding-left .3s ease,background-color .3s ease" style-hover="padding-left:16px;background:var(--paper2,#EDE6DA);color:inherit" style-active="background:color-mix(in oklab, var(--accent,#B4532A), transparent 86%)">
+            <h3 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(20px,2.3vw,26px);margin:0;line-height:1.25;max-width:34ch">{{ w.title }}</h3>
+            <span style="font-size:13px;color:var(--muted,#7A7268)">{{ w.read }}</span>
+            <span style="margin-left:auto;font-size:13px;color:var(--muted,#7A7268);font-variant-numeric:tabular-nums">{{ w.date }}</span>
+          </a>
+        </sc-for>
+      </div>
+      <sc-if value="{{ morePosts }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;justify-content:center;margin-top:clamp(26px,4vw,38px)">
+          <button type="button" onClick="{{ showMorePosts }}" style="{{ moreBtnStyle }}" style-active="background:var(--accent,#B4532A);color:#FDF8F0;border-color:var(--accent,#B4532A)">{{ morePostsLabel }}</button>
+        </div>
+      </sc-if>
+    </section>
+
+    <section id="skills" data-screen-label="Skills" style="scroll-margin-top:76px;width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;padding:clamp(72px,11vh,132px) 0;border-top:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 52%)">
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.5vw,28px);line-height:1;color:var(--accent,#2F5D72);margin:0 0 42px">Skills</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(146px,1fr));gap:clamp(30px,5vw,40px) clamp(22px,4vw,48px)">
+        <sc-for list="{{ skills }}" as="g" hint-placeholder-count="4">
+          <div>
+            <h4 style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted,#7A7268);margin:0 0 18px;font-weight:500">{{ g.title }}</h4>
+            <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:11px">
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+                <li style="font-family:Newsreader,Georgia,serif;font-size:19px;font-weight:300;line-height:1.3">{{ it }}</li>
+              </sc-for>
+            </ul>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+
+    <section id="quotes" data-screen-label="Quotes" style="scroll-margin-top:76px;width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;padding:clamp(72px,11vh,132px) 0;border-top:1px solid color-mix(in oklab, var(--accent,#B4532A), transparent 52%)">
+      <div style="max-width:44ch;margin:0 auto;text-align:center">
+        <div style="font-family:Newsreader,Georgia,serif;font-size:clamp(54px,8vw,86px);line-height:.6;color:var(--accent,#B4532A);height:.42em">“</div>
+        <div style="{{ quoteBoxStyle }}">
+          <sc-for list="{{ quotes }}" as="q" hint-placeholder-count="5">
+            <figure style="{{ q.figStyle }}">
+              <blockquote style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:clamp(22px,3.2vw,34px);line-height:1.45;margin:0;text-wrap:pretty">{{ q.text }}</blockquote>
+              <figcaption style="margin-top:22px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent,#B4532A)">{{ q.who }}</figcaption>
+            </figure>
+          </sc-for>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" data-screen-label="Contact" style="scroll-margin-top:76px;background:var(--accent,#2F5D72);padding:clamp(76px,12vh,140px) 0 clamp(72px,10vh,110px);transition:background-color .45s ease">
+      <div style="width:min(1140px,100% - clamp(28px,5.2vw,44px));margin:0 auto;--ink:#FDF8F0;--muted:rgba(253,248,240,.88);--paper2:rgba(253,248,240,.13);--accent:#FDF8F0;color:#FDF8F0">
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.5vw,28px);line-height:1;color:var(--accent,#2F5D72);margin:0 0 42px">Contact</h2>
+      <h2 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:clamp(32px,5.4vw,64px);line-height:1.1;letter-spacing:-.015em;margin:0;max-width:18ch;text-wrap:pretty">Tell me what you are building.</h2>
+      <a href="mailto:hello@example.com" style-active="color:var(--accent,#B4532A)" style="display:inline-block;font-family:Newsreader,Georgia,serif;font-size:clamp(22px,3vw,32px);margin-top:36px;color:var(--accent,#2F5D72);border-bottom:1px solid color-mix(in oklab, var(--accent,#2F5D72), transparent 55%);padding-bottom:4px;transition:border-color .3s ease" style-hover="border-color:var(--accent,#2F5D72)">hello@example.com</a>
+      <div style="display:flex;flex-wrap:wrap;gap:28px;margin-top:52px;font-size:15px;color:var(--muted,#7A7268)">
+        <a href="#">GitHub</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">Read.cv</a>
+        <a href="#">X</a>
+      </div>
+      </div>
+    </section>
+  </main>
+
+  <footer style="{{ footerStyle }}">
+    <span>Designed and built in Delhi</span>
+    <span>© 2026 Tanishk Saxena</span>
+  </footer>
+
+  <div onClick="{{ closeProject }}" style="{{ pCurtainStyle }}"></div>
+  <div style="{{ pStageStyle }}">
+    <div style="{{ pCardStyle }}">
+      <button type="button" onClick="{{ closeProject }}" aria-label="Close" style="{{ pCloseStyle }}" style-active="background:var(--ink,#23201C);color:var(--paper,#F5F0E7)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+      </button>
+      <div style="{{ pShotStyle }}">
+        <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted,#7A7268)">Project image</span>
+      </div>
+      <div style="{{ pBodyStyle }}">
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px">
+          <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent,#B4532A)">{{ pKind }}</span>
+          <span style="margin-left:auto;font-size:12px;color:var(--muted,#7A7268);font-variant-numeric:tabular-nums">{{ pYear }}</span>
+        </div>
+        <h3 style="{{ pTitleStyle }}">{{ pName }}</h3>
+        <p style="{{ pNoteStyle }}">{{ pAbout }}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ pTags }}" as="t" hint-placeholder-count="3">
+            <span style="{{ t.style }}">{{ t.label }}</span>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:4px">
+          <a href="{{ pLive }}" target="_blank" rel="noreferrer" style="{{ pLiveStyle }}" style-active="background:var(--paper,#F5F0E7);color:var(--accent,#B4532A)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.4" stroke="currentColor" stroke-width="1.5"></circle><path d="M3.6 12h16.8M12 3.6c2.2 2.3 3.3 5.2 3.3 8.4S14.2 18.1 12 20.4c-2.2-2.3-3.3-5.2-3.3-8.4S9.8 5.9 12 3.6z" stroke="currentColor" stroke-width="1.5"></path></svg>
+            Live site
+          </a>
+          <a href="{{ pRepo }}" target="_blank" rel="noreferrer" style="{{ pRepoStyle }}" style-active="background:var(--ink,#23201C);color:var(--paper,#F5F0E7)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2a9.8 9.8 0 0 0-3.1 19.1c.5.1.7-.2.7-.5v-1.8c-2.7.6-3.3-1.3-3.3-1.3-.5-1.1-1.1-1.4-1.1-1.4-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.3 1.1 2.9.8.1-.6.3-1.1.6-1.3-2.2-.2-4.5-1.1-4.5-4.9 0-1.1.4-1.9 1-2.6-.1-.3-.4-1.3.1-2.6 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 4.9 0c1.9-1.3 2.7-1 2.7-1 .5 1.3.2 2.3.1 2.6.6.7 1 1.5 1 2.6 0 3.8-2.3 4.6-4.5 4.9.4.3.7.9.7 1.8v2.7c0 .3.2.6.7.5A9.8 9.8 0 0 0 12 2.2z"></path></svg>
+            Source
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div onClick="{{ closeNav }}" style="{{ curtainStyle }}"></div>
+
+  <div style="{{ dockWrapStyle }}">
+  <div style="{{ dockStyle }}">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="7">
+      <div style="{{ n.pivotStyle }}">
+        <div style="{{ n.armStyle }}">
+          <div style="{{ n.nodeStyle }}">
+            <a href="{{ n.href }}" onClick="{{ closeNav }}" aria-label="{{ n.label }}" style="{{ n.dotStyle }}" style-active="background:var(--accent,#B4532A);color:#FDF8F0">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="{{ n.d }}" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            </a>
+            <span style="{{ n.labelStyle }}">{{ n.label }}</span>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+    <button type="button" onClick="{{ scrollTop }}" aria-label="Back to top" style="{{ topStyle }}" style-active="background:var(--accent,#B4532A);color:#FDF8F0;border-color:var(--accent,#B4532A)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V6M6.2 11.6 12 5.8l5.8 5.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+    <button type="button" onClick="{{ toggleNav }}" aria-label="Jump to section" style="{{ fabStyle }}" style-active="background:var(--paper,#F5F0E7);color:var(--ink,#23201C)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" style="{{ fabIconStyle }}"><path d="{{ fabIcon }}" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+    </button>
+  </div>
+  </div>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#B4532A&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;options&quot;:[&quot;#B4532A&quot;,&quot;#2F5D72&quot;]},&quot;grain&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:6,&quot;min&quot;:0,&quot;max&quot;:24,&quot;step&quot;:1,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Texture&quot;},&quot;fabPosition&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Bottom right&quot;,&quot;Bottom centre&quot;],&quot;default&quot;:&quot;Bottom right&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Navigation&quot;},&quot;menuStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Arc&quot;,&quot;Centre wheel&quot;],&quot;default&quot;:&quot;Arc&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Navigation&quot;},&quot;signatureTilt&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:-4,&quot;min&quot;:-10,&quot;max&quot;:4,&quot;step&quot;:0.5,&quot;unit&quot;:&quot;deg&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Signature&quot;},&quot;introEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Signature&quot;}}">
+const SECTIONS = [
+  { id: 'about', label: 'About', d: 'M12 12.2a3.6 3.6 0 1 0 0-7.2 3.6 3.6 0 0 0 0 7.2M4.9 19.4c.7-3.3 3.5-5.1 7.1-5.1s6.4 1.8 7.1 5.1' },
+  { id: 'experience', label: 'Experience', d: 'M4 8.6h16v10.2H4zM9 8.6V6.3c0-.9.7-1.6 1.6-1.6h2.8c.9 0 1.6.7 1.6 1.6v2.3M4 12.8h16' },
+  { id: 'projects', label: 'Projects', d: 'M5 5.2h5.6v5.6H5zM13.4 5.2H19v5.6h-5.6zM5 13.4h5.6V19H5zM13.4 13.4H19V19h-5.6z' },
+  { id: 'writing', label: 'Writing', d: 'M5 19.2h14M6.6 15.4 15.7 6.3a1.7 1.7 0 0 1 2.4 2.4L9 17.8l-3.3.8z' },
+  { id: 'skills', label: 'Skills', d: 'M12 4.6 20 9.1l-8 4.5-8-4.5zM4 14.1l8 4.5 8-4.5' },
+  { id: 'contact', label: 'Contact', d: 'M4.2 6.6h15.6v10.8H4.2zM4.8 7.2 12 12.6l7.2-5.4' }
+];
+const QUOTES = [
+  ['Simplicity is prerequisite for reliability.', 'Edsger W. Dijkstra'],
+  ['Programs must be written for people to read, and only incidentally for machines to execute.', 'Harold Abelson'],
+  ['Premature optimization is the root of all evil.', 'Donald Knuth'],
+  ['Design is not just what it looks like and feels like. Design is how it works.', 'Steve Jobs'],
+  ['Talk is cheap. Show me the code.', 'Linus Torvalds'],
+  ['Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', 'Martin Fowler']
+];
+const ROLES = [
+  { role: 'Senior Frontend Engineer', company: 'Northwind Labs', years: '2023 — now', note: 'Own the design system and the editor surface. Cut first-paint by half and made the component API something designers can read.' },
+  { role: 'Product Engineer', company: 'Kettle', years: '2021 — 2023', note: 'Second engineering hire. Built the billing flow, the onboarding, and most of the internal tooling that replaced it.' },
+  { role: 'Software Engineer', company: 'Gravel Logistics', years: '2019 — 2021', note: 'Django and a lot of spreadsheets. Learned to ask what the operations team actually does before shipping anything.' }
+];
+const PROJECTS = [
+  { name: 'Marginalia', kind: 'Open source', year: '2025',
+    note: 'A margin-notes layer for documentation sites. 2.1k stars and a surprising amount of email.',
+    about: 'Readers highlight a passage and leave a note in the margin; maintainers see every note as a queue. A 9kb script with no framework dependency, now running on a few hundred documentation sites.',
+    tags: ['TypeScript', 'Web Components', 'Postgres'], live: '#', repo: '#' },
+  { name: 'Slowtype', kind: 'Side project', year: '2024',
+    note: 'A writing app that only shows you the current paragraph. Built in a weekend, still use it daily.',
+    about: 'A writing app that shows only the paragraph you are working on and dims the rest. Local-first, no account, clean Markdown out. A weekend experiment in removing features that I still draft in daily.',
+    tags: ['React', 'IndexedDB', 'Rust'], live: '#', repo: '#' },
+  { name: 'Tidepool', kind: 'Client work', year: '2023',
+    note: 'Realtime dashboard for a coastal research group. Charts that stay legible on a boat.',
+    about: 'A realtime dashboard for a coastal research group tracking buoy telemetry. Built for direct sun on a moving boat: high contrast, touch-first, and still useful on an intermittent connection.',
+    tags: ['Svelte', 'Go', 'TimescaleDB'], live: '#', repo: '#' },
+  { name: 'Halfstep', kind: 'Side project', year: '2023',
+    note: 'A metronome that follows your playing instead of the other way round.',
+    about: 'A metronome that listens and follows your tempo instead of forcing one on you. Onset detection runs in a worklet so the click never drifts, and it works offline on a phone in a practice room.',
+    tags: ['Web Audio', 'Rust', 'WASM'], live: '#', repo: '#' },
+  { name: 'Paperweight', kind: 'Open source', year: '2022',
+    note: 'A static site generator that outputs a single HTML file.',
+    about: 'A static site generator that emits one self-contained HTML file: styles, fonts and images inlined. Built for documentation that has to survive being emailed around as an attachment.',
+    tags: ['Node', 'Markdown', 'Esbuild'], live: '#', repo: '#' },
+  { name: 'Northbound', kind: 'Client work', year: '2022',
+    note: 'Route planning for a regional logistics operator, rebuilt around the dispatcher.',
+    about: 'Route planning rebuilt around how dispatchers actually work: keyboard first, every action undoable, and a map that stays responsive with four thousand stops on screen.',
+    tags: ['React', 'Python', 'PostGIS'], live: '#', repo: '#' },
+  { name: 'Fieldnote', kind: 'Open source', year: '2021',
+    note: 'An offline-first notebook for survey teams working without signal.',
+    about: 'An offline-first notebook for survey teams working without signal. Conflict resolution happens on the device, so two people editing the same record in the field merge cleanly when they reconnect.',
+    tags: ['CRDT', 'Svelte', 'SQLite'], live: '#', repo: '#' }
+];
+const POSTS = [
+  { id: 'second-render', title: 'The second render is the one users feel', read: '6 min', date: 'Aug 2026' },
+  { id: 'error-copy', title: 'Notes on writing error copy that helps', read: '4 min', date: 'May 2026' },
+  { id: 'spacing-scale', title: 'A spacing scale you can defend in review', read: '9 min', date: 'Feb 2026' },
+  { id: 'design-systems', title: 'Design systems die in the gap between the two teams', read: '7 min', date: 'Nov 2025' },
+  { id: 'code-review', title: 'What I look for first in a code review', read: '5 min', date: 'Sep 2025' },
+  { id: 'side-projects', title: 'Finishing things: a short defence of the small project', read: '3 min', date: 'Jun 2025' },
+  { id: 'empty-states', title: 'The empty state is the first screen most people see', read: '6 min', date: 'Mar 2025' },
+  { id: 'estimates', title: 'Why my estimates got better when they got vaguer', read: '4 min', date: 'Dec 2024' },
+  { id: 'typography-ui', title: 'Reading the interface: type choices that carry weight', read: '8 min', date: 'Oct 2024' },
+  { id: 'first-90-days', title: 'Notes from ninety days on an unfamiliar codebase', read: '5 min', date: 'Jul 2024' }
+];
+const PAGE = 3;
+function nPostsFor(i) { return Math.ceil((i + 1) / PAGE) * PAGE; }
+const CLOSE_ICON = 'M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4';
+
+class Component extends DCLogic {
+  state = { dark: false, phase: 0, tf: null, navOpen: false, active: 'hero', showTop: false, qi: 0, openIdx: null, modalIn: false, exp: {}, hover: null, narrow: false, nProjects: PAGE, nPosts: PAGE, cue: true, rowH: {}, past: false };
+
+  opt(name, dflt) {
+    try {
+      const u = new URLSearchParams(window.location.search).get(name);
+      if (u != null && u !== '') {
+        if (u === 'true') return true;
+        if (u === 'false') return false;
+        return isNaN(Number(u)) ? u : Number(u);
+      }
+    } catch (e) {}
+    const v = this.props[name];
+    return (v == null || v === '') ? dflt : v;
+  }
+
+  componentDidMount() {
+    let internal = false;
+    try {
+      internal = sessionStorage.getItem('ts-internal') === '1';
+      if (internal) sessionStorage.setItem('ts-internal', '0');
+    } catch (e) {}
+    if (this.opt('introEnabled', true) === false || internal) this.setState({ phase: 2 });
+    else {
+      const start = () => { this.t1 = setTimeout(() => this.flip(), 2050); };
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(start); else start();
+    }
+
+    this.onScroll = () => {
+      if (this.raf) return;
+      this.raf = requestAnimationFrame(() => {
+        this.raf = null;
+        if (this.lockY != null) return;
+        const mid = window.scrollY + window.innerHeight / 2;
+        let id = SECTIONS[0].id;
+        SECTIONS.forEach((s) => {
+          const el = document.getElementById(s.id);
+          if (el && el.offsetTop <= mid) id = s.id;
+        });
+        if (window.scrollY > 40 && this.state.cue) this.setState({ cue: false });
+        const hero = document.getElementById('hero');
+        const past = hero ? window.scrollY > hero.offsetHeight - 140 : window.scrollY > 420;
+        if (past !== this.state.past) this.setState({ past: past });
+        const st = past;
+        if (id !== this.state.active || st !== this.state.showTop) this.setState({ active: id, showTop: st });
+      });
+    };
+    this.qTimer = setInterval(() => {
+      if (document.hidden) return;
+      this.setState((s) => ({ qi: (s.qi + 1) % QUOTES.length }));
+    }, 7000);
+    this.onKey = (e) => {
+      if (e.key !== 'Escape') return;
+      if (this.state.openIdx != null) this.closeProject();
+      else if (this.state.navOpen) this.setState({ navOpen: false });
+    };
+    this.onResize = () => {
+      this.vh = window.innerHeight;
+      const n = window.innerWidth < 760;
+      if (n !== this.state.narrow) this.setState({ narrow: n });
+    };
+    this.onResize();
+    this.cueTimer = setTimeout(() => this.setState({ cue: false }), 8200);
+    window.addEventListener('resize', this.onResize);
+    window.addEventListener('keydown', this.onKey);
+    const hash = window.location.hash;
+    if (hash.indexOf('#post-') === 0) {
+      const idx = POSTS.findIndex((w) => 'post-' + w.id === hash.slice(1));
+      if (idx >= 0) this.setState({ nPosts: Math.max(PAGE, nPostsFor(idx)) });
+    }
+    if (hash && hash !== '#hero') {
+      const land = (tries) => {
+        const el = document.querySelector(hash);
+        if (el) {
+          const h = document.documentElement;
+          const prev = h.style.scrollBehavior;
+          h.style.scrollBehavior = 'auto';
+          window.scrollTo(0, el.getBoundingClientRect().top + window.scrollY - 104);
+          h.style.scrollBehavior = prev;
+          return;
+        }
+        if (tries > 0) this.hashTimer = setTimeout(() => land(tries - 1), 120);
+      };
+      this.hashTimer = setTimeout(() => land(12), 140);
+    }
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('resize', this.onScroll);
+    this.onScroll();
+  }
+
+  lockScroll(on) {
+    const b = document.body;
+    if (on) {
+      if (this.lockY != null) return;
+      this.lockY = window.scrollY;
+      b.style.position = 'fixed';
+      b.style.top = -this.lockY + 'px';
+      b.style.left = '0';
+      b.style.right = '0';
+      b.style.width = '100%';
+    } else {
+      if (this.lockY == null) return;
+      const y = this.lockY;
+      this.lockY = null;
+      b.style.position = '';
+      b.style.top = '';
+      b.style.left = '';
+      b.style.right = '';
+      b.style.width = '';
+      const h = document.documentElement;
+      const prev = h.style.scrollBehavior;
+      h.style.scrollBehavior = 'auto';
+      window.scrollTo(0, y);
+      h.style.scrollBehavior = prev;
+    }
+  }
+
+  openProject(i, e) {
+    if (e) { e.preventDefault(); }
+    const r = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : null;
+    this.from = r ? {
+      dx: Math.round(r.left + r.width / 2 - window.innerWidth / 2),
+      dy: Math.round(r.top + r.height / 2 - window.innerHeight / 2),
+      s: Math.max(.22, Math.min(.8, r.height / Math.min(window.innerHeight * .8, 620)))
+    } : { dx: 0, dy: 40, s: .8 };
+    this.lockScroll(true);
+    this.setState({ openIdx: i, modalIn: false });
+    requestAnimationFrame(() => requestAnimationFrame(() => this.setState({ modalIn: true })));
+  }
+
+  closeProject() {
+    this.lockScroll(false);
+    this.setState({ modalIn: false });
+    this.t3 = setTimeout(() => this.setState({ openIdx: null }), 320);
+  }
+
+  componentWillUnmount() {
+    clearTimeout(this.t1); clearTimeout(this.t2); clearTimeout(this.t3); clearTimeout(this.cueTimer); clearTimeout(this.hashTimer); clearInterval(this.qTimer);
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.lockScroll(false);
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('keydown', this.onKey);
+    window.removeEventListener('scroll', this.onScroll);
+    window.removeEventListener('resize', this.onScroll);
+  }
+
+  flip() {
+    const w = this.big, bt = this.bigText, st = this.slotText;
+    if (!w || !bt || !st) { this.setState({ phase: 2 }); return; }
+    const rw = w.getBoundingClientRect(), rb = bt.getBoundingClientRect(), rs = st.getBoundingClientRect();
+    if (!rb.width || !rs.width) { this.setState({ phase: 2 }); return; }
+    const k = rs.width / rb.width;
+    const tx = rs.left - (rw.left + (rb.left - rw.left) * k);
+    const ty = rs.top - (rw.top + (rb.top - rw.top) * k);
+    this.setState({ phase: 1, tf: 'translate(' + tx.toFixed(2) + 'px,' + ty.toFixed(2) + 'px) scale(' + k.toFixed(4) + ')' });
+    this.t2 = setTimeout(() => this.setState({ phase: 2 }), 990);
+  }
+
+  palette() {
+    const accent = this.opt('accent', '#B4532A');
+    return this.state.dark
+      ? { paper: '#191714', paper2: '#221F1A', paperFade: 'rgba(25,23,20,.8)', ink: '#EDE7DB', muted: '#938A7D', accent: 'color-mix(in oklab, ' + accent + ', white 16%)' }
+      : { paper: '#F5F0E7', paper2: '#EDE6DA', paperFade: 'rgba(245,240,231,.8)', ink: '#23201C', muted: '#7A7268', accent: accent };
+  }
+
+  renderVals() {
+    const p = this.palette();
+    const { phase, navOpen, active, dark, showTop } = this.state;
+    const tilt = this.opt('signatureTilt', -4);
+    const NAME = 'Tanishk Saxena';
+    const sigFont = { fontFamily: "'Caveat',cursive", fontWeight: 600, lineHeight: .95, whiteSpace: 'nowrap', color: p.ink };
+    const activeIdx = Math.max(0, SECTIONS.findIndex((s) => s.id === active));
+    const atRight = this.opt('fabPosition', 'Bottom right') === 'Bottom right';
+    const wheel = this.opt('menuStyle', 'Arc') === 'Centre wheel';
+    const grain = Number(this.opt('grain', 5.5));
+    const qi = this.state.qi;
+    const exp = this.state.exp;
+    const openIdx = this.state.openIdx;
+    const modalIn = this.state.modalIn;
+    const open = openIdx != null;
+    const cur = PROJECTS[openIdx == null ? 0 : openIdx];
+    const fr = this.from || { dx: 0, dy: 40, s: .8 };
+    const narrow = this.state.narrow;
+    const hover = this.state.hover;
+    const cardW = narrow ? 'min(100%,420px)' : '880px';
+    const cardH = narrow ? '600px' : '420px';
+    const nProjects = this.state.nProjects;
+    const nPosts = this.state.nPosts;
+    const ringR = wheel ? 150 : (narrow ? 250 : 334);
+    const arcFrom = atRight ? -177 : -158;
+    const arcTo = atRight ? -93 : -22;
+    const off = 'clamp(16px,3.4vw,34px)';
+    const toCentre = 'translate(' + (atRight ? 'calc(-50vw + ' + off + ' + 29px)' : '0px') + ', calc(-50vh + ' + off + ' + 29px))';
+
+    return {
+      footerStyle: {
+        width: 'min(1140px,100% - clamp(28px,5.2vw,44px))', margin: '0 auto',
+        minHeight: 'calc(' + off + ' + 96px)', padding: 0,
+        paddingRight: 0,
+        display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px 12px',
+        justifyContent: 'space-between', fontSize: '13px', color: p.muted
+      },
+      toTop: (e) => { if (e) e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); },
+      cueStyle: {
+        position: 'absolute', left: '50%', marginLeft: '-30px', width: '60px', bottom: 'clamp(22px,4vh,38px)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px',
+        color: p.muted, pointerEvents: 'none',
+        opacity: (this.state.cue && phase >= 2) ? 1 : 0,
+        transform: (this.state.cue && phase >= 2) ? 'translateY(0)' : 'translateY(12px)',
+        transition: 'opacity .6s ease, transform .6s cubic-bezier(.2,.85,.25,1)'
+      },
+      moreProjects: PROJECTS.length > nProjects,
+      moreProjectsLabel: 'Show more',
+      showMoreProjects: () => this.setState((s) => ({ nProjects: s.nProjects + PAGE })),
+      morePosts: POSTS.length > nPosts,
+      morePostsLabel: 'Show more',
+      showMorePosts: () => this.setState((s) => ({ nPosts: s.nPosts + PAGE })),
+      moreBtnStyle: {
+        appearance: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '12px',
+        letterSpacing: '.13em', textTransform: 'uppercase',
+        height: '46px', padding: '0 24px', borderRadius: '999px',
+        background: 'transparent', color: p.ink,
+        border: '1px solid color-mix(in oklab, ' + p.accent + ', transparent 55%)',
+        transition: 'background .2s ease, color .2s ease, border-color .2s ease'
+      },
+      grainStyle: {
+        position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none',
+        opacity: Math.max(0, grain) / 100,
+        backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+        backgroundSize: '190px 190px',
+        mixBlendMode: dark ? 'screen' : 'multiply'
+      },
+      quoteBoxStyle: {
+        position: 'relative', height: 'clamp(215px,24vw,240px)'
+      },
+      quotes: QUOTES.map((q, i) => ({
+        i: i, text: q[0], who: q[1],
+        figStyle: {
+          position: 'absolute', inset: 0,
+          margin: 0, display: 'grid', alignContent: 'center', color: p.ink,
+          opacity: i === qi ? 1 : 0,
+          transform: i === qi ? 'translateY(0)' : 'translateY(10px)',
+          transition: 'opacity .7s ease, transform .7s cubic-bezier(.2,.85,.25,1)',
+          pointerEvents: 'none'
+        },
+        select: () => this.setState({ qi: i }),
+        dotStyle: {
+          appearance: 'none', border: 0, background: 'transparent', cursor: 'pointer',
+          width: '34px', height: '44px', padding: 0, display: 'grid', placeItems: 'center'
+        },
+        dotInner: {
+          display: 'block', height: '2px', borderRadius: '2px',
+          width: i === qi ? '22px' : '10px',
+          background: i === qi ? p.accent : 'color-mix(in oklab, ' + p.ink + ', transparent 72%)',
+          transition: 'width .4s cubic-bezier(.2,.85,.25,1), background .3s ease'
+        }
+      })),
+      theme: {
+        '--paper': p.paper, '--paper2': p.paper2, '--paperFade': p.paperFade,
+        '--ink': p.ink, '--muted': p.muted, '--accent': p.accent,
+        '--enter': phase >= 2 ? '0.05s' : '2.3s'
+      },
+      bigTextStyle: Object.assign({}, sigFont, { fontSize: 'clamp(54px,12.5vw,104px)', display: 'inline-block' }),
+      slotTextStyle: Object.assign({}, sigFont, { fontSize: '31px', display: 'block' }),
+      bigChars: Array.from(NAME).map((ch, i) => ({
+        ch: ch === ' ' ? '\u00A0' : ch,
+        style: {
+          display: 'inline-block', whiteSpace: 'pre', opacity: 0,
+          animation: 'charIn .34s cubic-bezier(.3,.7,.3,1) ' + (0.055 * i).toFixed(3) + 's forwards'
+        }
+      })),
+      strokeStyle: { strokeDasharray: 1, strokeDashoffset: 1, animation: 'sigdraw .55s ease-out 1.02s forwards' },
+      webStyle: {
+        fontStyle: 'normal', fontFamily: "'Caveat',cursive", fontWeight: 600, fontSize: '1.1em',
+        lineHeight: .84, verticalAlign: '-.03em', display: 'inline-block',
+        background: p.accent, color: '#FDF8F0',
+        padding: '.04em .16em .1em .14em', margin: '0 -.04em', borderRadius: '3px'
+      },
+      setBig: (el) => { this.big = el; },
+      setSlot: (el) => { this.slot = el; },
+      setBigText: (el) => { this.bigText = el; },
+      setSlotText: (el) => { this.slotText = el; },
+
+      writeStyle: {
+        display: 'inline-flex', flexDirection: 'column', alignItems: 'stretch',
+        transform: 'rotate(' + tilt + 'deg)', transformOrigin: '0% 80%'
+      },
+      overlayStyle: {
+        position: 'fixed', inset: 0, zIndex: 100,
+        display: phase >= 2 ? 'none' : 'grid', placeItems: 'center',
+        pointerEvents: phase >= 1 ? 'none' : 'auto'
+      },
+      overlayBgStyle: {
+        position: 'absolute', inset: 0, background: p.paper,
+        opacity: phase >= 1 ? 0 : 1, transition: 'opacity .75s ease .3s'
+      },
+      bigSigStyle: {
+        position: 'relative', transformOrigin: 'top left', willChange: 'transform',
+        transform: this.state.tf || 'none',
+        transition: phase >= 1 ? 'transform .95s cubic-bezier(.62,.02,.2,1)' : 'none'
+      },
+      slotStyle: {
+        display: 'inline-flex', flexDirection: 'column', alignItems: 'stretch', lineHeight: 0,
+        transform: 'translateY(6px) rotate(' + tilt + 'deg)', transformOrigin: '0% 80%',
+        opacity: phase >= 2 ? 1 : 0
+      },
+
+      toggleTheme: () => this.setState((s) => ({ dark: !s.dark })),
+      dialStyle: {
+        width: '17px', height: '17px', borderRadius: '50%',
+        border: '1.5px solid ' + p.accent,
+        background: 'linear-gradient(90deg, ' + p.accent + ' 50%, transparent 50%)',
+        transform: dark ? 'rotate(180deg)' : 'rotate(0deg)',
+        transition: 'transform .5s cubic-bezier(.6,0,.2,1), border-color .4s ease, background .4s ease'
+      },
+
+      roles: ROLES.map((r, i) => Object.assign({}, r, {
+        expanded: !!exp[i],
+        setBody: (el) => { if (el) { this.bodies = this.bodies || {}; this.bodies[i] = el; } },
+        toggle: () => {
+          const el = this.bodies && this.bodies[i];
+          const h = el ? el.scrollHeight : 0;
+          this.setState((s) => ({
+            rowH: Object.assign({}, s.rowH, { [i]: h }),
+            exp: Object.assign({}, s.exp, { [i]: !s.exp[i] })
+          }));
+        },
+        headStyle: {
+          appearance: 'none', width: '100%', background: 'transparent', border: 0, cursor: 'pointer',
+          fontFamily: 'inherit', color: p.ink, textAlign: 'left',
+          padding: narrow ? '20px 6px' : '24px 6px 24px 0',
+          display: 'flex', alignItems: narrow ? 'flex-start' : 'baseline', gap: '12px 20px',
+          borderRadius: '6px', transition: 'background .2s ease'
+        },
+        metaStyle: {
+          display: 'flex', flex: 1, minWidth: 0,
+          flexDirection: narrow ? 'column' : 'row',
+          flexWrap: narrow ? 'nowrap' : 'wrap',
+          alignItems: narrow ? 'flex-start' : 'baseline',
+          gap: narrow ? '4px' : '6px 20px'
+        },
+        caretStyle: {
+          display: 'grid', placeItems: 'center', width: '22px', height: '22px', flex: 'none',
+          color: p.muted, alignSelf: 'center',
+          transform: exp[i] ? 'rotate(180deg)' : 'rotate(0deg)',
+          transition: 'transform .34s cubic-bezier(.2,.85,.25,1)'
+        },
+        bodyStyle: {
+          height: exp[i] ? ((this.state.rowH[i] || 0) + 'px') : '0px',
+          opacity: exp[i] ? 1 : 0, overflow: 'hidden',
+          transition: 'height .5s cubic-bezier(.32,.72,.3,1), opacity .38s ease'
+        }
+      })),
+      projects: PROJECTS.slice(0, nProjects).map((pr, i) => {
+        const on = narrow || hover === i;
+        return Object.assign({}, pr, {
+          open: (e) => this.openProject(i, e),
+          enter: () => this.setState({ hover: i }),
+          leave: () => this.setState({ hover: null }),
+          stop: (e) => { e.stopPropagation(); },
+          cardStyle: {
+            position: 'relative', overflow: 'hidden', cursor: 'pointer',
+            borderRadius: '10px', aspectRatio: '4/3',
+            flex: narrow ? '1 1 100%' : '1 1 248px',
+            maxWidth: narrow ? '100%' : 'calc((100% - 2 * clamp(16px,2.4vw,26px)) / 3)',
+            border: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 86%)',
+            background: p.paper2,
+            transform: hover === i ? 'translateY(-3px)' : 'translateY(0)',
+            boxShadow: hover === i
+              ? (dark ? '0 20px 44px rgba(0,0,0,.5)' : '0 20px 44px rgba(40,32,22,.2)')
+              : '0 0 0 rgba(0,0,0,0)',
+            transition: 'transform .35s cubic-bezier(.2,.85,.25,1), box-shadow .35s ease'
+          },
+          shotStyle: {
+            position: 'absolute', inset: 0, display: 'grid', placeItems: 'center',
+            background: p.paper2,
+            filter: hover === i ? 'blur(3px)' : 'blur(0px)',
+            transform: hover === i ? 'scale(1.04)' : 'scale(1)',
+            transition: 'filter .4s ease, transform .5s cubic-bezier(.2,.85,.25,1)'
+          },
+          holderStyle: {
+            fontSize: '11px', letterSpacing: '.14em', textTransform: 'uppercase', color: p.muted
+          },
+          veilStyle: {
+            position: 'absolute', inset: 0, pointerEvents: 'none',
+            background: 'linear-gradient(to top, rgba(12,10,8,.78) 0%, rgba(12,10,8,.34) 44%, rgba(12,10,8,.06) 100%)',
+            opacity: on ? 1 : 0, transition: 'opacity .35s ease'
+          },
+          linksStyle: {
+            position: 'absolute', top: '10px', right: '10px', display: 'flex', gap: '8px',
+            opacity: on ? 1 : 0,
+            transform: on ? 'translateY(0)' : 'translateY(-6px)',
+            pointerEvents: on ? 'auto' : 'none',
+            transition: 'opacity .3s ease, transform .35s cubic-bezier(.2,.85,.25,1)'
+          },
+          iconStyle: {
+            width: '38px', height: '38px', borderRadius: '50%', display: 'grid', placeItems: 'center',
+            background: 'rgba(253,248,240,.92)', color: '#23201C'
+          },
+          capStyle: {
+            position: 'absolute', left: '16px', right: '16px', bottom: '14px',
+            display: 'flex', flexDirection: 'column', gap: '3px', pointerEvents: 'none',
+            opacity: on ? 1 : 0,
+            transform: on ? 'translateY(0)' : 'translateY(8px)',
+            transition: 'opacity .3s ease, transform .38s cubic-bezier(.2,.85,.25,1)'
+          },
+          nameStyle: {
+            fontFamily: 'Newsreader,Georgia,serif', fontWeight: 400, fontSize: '23px',
+            lineHeight: 1.15, color: '#FDF8F0'
+          },
+          kindStyle: {
+            fontSize: '11px', letterSpacing: '.13em', textTransform: 'uppercase',
+            color: 'rgba(253,248,240,.78)'
+          }
+        });
+      }),
+      posts: POSTS.slice(0, nPosts).map((w) => Object.assign({}, w, {
+        href: 'Article.dc.html?id=' + w.id,
+        anchor: 'post-' + w.id,
+        go: () => { try { sessionStorage.setItem('ts-internal', '1'); } catch (e) {} }
+      })),
+      skills: [
+        { title: 'Languages', items: ['TypeScript', 'Python', 'Go', 'SQL'] },
+        { title: 'Frontend', items: ['React', 'Angular', 'Svelte', 'CSS architecture'] },
+        { title: 'Backend', items: ['Node', 'Django', 'Postgres', 'Redis'] },
+        { title: 'Practice', items: ['Design systems', 'Accessibility', 'Performance', 'Technical writing'] }
+      ],
+
+      pCurtainStyle: {
+        position: 'fixed', inset: 0, zIndex: 80,
+        backdropFilter: modalIn ? 'blur(16px)' : 'blur(0px)',
+        WebkitBackdropFilter: modalIn ? 'blur(16px)' : 'blur(0px)',
+        background: modalIn ? (dark ? 'rgba(18,16,14,.62)' : 'rgba(232,224,210,.62)') : 'transparent',
+        opacity: modalIn ? 1 : 0,
+        display: open ? 'block' : 'none',
+        transition: 'opacity .34s ease, backdrop-filter .34s ease, background .34s ease'
+      },
+      pStageStyle: {
+        position: 'fixed', inset: 0, zIndex: 81, display: open ? 'grid' : 'none',
+        placeItems: 'center', padding: 'clamp(14px,3vw,40px)', pointerEvents: 'none'
+      },
+      pCardStyle: {
+        position: 'relative', width: cardW, height: cardH, maxHeight: '88svh', maxWidth: '100%',
+        display: 'flex', flexDirection: narrow ? 'column' : 'row', overflow: 'hidden',
+        background: p.paper, color: p.ink, borderRadius: '14px',
+        border: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 86%)',
+        boxShadow: dark ? '0 40px 90px rgba(0,0,0,.6)' : '0 40px 90px rgba(40,32,22,.28)',
+        pointerEvents: 'auto',
+        transformOrigin: 'center',
+        transform: modalIn ? 'translate(0,0) scale(1)' : 'translate(' + fr.dx + 'px,' + fr.dy + 'px) scale(' + fr.s + ')',
+        opacity: modalIn ? 1 : 0,
+        transition: 'transform .46s cubic-bezier(.2,.85,.25,1), opacity .3s ease'
+      },
+      pShotStyle: Object.assign({
+        position: 'relative', background: p.paper2, display: 'grid', placeItems: 'center', flex: 'none'
+      }, narrow
+        ? { width: '100%', aspectRatio: '16/9', borderBottom: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 88%)' }
+        : { width: '392px', alignSelf: 'stretch', borderRight: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 88%)' }),
+      pCloseStyle: {
+        position: 'absolute', zIndex: 2, top: '12px', right: '12px', width: '38px', height: '38px',
+        borderRadius: '50%', border: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 82%)',
+        background: p.paper, color: p.ink, cursor: 'pointer', display: 'grid', placeItems: 'center', padding: 0
+      },
+      pBodyStyle: {
+        flex: '1 1 auto', minWidth: 0, minHeight: 0, overflowY: 'auto',
+        display: 'flex', flexDirection: 'column', gap: narrow ? '12px' : '14px',
+        padding: narrow ? '20px' : '32px', justifyContent: narrow ? 'flex-start' : 'center'
+      },
+      pTitleStyle: {
+        fontFamily: 'Newsreader,Georgia,serif', fontWeight: 400,
+        fontSize: narrow ? '28px' : '36px', lineHeight: 1.12, margin: 0
+      },
+      pNoteStyle: { fontSize: narrow ? '15px' : '16px', lineHeight: 1.75, color: p.muted, margin: 0 },
+      pKind: cur.kind, pYear: cur.year, pName: cur.name,
+      pAbout: cur.about || cur.note,
+      pLive: cur.live || '#', pRepo: cur.repo || '#',
+      pTags: (cur.tags || []).slice(0, 3).map((t) => ({
+        label: t,
+        style: {
+          fontSize: '12px', letterSpacing: '.02em', padding: '6px 11px', borderRadius: '999px',
+          border: '1px solid color-mix(in oklab, ' + p.accent + ', transparent 62%)', color: p.accent
+        }
+      })),
+      pLiveStyle: {
+        display: 'inline-flex', alignItems: 'center', gap: '9px', height: '44px', padding: '0 18px',
+        borderRadius: '999px', background: p.accent, color: '#FDF8F0', fontSize: '14px'
+      },
+      pRepoStyle: {
+        display: 'inline-flex', alignItems: 'center', gap: '9px', height: '44px', padding: '0 18px',
+        borderRadius: '999px', border: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 78%)',
+        color: p.ink, fontSize: '14px'
+      },
+      closeProject: () => this.closeProject(),
+      curtainStyle: {
+        position: 'fixed', inset: 0, zIndex: 55,
+        backdropFilter: navOpen ? 'blur(14px)' : 'blur(0px)',
+        WebkitBackdropFilter: navOpen ? 'blur(14px)' : 'blur(0px)',
+        background: navOpen ? (dark ? 'rgba(25,23,20,.55)' : 'rgba(245,240,231,.55)') : 'transparent',
+        opacity: navOpen ? 1 : 0,
+        pointerEvents: navOpen ? 'auto' : 'none',
+        transition: 'opacity .5s ease, backdrop-filter .5s ease, background .5s ease'
+      },
+      dockVisible: this.state.past,
+      dockWrapStyle: {
+        position: 'absolute', left: 0, right: 0, top: 0,
+        bottom: atRight ? 'calc(' + off + ' + 114px)' : 'calc(' + off + ' + 30px)',
+        zIndex: 60, pointerEvents: 'none',
+        display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+        alignItems: atRight ? 'flex-end' : 'center',
+        paddingRight: atRight ? off : '0px'
+      },
+      dockStyle: Object.assign({
+        position: 'sticky', bottom: off, width: '58px', height: '58px', pointerEvents: 'auto',
+        transform: (wheel && navOpen) ? toCentre : 'translate(0,0)',
+        transition: 'transform .72s cubic-bezier(.16,.9,.24,1)'
+      }, {}),
+      nav: SECTIONS.map((s, i) => {
+        const t = SECTIONS.length > 1 ? i / (SECTIONS.length - 1) : 0;
+        const th = wheel ? (-90 + (360 * i) / SECTIONS.length) : (arcFrom + (arcTo - arcFrom) * t);
+        const rad = ringR;
+        const on = active === s.id;
+        const delay = navOpen ? (i * 0.062).toFixed(3) : ((SECTIONS.length - 1 - i) * 0.07).toFixed(3);
+        const ease = navOpen ? 'cubic-bezier(.16,.9,.24,1)' : 'cubic-bezier(.4,.05,.25,1)';
+        const dur = navOpen ? '.82s' : '1.02s';
+        return {
+          href: '#' + s.id, label: s.label, d: s.d,
+          pivotStyle: {
+            position: 'absolute', left: '50%', top: '50%', width: 0, height: 0,
+            transform: 'rotate(' + (navOpen ? th : th + 200) + 'deg)',
+            transition: 'transform ' + dur + ' ' + ease + ' ' + delay + 's',
+            pointerEvents: navOpen ? 'auto' : 'none'
+          },
+          armStyle: {
+            position: 'absolute', left: 0, top: 0, width: 0, height: 0,
+            transform: 'translateX(' + (navOpen ? rad : 0) + 'px)',
+            transition: 'transform ' + dur + ' ' + ease + ' ' + delay + 's'
+          },
+          nodeStyle: {
+            position: 'absolute', left: '-22px', top: '-22px', width: '44px', height: '44px',
+            transformOrigin: '22px 22px',
+            transform: 'rotate(' + (navOpen ? -th : -(th + 200)) + 'deg) scale(' + (navOpen ? 1 : .35) + ')',
+            opacity: navOpen ? 1 : 0,
+            transition: 'transform ' + dur + ' ' + ease + ' ' + delay + 's, opacity ' + (navOpen ? '.34s' : '.5s') + ' ease ' + delay + 's'
+          },
+          labelStyle: {
+            position: 'absolute', top: 'calc(100% + 5px)', left: '50%', transform: 'translateX(-50%)',
+            whiteSpace: 'nowrap', fontSize: '9px', fontWeight: 500, letterSpacing: '.07em', textTransform: 'uppercase',
+            padding: '3px 7px', borderRadius: '999px',
+            background: on ? p.accent : p.paper,
+            border: '1px solid ' + (on ? p.accent : 'color-mix(in oklab, ' + p.ink + ', transparent 86%)'),
+            color: on ? '#FDF8F0' : p.ink
+          },
+          dotStyle: {
+            display: 'grid', placeItems: 'center', width: '44px', height: '44px', borderRadius: '50%',
+            background: on ? p.accent : p.paper, color: on ? '#FDF8F0' : p.ink,
+            border: '1px solid ' + (on ? p.accent : 'color-mix(in oklab, ' + p.ink + ', transparent 72%)'),
+            boxShadow: dark ? '0 8px 22px rgba(0,0,0,.42)' : '0 8px 22px rgba(40,32,22,.16)',
+            transition: 'background .25s ease, color .25s ease, border-color .25s ease'
+          }
+        };
+      }),
+      toggleNav: () => this.setState((s) => ({ navOpen: !s.navOpen })),
+      closeNav: () => this.setState({ navOpen: false }),
+      scrollTop: () => window.scrollTo({ top: 0, behavior: 'smooth' }),
+      fabIcon: navOpen ? CLOSE_ICON : SECTIONS[activeIdx].d,
+      fabIconStyle: {
+        transform: navOpen ? 'rotate(90deg)' : 'rotate(0deg)',
+        transition: 'transform .5s cubic-bezier(.2,.85,.25,1)'
+      },
+      fabStyle: {
+        position: 'absolute', inset: 0, width: '58px', height: '58px', borderRadius: '50%',
+        opacity: this.state.past ? 1 : 0,
+        transform: this.state.past ? 'scale(1)' : 'scale(.7)',
+        pointerEvents: this.state.past ? 'auto' : 'none',
+        border: 'none', background: p.ink, color: p.paper,
+        cursor: 'pointer', display: 'grid', placeItems: 'center', padding: 0,
+        boxShadow: dark ? '0 12px 30px rgba(0,0,0,.5)' : '0 12px 30px rgba(40,32,22,.26)',
+        transition: 'background .4s ease, color .4s ease, opacity .35s ease, transform .4s cubic-bezier(.2,.85,.25,1)'
+      },
+      topStyle: {
+        position: 'absolute', left: '50%', bottom: '100%', width: '42px', height: '42px',
+        marginLeft: '-21px', marginBottom: '16px', borderRadius: '50%',
+        border: '1px solid color-mix(in oklab, ' + p.ink + ', transparent 78%)',
+        background: p.paper, color: p.ink,
+        cursor: 'pointer', display: 'grid', placeItems: 'center', padding: 0,
+        boxShadow: dark ? '0 8px 22px rgba(0,0,0,.4)' : '0 8px 22px rgba(40,32,22,.16)',
+        opacity: (showTop && !navOpen) ? 1 : 0,
+        transform: (showTop && !navOpen) ? 'translateY(0) scale(1)' : 'translateY(10px) scale(.7)',
+        pointerEvents: (showTop && !navOpen) ? 'auto' : 'none',
+        transition: 'opacity .3s ease, transform .4s cubic-bezier(.2,.85,.25,1)'
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>
