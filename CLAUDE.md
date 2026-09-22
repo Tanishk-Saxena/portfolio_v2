@@ -14,9 +14,11 @@ Read these before doing any work; they are the source of truth:
 - `docs/design/HANDOFF.md` — build checklist, tokens, breakpoints, a11y requirements for the design.
 - `docs/design/DESIGN.md` — design rationale, section structure, signature interactions, still-open design options.
 - `docs/design/artifacts/*.dc.html` — the Claude Design mockups (`Portfolio`, `Article`, `Mobile preview`, `Dev notes` = behaviour spec). Single-file HTML rendered via `support.js`; they are a *reference spec*, not code to port. Open them in a browser to inspect behaviour.
-- `docs/DESIGN-SPEC.md` — referenced by the brief but **not written yet** (Phase 0 output: exact values extracted from the mockup).
+- `docs/DESIGN-SPEC.md` — exact values extracted from the mockup, plus resolved decisions tagged `[ASSUMED]` (§9 lists them). Build from this.
 
-Precedence: the mockup wins over the brief on structure (which sections exist, what they contain); fix the brief when they disagree. Known conflict to resolve: the brief says on-site posts live at `/blog/[slug]`, the handoff says `/articles/[id]`.
+Precedence: **the mockup wins every contradiction** (brief §0.1). Meet the brief's rules by intent, invisibly where possible.
+
+Owner's standing direction (brief §0.1): keep the site smooth on older phones without stripping motion. Motion is a crafted feature, subtle in tone. Don't block on questions: make a call, tag it `[ASSUMED]`, keep going.
 
 ## Commands
 
@@ -38,17 +40,17 @@ No test runner is installed yet. The brief specifies Vitest + Testing Library, a
 
 ## Design essentials
 
-- Tokens — light: paper `#F5F0E7`, paper2 `#EDE6DA`, ink `#23201C`, muted `#7A7268`, accent `#B4532A`. Dark: paper `#191714`, paper2 `#221F1A`, ink `#EDE7DB`, muted `#938A7D`, accent derived (light accent mixed with 16% white, never hand-picked).
-- Fonts: Newsreader (300/400) display/long-form, IBM Plex Sans (400/500) UI/body, Caveat (600) only for the signature and the hero's highlighted word. The scaffold's Geist fonts are placeholders to replace.
-- Single hard breakpoint at 760px; mobile (390px) first; measure 1140px (760px articles).
+- Tokens live in `styles/tokens.css` (ship values from DESIGN-SPEC §1.1a: muted `#6D655C`, accent `#A9491F`, dark accent = accent + 24% white, `accent-fill` for filled surfaces in both modes).
+- Fonts: Newsreader display/long-form, IBM Plex Sans UI/body, Caveat 600 only for the signature and the hero's highlighted word.
+- Single breakpoint at 760px, via container queries on the `page` container (`@wide:`); mobile (390px) first; measure 1140px (760px articles).
 
 ## Constraints that gate every phase
 
-- LCP < 2.0s, CLS < 0.1. Entrance animations must not hide the LCP text (no opacity-0 or clip/mask on it).
-- WCAG 2.1 AA, keyboard operable, 44px targets, `prefers-reduced-motion` gives a static but fully usable site.
-- Animate `transform`/`opacity` only; no scroll hijacking libraries.
-- Components must survive variable-length content (long titles, empty optional fields, extra bullets).
+- LCP < 2.0s, CLS < 0.1. Don't hide the LCP text behind an opacity-0 entrance.
+- WCAG 2.1 AA, keyboard operable, 44px hit areas (invisible extension is fine), `prefers-reduced-motion` gives a static but fully usable site.
+- No scroll hijacking. Prefer transform/opacity; small contained exceptions per brief §0.1.
+- Components must survive variable-length content (long titles, empty optional fields, extra items).
 
-## Working agreement (from the brief)
+## Working agreement
 
-Work one phase at a time and do not work ahead; each phase gets a short plan plus verification checklist approved before implementation. Use plan mode for changes touching more than two files. Push back on decisions that look wrong. Don't claim something "matches the design" without actually comparing against the mockup. Commit at the end of each phase. The admin UI has no design yet — never improvise one.
+Phases in order: build → verify → commit → next phase, no approval gate. Don't claim something "matches the design" without comparing against the mockup. The admin UI has no design yet — never improvise one.

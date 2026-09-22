@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** design mockup complete in Claude Design; no code written yet
+**Status:** design mockup complete; `docs/DESIGN-SPEC.md` extracted and resolved; build in progress
 
 ---
 
@@ -17,6 +17,31 @@ everything that is *not* visual — stack, architecture, data, phases, rules.
 
 Where this brief and the mockup disagree about structure (which sections exist,
 what a section contains), **the mockup wins** and this document gets corrected.
+
+### 0.1 Standing direction from the owner (overrides anything below that conflicts)
+
+- **The mockup wins every contradiction**: visual, structural *and* behavioural. The
+  mockups are very close to the intended result. When a rule in this brief would change
+  what the mockup does, keep the mockup's look and feel, and meet the rule's *intent*
+  some other way (e.g. a larger invisible hit area instead of a bigger button). Hard
+  accessibility floors (WCAG 2.1 AA contrast, keyboard access, reduced motion) are still
+  met, as invisibly as possible.
+- **Understand the sentiment of the performance rules; don't apply them literally.** The
+  goal is a site that never lags on a mid-range or older phone. It is **not** a mandate to
+  strip out motion. A short, contained, user-initiated animation of a non-composited
+  property (one accordion row's height, one image's blur on hover) is fine. What is not
+  fine: continuous layout thrash, scroll-linked JS work, animating many elements'
+  layout at once, heavy filters on large areas, or anything that janks scrolling.
+  Hover-only effects can be richer, because hover-capable devices are rarely the weak ones.
+- **Motion is a feature. Craft it, with subtlety.** The tone is quiet, warm and careful:
+  small distances, soft easing, nothing bouncy or showy. Within that, motion should be
+  refined: spring-like settles, choreographed staggers, micro-interactions that reward
+  attention. Always subtle, never absent.
+- **Keep momentum. Don't block.** Iteration beats perfection. Take the owner's input as a
+  starting point and build on it. Make reasonable calls and record them (tag assumptions
+  `[ASSUMED]` in the spec) rather than stopping to ask. Phases still run in order and each
+  is still verified and committed, but move straight on to the next phase unless something
+  is genuinely broken.
 
 ---
 
@@ -88,7 +113,10 @@ Mobile is the **primary** target. Every component is designed and built at
 hover or a cursor.
 
 ### Motion
-- `transform` and `opacity` only. Never animate layout properties.
+- Prefer `transform` and `opacity`. Never animate layout on many elements at once or
+  on scroll. Per §0.1, a single contained, user-initiated animation of another property
+  (an accordion's height, a hovered image's blur) is allowed when the mockup calls
+  for it.
 - **No scroll hijacking.** No Lenis, Locomotive or ScrollSmoother. Native scroll
   plus CSS scroll-driven animation.
 - Springs for user-initiated interaction; duration easing for entrances.
@@ -180,25 +208,26 @@ Fixtures in Phase 2 mirror this exactly, so the Phase 6 schema is a
 transcription rather than a redesign. All entities carry `id`, and a
 `sort_order` wherever ordering is user-controlled.
 
+Reconciled against the mockup (see `docs/DESIGN-SPEC.md` §7, which is authoritative).
+
 | Entity | Fields |
 |---|---|
-| `profile` | name, headline, standfirst, about, location, portrait_url, resume_url, email |
-| `experience` | role, org, location, start_date, end_date (null = current), bullets[], stack[] |
-| `education` | qualification, institution, start_date, end_date, notes[] |
-| `skill` | name, tier (`daily` \| `regular` \| `familiar`), brand_color, icon_slug (nullable) |
-| `project` | title, summary, tags[], repo_url, live_url (nullable), featured |
-| `blog_post` | title, slug, excerpt, external_url (nullable), body (nullable), published_at |
+| `profile` | name, eyebrow, headline, headline_highlight, standfirst, about_lead, about_paragraphs[], portrait (image, nullable), resume_url, email, contact_statement, location, footer_note |
+| `experience` | role, org, start_date, end_date (null = current), summary, sort_order |
+| `skill_group` | title, items[], sort_order |
+| `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, summary, description, tags[], image (nullable), repo_url, live_url (nullable), sort_order |
+| `article` | slug, title, excerpt, published_at, read_minutes, body (Markdown, nullable), external_url (nullable) |
+| `quote` | text, author, sort_order |
 | `social_link` | label, url, sort_order |
 
-**Reconcile against the mockup.** If the design has sections or fields this
-table doesn't cover, extend the table before writing fixtures — not afterwards.
+`education` is dropped (not in the mockup). `image` = `{ src, alt, width, height }`.
 
 ### Standing content decisions
-- **Projects have no detail route.** The GitHub README is the write-up. Cards
-  link out.
-- **Blog uses a nullable-body pattern.** `body IS NULL` → the card links to the
-  external URL (e.g. Medium). `body` present → an on-site route at
-  `/blog/[slug]`. Ships with zero posts, needs no rework later.
+- **Projects have no detail route.** The modal plus the GitHub README are the
+  write-up.
+- **Articles use a nullable-body pattern.** `body` present → on-site route at
+  `/articles/[slug]` (mockup route). `body IS NULL` → the row links to
+  `external_url` (e.g. Medium). Both render identically in the Writing list.
 - **Contact is `mailto:` plus social links.** No form, no email service, no spam
   handling, no inbox.
 
@@ -296,11 +325,11 @@ guestbook, newsletter.
 
 ## 8. Working agreement
 
-- Plan before code. Every phase gets a short written plan and a verification
-  checklist, approved before implementation.
-- **No one-shotting.** One phase at a time, one task per conversation.
-- Use plan mode for anything touching more than two files.
-- Push back on decisions that look wrong rather than implementing them silently.
+- Phases run in order. Each phase has a short plan and a verification checklist, but
+  approval is **not** required to start: build, verify, commit, move on (§0.1).
+- Don't block on questions. Make a reasonable call, tag it `[ASSUMED]`, and keep going.
+  The owner iterates on the output.
+- Push back on decisions that look wrong, but do it in the summary, not as a blocker.
 - When something can't be verified, say so instead of guessing. "Matches the
   design" is not a claim to make without actually comparing the two images.
 - Commit at the end of every phase.

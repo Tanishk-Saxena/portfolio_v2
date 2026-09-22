@@ -8,6 +8,10 @@ inline. Every assumption is also listed in [§9 Assumed Decisions](#9-assumed-de
 Where an assumption overrides a mockup value, the mockup value stays in place so the two
 can be compared. **Build from the `[ASSUMED]` value.**
 
+> **Revision 2:** the owner's direction (brief §0.1) is that the mockup wins every
+> contradiction and perf rules apply by intent. §9 rows marked **R2** (Q4, Q9, Q11, Q18,
+> Q22) override the inline text for those items.
+
 Sources (abbreviated in citations):
 
 | Tag | File |
@@ -880,30 +884,34 @@ Notes:
 Every inline `[ASSUMED]` tag maps to one of these rows. Items marked (D7) were open
 questions in [D] §7.
 
+**Revision 2 (owner direction, brief §0.1): the mockup wins every contradiction; perf
+rules are applied by intent.** Rows marked **R2** were re-decided on that basis and
+override any conflicting inline text above.
+
 | Item | Chosen value | Reasoning (one line) | Confidence |
 |---|---|---|---|
 | Q1 Light-mode contrast | `text-muted` `#6D655C`, `accent-base` `#A9491F` (lightness-only OKLab shifts) | Smallest change reaching ≥4.6:1 on paper2 while keeping hue/chroma; every small-text use now passes AA | med |
 | Q2 Dark-mode bands and fills | Dark `accent` = `mix(accent-base, white 24%)` → `#C17558`; new `accent-fill` = base accent in both modes; band muted `.89`, band paper2 `.09`, portrait label uses band ink | Keeps [DN]'s "derived, never hand-picked" rule, and cream-on-fill stays 5.43:1 in both modes | med |
 | Q3 Focus-visible | `2px solid var(--accent)`, offset `2px`; inset `-2px` on rows; card ring via `:has()` | Accent already signals hover everywhere; ring becomes cream automatically inside bands; ≥4.6:1 on every ground | high |
-| Q4 Touch targets | Card icons, modal close, back-to-top → 44×44; Listen h 44; text links `min-height: 44px` | Mockup's own nav items (44) and modal buttons (h 44) set the precedent; brief requires 44 | high |
+| Q4 Touch targets **R2** | **Visual sizes stay as in the mockup** (38 / 42 / 40px); each hit area is extended invisibly to 44×44 with a centred `::before` (`inset: min(0px, (100% - 44px) / 2)`). Text links: `min-height: 44px`, inline-flex, no visual change | Meets the 44px floor while the mockup look wins | high |
 | Q5 Grain | `.06`, fixed, both routes | [P] props, [D] and [H] all state 6% | high |
 | Q6 Theme toggle | 46×46 on both routes | Main page is the primary reference, and 46 matches the "Show more" height | med |
 | Q7 Initial colour mode | System preference, persisted in `localStorage`, set pre-paint on `<html data-theme>` | Conventional; avoids a flash of the wrong theme; no-JS falls back to the mockup's light default | med |
 | Q8 Tweakables (D7) | Terracotta · bottom-right · arc · tilt −4deg · intro on · TTS on | All are the mockup defaults; slate would also fail dark-mode AA | high |
-| Q9 Intro vs LCP | Hero entrance becomes transform-only `rise` (no opacity); hero painted at first frame under the overlay | Meets the brief's LCP rule without removing the signature moment; relies on LCP ignoring occlusion | low |
+| Q9 Intro vs LCP **R2** | Intro plays exactly as mocked. Hero eyebrow, standfirst and CTAs use the mockup `fadeUp` (opacity + rise). **Only the H1** (the LCP element) uses transform-only `rise`, painted from frame one under the overlay; the overlay's own fade reveals it, so it reads the same as the mockup | Mockup look kept; the one element LCP measures is never at opacity 0 | med |
 | Q10 Intro blocking | Overlay `pointer-events: none`; any input skips to hand-off; skipped under reduced motion | The intro must never hold the page hostage; [DN] already skips it on internal navigation | med |
-| Q11 Non-transform motion | Height → instant + content fade/rise; padding → `translateX`; shadow → `::after` opacity; blur dropped; backdrop blur static + opacity fade; dot width → `scaleX`; colour transitions allowed | Brief is a hard gate; each swap keeps the mockup's duration/easing; colour is paint-only and [DN] keeps it | low |
+| Q11 Non-transform motion **R2** | **Experience height animates as mocked** (`grid-template-rows: 0fr → 1fr`, `.5s ease-expand`, + opacity `.38s`); **card image blur restored**, on hover-capable devices only (`@media (hover: hover)`); writing-row shift via `translateX(16px)` (visually identical to the padding change); card shadow via `::after` opacity (identical look); curtain blur static + opacity fade (identical look); dot `scaleX` | Mockup fidelity first; one-element, user-initiated effects are cheap; swaps are made only where they look identical | high |
 | Q12 Reduced motion (all cases) | All transform motion instant via `--dur-move-scale: 0`; opacity/colour kept; loops and auto-advance off; `scroll-behavior: auto` | Direct generalisation of [DN]'s rule, set at the token layer | high |
 | Q13 Quote rotator (D7) | Keep; render the dots (44×44 targets, inactive = `text-muted`), add pause/play, pause on hover/focus, no auto-advance under reduced motion; carousel ARIA | Satisfies WCAG 2.2.2 using controls the mockup already coded | med |
 | Q14 Back-to-top trigger | Appears with the FAB at `scrollY > hero.offsetHeight − 140` | Mockup code is the implemented behaviour; [DN] says its numbers are indicative | med |
 | Q15 Project card | `<article>` + stretched trigger `<button>` + sibling icon links; overlay on narrow / `(hover: none)` / hover / focus-within; name 2-line clamp; veil `.82 → .62@50% → .06`; kind `.9` alpha | Removes nested interactives, gives native keys, and keeps captions ≥4.5:1 even over a white screenshot | med |
 | Q16 Modal | Native `<dialog>` + `showModal()`, `aria-labelledby`, focus return; keep `overflow-y: auto` fallback; 3 tags | Native dialog gives the trap, Escape and inert background [H] asks for; scroll fallback honours the brief's content-robustness rule | med |
 | Q17 Content model | Per §7 table: experience summary + dates; project kind/year/summary/description/image, nullable live; skill groups; quotes added; education dropped | Mockup wins on structure per the brief's own precedence rule | med |
-| Q18 Article route / TTS (D7) | `/articles/[slug]`, on-site Markdown body; TTS on, hidden without `speechSynthesis` | Mockup route and default; slug keys match the mockup ids | low |
+| Q18 Article route / TTS (D7) **R2** | `/articles/[slug]` with an on-site Markdown body; `body` nullable → the row links to `external_url` (the brief's pattern, visually identical in the list); TTS on, hidden without `speechSynthesis` | Mockup route and default, plus the brief's flexibility at no visual cost | med |
 | Q19 Mono | IBM Plex Mono 400, `.88em`, `surface` bg, 3px radius; article route only | Only mono style anywhere in the mockup set ([DN] `code`) | med |
 | Q20 Font weights | Newsreader 300/400/italic 300 (opsz auto), Plex Sans 400/500, Caveat 600 | Ship only what the mockup uses | high |
 | Q21 Fallback metrics | `next/font/google` default `adjustFontFallback: true`, `display: 'swap'`, `subsets: ['latin']` | Next 16 docs: this generates the size-adjust fallback automatically | high |
-| Q22 Scrollbars | Native scrollbars restored, `scrollbar-color` ink@28%, `scrollbar-gutter: stable` | Visible scroll position is the accessible convention; gutter prevents shift on scroll-lock | med |
+| Q22 Scrollbars **R2** | Hidden, as mocked (`scrollbar-width: none` + zero-size `::-webkit-scrollbar`) | Mockup wins; not a WCAG failure; also means the `page` container = viewport width | high |
 | Q23 Signature label | `aria-label="Tanishk Saxena — back to top"` / `"— back to portfolio"` | Satisfies WCAG 2.5.3 label-in-name | high |
 | Q24 Spacing | Keep literals, expressed on Tailwind's 0.25rem base; fluid clamps as named `--spacing-*` tokens | No mockup value moves, and nothing in markup is a magic number | med |
 | Q25 vw/vh vs cqi | Keep `clamp()` in vw/vh; container queries handle all layout switching | Clamps are viewport-tuned type/rhythm; converting would change rendered values | med |
