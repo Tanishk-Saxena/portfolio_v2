@@ -39,9 +39,8 @@ what a section contains), **the mockup wins** and this document gets corrected.
   attention. Always subtle, never absent.
 - **Keep momentum. Don't block.** Iteration beats perfection. Take the owner's input as a
   starting point and build on it. Make reasonable calls and record them (tag assumptions
-  `[ASSUMED]` in the spec) rather than stopping to ask. Phases still run in order and each
-  is still verified and committed, but move straight on to the next phase unless something
-  is genuinely broken.
+  `[ASSUMED]` in the spec) rather than stopping to ask design questions. Phases still run
+  in order, in small steps; **each commit waits for the owner's diff review** (§8).
 
 ---
 
@@ -75,7 +74,7 @@ because an off-the-shelf CMS wouldn't work.
 | Data (later) | **Supabase** — Postgres + Auth + Storage |
 | Data (now) | **Typed in-repo fixtures** — see §5 |
 | Auth (later) | Supabase Auth, single-admin allowlist, no public signup |
-| Hosting | **Vercel** |
+| Hosting | **Vercel** (tentative; deployment is finalised in Phase 5, after everything works locally) |
 | Testing | Vitest + Testing Library; Playwright for critical paths |
 
 Verify current stable versions before scaffolding rather than trusting this file.
@@ -255,9 +254,9 @@ listed explicitly rather than guessed.
 **Phase 1 — Foundation**
 Token layer from the spec (both modes, reduced-motion), Tailwind theme wired to
 those tokens, TypeScript strict, lint/format/typecheck scripts, CI that blocks on
-all three, Vercel deploy.
-*Verify:* deployed URL renders a token test page showing every token in both
-modes; CI rejects a deliberately introduced lint error.
+all three. (Deployment moved to Phase 5 — everything works locally first.)
+*Verify:* a local production build renders a token test page showing every token in
+both modes; CI rejects a deliberately introduced lint error.
 
 **Phase 2 — Domain and fixtures**
 Domain types, repository interfaces, fixture implementations, composition root,
@@ -280,8 +279,8 @@ Everything in the motion section of the spec.
 usable site; the signature interaction works on touch and by keyboard.
 
 **Phase 5 — Ship**
-Metadata, OG images, sitemap, robots, structured data (`Person`), analytics,
-résumé PDF, custom domain.
+Deployment (host choice finalised here), metadata, OG images, sitemap, robots,
+structured data (`Person`), analytics, résumé PDF, custom domain.
 *Verify:* rich-results test passes; OG card renders correctly in a real preview;
 tested on an actual phone, not a simulator.
 
@@ -326,7 +325,11 @@ guestbook, newsletter.
 ## 8. Working agreement
 
 - Phases run in order. Each phase has a short plan and a verification checklist, but
-  approval is **not** required to start: build, verify, commit, move on (§0.1).
+  approval is **not** required to start building (§0.1).
+- **Small, spaced-out commits.** Before every commit, the owner reviews the diff. Present
+  a summary and wait for approval.
+- **Ledger:** `docs/PROGRESS.md` tracks the current phase and step, what's done and what's
+  next. Update it before proposing each commit.
 - Don't block on questions. Make a reasonable call, tag it `[ASSUMED]`, and keep going.
   The owner iterates on the output.
 - Push back on decisions that look wrong, but do it in the summary, not as a blocker.

@@ -13,7 +13,7 @@ Read these before doing any work; they are the source of truth:
 - `docs/PROJECT-BRIEF.md` — stack, architecture rules, content model, phased plan, non-negotiable constraints. **Everything non-visual.**
 - `docs/design/HANDOFF.md` — build checklist, tokens, breakpoints, a11y requirements for the design.
 - `docs/design/DESIGN.md` — design rationale, section structure, signature interactions, still-open design options.
-- `docs/design/artifacts/*.dc.html` — the Claude Design mockups (`Portfolio`, `Article`, `Mobile preview`, `Dev notes` = behaviour spec). Single-file HTML rendered via `support.js`; they are a *reference spec*, not code to port. Open them in a browser to inspect behaviour.
+- `docs/design/artifacts/*.dc.html` — the Claude Design mockups (`Portfolio`, `Article`, `Mobile preview`, `Dev notes` = behaviour spec). Single-file HTML rendered via `support.js`; they are a _reference spec_, not code to port. Open them in a browser to inspect behaviour.
 - `docs/DESIGN-SPEC.md` — exact values extracted from the mockup, plus resolved decisions tagged `[ASSUMED]` (§9 lists them). Build from this.
 
 Precedence: **the mockup wins every contradiction** (brief §0.1). Meet the brief's rules by intent, invisibly where possible.
@@ -53,4 +53,4 @@ No test runner is installed yet. The brief specifies Vitest + Testing Library, a
 
 ## Working agreement
 
-Phases in order: build → verify → commit → next phase, no approval gate. Don't claim something "matches the design" without comparing against the mockup. The admin UI has no design yet — never improvise one.
+Phases in order, built in small steps with spaced-out commits. No approval needed to _build_, but **before every commit, stop and ask the owner to review the diff**, then commit only once they approve. Keep the ledger `docs/PROGRESS.md` current (phase, step, done, next) and update it before proposing each commit. Don't claim something "matches the design" without comparing against the mockup. The admin UI has no design yet — never improvise one.
