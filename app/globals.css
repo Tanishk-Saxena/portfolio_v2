@@ -1,26 +1,176 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+@import '../styles/tokens.css';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* Mode switching is attribute-driven (set pre-paint by the inline theme script). */
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
 
+/*
+ * Tailwind theme — maps raw tokens (styles/tokens.css) to utilities.
+ * Values are verbatim from docs/DESIGN-SPEC.md §8. `inline` keeps the var() references
+ * live so mode switches and band overrides resolve at the element.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* colour */
+  --color-paper: var(--paper);
+  --color-surface: var(--paper2);
+  --color-paper-fade: var(--paper-fade);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-on-accent: var(--on-accent);
+  --color-border-header: color-mix(in oklab, var(--accent), transparent 62%);
+  --color-border-section: color-mix(in oklab, var(--accent), transparent 52%);
+  --color-border-row: color-mix(in oklab, var(--accent), transparent 68%);
+  --color-border-control: color-mix(in oklab, var(--accent), transparent 55%);
+  --color-border-article: color-mix(in oklab, var(--accent), transparent 60%);
+  --color-border-listen: color-mix(in oklab, var(--accent), transparent 58%);
+  --color-border-card: color-mix(in oklab, var(--ink), transparent 86%);
+  --color-border-divider: color-mix(in oklab, var(--ink), transparent 88%);
+  --color-border-close: color-mix(in oklab, var(--ink), transparent 82%);
+  --color-border-quiet: color-mix(in oklab, var(--ink), transparent 78%);
+  --color-border-navdot: color-mix(in oklab, var(--ink), transparent 72%);
+  --color-press-row: color-mix(in oklab, var(--accent), transparent 88%);
+  --color-press-writing: color-mix(in oklab, var(--accent), transparent 86%);
+  --color-card-icon-bg: rgb(253 248 240 / 0.92);
+  --color-card-kind: rgb(253 248 240 / 0.9);
+  --color-card-ink: #23201c;
+  --color-scrim-nav: var(--scrim-nav);
+  --color-scrim-modal: var(--scrim-modal);
+
+  /* fonts — next/font CSS variables are set on <html> in app/layout.tsx */
+  --font-serif: var(--font-newsreader), Georgia, serif;
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-script: var(--font-caveat), cursive;
+  --font-mono: var(--font-plex-mono), monospace;
+
+  /* type */
+  --text-display: clamp(40px, 7.4vw, 92px);
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.02em;
+  --text-h1: clamp(34px, 6vw, 58px);
+  --text-h1--line-height: 1.1;
+  --text-h1--letter-spacing: -0.015em;
+  --text-statement: clamp(32px, 5.4vw, 64px);
+  --text-statement--line-height: 1.1;
+  --text-statement--letter-spacing: -0.015em;
+  --text-lead: clamp(23px, 3vw, 34px);
+  --text-lead--line-height: 1.35;
+  --text-lead-article: clamp(20px, 2.6vw, 25px);
+  --text-lead-article--line-height: 1.55;
+  --text-quote: clamp(22px, 3.2vw, 34px);
+  --text-quote--line-height: 1.45;
+  --text-quote-mark: clamp(54px, 8vw, 86px);
+  --text-quote-mark--line-height: 0.6;
+  --text-h2: clamp(21px, 2.5vw, 28px);
+  --text-h2--line-height: 1;
+  --text-h2-article: clamp(24px, 3.4vw, 32px);
+  --text-h2-article--line-height: 1.25;
+  --text-pullquote: clamp(20px, 2.6vw, 26px);
+  --text-pullquote--line-height: 1.5;
+  --text-h3-role: clamp(21px, 2.4vw, 27px);
+  --text-h3-role--line-height: 1.2;
+  --text-h3-post: clamp(20px, 2.3vw, 26px);
+  --text-h3-post--line-height: 1.25;
+  --text-card-name: 23px;
+  --text-card-name--line-height: 1.15;
+  --text-email: clamp(22px, 3vw, 32px);
+  --text-signature-intro: clamp(54px, 12.5vw, 104px);
+  --text-signature-intro--line-height: 0.95;
+  --text-signature: 31px;
+  --text-signature--line-height: 0.95;
+  --text-body-lg: clamp(16px, 1.5vw, 18px);
+  --text-body-lg--line-height: 1.75;
+  --text-body-article: 17px;
+  --text-body-article--line-height: 1.85;
+  --text-body: 16px;
+  --text-body--line-height: 1.8;
+  --text-body-sm: 15px;
+  --text-body-sm--line-height: 1.75;
+  --text-list-serif: 19px;
+  --text-list-serif--line-height: 1.3;
+  --text-meta: 14px;
+  --text-small: 13px;
+  --text-label: 12px;
+  --text-micro: 11px;
+  --text-cue: 10px;
+  --text-nav: 9px;
+
+  --tracking-eyebrow: 0.16em;
+  --tracking-label: 0.14em;
+  --tracking-button: 0.13em;
+  --tracking-cue: 0.18em;
+  --tracking-nav: 0.07em;
+  --tracking-years: 0.06em;
+  --tracking-tag: 0.02em;
+
+  /* spacing — default base (--spacing: 0.25rem) kept; named fluid tokens below */
+  --spacing-header: 76px;
+  --spacing-anchor-row: 104px;
+  --spacing-section: clamp(72px, 11vh, 132px);
+  --spacing-band: clamp(76px, 12vh, 140px);
+  --spacing-band-end: clamp(72px, 10vh, 110px);
+  --spacing-grid-projects: clamp(16px, 2.4vw, 26px);
+  --spacing-grid-about: clamp(30px, 5vw, 72px);
+  --spacing-grid-skills-row: clamp(30px, 5vw, 40px);
+  --spacing-grid-skills-col: clamp(22px, 4vw, 48px);
+  --spacing-more: clamp(26px, 4vw, 38px);
+  --spacing-float: clamp(16px, 3.4vw, 34px);
+  --spacing-stage: clamp(14px, 3vw, 40px);
+  --spacing-gutters: clamp(28px, 5.2vw, 44px);
+  --spacing-article-top: clamp(108px, 15vh, 150px);
+  --spacing-article-bottom: clamp(70px, 10vh, 110px);
+  --spacing-article-back: clamp(30px, 5vh, 48px);
+  --spacing-article-meta-top: clamp(22px, 3vh, 30px);
+  --spacing-article-meta-bottom: clamp(26px, 4vh, 36px);
+  --spacing-article-body-top: clamp(30px, 5vh, 46px);
+  --spacing-article-footer-top: clamp(52px, 8vh, 84px);
+  --spacing-article-h2-top: clamp(16px, 3vh, 26px);
+  --spacing-pullquote-inline: clamp(18px, 3vw, 26px);
+  --spacing-pullquote-block: clamp(10px, 2vh, 18px);
+  --spacing-target: 44px;
+
+  /* radii */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-row: 6px;
+  --radius-card: 10px;
+  --radius-modal: 14px;
+  --radius-pill: 999px;
+
+  /* shadows — tint and alpha switch per mode */
+  --shadow-card-hover: 0 20px 44px rgb(var(--shadow-rgb) / var(--shadow-a-card));
+  --shadow-modal: 0 40px 90px rgb(var(--shadow-rgb) / var(--shadow-a-modal));
+  --shadow-fab: 0 12px 30px rgb(var(--shadow-rgb) / var(--shadow-a-fab));
+  --shadow-float: 0 8px 22px rgb(var(--shadow-rgb) / var(--shadow-a-float));
+  --shadow-float-top: 0 8px 22px rgb(var(--shadow-rgb) / var(--shadow-a-float-top));
+
+  /* layout */
+  --container-wide: 760px; /* @wide: → the single breakpoint (container query) */
+  --width-page: 1140px;
+  --width-article: 760px;
+
+  /* motion */
+  --ease-out-soft: cubic-bezier(0.2, 0.85, 0.25, 1);
+  --ease-char: cubic-bezier(0.3, 0.7, 0.3, 1);
+  --ease-flip: cubic-bezier(0.62, 0.02, 0.2, 1);
+  --ease-dial: cubic-bezier(0.6, 0, 0.2, 1);
+  --ease-expand: cubic-bezier(0.32, 0.72, 0.3, 1);
+  --ease-spiral-out: cubic-bezier(0.16, 0.9, 0.24, 1);
+  --ease-spiral-in: cubic-bezier(0.4, 0.05, 0.25, 1);
+  --ease-cue: cubic-bezier(0.4, 0, 0.3, 1);
+
+  --animate-fade-up: fade-up 0.85s var(--ease-out-soft) both;
+  --animate-rise: rise 0.85s var(--ease-out-soft) both;
+  --animate-cue: wheel 1.9s var(--ease-cue) infinite;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* The page measure used by every section (spec §4.1). */
+@utility measure-page {
+  width: min(var(--width-page), 100% - var(--spacing-gutters));
+  margin-inline: auto;
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility measure-article {
+  width: min(var(--width-article), 100% - var(--spacing-gutters));
+  margin-inline: auto;
 }

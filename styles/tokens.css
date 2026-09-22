@@ -1,0 +1,221 @@
+/*
+ * Design tokens — raw values that switch per colour mode.
+ * Source of truth: docs/DESIGN-SPEC.md (§1, §3, §5, §8). Ship values, not mockup values,
+ * where the spec marks an [ASSUMED] override.
+ *
+ * Tailwind utilities are generated from these in app/globals.css (@theme inline).
+ * `[data-theme]` selectors are deliberately unscoped so any subtree can force a mode
+ * (used by the /tokens page to show both modes side by side).
+ */
+
+:root,
+[data-theme='light'] {
+  --paper: #f5f0e7;
+  --paper2: #ede6da;
+  --paper-fade: rgb(245 240 231 / 0.8);
+  --ink: #23201c;
+  --muted: #6d655c; /* [ASSUMED] Q1 — mockup #7A7268 */
+  --accent-base: #a9491f; /* [ASSUMED] Q1 — mockup #B4532A */
+  --accent: var(--accent-base); /* text, lines, rings */
+  --accent-fill: var(--accent-base); /* filled surfaces in both modes — Q2 */
+  --on-accent: #fdf8f0;
+  --scrim-nav: rgb(245 240 231 / 0.55);
+  --scrim-modal: rgb(232 224 210 / 0.62);
+
+  --shadow-rgb: 40 32 22;
+  --shadow-a-card: 0.2;
+  --shadow-a-modal: 0.28;
+  --shadow-a-fab: 0.26;
+  --shadow-a-float: 0.16;
+  --shadow-a-float-top: 0.16;
+
+  --grain-blend: multiply;
+  --grain-opacity: 0.06; /* Q5 */
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --paper: #191714;
+  --paper2: #221f1a;
+  --paper-fade: rgb(25 23 20 / 0.8);
+  --ink: #ede7db;
+  --muted: #938a7d;
+  --accent: color-mix(in oklab, var(--accent-base), white 24%); /* Q2 — mockup: white 16% */
+  --scrim-nav: rgb(25 23 20 / 0.55);
+  --scrim-modal: rgb(18 16 14 / 0.62);
+
+  --shadow-rgb: 0 0 0;
+  --shadow-a-card: 0.5;
+  --shadow-a-modal: 0.6;
+  --shadow-a-fab: 0.5;
+  --shadow-a-float: 0.42;
+  --shadow-a-float-top: 0.4;
+
+  --grain-blend: screen;
+  color-scheme: dark;
+}
+
+/* About + Contact accent bands re-point the tokens for their contents (spec §1.2). */
+.band {
+  --ink: #fdf8f0;
+  --muted: rgb(253 248 240 / 0.89); /* Q2 — mockup .88 */
+  --paper2: rgb(253 248 240 / 0.09); /* Q2 — mockup .13 */
+  --accent: #fdf8f0;
+  background: var(--accent-fill);
+  color: var(--ink);
+}
+
+/*
+ * Motion.
+ * `--motion` multiplies every *movement* duration (transform). Opacity and colour
+ * transitions use plain durations, so reduced motion keeps fades but drops travel.
+ */
+:root {
+  --motion: 1;
+  --theme-fade: 0.45s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion: 0;
+  }
+  html {
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ------------------------------------------------------------------ base elements */
+
+html {
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* Q22 R2 — hidden as mocked */
+  -webkit-text-size-adjust: 100%;
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition:
+    background-color var(--theme-fade),
+    color var(--theme-fade);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) {
+  a:hover {
+    color: var(--accent);
+  }
+}
+
+::selection {
+  background: var(--accent-fill);
+  color: var(--on-accent);
+}
+
+/* Q3 — one ring everywhere; turns cream inside bands because --accent does. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/*
+ * Q4 R2 — invisible 44×44 hit area for controls whose visual size is smaller.
+ * The element needs `position: relative` (or absolute/fixed).
+ */
+.hit-44::before {
+  content: '';
+  position: absolute;
+  inset: min(0px, calc((100% - 44px) / 2));
+}
+
+/* Paper grain (spec §1.4). Fixed, above content, never interactive. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 190px 190px;
+}
+
+/* ------------------------------------------------------------------ keyframes */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(calc(14px * var(--motion)));
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Q9 R2 — the hero H1 (LCP element) rises without ever being transparent. */
+@keyframes rise {
+  from {
+    transform: translateY(calc(14px * var(--motion)));
+  }
+  to {
+    transform: none;
+  }
+}
+
+@keyframes char-in {
+  from {
+    opacity: 0;
+    transform: translateY(7px) rotate(-2deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes sig-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes wheel {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  68% {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(15px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-loop {
+    animation: none !important;
+  }
+}
