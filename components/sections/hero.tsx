@@ -18,7 +18,7 @@ export function Hero({ profile }: { profile: Profile }) {
 
       <h1
         id="hero-heading"
-        className="max-w-[16ch] font-serif text-display font-light text-pretty text-ink"
+        className="max-w-hero-title font-serif text-display font-light text-pretty text-ink"
       >
         {before}
         {word && (
@@ -29,7 +29,7 @@ export function Hero({ profile }: { profile: Profile }) {
         {after}
       </h1>
 
-      <p className="mt-8 max-w-[52ch] text-body-lg text-muted">{profile.standfirst}</p>
+      <p className="mt-8 max-w-hero-standfirst text-body-lg text-muted">{profile.standfirst}</p>
 
       <div className="mt-11 flex flex-wrap gap-3">
         {profile.resumeUrl && (
