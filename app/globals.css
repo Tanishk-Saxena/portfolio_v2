@@ -72,6 +72,10 @@
   --text-h3-role--line-height: 1.2;
   --text-h3-post: clamp(20px, 2.3vw, 26px);
   --text-h3-post--line-height: 1.25;
+  --text-modal-title: 28px;
+  --text-modal-title--line-height: 1.12;
+  --text-modal-title-wide: 36px;
+  --text-modal-title-wide--line-height: 1.12;
   --text-card-name: 23px;
   --text-card-name--line-height: 1.15;
   --text-email: clamp(22px, 3vw, 32px);
