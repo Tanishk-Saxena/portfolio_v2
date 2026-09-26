@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 3 — Public site · PR 2 of 4 (`feat/phase-3-sections`) built and verified,
+**Now:** Phase 3 — Public site · PR 3 of 4 (`feat/phase-3-nav`) built and verified,
 awaiting diff review
 
 ---
@@ -71,8 +71,8 @@ Split into four PRs so each stays reviewable:
 | PR | Branch | Scope | Status |
 |---|---|---|---|
 | 3.1 | `feat/phase-3-shell` | Screenshot tooling (Playwright on local Chrome); CSS layering fix; shell: `@container/page`, grain, header (signature, theme toggle), footer, section primitives, icons; Hero; About band | ✅ PR #4 |
-| 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | built, awaiting review |
-| 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top | todo |
+| 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | ✅ PR #5 |
+| 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top; Playwright e2e suite in CI | built, awaiting review |
 | 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body | todo |
 
 3.1 verification: compared by eye against mockup screenshots at 390px and 1440px (light),
@@ -102,6 +102,28 @@ Behaviour notes (3.2):
   scroll.
 - Quotes: all quotes stacked in one grid cell (the box fits the tallest). Dots + play/pause
   (WCAG 2.2.2). Pauses on hover/focus/hidden tab; starts paused under reduced motion.
+
+3.3 verification:
+- Closed state (scrolled to Projects): the FAB shows the active section's icon, with
+  back-to-top above it. Open: six items on a true quarter-arc (r = 334 wide / 250 at 390px),
+  the active item filled with accent, the page blurred behind. Checked light and dark at
+  both widths.
+- e2e (Playwright, `npm run test:e2e`, 12 tests × desktop/mobile), now also in CI:
+  - nav: keyboard open, focus on the active item, Tab trapped, Escape returns focus
+  - nav: a destination jumps there and focuses the section
+  - modal: focus trap and return
+  - show more: focuses the first new card
+  - accordion: `aria-expanded`
+  - theme: the toggle persists across reload
+
+Behaviour notes (3.3):
+- Scroll tracking is `IntersectionObserver` only (a mid-viewport line for the active
+  section, the hero's exit at 140px for "past hero"). Zero scroll listeners.
+- The arc is CSS: `rotate(θ) translateX(var(--r)) rotate(-θ)`, with `--r` switched by the
+  page container query. Phase 4 animates this into the spiral.
+- The nav lists only sections that render. Hidden controls are `inert`. After a jump, focus
+  moves into the section; after back-to-top, onto the hero heading (no focus ring on these
+  `tabindex="-1"` targets).
 
 ## Phase 4 — Motion · Phase 5 — Ship
 
