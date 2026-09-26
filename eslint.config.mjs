@@ -5,6 +5,37 @@ import nextTs from 'eslint-config-next/typescript';
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  // Repository boundary (brief §4): UI code reaches data only through lib/container.ts.
+  {
+    files: ['app/**', 'components/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: [
+                '@/lib/repositories/*',
+                '**/lib/repositories/**',
+                '**/repositories/fixtures/**',
+              ],
+              message:
+                'UI must not import repository implementations or fixtures. Use getRepositories() from @/lib/container.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  // Allow intentionally unused destructured names prefixed with `_`.
+  {
+    rules: {
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^_', varsIgnorePattern: '^_', ignoreRestSiblings: true },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

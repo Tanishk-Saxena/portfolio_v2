@@ -221,6 +221,12 @@ Reconciled against the mockup (see `docs/DESIGN-SPEC.md` §7, which is authorita
 
 `education` is dropped (not in the mockup). `image` = `{ src, alt, width, height }`.
 
+### Content strategy (owner decision)
+All content ships as **placeholders**: the mockup's own copy, verbatim, plus placeholder
+media and a placeholder résumé PDF. The same placeholders seed Supabase in Phase 6. Real
+content is then entered by the owner through the admin portal (Phase 8), not in code.
+Nothing blocks on the owner supplying content.
+
 ### Standing content decisions
 - **Projects have no detail route.** The modal plus the GitHub README are the
   write-up.
