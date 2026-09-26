@@ -140,6 +140,11 @@
   :focus:not(:focus-visible) {
     outline: none;
   }
+  /* Programmatic focus targets (sections after a nav jump, the hero heading after
+     back-to-top) move the reading position; they aren't controls, so no ring. */
+  [tabindex='-1']:focus {
+    outline: none;
+  }
 }
 
 @layer components {

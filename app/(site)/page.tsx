@@ -6,6 +6,8 @@ import { Projects } from '@/components/sections/projects';
 import { Quotes } from '@/components/sections/quotes';
 import { Skills } from '@/components/sections/skills';
 import { Writing } from '@/components/sections/writing';
+import { FloatingNav } from '@/components/site/floating-nav';
+import { NAV_SECTIONS } from '@/components/site/nav-sections';
 import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
 import { getRepositories } from '@/lib/container';
@@ -25,6 +27,17 @@ export default async function HomePage() {
       repos.socialLinks.list(),
     ]);
 
+  // The nav lists only sections that render (empty sections return null).
+  const present: Record<string, boolean> = {
+    about: true,
+    experience: experience.length > 0,
+    projects: projects.length > 0,
+    writing: articles.length > 0,
+    skills: skillGroups.length > 0,
+    contact: true,
+  };
+  const navSections = NAV_SECTIONS.filter((s) => present[s.id]);
+
   return (
     <>
       <SiteHeader name={profile.name} onHome />
@@ -39,6 +52,8 @@ export default async function HomePage() {
         <Contact profile={profile} links={socialLinks} />
       </main>
       <SiteFooter note={profile.footerNote} name={profile.name} />
+      {/* Last in DOM order: a convenience duplicate of in-page navigation (Q26). */}
+      <FloatingNav sections={navSections} />
     </>
   );
 }
