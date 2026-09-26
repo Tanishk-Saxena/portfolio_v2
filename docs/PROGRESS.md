@@ -3,8 +3,8 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 2 — Domain and fixtures · branch `feat/phase-2-domain` · built and verified,
-awaiting diff review
+**Now:** Phase 2 — Domain and fixtures · branch `feat/phase-2-domain` · committed; PR open,
+awaiting owner merge
 
 ---
 
@@ -42,11 +42,11 @@ Verification checklist (brief §6, adjusted: everything local first):
 
 | Step | Scope | Status |
 |---|---|---|
-| 2.0 | Post-merge doc fixes: CONTRIBUTING safeguards table (ruleset active, auto-merge note), ledger | built, awaiting review |
-| 2.1 | Domain types (`lib/domain/types.ts`, spec §7) + async repository interfaces with an ordering/copy contract (`lib/domain/repositories.ts`) | built, awaiting review |
-| 2.2 | Fixture repositories over a `FixtureDataset`; shipped content (`lib/repositories/fixtures/data/`); stress dataset; composition root `lib/container.ts` (`DATA_SOURCE`) | built, awaiting review |
-| 2.3 | Contract suite (`lib/repositories/repository-contract.ts`) run against default + stress sets; container tests; ESLint repository boundary; `vitest.config.mts` | built, awaiting review |
-| 2.4 | PR into `main` | todo |
+| 2.0 | Post-merge doc fixes: CONTRIBUTING safeguards table (ruleset active, auto-merge note), ledger | ✅ committed |
+| 2.1 | Domain types (`lib/domain/types.ts`, spec §7) + async repository interfaces with an ordering/copy contract (`lib/domain/repositories.ts`) | ✅ committed |
+| 2.2 | Fixture repositories over a `FixtureDataset`; shipped content (`lib/repositories/fixtures/data/`); stress dataset; composition root `lib/container.ts` (`DATA_SOURCE`) | ✅ committed |
+| 2.3 | Contract suite (`lib/repositories/repository-contract.ts`) run against default + stress sets; container tests; ESLint repository boundary; `vitest.config.mts` | ✅ committed |
+| 2.4 | PR into `main` | open, awaiting owner merge |
 
 Verification checklist (brief §6):
 - [x] Repository tests pass against the interface: 23 tests, contract run on both datasets
