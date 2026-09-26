@@ -39,7 +39,7 @@ export function Contact({ profile, links }: { profile: Profile; links: SocialLin
                   href={link.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center"
+                  className="hit-44 relative inline-block"
                 >
                   {link.label}
                   <span className="sr-only"> (opens in a new tab)</span>
