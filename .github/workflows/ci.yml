@@ -25,3 +25,11 @@ jobs:
       - run: npm run format:check
       - run: npm run test
       - run: npm run build
+      # Critical-path interaction tests against the production build (uses the runner's Chrome).
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

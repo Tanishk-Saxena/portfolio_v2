@@ -13,7 +13,8 @@
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",
-    "prepare": "git config core.hooksPath .githooks || true"
+    "prepare": "git config core.hooksPath .githooks || true",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "marked": "^18.0.14",
