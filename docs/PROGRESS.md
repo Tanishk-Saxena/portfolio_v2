@@ -3,8 +3,8 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 2 — Domain and fixtures · branch `feat/phase-2-domain` · committed; PR open,
-awaiting owner merge
+**Now:** Phase 3 — Public site · PR 1 of 4 (`feat/phase-3-shell`) built and verified,
+awaiting diff review
 
 ---
 
@@ -62,7 +62,25 @@ mockup's copy verbatim, `example.com` links, the mockup's image frames, and
 `public/placeholder/resume.pdf`. The placeholders seed Supabase in Phase 6; the owner
 replaces them through the admin portal (Phase 8). Nothing blocks on real content.
 
-## Phase 3 — Public site · Phase 4 — Motion · Phase 5 — Ship
+Phase 2 merged: PR #3.
+
+## Phase 3 — Public site (layout and behaviour; motion is Phase 4)
+
+Split into four PRs so each stays reviewable:
+
+| PR | Branch | Scope | Status |
+|---|---|---|---|
+| 3.1 | `feat/phase-3-shell` | Screenshot tooling (Playwright on local Chrome); CSS layering fix; shell: `@container/page`, grain, header (signature, theme toggle), footer, section primitives, icons; Hero; About band | built, awaiting review |
+| 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | todo |
+| 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top | todo |
+| 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body | todo |
+
+3.1 verification: compared by eye against mockup screenshots at 390px and 1440px (light),
+plus dark mode. Hero type scale, highlight chip, CTAs, scroll cue, About band grid and
+portrait frame, and footer all match. Found and fixed: unlayered base CSS was beating
+Tailwind utilities (résumé button text rendered dark); base styles now live in `@layer base`.
+
+## Phase 4 — Motion · Phase 5 — Ship
 
 Not started.
 
@@ -75,4 +93,10 @@ Not started.
   (e.g. `bg-paper`, `text-ink`), so `bg-bg` / `text-text` are avoided.
 - Dark mode is attribute-driven: `@custom-variant dark` on `[data-theme='dark']`.
 - `typecheck` runs `next typegen` first, because `LayoutProps`/`PageProps` are generated.
-- Headless Chrome won't size its window below ~500px; use a 390px iframe for mobile screenshots.
+- Visual checks: `node scripts/screenshot.mjs <url> [outDir]` → full-page 390/1440 × light/dark
+  (Playwright on local Chrome, reduced motion forced). Mockup reference:
+  `file:///…/docs/design/artifacts/Portfolio.dc.html?introEnabled=false`.
+- Custom CSS in `styles/tokens.css` must be in `@layer base` / `@layer components`;
+  unlayered rules beat Tailwind utilities.
+- Theme toggle label is "Dark mode" with `aria-pressed` (toggle-button pattern) rather than
+  the mockup's "Toggle colour mode". Invisible a11y refinement.
