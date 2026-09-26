@@ -134,6 +134,13 @@
   --spacing-pullquote-block: clamp(10px, 2vh, 18px);
   --spacing-target: 44px;
 
+  /* Above-the-fold measures (spec 16ch / 52ch / 20ch) as em: `ch` follows the *current*
+     font, so it changed when web fonts swapped in and caused layout shift (CLS 0.116).
+     Values are the mockup's ch widths measured with the real fonts. [ASSUMED] */
+  --spacing-hero-title: 9.6em; /* 16ch of Newsreader Light at display size */
+  --spacing-hero-standfirst: 31.2em; /* 52ch of IBM Plex Sans (ch = 0.6em) */
+  --spacing-article-title: 12em; /* 20ch of Newsreader Light at h1 size */
+
   /* radii */
   --radius-xs: 2px;
   --radius-sm: 3px;
