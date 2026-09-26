@@ -1,3 +1,11 @@
-# Shell hooks must keep LF endings or `sh` fails on `\r`, even on Windows checkouts.
-.githooks/* text eol=lf
-*.sh text eol=lf
+# LF everywhere: Prettier writes LF, and shell hooks break on `\r`, even on Windows checkouts.
+* text=auto eol=lf
+
+# Binary assets — never touch.
+*.ico binary
+*.png binary
+*.jpg binary
+*.webp binary
+*.avif binary
+*.pdf binary
+*.woff2 binary
