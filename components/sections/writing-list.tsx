@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ArticleSummary } from '@/lib/domain/types';
 import { usePagedList } from '@/lib/hooks/use-paged-list';
 import { formatMonthYear } from '@/lib/utils/format';
@@ -17,15 +17,26 @@ const ROW =
  */
 export function WritingList({ articles }: { articles: ArticleSummary[] }) {
   const { visible, hasMore, showMore, reveal, containerRef } = usePagedList(articles.length);
+  const pendingAnchor = useRef<string | null>(null);
 
+  // 1) On load, a #post-<slug> hash expands the list far enough to contain that row…
   useEffect(() => {
     const hash = decodeURIComponent(window.location.hash);
     if (!hash.startsWith('#post-')) return;
     const index = articles.findIndex((a) => `#post-${a.slug}` === hash);
     if (index === -1) return;
+    pendingAnchor.current = hash.slice(1);
     reveal(index);
-    requestAnimationFrame(() => document.getElementById(hash.slice(1))?.scrollIntoView());
   }, [articles, reveal]);
+
+  // 2) …and scrolls only once that row has actually rendered (no frame-timing race).
+  useEffect(() => {
+    const id = pendingAnchor.current;
+    const row = id ? document.getElementById(id) : null;
+    if (!row) return;
+    pendingAnchor.current = null;
+    row.scrollIntoView();
+  }, [visible]);
 
   return (
     <>
