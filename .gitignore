@@ -42,3 +42,7 @@ next-env.d.ts
 
 # visual-check output (scripts/screenshot.mjs default dir)
 /screenshots
+
+# playwright
+/test-results
+/playwright-report
