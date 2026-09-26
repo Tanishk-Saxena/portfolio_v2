@@ -3,8 +3,8 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 3 — Public site · PR 3 of 4 (`feat/phase-3-nav`) built and verified,
-awaiting diff review
+**Now:** Phase 3 — Public site · PR 4 of 4 (`feat/phase-3-article`) built and verified,
+awaiting diff review · next: Phase 4 — Motion
 
 ---
 
@@ -72,8 +72,8 @@ Split into four PRs so each stays reviewable:
 |---|---|---|---|
 | 3.1 | `feat/phase-3-shell` | Screenshot tooling (Playwright on local Chrome); CSS layering fix; shell: `@container/page`, grain, header (signature, theme toggle), footer, section primitives, icons; Hero; About band | ✅ PR #4 |
 | 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | ✅ PR #5 |
-| 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top; Playwright e2e suite in CI | built, awaiting review |
-| 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body | todo |
+| 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top; Playwright e2e suite in CI | ✅ PR #6 |
+| 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body and Listen; axe audits in e2e; Phase 3 verification (CLS fix, font split) | built, awaiting review |
 
 3.1 verification: compared by eye against mockup screenshots at 390px and 1440px (light),
 plus dark mode. Hero type scale, highlight chip, CTAs, scroll cue, About band grid and
@@ -124,6 +124,35 @@ Behaviour notes (3.3):
 - The nav lists only sections that render. Hidden controls are `inert`. After a jump, focus
   moves into the section; after back-to-top, onto the hero heading (no focus ring on these
   `tabindex="-1"` targets).
+
+3.4 notes:
+- Article route: statically generated per on-site article; unknown slug → 404; external-only
+  → redirect. Markdown rendered on the server with raw HTML dropped (tested). Meta
+  description falls back to the first paragraph.
+- Matches the mockup at 1440/390. Text links and the Listen button keep their mockup sizes
+  (40px Listen) with invisible 44px hit areas (Q4 R2); an SSR spacer holds the meta row's
+  height.
+- Fixed a real race: `#post-` deep links scrolled before the revealed rows rendered on busy
+  devices. Now the scroll waits for the row to exist.
+
+### Phase 3 verification (brief §6)
+
+| Gate | Result |
+|---|---|
+| Side-by-side vs mockup at 390 / 1440 | ✅ every section, modal, nav and article (by eye, light and dark) |
+| axe clean | ✅ `e2e/a11y.spec.ts`: home, open accordion, modal, nav, article × light/dark × desktop/mobile, in CI |
+| Lighthouse accessibility 100 | ✅ home and article |
+| Lighthouse best practices / SEO | ✅ 100 / 100 (article SEO fixed via a description fallback) |
+| CLS < 0.1 | ✅ 0. Was 0.116: `ch`-based max-widths changed when web fonts swapped in, so the hero wrapped to 3 lines then 2. Above-the-fold measures are now `em` equivalents of the mockup's `ch` (identical render) |
+| Lighthouse mobile performance ≥ 95, LCP < 2.0 s | ⚠️ **Not yet.** Local runs on this laptop: home 70–86, article 87–91; LCP 2.4–3.8 s (FCP ≈ LCP, text paints immediately). Split the pull-quote italic off the home page (−143 KB preloaded fonts, LCP 4.5 → 3.8 s simulated). Local numbers vary ±15 run to run, so the remaining gap is tracked below and re-measured on a real deployment |
+
+**Tracked perf item (P-1):** measure with PageSpeed Insights on the deployed site (Phase 5).
+Levers, in order:
+1. Newsreader `opsz` axis costs 72 KB (128 vs 56 KB); the owner decides fidelity vs bytes.
+2. Caveat preload (50 KB) could drop if the intro timing allows.
+3. The grain layer's full-viewport blend (paint cost).
+4. The hydration JS footprint.
+Phase 4's intro also changes the LCP picture, so it's re-measured after that.
 
 ## Phase 4 — Motion · Phase 5 — Ship
 
