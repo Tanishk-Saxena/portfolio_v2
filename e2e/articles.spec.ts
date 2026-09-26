@@ -29,11 +29,33 @@ test('an unknown article slug is a 404', async ({ page }) => {
   expect(response?.status()).toBe(404);
 });
 
-test('the Listen control toggles to Stop where speech is available', async ({ page }) => {
+test('the Listen control toggles to Stop and back', async ({ page }) => {
+  // Stub the speech API: real voices differ by machine (CI has none, so speech errors out
+  // instantly). The stub "speaks" until cancelled and records the text it was given.
+  await page.addInitScript(() => {
+    const w = window as unknown as Record<string, unknown>;
+    w.__spoken = '';
+    w.SpeechSynthesisUtterance = class {
+      text: string;
+      onend: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      constructor(text: string) {
+        this.text = text;
+      }
+    };
+    Object.defineProperty(window, 'speechSynthesis', {
+      value: {
+        speak: (u: { text: string }) => (w.__spoken = u.text),
+        cancel: () => {},
+      },
+    });
+  });
   await page.goto('/articles/second-render');
   const listen = page.getByRole('button', { name: 'Listen' });
-  if ((await listen.count()) === 0) test.skip(true, 'speechSynthesis unavailable');
   await listen.click();
+  expect(await page.evaluate(() => (window as unknown as { __spoken: string }).__spoken)).toContain(
+    'The second render is the one users feel',
+  );
   await expect(page.getByRole('button', { name: 'Stop' })).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Stop' }).click();
   await expect(page.getByRole('button', { name: 'Listen' })).toHaveAttribute(
