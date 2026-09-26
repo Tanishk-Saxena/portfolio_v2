@@ -1,8 +1,21 @@
-// Phase 3 builds the public page here.
-export default function HomePage() {
+import { About } from '@/components/sections/about';
+import { Hero } from '@/components/sections/hero';
+import { SiteFooter } from '@/components/site/site-footer';
+import { SiteHeader } from '@/components/site/site-header';
+import { getRepositories } from '@/lib/container';
+
+export default async function HomePage() {
+  const repos = getRepositories();
+  const [profile] = await Promise.all([repos.profile.get()]);
+
   return (
-    <main className="measure-page grid min-h-svh place-items-center">
-      <p className="font-serif text-h1 font-light">Tanishk Saxena</p>
-    </main>
+    <>
+      <SiteHeader name={profile.name} onHome />
+      <main>
+        <Hero profile={profile} />
+        <About profile={profile} />
+      </main>
+      <SiteFooter note={profile.footerNote} name={profile.name} />
+    </>
   );
 }
