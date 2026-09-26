@@ -99,6 +99,12 @@
     display: none;
   }
 
+  /* Background stays exactly where it was while a modal is open (spec §6 ProjectModal).
+     Scrollbars are hidden, so locking causes no layout shift. */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
   body {
     margin: 0;
     background: var(--paper);
