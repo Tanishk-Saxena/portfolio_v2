@@ -44,21 +44,24 @@ a branch to one reviewable unit: days, not weeks.
 
 ## Safeguards
 
-| Guard                                                                                                               | Where                      | Status                                           |
-| ------------------------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------ |
-| CI `check` job on every PR and every push to `main`                                                                 | `.github/workflows/ci.yml` | ✅ active                                        |
-| Squash/rebase merges only; branches deleted on merge                                                                | GitHub repo settings       | ✅ active                                        |
-| Local hook: no commits directly on `main`                                                                           | `.githooks/pre-commit`     | ✅ active after `npm install`                    |
-| Local hook: no pushes to `main`                                                                                     | `.githooks/pre-push`       | ✅ active after `npm install`                    |
-| Server-side: PR required, `check` must pass, branch up to date, no force-push or deletion of `main`, linear history | GitHub ruleset             | ⏳ needs a public repo or GitHub Pro (see below) |
+| Guard                                                                                                               | Where                            | Status                        |
+| ------------------------------------------------------------------------------------------------------------------- | -------------------------------- | ----------------------------- |
+| CI `check` job on every PR and every push to `main`                                                                 | `.github/workflows/ci.yml`       | ✅ active                     |
+| Squash/rebase merges only; branches deleted on merge                                                                | GitHub repo settings             | ✅ active                     |
+| Local hook: no commits directly on `main`                                                                           | `.githooks/pre-commit`           | ✅ active after `npm install` |
+| Local hook: no pushes to `main`                                                                                     | `.githooks/pre-push`             | ✅ active after `npm install` |
+| Server-side: PR required, `check` must pass, branch up to date, no force-push or deletion of `main`, linear history | GitHub ruleset `main protection` | ✅ active (no bypass)         |
 
 The local hooks are installed by `npm install` (the `prepare` script sets
 `core.hooksPath=.githooks`). In a genuine emergency they can be bypassed with
 `git commit --no-verify` / `git push --no-verify`. Don't make a habit of it.
 
-### Server-side ruleset (to apply when the repo is public or on Pro)
+### Server-side ruleset `main protection`
 
 Target: default branch. Rules: restrict deletions · block force pushes · require linear
 history · require a pull request (0 approvals, since it's a solo repo; conversation
 resolution required) · require status check `check` with "branch must be up to date". No
-bypass actors.
+bypass actors, so admins go through PRs too.
+
+Auto-merge is **allowed** but never on by default. It merges a PR only when someone opts that PR in
+(`gh pr merge <n> --auto`). Merging is the owner's call.
