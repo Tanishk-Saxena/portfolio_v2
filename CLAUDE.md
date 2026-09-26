@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus, later, an auth-secured admin portal. The repo is currently a bare `create-next-app` scaffold (Next.js 16, React 19, Tailwind v4, TypeScript strict). No application code exists yet — `app/` is still the template.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus, later, an auth-secured admin portal. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Phase 1 (tokens, fonts, theme, tooling, `/tokens` page) is done. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -25,11 +25,16 @@ Owner's standing direction (brief §0.1): keep the site smooth on older phones w
 ```bash
 npm run dev      # dev server on :3000
 npm run build
-npm run lint     # eslint (flat config, next core-web-vitals + typescript)
-npx tsc --noEmit # typecheck (no script yet)
+npm run lint          # eslint, zero warnings allowed (docs/** ignored)
+npm run typecheck     # next typegen + tsc --noEmit (LayoutProps/PageProps come from typegen)
+npm run format        # prettier --write (Tailwind class sorting); format:check in CI
+npm run test          # vitest run; single file: npx vitest run path/to/file.test.ts
+npm run check         # lint + typecheck + format:check + test
 ```
 
-No test runner is installed yet. The brief specifies Vitest + Testing Library, and Playwright for critical paths; typecheck/format scripts and CI are Phase 1 work.
+CI (`.github/workflows/ci.yml`) runs the same checks plus `build`. There's no git remote yet, so CI hasn't run.
+
+Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome screenshots. For 390px, load the page inside a 390px-wide `<iframe>`, because headless Chrome won't size its window below ~500px.
 
 ## Architecture (planned — see brief §4)
 
