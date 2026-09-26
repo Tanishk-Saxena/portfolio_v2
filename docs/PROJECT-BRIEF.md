@@ -328,6 +328,8 @@ guestbook, newsletter.
   approval is **not** required to start building (§0.1).
 - **Small, spaced-out commits.** Before every commit, the owner reviews the diff. Present
   a summary and wait for approval.
+- **Branching:** trunk-based with short-lived feature branches merged into `main` by pull
+  request only, CI green, no `develop`. Full rules and safeguards in `CONTRIBUTING.md`.
 - **Ledger:** `docs/PROGRESS.md` tracks the current phase and step, what's done and what's
   next. Update it before proposing each commit.
 - Don't block on questions. Make a reasonable call, tag it `[ASSUMED]`, and keep going.

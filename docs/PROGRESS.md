@@ -3,7 +3,8 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 1 — Foundation ✅ complete (local) · next: Phase 2 — Domain and fixtures
+**Now:** Phase 1 ✅ · repo on GitHub with CI · branching strategy on `chore/branching-strategy`
+(awaiting review) · next: Phase 2 — Domain and fixtures on `feat/phase-2-domain`
 
 ---
 
@@ -21,7 +22,9 @@ diff review (brief §8).
 | 1.1 | Tooling: Prettier (+ Tailwind plugin), Vitest + Testing Library, `lint`/`typecheck`/`format`/`test`/`check` scripts, GitHub Actions CI, ESLint ignores `docs/**`, ledger + working agreement | ✅ `53cc1fe` |
 | 1.2 | Token layer: `styles/tokens.css` (both modes, bands, focus ring, reduced motion, grain, keyframes), `app/globals.css` `@theme` mapping, `next/font`, root layout + pre-paint theme script | ✅ `b68ecbb` |
 | 1.3 | `/tokens` verification page; template assets removed; home stub at `app/(site)/page.tsx` | ✅ `778ed27` |
-| 1.4 | Verification (below) + CLAUDE.md commands refreshed | ✅ awaiting review |
+| 1.4 | Verification (below) + CLAUDE.md commands refreshed | ✅ `05772a6` |
+| 1.5 | GitHub remote (private `Tanishk-Saxena/portfolio_v2`), first CI run green on `main` | ✅ |
+| 1.6 | Branching strategy + safeguards: `CONTRIBUTING.md`, PR template, local hooks blocking commits/pushes to `main`, `.gitattributes` for hooks, repo merge settings (squash/rebase only, delete on merge), CI actions bumped to v5 | built, awaiting review |
 
 Verification checklist (brief §6, adjusted: everything local first):
 - [x] Local production build renders `/tokens` with every token in both modes. Screenshots
@@ -29,8 +32,10 @@ Verification checklist (brief §6, adjusted: everything local first):
       accent is derived, band fill stays the same in both modes, no horizontal overflow.
 - [x] Lint gate rejects a deliberately introduced error (`no-var` → exit 1), and is clean
       again after the revert (exit 0).
-- [ ] The same rejection **in CI**: blocked until the repo has a remote (none yet).
-      Branch protection is an owner setting on GitHub.
+- [x] The same rejection **in CI**: throwaway PR #1 failed at `npm run lint` on the planted
+      `no-var`, then was closed and its branch deleted.
+- [ ] Server-side enforcement (ruleset: PR required, `check` required): GitHub returns 403
+      for private repos on the free plan. Needs the repo public or GitHub Pro (owner decision).
 - Deployment (host choice and setup) is **deferred to Phase 5**, by owner decision.
 
 ## Phase 2 — Domain and fixtures (next)
