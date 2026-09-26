@@ -5,7 +5,8 @@
 //   --widths=390,1440      viewport widths (default 390,1440)
 //   --modes=light,dark     colour modes (default both)
 //   --selector=#quotes     capture only this element (default: full page)
-//   --click=<selector>     click this first, then capture the viewport (dialogs, menus)
+//   --scroll=<selector>    scroll this element to the top first, then capture the viewport
+//   --click=<selector>     click this first (after any scroll), then capture the viewport
 //   --scale=2              device scale factor for close-ups (default 1)
 //
 // Uses the locally installed Chrome (Playwright `channel: 'chrome'`), so no browser download.
@@ -31,8 +32,13 @@ const widths = opt('widths', '390,1440').split(',').map(Number);
 const modes = opt('modes', 'light,dark').split(',');
 const selector = opt('selector');
 const click = opt('click');
+const scroll = opt('scroll');
 const scale = Number(opt('scale', '1'));
-const tag = (selector ?? click ?? 'page').replace(/[^a-z0-9]+/gi, '-').replace(/^-|-$/g, '');
+const tag = [scroll, selector ?? click ?? (scroll ? '' : 'page')]
+  .filter(Boolean)
+  .join(' ')
+  .replace(/[^a-z0-9]+/gi, '-')
+  .replace(/^-|-$/g, '');
 mkdirSync(outDir, { recursive: true });
 
 const browser = await chromium.launch({ channel: 'chrome' });
@@ -53,12 +59,21 @@ for (const width of widths) {
     await page.goto(url, { waitUntil: 'networkidle' });
     await page.evaluate(() => document.fonts.ready);
     const file = join(outDir, `${tag}-${width}-${mode}.png`);
+    if (scroll) {
+      await page
+        .locator(scroll)
+        .first()
+        .evaluate((el) => el.scrollIntoView());
+      await page.waitForTimeout(400); // let observers settle
+    }
     if (click) {
       await page.locator(click).first().click();
       await page.waitForTimeout(400);
       await page.screenshot({ path: file });
     } else if (selector) {
       await page.locator(selector).first().screenshot({ path: file });
+    } else if (scroll) {
+      await page.screenshot({ path: file });
     } else {
       await page.screenshot({ path: file, fullPage: true });
     }
