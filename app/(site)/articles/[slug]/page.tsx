@@ -1,0 +1,82 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound, redirect } from 'next/navigation';
+import { ArticleBody } from '@/components/article/article-body';
+import { ListenButton } from '@/components/article/listen-button';
+import { SiteHeader } from '@/components/site/site-header';
+import { ArrowLeftIcon } from '@/components/ui/icons';
+import { getRepositories } from '@/lib/container';
+import { newsreaderItalic, plexMono } from '@/lib/fonts';
+import { formatLongDate } from '@/lib/utils/format';
+import { plainExcerpt } from '@/lib/utils/markdown';
+
+// One static page per on-site article (spec §7; brief §5 nullable-body pattern).
+export async function generateStaticParams() {
+  const articles = await getRepositories().articles.list();
+  return articles.filter((a) => a.hasBody).map((a) => ({ slug: a.slug }));
+}
+
+export async function generateMetadata(props: PageProps<'/articles/[slug]'>): Promise<Metadata> {
+  const { slug } = await props.params;
+  const article = await getRepositories().articles.getBySlug(slug);
+  if (!article) return {};
+  const description = article.excerpt || (article.body ? plainExcerpt(article.body) : undefined);
+  return { title: article.title, description };
+}
+
+export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) {
+  const { slug } = await props.params;
+  const repos = getRepositories();
+  const [article, profile] = await Promise.all([
+    repos.articles.getBySlug(slug),
+    repos.profile.get(),
+  ]);
+
+  if (!article) notFound();
+  if (!article.hasBody || !article.body) {
+    if (article.externalUrl) redirect(article.externalUrl);
+    notFound();
+  }
+
+  return (
+    <>
+      <SiteHeader name={profile.name} onHome={false} />
+      <main
+        className={`measure-article pt-article-top pb-article-bottom ${plexMono.variable} ${newsreaderItalic.variable}`}
+      >
+        <Link
+          href={`/#post-${article.slug}`}
+          className="hit-44 relative mb-article-back inline-flex items-center gap-2 text-label tracking-label text-muted uppercase transition-colors duration-200 hover:text-accent active:text-ink"
+        >
+          <ArrowLeftIcon />
+          Writing
+        </Link>
+
+        <article id="article">
+          <h1 className="max-w-article-title font-serif text-h1 font-light text-pretty text-accent">
+            {article.title}
+          </h1>
+
+          <div className="mt-article-meta-top flex flex-wrap items-center gap-x-4.5 gap-y-2.5 border-b border-border-article pb-article-meta-bottom text-small text-muted">
+            <time dateTime={article.publishedAt}>{formatLongDate(article.publishedAt)}</time>
+            <span aria-hidden="true" className="size-0.75 rounded-full bg-muted" />
+            <span>{article.readMinutes} min read</span>
+            <ListenButton targetId="article" />
+          </div>
+
+          <ArticleBody markdown={article.body} />
+        </article>
+
+        <footer className="mt-article-footer-top flex flex-wrap items-center justify-between gap-3.5 border-t border-border-article pt-article-meta-bottom text-small">
+          <span className="text-muted">Written by {profile.name}</span>
+          <Link
+            href="/#writing"
+            className="hit-44 relative inline-flex items-center text-accent transition-colors duration-200 active:text-ink"
+          >
+            More writing
+          </Link>
+        </footer>
+      </main>
+    </>
+  );
+}
