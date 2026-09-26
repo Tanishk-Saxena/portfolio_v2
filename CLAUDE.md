@@ -32,7 +32,9 @@ npm run test          # vitest run; single file: npx vitest run path/to/file.tes
 npm run check         # lint + typecheck + format:check + test
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same checks plus `build`. There's no git remote yet, so CI hasn't run.
+CI (`.github/workflows/ci.yml`) runs the same checks plus `build` on every PR and push to `main`.
+
+Data source: `DATA_SOURCE=fixtures` (default, shipped content) · `fixtures-stress` (awkward content, used for layout checks) · `supabase` (Phase 6). Set in `.env.local` or inline: `DATA_SOURCE=fixtures-stress npm run dev`. Pages get data from `getRepositories()` in `lib/container.ts`, never from `lib/repositories/**` (ESLint enforces this).
 
 Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome screenshots. For 390px, load the page inside a 390px-wide `<iframe>`, because headless Chrome won't size its window below ~500px.
 

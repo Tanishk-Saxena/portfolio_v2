@@ -3,8 +3,8 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 1 ✅ · repo on GitHub with CI · branching strategy on `chore/branching-strategy`
-(awaiting review) · next: Phase 2 — Domain and fixtures on `feat/phase-2-domain`
+**Now:** Phase 2 — Domain and fixtures · branch `feat/phase-2-domain` · built and verified,
+awaiting diff review
 
 ---
 
@@ -24,7 +24,7 @@ diff review (brief §8).
 | 1.3 | `/tokens` verification page; template assets removed; home stub at `app/(site)/page.tsx` | ✅ `778ed27` |
 | 1.4 | Verification (below) + CLAUDE.md commands refreshed | ✅ `05772a6` |
 | 1.5 | GitHub remote (private `Tanishk-Saxena/portfolio_v2`), first CI run green on `main` | ✅ |
-| 1.6 | Branching strategy + safeguards: `CONTRIBUTING.md`, PR template, local hooks blocking commits/pushes to `main`, `.gitattributes` for hooks, repo merge settings (squash/rebase only, delete on merge), CI actions bumped to v5 | built, awaiting review |
+| 1.6 | Branching strategy + safeguards: `CONTRIBUTING.md`, PR template, local hooks blocking commits/pushes to `main`, `.gitattributes` for hooks, repo merge settings (squash/rebase only, delete on merge), CI actions bumped to v5 | ✅ PR #2 → `b6b5e25` |
 
 Verification checklist (brief §6, adjusted: everything local first):
 - [x] Local production build renders `/tokens` with every token in both modes. Screenshots
@@ -34,17 +34,33 @@ Verification checklist (brief §6, adjusted: everything local first):
       again after the revert (exit 0).
 - [x] The same rejection **in CI**: throwaway PR #1 failed at `npm run lint` on the planted
       `no-var`, then was closed and its branch deleted.
-- [ ] Server-side enforcement (ruleset: PR required, `check` required): GitHub returns 403
-      for private repos on the free plan. Needs the repo public or GitHub Pro (owner decision).
+- [x] Server-side enforcement: repo made public; ruleset `main protection` active (PR required,
+      `check` required and up to date, linear history, no force-push/deletion, no bypass).
 - Deployment (host choice and setup) is **deferred to Phase 5**, by owner decision.
 
-## Phase 2 — Domain and fixtures (next)
+## Phase 2 — Domain and fixtures (branch `feat/phase-2-domain`)
 
-Domain types from spec §7 · repository interfaces (all async) · fixture implementations ·
-`lib/container.ts` · interface-level contract tests · stress fixture set with awkward
-content · ESLint rule blocking `app/` and `components/` from importing repositories.
+| Step | Scope | Status |
+|---|---|---|
+| 2.0 | Post-merge doc fixes: CONTRIBUTING safeguards table (ruleset active, auto-merge note), ledger | built, awaiting review |
+| 2.1 | Domain types (`lib/domain/types.ts`, spec §7) + async repository interfaces with an ordering/copy contract (`lib/domain/repositories.ts`) | built, awaiting review |
+| 2.2 | Fixture repositories over a `FixtureDataset`; shipped content (`lib/repositories/fixtures/data/`); stress dataset; composition root `lib/container.ts` (`DATA_SOURCE`) | built, awaiting review |
+| 2.3 | Contract suite (`lib/repositories/repository-contract.ts`) run against default + stress sets; container tests; ESLint repository boundary; `vitest.config.mts` | built, awaiting review |
+| 2.4 | PR into `main` | todo |
 
-Started early (uncommitted, on hold): `lib/domain/types.ts`.
+Verification checklist (brief §6):
+- [x] Repository tests pass against the interface: 23 tests, contract run on both datasets
+- [x] No component imports fixture data: enforced by ESLint `no-restricted-imports` on
+      `app/**` and `components/**` (a probe import failed lint as intended)
+- [x] Every method returns a Promise (asserted in the contract)
+- [x] Awkward cases present in the stress set (long role title, 5+ roles, empty summary,
+      no live/repo URLs, 0 and 7 tags, external-only article, no headline highlight,
+      long email, 12-item skill group)
+
+**Content strategy (owner decision, brief §5):** everything ships as placeholders, i.e. the
+mockup's copy verbatim, `example.com` links, the mockup's image frames, and
+`public/placeholder/resume.pdf`. The placeholders seed Supabase in Phase 6; the owner
+replaces them through the admin portal (Phase 8). Nothing blocks on real content.
 
 ## Phase 3 — Public site · Phase 4 — Motion · Phase 5 — Ship
 
