@@ -10,7 +10,9 @@ export function Hero({ profile }: { profile: Profile }) {
     <section
       id="hero"
       aria-labelledby="hero-heading"
-      className="relative measure-page flex min-h-svh scroll-mt-header flex-col justify-center pt-29 pb-19.5"
+      // Bottom padding: the mockup's 78px, or enough to keep long copy clear of the scroll cue
+      // (cue offset + 42px glyph + 10px gap + label + breathing room), whichever is larger.
+      className="relative measure-page flex min-h-svh scroll-mt-header flex-col justify-center pt-29 pb-[max(78px,calc(clamp(22px,4vh,38px)+84px))]"
     >
       <p className="mb-7 text-label tracking-eyebrow text-muted uppercase">{profile.eyebrow}</p>
 
