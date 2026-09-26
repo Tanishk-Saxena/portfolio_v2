@@ -55,14 +55,13 @@
   color-scheme: dark;
 }
 
-/* About + Contact accent bands re-point the tokens for their contents (spec §1.2). */
+/* About + Contact accent bands re-point the tokens for their contents (spec §1.2).
+   Token overrides stay unlayered (they're variables); the paint lives in utilities. */
 .band {
   --ink: #fdf8f0;
   --muted: rgb(253 248 240 / 0.89); /* Q2 — mockup .88 */
   --paper2: rgb(253 248 240 / 0.09); /* Q2 — mockup .13 */
   --accent: #fdf8f0;
-  background: var(--accent-fill);
-  color: var(--ink);
 }
 
 /*
@@ -85,75 +84,80 @@
 }
 
 /* ------------------------------------------------------------------ base elements */
+/* Layered so Tailwind utilities (utilities layer) always win over these defaults. */
 
-html {
-  scroll-behavior: smooth;
-  scrollbar-width: none; /* Q22 R2 — hidden as mocked */
-  -webkit-text-size-adjust: 100%;
-}
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-  display: none;
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Q22 R2 — hidden as mocked */
+    -webkit-text-size-adjust: 100%;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+  }
 
-body {
-  margin: 0;
-  background: var(--paper);
-  color: var(--ink);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition:
-    background-color var(--theme-fade),
-    color var(--theme-fade);
-}
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition:
+      background-color var(--theme-fade),
+      color var(--theme-fade);
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 
-@media (hover: hover) {
-  a:hover {
-    color: var(--accent);
+  @media (hover: hover) {
+    a:hover {
+      color: var(--accent);
+    }
+  }
+
+  ::selection {
+    background: var(--accent-fill);
+    color: var(--on-accent);
+  }
+
+  /* Q3 — one ring everywhere; turns cream inside bands because --accent does. */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
   }
 }
 
-::selection {
-  background: var(--accent-fill);
-  color: var(--on-accent);
-}
-
-/* Q3 — one ring everywhere; turns cream inside bands because --accent does. */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/*
+@layer components {
+  /*
  * Q4 R2 — invisible 44×44 hit area for controls whose visual size is smaller.
  * The element needs `position: relative` (or absolute/fixed).
  */
-.hit-44::before {
-  content: '';
-  position: absolute;
-  inset: min(0px, calc((100% - 44px) / 2));
-}
+  .hit-44::before {
+    content: '';
+    position: absolute;
+    inset: min(0px, calc((100% - 44px) / 2));
+  }
 
-/* Paper grain (spec §1.4). Fixed, above content, never interactive. */
-.grain {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: var(--grain-blend);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 190px 190px;
+  /* Paper grain (spec §1.4). Fixed, above content, never interactive. */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: var(--grain-opacity);
+    mix-blend-mode: var(--grain-blend);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 190px 190px;
+  }
 }
 
 /* ------------------------------------------------------------------ keyframes */

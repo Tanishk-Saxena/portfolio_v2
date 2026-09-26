@@ -74,7 +74,7 @@ export function TokenPanel({ mode }: { mode: 'light' | 'dark' }) {
       </Group>
 
       <Group title="Band">
-        <div className="band rounded-sm p-6">
+        <div className="band rounded-sm bg-accent-fill p-6 text-ink">
           <p className="font-serif text-h2">About</p>
           <p className="mt-3 text-body text-muted">Band muted copy on the accent fill.</p>
           <a href="#" className="mt-3 inline-block font-serif text-email">
