@@ -30,6 +30,7 @@ npm run typecheck     # next typegen + tsc --noEmit (LayoutProps/PageProps come 
 npm run format        # prettier --write (Tailwind class sorting); format:check in CI
 npm run test          # vitest run; single file: npx vitest run path/to/file.test.ts
 npm run check         # lint + typecheck + format:check + test
+npm run test:e2e      # Playwright critical paths (e2e/) against `next start`; run `npm run build` first
 ```
 
 CI (`.github/workflows/ci.yml`) runs the same checks plus `build` on every PR and push to `main`.
