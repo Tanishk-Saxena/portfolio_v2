@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 3 — Public site · PR 1 of 4 (`feat/phase-3-shell`) built and verified,
+**Now:** Phase 3 — Public site · PR 2 of 4 (`feat/phase-3-sections`) built and verified,
 awaiting diff review
 
 ---
@@ -70,8 +70,8 @@ Split into four PRs so each stays reviewable:
 
 | PR | Branch | Scope | Status |
 |---|---|---|---|
-| 3.1 | `feat/phase-3-shell` | Screenshot tooling (Playwright on local Chrome); CSS layering fix; shell: `@container/page`, grain, header (signature, theme toggle), footer, section primitives, icons; Hero; About band | built, awaiting review |
-| 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | todo |
+| 3.1 | `feat/phase-3-shell` | Screenshot tooling (Playwright on local Chrome); CSS layering fix; shell: `@container/page`, grain, header (signature, theme toggle), footer, section primitives, icons; Hero; About band | ✅ PR #4 |
+| 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | built, awaiting review |
 | 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top | todo |
 | 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body | todo |
 
@@ -79,6 +79,29 @@ Split into four PRs so each stays reviewable:
 plus dark mode. Hero type scale, highlight chip, CTAs, scroll cue, About band grid and
 portrait frame, and footer all match. Found and fixed: unlayered base CSS was beating
 Tailwind utilities (résumé button text rendered dark); base styles now live in `@layer base`.
+
+3.2 verification:
+- Full page vs mockup at 1440 and 390 (light and dark): section order, rhythm, rules, the
+  experience rows, the 3-up project grid, the writing rows, the skills columns, the quote
+  block and the Contact band all match.
+- Modal opened by clicking a card: side-by-side 880×420 on desktop, stacked on mobile, dark
+  mode correct. Container queries work inside the top-layer `<dialog>`.
+- Stress dataset (`DATA_SOURCE=fixtures-stress`) found three issues, all fixed:
+  - Hero: the scroll cue could collide with long copy. Bottom padding is now
+    `max(78px, cue space)`, which moves the normal hero ≈20px higher than the mockup.
+  - Experience: rows without a summary lost the caret slot, so dates misaligned. The slot is
+    now reserved.
+  - Contact: long emails broke mid-word. They now wrap after `@` / `.` (`<wbr>`).
+
+Behaviour notes (3.2):
+- Experience body uses grid rows `0fr → 1fr` + `inert` when collapsed; Phase 4 animates it.
+- Project card: stretched `<button>` + sibling icon links (no nesting). The overlay shows on
+  hover, keyboard focus, narrow container, or `(hover: none)`. Hidden links don't catch clicks.
+- Modal: native `<dialog>`, backdrop click closes, `html:has(dialog[open])` locks scroll.
+- Show more moves focus to the first revealed item. `#post-<slug>` deep links expand then
+  scroll.
+- Quotes: all quotes stacked in one grid cell (the box fits the tallest). Dots + play/pause
+  (WCAG 2.2.2). Pauses on hover/focus/hidden tab; starts paused under reduced motion.
 
 ## Phase 4 — Motion · Phase 5 — Ship
 
@@ -94,7 +117,8 @@ Not started.
 - Dark mode is attribute-driven: `@custom-variant dark` on `[data-theme='dark']`.
 - `typecheck` runs `next typegen` first, because `LayoutProps`/`PageProps` are generated.
 - Visual checks: `node scripts/screenshot.mjs <url> [outDir]` → full-page 390/1440 × light/dark
-  (Playwright on local Chrome, reduced motion forced). Mockup reference:
+  (Playwright on local Chrome, reduced motion forced); `--selector=#id` for close-ups,
+  `--click=<selector>` to open a dialog or menu first. Mockup reference:
   `file:///…/docs/design/artifacts/Portfolio.dc.html?introEnabled=false`.
 - Custom CSS in `styles/tokens.css` must be in `@layer base` / `@layer components`;
   unlayered rules beat Tailwind utilities.
