@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 4 — Motion · branch `feat/phase-4-motion` · built and verified, awaiting diff review
+**Now:** Phase 4 — Motion · done, PR from `feat/phase-4-motion` · next: Phase 5 — Ship
 
 ---
 
@@ -187,7 +187,7 @@ Regressions caught in owner review: the section-entrance animation filled forwar
 
 Testing (owner direction, end of Phase 4): trimmed to unit tests for data plus a small e2e smoke suite (home loads/hydrates, theme, project modal, section nav, article + Back, 404) and axe on both pages in both modes, on desktop + mobile Chrome. The WebKit/device/motion suites were removed: flaky on Windows WebKit, slow, and testing UI details rather than behaviour.
 
-Later owner rounds (all in spec §10): Show more as a sequence (button glides, page follows, items fade in one by one) and Show less; ripple polish (one speed, touch-scroll cancel, border coverage, inverse back-to-top, nav selection); header auto-hide on phones only; jumps land flush without the divider; reload opens at the URL's #section with no hero flash (URL follows the section being read); articles keep native scroll restoration; scroll cue ends after three loops; tighter section rhythm; About balanced. Open before the PR: Show less smoothness, #hero in the URL, mobile Back-from-article, a designed 404.
+Later owner rounds (all in spec §10): Show more as a sequence (button glides, page follows, items fade in one by one) and Show less; ripple polish (one speed, touch-scroll cancel, border coverage, inverse back-to-top, nav selection); header auto-hide on phones only; jumps land flush without the divider; reload opens at the URL's #section with no hero flash (URL follows the section being read); articles keep native scroll restoration; scroll cue ends after three loops; tighter section rhythm; About balanced. Then: Show less as the exact reverse of Show more (landing rules in spec §10); reload positioned once (no late yank); phones land exactly on #writing from an article or the 404; `#hero` never in the URL; phones return from an article without a view transition (article slides out, home settles in); a designed 404 (`app/not-found.tsx`).
 
 Writing rows (owner's call): the read time sits on its own line under the title; the date stays right, level with the title's first line.
 
