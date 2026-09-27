@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 5 — Ship · 5.1 (metadata, OG, sitemap, JSON-LD, analytics) built on `feat/phase-5-ship` · next: deploy to Vercel (needs owner)
+**Now:** Phase 5 — Ship · done, PR from `feat/phase-5-ship` · next: Milestone B (Phase 6 — Supabase)
 
 ---
 
@@ -145,13 +145,7 @@ Behaviour notes (3.3):
 | CLS < 0.1 | ✅ 0. Was 0.116: `ch`-based max-widths changed when web fonts swapped in, so the hero wrapped to 3 lines then 2. Above-the-fold measures are now `em` equivalents of the mockup's `ch` (identical render) |
 | Lighthouse mobile performance ≥ 95, LCP < 2.0 s | ⚠️ **Not yet.** Local runs on this laptop: home 70–86, article 87–91; LCP 2.4–3.8 s (FCP ≈ LCP, text paints immediately). Split the pull-quote italic off the home page (−143 KB preloaded fonts, LCP 4.5 → 3.8 s simulated). Local numbers vary ±15 run to run, so the remaining gap is tracked below and re-measured on a real deployment |
 
-**Tracked perf item (P-1):** measure with PageSpeed Insights on the deployed site (Phase 5).
-Levers, in order:
-1. Newsreader `opsz` axis costs 72 KB (128 vs 56 KB); the owner decides fidelity vs bytes.
-2. Caveat preload (50 KB) could drop if the intro timing allows.
-3. The grain layer's full-viewport blend (paint cost).
-4. The hydration JS footprint.
-Phase 4's intro also changes the LCP picture, so it's re-measured after that.
+**Tracked perf item (P-1):** moved to `docs/PERFORMANCE.md` (Phase 5), with every reading so far.
 
 ## Phase 4 — Motion (branch `feat/phase-4-motion`)
 
@@ -201,9 +195,10 @@ Experience rows: dates and caret are one group, baseline-aligned with the role's
 | Step | Scope | Status |
 |---|---|---|
 | 5.1 | Site URL (`lib/site.ts`: `NEXT_PUBLIC_SITE_URL` → Vercel production domain → localhost); metadata (`metadataBase`, Open Graph, Twitter `summary_large_image`, canonicals, article `og:type=article`); share cards via `next/og` (home = the hero, article = title in accent), prerendered at build; app icons (Caveat "T" on the accent chip) + `favicon.ico`; `robots.txt`, `sitemap.xml`; JSON-LD (`ProfilePage` → `Person`, `BlogPosting` per article); Vercel Analytics + Speed Insights | ✅ built, awaiting review |
-| 5.2 | Deploy to Vercel (owner connects the repo), set `NEXT_PUBLIC_SITE_URL`, enable Analytics/Speed Insights | ⏳ needs owner |
-| 5.3 | Custom domain | ⏳ needs owner |
-| 5.4 | Verification on the live URL (below) + P-1 perf re-measure | ⏳ after deploy |
+| 5.2 | Deploy to Vercel: project `portfolio-v2`, git-connected (main → production, branches → previews), live at https://tanishk-saxena.vercel.app (owner renamed the domain). `NEXT_PUBLIC_SITE_URL` set to it for production + preview, because the Vercel production domain lagged the rename and the old one now 404s. Analytics/Speed Insights toggles: owner, in the dashboard | ✅ Analytics + Speed Insights on |
+| 5.3 | Domain: `tanishk-saxena.vercel.app` (owner's choice); a bought domain later only needs `NEXT_PUBLIC_SITE_URL` changed | ✅ |
+| 5.4 | Verification on the live URL (below); perf readings in `docs/PERFORMANCE.md` | ✅ |
+| 5.5 | Owner revisions: Contact and About bands take the section rhythm top = bottom (spec §10); perf + a11y flagged, never blocking (brief §3): axe is a non-blocking CI warning, `docs/PERFORMANCE.md` ledger | ✅ |
 
 Decisions (5.1):
 - [ASSUMED] Host: **Vercel** (brief's tentative choice). Analytics: **Vercel Analytics + Speed
@@ -218,10 +213,15 @@ Decisions (5.1):
 Verification checklist (brief §6):
 - [x] Local: every metadata route returns 200 with the right type; OG cards and icons
       rendered and checked by eye; lint/typecheck/unit (44) and e2e smoke + axe (14) green
-- [ ] Rich Results Test passes (ProfilePage, BlogPosting) on the live URL
-- [ ] OG card renders in a real preview (paste the link into a chat app)
-- [ ] Tested on an actual phone against the deployed site
-- [ ] P-1: PageSpeed Insights / Speed Insights field data on the deployed site
+- [x] Live: every route 200 (404 for unknown articles); canonical, og:image, sitemap and
+      JSON-LD all use the production domain
+- [x] Structured data valid on the live URL: Schema.org validator, 0 errors / 0 warnings
+      (ProfilePage home, BlogPosting article). Google's Rich Results Test is the same check
+      with Google's eligibility on top: optional, owner
+- [x] OG card renders in a real preview (owner, chat app)
+- [x] Tested on an actual phone against the deployed site (owner)
+- [~] P-1 (LCP 3.3–3.6 s lab vs 2.0 s target): open and flagged in `docs/PERFORMANCE.md`;
+      not a blocker (brief §3)
 
 **Later (owner):** after Milestone B, Phase 10 audits overall performance and a11y scores and
 adds them to CI as an amber warning (read and flagged, never blocking; brief §6). The

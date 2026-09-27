@@ -26,9 +26,18 @@ jobs:
       - run: npm run test
       - run: npm run build
       # Critical-path interaction tests against the production build (uses the runner's Chrome).
-      - run: npm run test:e2e
+      # Functionality gates the PR.
+      - run: npx playwright test e2e/smoke.spec.ts
+      # Accessibility is a reading, not a gate (owner, brief §3): a failure is flagged as a
+      # warning on the PR (amber), never a red check.
+      - name: Accessibility (axe) — flagged, non-blocking
+        id: a11y
+        continue-on-error: true
+        run: npx playwright test e2e/a11y.spec.ts
+      - if: steps.a11y.outcome == 'failure'
+        run: echo "::warning title=Accessibility::axe found violations; see the a11y step and the playwright-traces artifact."
       - uses: actions/upload-artifact@v4
-        if: failure()
+        if: failure() || steps.a11y.outcome == 'failure'
         with:
           name: playwright-traces
           path: test-results/
