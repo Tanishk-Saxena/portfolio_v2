@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { About } from '@/components/sections/about';
 import { Contact } from '@/components/sections/contact';
 import { Experience } from '@/components/sections/experience';
@@ -13,7 +14,11 @@ import { RevealObserver } from '@/components/site/reveal-observer';
 import { ScrollRestore } from '@/components/site/scroll-restore';
 import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
+import { JsonLd } from '@/components/site/json-ld';
 import { getRepositories } from '@/lib/container';
+import { personJsonLd, profilePageJsonLd } from '@/lib/structured-data';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 // Section order is the mockup's (spec §7): Hero → About → Experience → Projects → Writing →
 // Skills → Quotes → Contact → footer.
@@ -43,6 +48,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={profilePageJsonLd(personJsonLd(profile, experience, socialLinks))} />
       <SiteHeader name={profile.name} onHome />
       <PageTransition>
         <main>

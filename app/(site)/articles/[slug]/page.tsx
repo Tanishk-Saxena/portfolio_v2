@@ -4,10 +4,13 @@ import { ArticleBody } from '@/components/article/article-body';
 import { BackLink } from '@/components/article/back-link';
 import { ListenButton } from '@/components/article/listen-button';
 import { HomeLink } from '@/components/site/home-link';
+import { JsonLd } from '@/components/site/json-ld';
 import { PageTransition } from '@/components/site/page-transition';
 import { SiteHeader } from '@/components/site/site-header';
 import { getRepositories } from '@/lib/container';
+import type { Article } from '@/lib/domain/types';
 import { newsreaderItalic, plexMono } from '@/lib/fonts';
+import { blogPostingJsonLd } from '@/lib/structured-data';
 import { formatLongDate } from '@/lib/utils/format';
 import { plainExcerpt } from '@/lib/utils/markdown';
 
@@ -19,11 +22,33 @@ export async function generateStaticParams() {
 
 export async function generateMetadata(props: PageProps<'/articles/[slug]'>): Promise<Metadata> {
   const { slug } = await props.params;
-  const article = await getRepositories().articles.getBySlug(slug);
+  const repos = getRepositories();
+  const [article, profile] = await Promise.all([
+    repos.articles.getBySlug(slug),
+    repos.profile.get(),
+  ]);
   if (!article) return {};
-  const description = article.excerpt || (article.body ? plainExcerpt(article.body) : undefined);
-  return { title: article.title, description };
+  const path = `/articles/${article.slug}`;
+  const description = describe(article);
+  return {
+    title: article.title,
+    description,
+    alternates: { canonical: path },
+    // Replaces the root openGraph wholesale (metadata merges shallowly), so restate the basics.
+    openGraph: {
+      type: 'article',
+      siteName: profile.name,
+      locale: 'en_GB',
+      url: path,
+      title: article.title,
+      description,
+      publishedTime: article.publishedAt,
+    },
+  };
 }
+
+const describe = (article: Article) =>
+  article.excerpt || (article.body ? plainExcerpt(article.body) : undefined);
 
 export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) {
   const { slug } = await props.params;
@@ -41,6 +66,7 @@ export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) 
 
   return (
     <>
+      <JsonLd data={blogPostingJsonLd(article, profile, describe(article))} />
       <SiteHeader name={profile.name} onHome={false} />
       <PageTransition>
         <main
