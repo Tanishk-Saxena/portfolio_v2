@@ -85,9 +85,13 @@ Verify current stable versions before scaffolding rather than trusting this file
 
 ---
 
-## 3. Non-negotiable constraints
+## 3. Constraints
 
-Gates, not aspirations. A phase is not complete if it breaks one.
+**Functionality** is a gate: a phase is not complete, and CI is not green, while something is
+broken. **Performance and accessibility** (owner, Phase 5) are targets that are always
+measured and always flagged, but never block a phase, a merge or a deploy (a slow site beats
+no site). Misses are tracked as open items in `docs/PERFORMANCE.md` and addressed
+separately; in CI they show as warnings (amber), never red.
 
 ### Performance
 - **LCP under 2.0s** on simulated 4G / mid-tier mobile.

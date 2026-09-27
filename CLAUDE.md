@@ -10,7 +10,7 @@ Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular tra
 
 Read these before doing any work; they are the source of truth:
 
-- `docs/PROJECT-BRIEF.md` — stack, architecture rules, content model, phased plan, non-negotiable constraints. **Everything non-visual.**
+- `docs/PROJECT-BRIEF.md` — stack, architecture rules, content model, phased plan, constraints (functionality gates; perf and a11y flagged). **Everything non-visual.**
 - `docs/design/HANDOFF.md` — build checklist, tokens, breakpoints, a11y requirements for the design.
 - `docs/design/DESIGN.md` — design rationale, section structure, signature interactions, still-open design options.
 - `docs/design/artifacts/*.dc.html` — the Claude Design mockups (`Portfolio`, `Article`, `Mobile preview`, `Dev notes` = behaviour spec). Single-file HTML rendered via `support.js`; they are a _reference spec_, not code to port. Open them in a browser to inspect behaviour.
@@ -52,11 +52,11 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 - Fonts: Newsreader display/long-form, IBM Plex Sans UI/body, Caveat 600 only for the signature and the hero's highlighted word.
 - Single breakpoint at 760px, via container queries on the `page` container (`@wide:`); mobile (390px) first; measure 1140px (760px articles).
 
-## Constraints that gate every phase
+## Constraints (functionality gates; performance and a11y are flagged, never blocking)
 
 - **Mobile first.** Build for 390px touch first, using platform features that work everywhere (native elements, CSS, transform/opacity) so behaviour is right by construction. Check changed UI on a phone-sized touch viewport (and on the owner's phone via the LAN IP; `allowedDevOrigins` in `next.config.ts` makes that work).
-- **Testing is lean (owner direction).** Unit tests for data/logic (repositories now, Supabase + admin later). E2E is a small smoke suite (`e2e/smoke.spec.ts`, `e2e/a11y.spec.ts`) for major flows only: outcomes, never timings, pixels or animation details. No tests for purely visual UI (ripples, entrances). Don't gate small fixes on the full suite; run what's relevant, and the full suite before a PR. A change that needs edits to unrelated files is a design smell.
-- LCP < 2.0s, CLS < 0.1. Don't hide the LCP text behind an opacity-0 entrance.
+- **Testing is lean (owner direction).** Unit tests for data/logic (repositories now, Supabase + admin later). E2E is a small smoke suite (`e2e/smoke.spec.ts`, blocking in CI; `e2e/a11y.spec.ts`, axe, a non-blocking warning in CI) for major flows only: outcomes, never timings, pixels or animation details. No tests for purely visual UI (ripples, entrances). Don't gate small fixes on the full suite; run what's relevant, and the full suite before a PR. A change that needs edits to unrelated files is a design smell.
+- Targets, tracked in `docs/PERFORMANCE.md` and flagged when missed (never a blocker, brief §3): LCP < 2.0s, CLS < 0.1. Don't hide the LCP text behind an opacity-0 entrance.
 - WCAG 2.1 AA, keyboard operable, 44px hit areas (invisible extension is fine), `prefers-reduced-motion` gives a static but fully usable site.
 - No scroll hijacking. Prefer transform/opacity; small contained exceptions per brief §0.1.
 - Components must survive variable-length content (long titles, empty optional fields, extra items).

@@ -10,7 +10,7 @@ export function About({ profile }: { profile: Profile }) {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="band bg-accent-fill pt-band-about pb-band text-ink transition-colors duration-450 @wide/page:scroll-mt-header"
+      className="band bg-accent-fill py-section text-ink transition-colors duration-450 @wide/page:scroll-mt-header"
     >
       <div data-reveal-group className="measure-page">
         <SectionHeading id="about-heading">About</SectionHeading>
