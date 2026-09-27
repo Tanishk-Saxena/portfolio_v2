@@ -30,7 +30,8 @@ export function ThemeToggle() {
       aria-label="Dark mode"
       aria-pressed={dark}
       onClick={() => applyTheme(dark ? 'light' : 'dark')}
-      className="grid size-11.5 flex-none cursor-pointer place-items-center rounded-full border border-border-control transition-[border-color,background-color] duration-300 hover:border-accent active:border-accent-fill active:bg-accent-fill"
+      data-ripple="accent-fill"
+      className="grid size-11.5 flex-none cursor-pointer place-items-center rounded-full border border-border-control transition-[border-color,background-color] duration-300 hover:border-accent active:border-accent-fill"
     >
       {/* Half-filled dial; turns over in dark mode (spec §6 ThemeToggle). */}
       <span

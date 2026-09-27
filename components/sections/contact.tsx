@@ -18,9 +18,9 @@ export function Contact({ profile, links }: { profile: Profile; links: SocialLin
     <section
       id="contact"
       aria-labelledby="contact-heading"
-      className="band scroll-mt-header bg-accent-fill pt-band pb-band-end text-ink transition-colors duration-450"
+      className="band bg-accent-fill pt-band pb-band-end text-ink transition-colors duration-450 @wide/page:scroll-mt-header"
     >
-      <div className="measure-page">
+      <div data-reveal-group className="measure-page">
         <SectionHeading id="contact-heading">Contact</SectionHeading>
         <p className="max-w-[18ch] font-serif text-statement font-light text-pretty">
           {profile.contactStatement}

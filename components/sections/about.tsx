@@ -10,19 +10,19 @@ export function About({ profile }: { profile: Profile }) {
     <section
       id="about"
       aria-labelledby="about-heading"
-      className="band scroll-mt-header bg-accent-fill py-band text-ink transition-colors duration-450"
+      className="band bg-accent-fill pt-band-about pb-band text-ink transition-colors duration-450 @wide/page:scroll-mt-header"
     >
-      <div className="measure-page">
+      <div data-reveal-group className="measure-page">
         <SectionHeading id="about-heading">About</SectionHeading>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,250px),1fr))] items-start gap-grid-about">
-          <div className="relative grid aspect-4/5 max-w-90 place-items-center overflow-hidden rounded-sm border border-border-header bg-surface">
+        <div className="grid items-start gap-grid-about @wide/page:grid-cols-[var(--spacing-portrait-wide)_minmax(0,1fr)] @wide/page:items-center">
+          <div className="relative mx-auto grid aspect-4/5 w-full max-w-(--spacing-portrait) place-items-center overflow-hidden rounded-sm border border-border-header bg-surface @wide/page:mx-0 @wide/page:max-w-none">
             {portrait ? (
               <Image
                 src={portrait.src}
                 alt={portrait.alt}
                 fill
-                sizes="(min-width: 760px) 360px, 100vw"
+                sizes="(min-width: 760px) 360px, 224px"
                 className="object-cover"
                 style={{ objectPosition: portrait.focalPoint }}
               />
@@ -31,7 +31,7 @@ export function About({ profile }: { profile: Profile }) {
             )}
           </div>
 
-          <div className="max-w-[60ch]">
+          <div className="max-w-[60ch] @wide/page:max-w-none">
             <p className="mb-7 font-serif text-lead font-light text-pretty">{profile.aboutLead}</p>
             {profile.aboutParagraphs.map((paragraph, i) => (
               <p key={i} className="mb-5 text-body text-muted last:mb-0">

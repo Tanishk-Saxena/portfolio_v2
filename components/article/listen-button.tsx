@@ -4,7 +4,6 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 
 const SPEAKER =
   'M12 4.4 7.6 8H4.6v8h3L12 19.6zM16.2 9.2a4 4 0 0 1 0 5.6M18.8 6.6a7.6 7.6 0 0 1 0 10.8';
-const PAUSE = 'M9 6.5h2.2v11H9zM12.8 6.5H15v11h-2.2z';
 
 const noop = () => () => {};
 const hasSpeech = () => typeof window !== 'undefined' && 'speechSynthesis' in window;
@@ -43,8 +42,10 @@ export function ListenButton({ targetId }: { targetId: string }) {
       type="button"
       aria-pressed={speaking}
       onClick={toggle}
-      className={`hit-44 relative ml-auto inline-flex h-10 cursor-pointer items-center gap-2.25 rounded-pill border px-4 text-small transition-colors duration-250 ${speaking ? 'border-accent-fill bg-accent-fill text-on-accent' : 'border-border-listen text-ink hover:border-accent'} active:border-accent-fill active:bg-accent-fill active:text-on-accent`}
+      data-ripple="accent-fill"
+      className={`hit-44 relative ml-auto inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-2.25 rounded-pill border px-4 text-small transition-colors duration-250 ${speaking ? 'border-accent-fill bg-accent-fill text-on-accent' : 'border-border-listen text-ink hover:border-accent'} active:border-accent-fill active:text-on-accent`}
     >
+      {/* Icon slot keeps one size, so Listen ↔ Stop never changes the button's width. */}
       <svg
         width="15"
         height="15"
@@ -53,13 +54,21 @@ export function ListenButton({ targetId }: { targetId: string }) {
         aria-hidden="true"
         className={speaking ? '' : 'text-accent'}
       >
-        <path
-          d={speaking ? PAUSE : SPEAKER}
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        {speaking ? (
+          // Solid, rounded pause bars read cleanly on the filled button.
+          <>
+            <rect x="6.5" y="5.5" width="3.8" height="13" rx="1.3" fill="currentColor" />
+            <rect x="13.7" y="5.5" width="3.8" height="13" rx="1.3" fill="currentColor" />
+          </>
+        ) : (
+          <path
+            d={SPEAKER}
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
       </svg>
       {speaking ? 'Stop' : 'Listen'}
     </button>

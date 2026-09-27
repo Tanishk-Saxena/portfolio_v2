@@ -1,14 +1,27 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import type { ArticleSummary } from '@/lib/domain/types';
 import { usePagedList } from '@/lib/hooks/use-paged-list';
 import { formatMonthYear } from '@/lib/utils/format';
 import { ShowMoreButton } from '@/components/ui/show-more-button';
+import { TO_ARTICLE } from '@/components/site/page-transition';
+import { afterRipple } from '@/lib/ripple';
+import { rememberScroll } from '@/lib/scroll-memory';
 
+/**
+ * Hover as mocked: padding-left 0 → 16px with the surface wash. The title and read time
+ * step in while the date stays pinned to the right edge. (A transform would drag the date
+ * into the edge too.) One row, hover devices only, so the layout cost is negligible.
+ */
 const ROW =
-  'flex scroll-mt-anchor-row flex-wrap items-baseline gap-x-5 gap-y-1.5 border-t border-border-row py-6 pr-4 hover:bg-surface hover:text-inherit focus-visible:outline-offset-[-2px] active:bg-press-writing';
+  'group block scroll-mt-anchor-row border-t border-border-row py-6 pr-4 [transition:padding-left_.3s_ease,background-color_.3s_ease] hover:bg-surface hover:pl-4 hover:text-inherit focus-visible:outline-offset-[-2px] motion-reduce:[transition:background-color_.3s_ease]';
+
+/** Title with its read time on the line below (owner's call); the date sits right, level with
+ * the title's first line. Every row has the same shape whatever the title length. */
+const CONTENT = 'grid grid-cols-[1fr_auto] items-baseline gap-x-5 gap-y-1.5';
 
 /**
  * Writing rows (spec §6 WritingRow), three at a time. A `#post-<slug>` deep link expands
@@ -16,8 +29,12 @@ const ROW =
  * before the row exists ([DN] "Routing").
  */
 export function WritingList({ articles }: { articles: ArticleSummary[] }) {
-  const { visible, hasMore, showMore, reveal, containerRef } = usePagedList(articles.length);
+  const { visible, hasMore, canCollapse, showMore, showLess, reveal, containerRef } = usePagedList(
+    'writing',
+    articles.length,
+  );
   const pendingAnchor = useRef<string | null>(null);
+  const router = useRouter();
 
   // 1) On load, a #post-<slug> hash expands the list far enough to contain that row…
   useEffect(() => {
@@ -35,7 +52,8 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
     const row = id ? document.getElementById(id) : null;
     if (!row) return;
     pendingAnchor.current = null;
-    row.scrollIntoView();
+    // Instant: the page's smooth scroll-behavior would visibly travel down from the top.
+    row.scrollIntoView({ behavior: 'instant' });
   }, [visible]);
 
   return (
@@ -48,21 +66,44 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
       >
         {articles.slice(0, visible).map((article, i) => {
           const content = (
-            <>
+            <span className={CONTENT}>
               <h3 className="max-w-[34ch] font-serif text-h3-post">{article.title}</h3>
-              <span className="text-small text-muted">{article.readMinutes} min</span>
+              <span className="col-start-1 row-start-2 text-small text-muted">
+                {article.readMinutes} min
+              </span>
               <time
                 dateTime={article.publishedAt}
-                className="ml-auto text-small text-muted tabular-nums"
+                className="col-start-2 row-start-1 text-small text-muted tabular-nums"
               >
                 {formatMonthYear(article.publishedAt)}
               </time>
-            </>
+            </span>
           );
-          const shared = { id: `post-${article.slug}`, 'data-page-item': i, className: ROW };
+          const shared = {
+            id: `post-${article.slug}`,
+            'data-page-item': i,
+            'data-ripple': 'press-writing',
+            className: ROW,
+          };
 
           return article.hasBody || !article.externalUrl ? (
-            <Link key={article.slug} href={`/articles/${article.slug}`} {...shared}>
+            <Link
+              key={article.slug}
+              href={`/articles/${article.slug}`}
+              transitionTypes={TO_ARTICLE}
+              // Fetch the article as the finger lands, so it's ready when the page turns.
+              onPointerDown={() => router.prefetch(`/articles/${article.slug}`)}
+              onClick={(e) => {
+                rememberScroll();
+                // The ripple shows before the page turns (the transition would otherwise
+                // snapshot it half-drawn). Modified clicks keep the browser's behaviour.
+                if (e.metaKey || e.ctrlKey || e.shiftKey) return;
+                e.preventDefault();
+                const href = `/articles/${article.slug}`;
+                afterRipple(e, () => router.push(href, { transitionTypes: TO_ARTICLE }));
+              }}
+              {...shared}
+            >
               {content}
             </Link>
           ) : (
@@ -79,7 +120,12 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
           );
         })}
       </div>
-      {hasMore && <ShowMoreButton onClick={showMore} />}
+      {(hasMore || canCollapse) && (
+        <ShowMoreButton
+          label={hasMore ? 'Show more' : 'Show less'}
+          onClick={hasMore ? showMore : showLess}
+        />
+      )}
     </>
   );
 }

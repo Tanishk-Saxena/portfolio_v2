@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { caveat, newsreader, plexSans } from '@/lib/fonts';
+import { InlineScript } from '@/components/site/inline-script';
 import { themeInitScript } from '@/lib/theme';
 import './globals.css';
 
@@ -29,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
       className={`${newsreader.variable} ${plexSans.variable} ${caveat.variable}`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <InlineScript html={themeInitScript} />
       </head>
       <body className="font-sans">{children}</body>
     </html>
