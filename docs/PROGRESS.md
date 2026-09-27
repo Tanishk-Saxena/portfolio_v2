@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 4 — Motion · done, PR from `feat/phase-4-motion` · next: Phase 5 — Ship
+**Now:** Phase 5 — Ship · 5.1 (metadata, OG, sitemap, JSON-LD, analytics) built on `feat/phase-5-ship` · next: deploy to Vercel (needs owner)
 
 ---
 
@@ -196,9 +196,32 @@ Back to top (owner's call) is now a plain `#hero` link, like the header signatur
 Experience rows: dates and caret are one group, baseline-aligned with the role's first line. On mobile the caret no longer floats at the middle of the two-line block.
 
 
-## Phase 5 — Ship
+## Phase 5 — Ship (branch `feat/phase-5-ship`)
 
-Not started.
+| Step | Scope | Status |
+|---|---|---|
+| 5.1 | Site URL (`lib/site.ts`: `NEXT_PUBLIC_SITE_URL` → Vercel production domain → localhost); metadata (`metadataBase`, Open Graph, Twitter `summary_large_image`, canonicals, article `og:type=article`); share cards via `next/og` (home = the hero, article = title in accent), prerendered at build; app icons (Caveat "T" on the accent chip) + `favicon.ico`; `robots.txt`, `sitemap.xml`; JSON-LD (`ProfilePage` → `Person`, `BlogPosting` per article); Vercel Analytics + Speed Insights | ✅ built, awaiting review |
+| 5.2 | Deploy to Vercel (owner connects the repo), set `NEXT_PUBLIC_SITE_URL`, enable Analytics/Speed Insights | ⏳ needs owner |
+| 5.3 | Custom domain | ⏳ needs owner |
+| 5.4 | Verification on the live URL (below) + P-1 perf re-measure | ⏳ after deploy |
+
+Decisions (5.1):
+- [ASSUMED] Host: **Vercel** (brief's tentative choice). Analytics: **Vercel Analytics + Speed
+  Insights**: cookieless (no consent banner), a few KB loaded after the page, and Speed
+  Insights reports real-phone LCP/CLS, which closes P-1 with field data rather than laptop runs.
+- Share-card fonts are static TTFs in `assets/og-fonts/` (OFL), read at build time only.
+- `BlogPosting` has no `image`: the article card URL carries a build hash, and the field is
+  optional. `sameAs` skips links that point at a service's home page (the placeholders).
+- `/tokens` and `/admin` are disallowed in robots; `/tokens` is also `noindex`.
+- Résumé: the placeholder PDF ships (brief §5 content strategy); replaced via admin later.
+
+Verification checklist (brief §6):
+- [x] Local: every metadata route returns 200 with the right type; OG cards and icons
+      rendered and checked by eye; lint/typecheck/unit (44) and e2e smoke + axe (14) green
+- [ ] Rich Results Test passes (ProfilePage, BlogPosting) on the live URL
+- [ ] OG card renders in a real preview (paste the link into a chat app)
+- [ ] Tested on an actual phone against the deployed site
+- [ ] P-1: PageSpeed Insights / Speed Insights field data on the deployed site
 
 ---
 

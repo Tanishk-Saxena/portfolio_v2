@@ -1,0 +1,33 @@
+import { getRepositories } from '@/lib/container';
+import { OG_SIZE, renderOgCard } from '@/lib/og/og-card';
+import { formatLongDate } from '@/lib/utils/format';
+
+// Per-article share card: the title in the article's accent display type.
+export const alt = 'Article by Tanishk Saxena';
+export const size = OG_SIZE;
+export const contentType = 'image/png';
+
+export default async function Image(props: { params: Promise<{ slug: string }> }) {
+  const { slug } = await props.params;
+  const repos = getRepositories();
+  const [article, profile] = await Promise.all([
+    repos.articles.getBySlug(slug),
+    repos.profile.get(),
+  ]);
+  const title = article?.title ?? profile.name;
+  return renderOgCard({
+    name: profile.name,
+    eyebrow: article
+      ? `Writing — ${formatLongDate(article.publishedAt)} · ${article.readMinutes} min read`
+      : 'Writing',
+    title,
+    titleColor: '#a9491f',
+    titleSize: title.length > 60 ? 64 : 76,
+  });
+}
+
+// Prerender one card per on-site article at build time, like the pages themselves.
+export async function generateStaticParams() {
+  const articles = await getRepositories().articles.list();
+  return articles.filter((a) => a.hasBody).map((a) => ({ slug: a.slug }));
+}
