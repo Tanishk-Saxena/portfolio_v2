@@ -1,7 +1,7 @@
 import { defineConfig } from '@playwright/test';
 
-// End-to-end tests for critical interaction paths (brief §2). Runs the production build on
-// the locally installed Chrome (also present on GitHub's ubuntu runners), so no download.
+// Smoke + a11y tests for the major flows (brief §2), on the production build and the locally
+// installed Chrome (also on GitHub's ubuntu runners, so no browser download).
 const PORT = 3200;
 
 export default defineConfig({
@@ -14,15 +14,19 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     channel: 'chrome',
     trace: 'retain-on-failure',
+    reducedMotion: 'reduce', // deterministic; the reduced-motion path must work anyway
   },
   projects: [
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
-    { name: 'mobile', use: { viewport: { width: 390, height: 844 }, hasTouch: true } },
+    {
+      name: 'mobile',
+      use: { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true },
+    },
   ],
   webServer: {
     command: `npx next start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false, // always the current build
     timeout: 60_000,
   },
 });
