@@ -8,6 +8,7 @@ import { usePagedList } from '@/lib/hooks/use-paged-list';
 import { formatMonthYear } from '@/lib/utils/format';
 import { ShowMoreButton } from '@/components/ui/show-more-button';
 import { TO_ARTICLE } from '@/components/site/page-transition';
+import { warmArticleFonts } from '@/lib/article-fonts';
 import { afterRipple } from '@/lib/ripple';
 import { rememberScroll } from '@/lib/scroll-memory';
 
@@ -45,6 +46,22 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
     pendingAnchor.current = hash.slice(1);
     reveal(index);
   }, [articles, reveal]);
+
+  // Article fonts download once the list is near the screen, so opening one never waits on them.
+  useEffect(() => {
+    const list = containerRef.current;
+    if (!list) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        warmArticleFonts();
+        io.disconnect();
+      },
+      { rootMargin: '100% 0px' },
+    );
+    io.observe(list);
+    return () => io.disconnect();
+  }, [containerRef]);
 
   // 2) …and scrolls only once that row has actually rendered (no frame-timing race).
   useEffect(() => {
@@ -92,7 +109,10 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
               href={`/articles/${article.slug}`}
               transitionTypes={TO_ARTICLE}
               // Fetch the article as the finger lands, so it's ready when the page turns.
-              onPointerDown={() => router.prefetch(`/articles/${article.slug}`)}
+              onPointerDown={() => {
+                warmArticleFonts();
+                router.prefetch(`/articles/${article.slug}`);
+              }}
               onClick={(e) => {
                 rememberScroll();
                 // The ripple shows before the page turns (the transition would otherwise

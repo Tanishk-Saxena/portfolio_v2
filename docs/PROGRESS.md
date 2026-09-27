@@ -223,6 +223,14 @@ Verification checklist (brief §6):
 - [~] P-1 (LCP 3.3–3.6 s lab vs 2.0 s target): open and flagged in `docs/PERFORMANCE.md`;
       not a blocker (brief §3)
 
+**Post-ship fix (branch `fix/article-transition-fonts`):** on phones, opening an article froze
+the screen (ripple included) before the article rose in, only on the live site. Cause: React
+holds a view transition until newly used fonts load (up to ~500ms), and the article's pull-quote
+italic was first requested after the tap. The article-only faces now download in the background
+once the Writing list nears the screen (and on the row press). Measured on an emulated phone
+(4× CPU, slow 4G): freeze 683–717ms → 350–367ms, no font request inside it; ≈ 65ms unthrottled.
+The rest is the article render + snapshot, network-independent.
+
 **Later (owner):** after Milestone B, Phase 10 audits overall performance and a11y scores and
 adds them to CI as an amber warning (read and flagged, never blocking; brief §6). The
 signature intro stays shelved until then.
