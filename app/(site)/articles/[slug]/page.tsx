@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound, redirect } from 'next/navigation';
 import { ArticleBody } from '@/components/article/article-body';
+import { ArticleEntrance } from '@/components/article/article-entrance';
 import { BackLink } from '@/components/article/back-link';
 import { ListenButton } from '@/components/article/listen-button';
 import { HomeLink } from '@/components/site/home-link';
@@ -88,6 +89,7 @@ export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) 
 
             <ArticleBody markdown={article.body} />
           </article>
+          <ArticleEntrance />
 
           <footer className="mt-article-footer-top flex flex-wrap items-center justify-between gap-3.5 border-t border-border-article pt-article-meta-bottom text-small">
             <span className="text-muted">Written by {profile.name}</span>

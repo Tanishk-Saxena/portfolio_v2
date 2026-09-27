@@ -8,8 +8,8 @@ import { usePagedList } from '@/lib/hooks/use-paged-list';
 import { formatMonthYear } from '@/lib/utils/format';
 import { ShowMoreButton } from '@/components/ui/show-more-button';
 import { TO_ARTICLE } from '@/components/site/page-transition';
+import { openArticle } from '@/components/site/open-article';
 import { warmArticleFonts } from '@/lib/article-fonts';
-import { afterRipple } from '@/lib/ripple';
 import { rememberScroll } from '@/lib/scroll-memory';
 
 /**
@@ -119,8 +119,7 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
                 // snapshot it half-drawn). Modified clicks keep the browser's behaviour.
                 if (e.metaKey || e.ctrlKey || e.shiftKey) return;
                 e.preventDefault();
-                const href = `/articles/${article.slug}`;
-                afterRipple(e, () => router.push(href, { transitionTypes: TO_ARTICLE }));
+                openArticle((h, o) => router.push(h, o), `/articles/${article.slug}`, e);
               }}
               {...shared}
             >
