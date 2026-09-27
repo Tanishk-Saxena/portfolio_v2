@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 5 — Ship · done, PR from `feat/phase-5-ship` · next: Milestone B (Phase 6 — Supabase)
+**Now:** Milestone B planned (admin design extracted to `docs/ADMIN-DESIGN-SPEC.md`, phases restructured in brief §6) · next: Phase 6.1 — content model v2
 
 ---
 
@@ -238,6 +238,30 @@ two sheets; return trip ≤ 117 ms, scroll position restored. Desktop keeps the 
 **Later (owner):** after Milestone B, Phase 10 audits overall performance and a11y scores and
 adds them to CI as an amber warning (read and flagged, never blocking; brief §6). The
 signature intro stays shelved until then.
+
+---
+
+# Milestone B — database and admin
+
+Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`,
+`Admin.dc.html`, `Field.dc.html`, `admin-data.js`). One PR per step.
+
+| Step | Branch | Scope | Status |
+|---|---|---|---|
+| B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR open |
+| 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | next |
+| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | |
+| 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | |
+| 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
+| 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
+| 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
+| 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | |
+| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | |
+
+Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
+shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
+the owner (§13): articles keep an External URL field (Q-A12); Name/Location on Hero and
+Footer note on Contact (Q-A8).
 
 ---
 

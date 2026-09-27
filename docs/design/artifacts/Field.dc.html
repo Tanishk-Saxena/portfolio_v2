@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+  <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px">
+    <label style="font-size:13px;font-weight:500;letter-spacing:.01em;color:var(--ink,#23201C)">{{ f.label }}<sc-if value="{{ f.req }}" hint-placeholder-val="{{ false }}"><span style="color:var(--accent,#B4532A);margin-left:3px">*</span></sc-if></label>
+    <span style="font-size:12px;color:var(--muted,#7A7268);font-variant-numeric:tabular-nums">{{ f.aside }}</span>
+  </div>
+
+  <sc-if value="{{ f.isInput }}" hint-placeholder-val="{{ true }}">
+    <input type="{{ f.inputType }}" value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.placeholder }}" aria-invalid="{{ f.hasErr }}" style="height:44px;width:100%;padding:0 12px;border-radius:6px;border:1px solid var(--line,rgba(35,32,28,.14));background:var(--field,#FBF8F2);color:var(--ink,#23201C);font:inherit;font-size:16px;outline:none;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:var(--accent,#B4532A);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent,#B4532A), transparent 82%)">
+  </sc-if>
+
+  <sc-if value="{{ f.isTextarea }}" hint-placeholder-val="{{ false }}">
+    <textarea value="{{ f.value }}" onChange="{{ f.onInput }}" rows="{{ f.rows }}" placeholder="{{ f.placeholder }}" style="width:100%;padding:11px 12px;border-radius:6px;border:1px solid var(--line,rgba(35,32,28,.14));background:var(--field,#FBF8F2);color:var(--ink,#23201C);font:inherit;font-size:16px;line-height:1.6;outline:none;resize:vertical;transition:border-color .15s ease,box-shadow .15s ease" style-focus="border-color:var(--accent,#B4532A);box-shadow:0 0 0 3px color-mix(in oklab, var(--accent,#B4532A), transparent 82%)"></textarea>
+  </sc-if>
+
+  <sc-if value="{{ f.isMarkdown }}" hint-placeholder-val="{{ false }}">
+    <div style="border:1px solid var(--line,rgba(35,32,28,.14));border-radius:6px;background:var(--field,#FBF8F2);overflow:hidden">
+      <div style="display:flex;align-items:center;gap:4px;padding:6px;border-bottom:1px solid var(--line,rgba(35,32,28,.14))">
+        <button type="button" onClick="{{ f.tabWrite }}" style="{{ f.writeTabStyle }}">Write</button>
+        <button type="button" onClick="{{ f.tabPreview }}" style="{{ f.previewTabStyle }}">Preview</button>
+        <span style="margin-left:auto;padding-right:8px;font-size:12px;color:var(--muted,#7A7268)">## heading · &gt; quote · blank line = paragraph</span>
+      </div>
+      <sc-if value="{{ f.mdWrite }}" hint-placeholder-val="{{ true }}">
+        <textarea value="{{ f.value }}" onChange="{{ f.onInput }}" placeholder="{{ f.placeholder }}" style="display:block;width:100%;min-height:420px;padding:16px;border:0;background:transparent;color:var(--ink,#23201C);font:inherit;font-size:16px;line-height:1.75;outline:none;resize:vertical"></textarea>
+      </sc-if>
+      <sc-if value="{{ f.mdPreview }}" hint-placeholder-val="{{ false }}">
+        <div style="min-height:420px;padding:clamp(18px,3vw,32px);display:flex;flex-direction:column;gap:18px;max-width:680px">
+          <sc-for list="{{ f.blocks }}" as="b" hint-placeholder-count="0">
+            <sc-if value="{{ b.isH }}"><h3 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:24px;line-height:1.25;margin:8px 0 0">{{ b.text }}</h3></sc-if>
+            <sc-if value="{{ b.isQ }}"><blockquote style="margin:0;padding-left:18px;border-left:2px solid var(--accent,#B4532A);font-family:Newsreader,Georgia,serif;font-size:20px;line-height:1.5">{{ b.text }}</blockquote></sc-if>
+            <sc-if value="{{ b.isP }}"><p style="margin:0;font-size:16px;line-height:1.8;color:var(--muted,#7A7268);text-wrap:pretty">{{ b.text }}</p></sc-if>
+          </sc-for>
+          <sc-if value="{{ f.mdEmpty }}"><p style="margin:0;font-size:14px;color:var(--muted,#7A7268)">Nothing to preview yet.</p></sc-if>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ f.isSelect }}" hint-placeholder-val="{{ false }}">
+    <div role="radiogroup" style="display:flex;flex-wrap:wrap;gap:6px">
+      <sc-for list="{{ f.options }}" as="o" hint-placeholder-count="2">
+        <button type="button" role="radio" aria-checked="{{ o.active }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+      </sc-for>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ f.isToggle }}" hint-placeholder-val="{{ false }}">
+    <button type="button" role="switch" aria-checked="{{ f.on }}" onClick="{{ f.toggle }}" style="display:flex;align-items:center;gap:12px;background:none;border:0;padding:0;min-height:44px;cursor:pointer;color:inherit;font:inherit;text-align:left">
+      <span style="{{ f.trackStyle }}"><span style="{{ f.knobStyle }}"></span></span>
+      <span style="font-size:14px;color:var(--muted,#7A7268)">{{ f.toggleText }}</span>
+    </button>
+  </sc-if>
+
+  <sc-if value="{{ f.isTags }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:44px;padding:6px;border-radius:6px;border:1px solid var(--line,rgba(35,32,28,.14));background:var(--field,#FBF8F2)">
+      <sc-for list="{{ f.tags }}" as="t" hint-placeholder-count="0">
+        <span style="display:inline-flex;align-items:center;gap:2px;height:30px;padding:0 4px 0 11px;border-radius:999px;background:color-mix(in oklab, var(--accent,#B4532A), transparent 86%);color:var(--ink,#23201C);font-size:13.5px">{{ t.t }}
+          <button type="button" onClick="{{ t.remove }}" aria-label="Remove tag" style="width:24px;height:24px;border-radius:50%;border:0;background:transparent;color:var(--muted,#7A7268);cursor:pointer;display:grid;place-items:center;padding:0" style-hover="color:var(--accent,#B4532A)"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="m2 2 6 6M8 2 2 8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path></svg></button>
+        </span>
+      </sc-for>
+      <input value="{{ f.tagText }}" onChange="{{ f.onTagInput }}" onKeyDown="{{ f.onTagKey }}" onBlur="{{ f.onTagBlur }}" placeholder="{{ f.placeholder }}" style="flex:1;min-width:120px;height:30px;border:0;background:transparent;color:var(--ink,#23201C);font:inherit;font-size:16px;outline:none;padding:0 6px">
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ f.isFile }}" hint-placeholder-val="{{ false }}">
+    <sc-if value="{{ f.hasFile }}">
+      <div style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:6px;border:1px solid var(--line,rgba(35,32,28,.14));background:var(--field,#FBF8F2)">
+        <sc-if value="{{ f.hasPreview }}"><img src="{{ f.previewUrl }}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:4px;flex:none"></sc-if>
+        <sc-if value="{{ f.noPreview }}"><span style="width:56px;height:56px;flex:none;border-radius:4px;background:var(--paper2,#EDE6DA);display:grid;place-items:center;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted,#7A7268)">{{ f.ext }}</span></sc-if>
+        <span style="flex:1;min-width:0;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.fileName }}</span>
+        <label style="height:36px;padding:0 12px;display:inline-flex;align-items:center;border-radius:999px;border:1px solid var(--line,rgba(35,32,28,.14));font-size:13px;cursor:pointer" style-hover="border-color:var(--accent,#B4532A)">Replace<input type="file" accept="{{ f.accept }}" onChange="{{ f.onFile }}" style="display:none"></label>
+        <button type="button" onClick="{{ f.clearFile }}" aria-label="Remove file" style="width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--muted,#7A7268);cursor:pointer;display:grid;place-items:center" style-hover="color:var(--accent,#B4532A)"><svg width="12" height="12" viewBox="0 0 10 10" fill="none"><path d="m2 2 6 6M8 2 2 8" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg></button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ f.noFile }}" hint-placeholder-val="{{ true }}">
+      <label onDragOver="{{ f.onDragOver }}" onDrop="{{ f.onDrop }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:96px;padding:16px;border-radius:6px;border:1px dashed color-mix(in oklab, var(--ink,#23201C), transparent 70%);background:var(--field,#FBF8F2);cursor:pointer;text-align:center;transition:border-color .15s ease" style-hover="border-color:var(--accent,#B4532A)">
+        <span style="font-size:14px">Drop a file or <span style="color:var(--accent,#B4532A)">browse</span></span>
+        <span style="font-size:12px;color:var(--muted,#7A7268)">{{ f.acceptText }}</span>
+        <input type="file" accept="{{ f.accept }}" onChange="{{ f.onFile }}" style="display:none">
+      </label>
+    </sc-if>
+  </sc-if>
+
+  <sc-if value="{{ f.isRange }}" hint-placeholder-val="{{ false }}">
+    <input type="range" min="{{ f.min }}" max="{{ f.max }}" step="{{ f.step }}" value="{{ f.value }}" onChange="{{ f.onInput }}" style="width:100%;height:32px;accent-color:var(--accent,#B4532A);margin:0">
+  </sc-if>
+
+  <sc-if value="{{ f.isReadonly }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:44px;display:flex;align-items:center;padding:0 12px;border-radius:6px;background:color-mix(in oklab, var(--ink,#23201C), transparent 95%);font-size:14.5px;color:var(--muted,#7A7268)">{{ f.value }}</div>
+  </sc-if>
+
+  <sc-if value="{{ f.hasHint }}" hint-placeholder-val="{{ false }}">
+    <p style="margin:0;font-size:12.5px;line-height:1.5;color:var(--muted,#7A7268);text-wrap:pretty">{{ f.hint }}</p>
+  </sc-if>
+  <sc-if value="{{ f.hasErr }}" hint-placeholder-val="{{ false }}">
+    <p role="alert" style="margin:0;font-size:12.5px;line-height:1.5;color:var(--accent,#B4532A);font-weight:500">{{ f.err }}</p>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:480,&quot;height&quot;:110},&quot;f&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object&quot;}}">class Component extends DCLogic {
+  state = { v: 'Marginalia' };
+  renderVals() {
+    if (this.props.f) return { f: this.props.f };
+    return { f: { label: 'Name', req: true, isInput: true, inputType: 'text', value: this.state.v, onInput: (e) => this.setState({ v: e.target.value }),
+      hasHint: true, hint: 'Preview only. This is the shared input used by every field in Admin.dc.html, which passes it an `f` object.', aside: '' } };
+  }
+}</script>
+</body>
+</html>

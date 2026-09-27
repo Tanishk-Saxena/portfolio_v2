@@ -181,13 +181,16 @@ database exists.
 ```
 app/
   (site)/page.tsx                 // the public page
-  admin/                          // Phase 7+, route group, auth-guarded
+  admin/                          // Phase 7+, auth-guarded (routes: ADMIN-DESIGN-SPEC §6)
+  api/admin/                      // Phase 8, write endpoints (ADMIN-DESIGN-SPEC §9)
+proxy.ts                          // Phase 7, optimistic /admin guard (Next 16's middleware)
 components/
   sections/                       // one per page section
   ui/                             // primitives: Button, Card, Field, ...
   admin/
 lib/
   domain/  repositories/  utils/
+  admin/                          // shared field schemas + validation (client and server)
 styles/
   tokens.css                      // design tokens, both modes, reduced-motion
 types/
@@ -215,19 +218,24 @@ Fixtures in Phase 2 mirror this exactly, so the Phase 6 schema is a
 transcription rather than a redesign. All entities carry `id`, and a
 `sort_order` wherever ordering is user-controlled.
 
-Reconciled against the mockup (see `docs/DESIGN-SPEC.md` §7, which is authoritative).
+Reconciled against the site mockup (`docs/DESIGN-SPEC.md` §7) and the admin schema
+(`docs/ADMIN-DESIGN-SPEC.md` §8, which is authoritative for Milestone B). **Bold** fields
+arrive with Milestone B (Phase 6.1).
 
 | Entity | Fields |
 |---|---|
-| `profile` | name, eyebrow, headline, headline_highlight, standfirst, about_lead, about_paragraphs[], portrait (image, nullable), resume_url, email, contact_statement, location, footer_note |
-| `experience` | role, org, start_date, end_date (null = current), summary, sort_order |
-| `skill_group` | title, items[], sort_order |
-| `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, summary, description, tags[], image (nullable), repo_url, live_url (nullable), sort_order |
-| `article` | slug, title, excerpt, published_at, read_minutes, body (Markdown, nullable), external_url (nullable) |
-| `quote` | text, author, sort_order |
-| `social_link` | label, url, sort_order |
+| `profile` | name, eyebrow, headline, headline_highlight, standfirst, **cta_label**, about_lead, about_paragraphs[], portrait (image, nullable), resume_url, email, contact_statement, location, footer_note |
+| `experience` | role, org, start_date, end_date (null = current), summary, sort_order (**now the display order**) |
+| `skill_group` | title, items[], sort_order (at most 4 groups) |
+| `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, summary (≤110), description (≤320), tags[], image (nullable), repo_url, live_url (nullable), **published**, sort_order |
+| `article` | slug, title, excerpt, published_at, read_minutes (**nullable = estimated**), body (Markdown, nullable), external_url (nullable), **status** (`draft` \| `published`), **listen** |
+| `quote` | text (≤140), author, **active**, sort_order |
+| `social_link` | label, url, sort_order (edited as four fixed links; empty = hidden) |
+| **`settings`** | accent (`terracotta` / `slate`), grain, nav_position (`right` / `centre`), menu_layout (`arc` / `wheel`) (single record) |
 
 `education` is dropped (not in the mockup). `image` = `{ src, alt, width, height }`.
+Every table also gets `created_at`, `updated_at`, `deleted_at` (soft delete). Public reads
+return only published / active, non-deleted rows.
 
 ### Content strategy (owner decision)
 All content ships as **placeholders**: the mockup's own copy, verbatim, plus placeholder
@@ -303,29 +311,60 @@ Milestone B is built.
 
 ### Milestone B — database and admin
 
-**Phase 6 — Supabase**
-Schema transcribed from the fixtures, RLS policies, seed from the fixture data,
-Supabase repository implementations, composition root switched over.
-*Verify:* the fixture repositories' test suite passes unchanged against the
-Supabase implementations; anonymous writes are rejected at the database level;
-the public site is byte-for-byte unchanged to a visitor.
+The goal: nothing on the site is hard-coded. One signed-in owner edits every piece of
+copy, media and ordering from a phone or a laptop, and a save is live on the site when
+the admin says "Saved". The admin design is done: **`docs/ADMIN-DESIGN-SPEC.md`** (built
+from `docs/design/ADMIN-*` and the admin mockups) is the source of truth for it.
+
+**Phase 6 — Content model and Supabase**
+- 6.1 *Content model v2, still on fixtures.* Add the admin's fields to the domain,
+  fixtures and contract (ADMIN-DESIGN-SPEC §8): `published`, `status`, `active`,
+  `listen`, `cta_label`, nullable `read_minutes`, `settings`; experience ordered by
+  `sort_order`. The site honours them (hidden entries don't render, Listen per article,
+  the CTA label). Settings are stored now; their variants arrive in 8.5. Visually identical with the shipped data.
+- 6.2 *Supabase.* Projects (dev + prod), SQL migrations in the repo, RLS (anon reads
+  published, non-deleted rows; writes only for the allowlisted admin), seed from the
+  fixtures, Storage buckets; Supabase implementations of the public interfaces, with the
+  same contract suite run against both; `DATA_SOURCE=supabase`; production switched
+  over, pages still prerendered and revalidated on demand (ADMIN-DESIGN-SPEC §9).
+*Verify:* the contract suite passes against Supabase unchanged; anonymous writes are
+rejected by the database; the public site is unchanged to a visitor.
 
 **Phase 7 — Admin auth**
-Middleware guard, login, session handling, single-admin allowlist.
-*Verify:* unauthenticated `/admin` redirects; a non-allowlisted account cannot
-get in; **RLS is the real boundary, the route guard is defence in depth.**
+Supabase Auth (email + password, sign-ups off, one allowlisted account), the designed
+sign-in screen, session cookies, `proxy.ts` guard for `/admin/*` and `/api/admin/*`,
+sign-out, the admin layout's own theme key.
+*Verify:* unauthenticated `/admin` redirects to sign-in and `/api/admin/*` returns 401;
+a non-allowlisted account cannot get in; **RLS is the real boundary, the guard is
+defence in depth.**
 
-**Phase 8 — Admin portal**
-⚠️ **The admin portal design does not exist yet.** It gets its own design pass in
-Claude Design before this phase starts, producing a `docs/ADMIN-DESIGN-SPEC.md`.
-Do not improvise a UI.
-
-Functional requirements, independent of how it looks: CRUD for every entity,
-image upload to Storage, drag-to-reorder for anything with `sort_order`,
-validation, and optimistic updates. Same accessibility bar as the public site.
+**Phase 8 — Admin portal** (ADMIN-DESIGN-SPEC is the design; one PR per step)
+- 8.1 *Shell and lists.* Admin tokens (`--field`, `--line`), the sidebar (wide) and
+  header + Sections sheet (phones), routes per section, list pages: search, filters,
+  counts, row layouts, empty states. Read-only.
+- 8.2 *Editor and saving.* The shared schema/validation module, the Field component
+  (every type but file and markdown), the editor bar, side panel, state pill, bottom bar,
+  validation summary, create and save through `/api/admin/*` with revalidation, toasts,
+  the unsaved-changes guard, ⌘S/Ctrl+S. Covers Hero, About, Contact, Experience, Skills,
+  Quotes end to end.
+- 8.3 *List actions.* Quick status toggles, reorder (debounced), soft delete with
+  confirm + Undo, restore, duplicate, optimistic updates with rollback, 409 on
+  concurrent edits, focus trap in the dialog and sheet.
+- 8.4 *Writing and media.* Markdown Write/Preview, slug from title, read-time estimate,
+  publish rules; uploads to Storage by signed URL (portrait, covers, résumé). Covers
+  Projects and Writing end to end.
+- 8.5 *Settings and hand-over.* The site builds the style variants it lacks (slate blue
+  with its AA dark shade, bottom-centre nav button, centre-wheel menu, adjustable grain),
+  the admin Settings page switches them site-wide; then the owner replaces the placeholder
+  content through the admin, on a real phone.
+*Verify:* every section can be created, edited, reordered, hidden and deleted from a
+390px phone; a save confirms with a toast once the database has it, and shows on the
+live site on the next reload; every Settings combination works in both modes; server validation
+rejects everything the client rejects; axe on the admin screens (flagged, not blocking).
 
 **Phase 9 — Optional**
-Blog (on-site posts or Medium RSS), `/uses`, whatever still seems worth it.
+Blog (Medium RSS), `/uses`; the shelved signature intro (then a Settings toggle);
+drag-to-reorder; draft preview on the site.
 
 **Phase 10 — Final audit (the last step, after Milestone B)**
 Measure the whole site's overall performance and accessibility scores (Lighthouse

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300;6..72,400&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#F5F0E7;-webkit-font-smoothing:antialiased}
+  a{color:#B4532A;text-decoration:none}
+  a:hover{color:#23201C}
+</style>
+</helmet>
+
+<div style="background:#F5F0E7;color:#23201C;font-family:'IBM Plex Sans',system-ui,sans-serif;min-height:100vh;padding:clamp(34px,6vw,76px) clamp(24px,5vw,56px)">
+  <div style="max-width:78ch;margin:0 auto">
+
+    <p style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#7A7268;margin:0 0 12px">Milestone 2 — behaviour spec</p>
+    <h1 style="font-family:Newsreader,Georgia,serif;font-weight:300;font-size:clamp(32px,5vw,50px);line-height:1.12;margin:0 0 14px">Admin developer notes</h1>
+    <p style="font-size:16px;line-height:1.75;color:#7A7268;margin:0 0 10px;max-width:62ch">Behaviour the mockup shows only by interaction. The screen lives in <a href="Admin.dc.html">Admin</a>; switch <a href="Mobile preview.dc.html">Mobile preview</a> to Admin to see it at 390×844. Build instructions, endpoints and the checklist are in ADMIN-HANDOFF.md.</p>
+    <p style="font-size:16px;line-height:1.75;color:#7A7268;margin:0 0 clamp(36px,5vw,56px);max-width:62ch">Numbers are the values used in the mockup, not requirements. Keep the relationships and tune the constants.</p>
+
+    <sc-for list="{{ groups }}" as="g" hint-placeholder-count="8">
+      <section style="padding:clamp(22px,3vw,30px) 0;border-top:1px solid #DED5C6">
+        <h2 style="font-family:Newsreader,Georgia,serif;font-weight:400;font-size:clamp(21px,2.6vw,27px);line-height:1.2;color:#B4532A;margin:0 0 18px">{{ g.title }}</h2>
+        <ul style="list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px">
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="3">
+            <li style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;font-size:15px;line-height:1.7;color:#4A443C">
+              <span style="width:5px;height:5px;border-radius:50%;background:#B4532A;margin-top:10px"></span>
+              <span>{{ it }}</span>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-for>
+
+    <p style="margin:clamp(34px,5vw,52px) 0 0;padding-top:24px;border-top:1px solid #DED5C6;font-size:13px;color:#7A7268">Tanishk Saxena — content admin, September 2026</p>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const GROUPS = [
+  { title: 'Structure', items: [
+    'Two kinds of section. Single records (Hero, About, Contact, Settings) open straight into their form. Collections (Experience, Projects, Writing, Skills, Quotes) open to a list, and a row opens its editor.',
+    'The sections are grouped as Page, Content and Site. Group headings are small accent capitals followed by a hairline and are not clickable. Only the rows below them are.',
+    'Collection counts sit beside each section name and update on create and delete.',
+    'Every field, its type, whether it is required, its limit and its hint come from SCHEMAS in admin-data.js. The form is generated, so adding a field to the schema adds it to the admin.'
+  ] },
+  { title: 'Lists', items: [
+    'Search filters by the row text as you type. Projects filter by All, Published or Hidden, and Writing by All, Published or Draft.',
+    'Ordered collections show up and down arrows per row. Reordering is hidden while a search or filter is active, because moving a row within a filtered subset is ambiguous. A note says so.',
+    'Reorders apply at once and are sent to the server 700 ms after the last move, so five taps make one request.',
+    'The status pill on a row is a button. Tapping it publishes or hides the entry without opening it: publish or unpublish for articles, show or hide for projects, in or out of rotation for quotes. It applies optimistically and shows an Undo toast. An article with an empty body cannot be published this way.',
+    'Skills holds at most four groups because the site grid has four columns. "New group" is disabled at four, with a note.',
+    'Empty states distinguish "nothing yet" from "nothing matches this search".'
+  ] },
+  { title: 'Editor', items: [
+    'The editor bar is sticky. It holds back and breadcrumb (collections only), the entry title, a state pill (New, Unsaved changes, Saving…, Saved), and Discard and Save on desktop.',
+    'Dirty state is a deep comparison of the draft with the stored record. Discard reverts to the stored record, and on a new entry it returns to the list.',
+    'Leaving a dirty entry for another section, another entry, back or sign out asks "Discard unsaved changes?". Closing the tab triggers the browser\'s own prompt.',
+    'Save validates first. Invalid fields show their message under the field, and a summary at the top counts them. Nothing is sent until they are fixed.',
+    'The Save label changes with context: Create for a new entry, Publish when an article\'s status has just been switched to Published, Save otherwise.',
+    'Article slugs follow the title until the slug is edited by hand, then stay put. Duplicates also get "-copy" added to the slug.',
+    'Duplicate opens an unsaved copy set to draft or hidden. Nothing is stored until it is saved.',
+    '⌘S or Ctrl+S saves from anywhere in the editor.'
+  ] },
+  { title: 'Saving and the live site', items: [
+    'Every write goes through one api() method. In the mockup it waits 450 ms and resolves. In production it is the real request.',
+    'The success toast is shown only after the server confirms the write and has revalidated the public page. Its copy says where the change landed, for example "Saved, live on the site", "Live at /articles/[slug]", "Saved as draft, not on the site" or "Saved, hidden from the site".',
+    'On failure the draft stays in the editor, the state pill returns to Unsaved, and the toast says nothing was lost. Optimistic list changes roll back.',
+    'Deletes are soft. Undo in the toast (about 6 s) restores the previous state through /restore.'
+  ] },
+  { title: 'Fields', items: [
+    'Text, URL, email and date fields are plain inputs. Textareas with a limit show a live count against it.',
+    'Option pickers render as pills, not dropdowns: every option is visible and can be tapped once on a phone.',
+    'Tags are added with Enter, a comma or leaving the field. Backspace in an empty tag input removes the last tag. Duplicates are ignored.',
+    'The article body is Markdown with Write and Preview tabs. The preview approximates the article page (headings, quotes, paragraphs), and word count and estimated read time sit above it. A blank read-time field uses the estimate.',
+    'File fields accept a drop or a tap. Images show a thumbnail and PDFs show their extension. Replace and remove are separate actions.',
+    'Fields tied to another value hide instead of disabling: End year disappears while Current role is on.'
+  ] },
+  { title: 'Desktop', items: [
+    'The sidebar is 244px and sticky at full height, with the name and the theme toggle in its header.',
+    'The editor is a main column (at most 720px) plus a side panel for status, dates, slug, visibility and media. The panel sticks below the editor bar and ends with View on site, Duplicate and Delete.',
+    'List pages cap at 980px. Row titles clamp to two lines.'
+  ] },
+  { title: 'Mobile (below 760px)', items: [
+    'The sidebar is replaced by a sticky 60px header holding the name, the theme toggle and a Sections button. That button opens a full-screen sheet with the same groups, 56px rows, View site and Sign out.',
+    'While editing, the header gives way to the editor bar: a menu button for single records, back for collections, and the theme toggle on the right.',
+    'Save fills a fixed bottom bar with a round Discard icon button beside it, padded for env(safe-area-inset-bottom). The toast lifts above the bar.',
+    'The side panel stacks below the main fields.',
+    'List rows move the date under the title, drop the chevron and keep the status pill on the right as a quick toggle.',
+    'Inputs are 16px so iOS does not zoom on focus. Every control is at least 44px.'
+  ] },
+  { title: 'Theme', items: [
+    'The theme toggle is the half-filled dial from the site. It turns 180° on switch and is labelled with the mode it switches to.',
+    'The choice is remembered per device, separately from the public site.',
+    'The admin accent follows the saved Settings accent, so changing it previews the new colour in the admin straight away.',
+    'Scrollbars are thin and ink-tinted, and turn accent on hover. The public site keeps its scrollbars hidden.'
+  ] }
+];
+
+class Component extends DCLogic {
+  renderVals() {
+    return { groups: GROUPS };
+  }
+}
+</script>
+</body>
+</html>
