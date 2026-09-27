@@ -323,6 +323,17 @@ validation, and optimistic updates. Same accessibility bar as the public site.
 **Phase 9 — Optional**
 Blog (on-site posts or Medium RSS), `/uses`, whatever still seems worth it.
 
+**Phase 10 — Final audit (the last step, after Milestone B)**
+Measure the whole site's overall performance and accessibility scores (Lighthouse
+performance / accessibility / best practices / SEO) on the deployed public pages and the
+admin portal, fix what falls short, and record the scores in the ledger. Then add the
+scores to CI alongside the axe suite as a **reading, not a blocker**: Lighthouse CI runs on
+every PR against a budget (performance ≥ 95, accessibility 100 on mobile) and reports the
+scores. A miss is flagged as a warning (amber), visible on the PR, but never fails the build.
+*Verify:* the scores meet §3 on the live site; a deliberately regressing PR shows the
+warning with its scores and still passes.
+Deferred to this point, like the signature intro (shelved in Phase 4, ledger).
+
 ---
 
 ## 7. Out of scope
