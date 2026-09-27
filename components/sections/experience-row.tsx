@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useState } from 'react';
+import { useId, useState, type ReactNode } from 'react';
 import { CaretIcon } from '@/components/ui/icons';
 
 interface Props {
@@ -20,28 +20,35 @@ export function ExperienceRow({ role, org, years, summary }: Props) {
   const bodyId = useId();
   const expandable = summary.trim() !== '';
 
-  const meta = (
+  /**
+   * Dates and caret travel as one group, centred on each other, and the row aligns that
+   * group's baseline (the dates) with the role's first line. So on mobile, where the company
+   * drops below the role, the caret stays on the title line instead of the block's middle.
+   */
+  const meta = (caret: ReactNode) => (
     <>
       <span className="flex min-w-0 flex-1 flex-col items-start gap-1 @wide/page:flex-row @wide/page:flex-wrap @wide/page:items-baseline @wide/page:gap-x-5 @wide/page:gap-y-1.5">
         <span className="font-serif text-h3-role text-ink">{role}</span>
         <span className="text-meta text-muted">{org}</span>
       </span>
-      <span className="text-small tracking-years whitespace-nowrap text-accent tabular-nums">
-        {years}
+      <span className="flex flex-none items-center gap-x-5">
+        <span className="text-small tracking-years whitespace-nowrap text-accent tabular-nums">
+          {years}
+        </span>
+        {caret}
       </span>
     </>
   );
 
   const rowLayout =
-    'flex w-full items-start gap-x-5 gap-y-3 rounded-row px-1.5 py-5 text-left @wide/page:items-baseline @wide/page:py-6 @wide/page:pl-0';
+    'flex w-full items-baseline gap-x-5 rounded-row px-1.5 py-5 text-left @wide/page:py-6 @wide/page:pl-0';
 
   if (!expandable) {
     return (
       <div className="border-t border-border-row">
+        {/* The empty slot keeps the dates aligned with rows that have a caret. */}
         <div className={rowLayout}>
-          {meta}
-          {/* Keeps the dates column aligned with rows that have a caret. */}
-          <span aria-hidden="true" className="size-5.5 flex-none" />
+          {meta(<span aria-hidden="true" className="size-5.5 flex-none" />)}
         </div>
       </div>
     );
@@ -54,20 +61,22 @@ export function ExperienceRow({ role, org, years, summary }: Props) {
         aria-expanded={open}
         aria-controls={bodyId}
         onClick={() => setOpen((o) => !o)}
-        className={`${rowLayout} cursor-pointer focus-visible:outline-offset-[-2px] active:bg-press-row`}
+        data-ripple="press-row"
+        className={`${rowLayout} cursor-pointer transition-colors duration-200 focus-visible:outline-offset-[-2px]`}
       >
-        {meta}
-        <span
-          aria-hidden="true"
-          className={`grid size-5.5 flex-none place-items-center self-center text-muted ${open ? 'rotate-180' : ''}`}
-        >
-          <CaretIcon />
-        </span>
+        {meta(
+          <span
+            aria-hidden="true"
+            className={`grid size-5.5 flex-none place-items-center text-muted transition-transform duration-340 ease-out-soft motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+          >
+            <CaretIcon />
+          </span>,
+        )}
       </button>
       <div
         id={bodyId}
         inert={!open}
-        className={`grid ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
+        className={`grid [transition:grid-template-rows_.5s_var(--ease-expand),opacity_.38s_ease] motion-reduce:[transition:opacity_.38s_ease] ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
       >
         <div className="min-h-0 overflow-hidden">
           <p className="max-w-[62ch] pb-6.5 text-body-sm text-muted">{summary}</p>

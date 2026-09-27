@@ -8,6 +8,9 @@ import { Skills } from '@/components/sections/skills';
 import { Writing } from '@/components/sections/writing';
 import { FloatingNav } from '@/components/site/floating-nav';
 import { NAV_SECTIONS } from '@/components/site/nav-sections';
+import { PageTransition } from '@/components/site/page-transition';
+import { RevealObserver } from '@/components/site/reveal-observer';
+import { ScrollRestore } from '@/components/site/scroll-restore';
 import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
 import { getRepositories } from '@/lib/container';
@@ -41,19 +44,23 @@ export default async function HomePage() {
   return (
     <>
       <SiteHeader name={profile.name} onHome />
-      <main>
-        <Hero profile={profile} />
-        <About profile={profile} />
-        <Experience items={experience} />
-        <Projects projects={projects} />
-        <Writing articles={articles} />
-        <Skills groups={skillGroups} />
-        <Quotes quotes={quotes} />
-        <Contact profile={profile} links={socialLinks} />
-      </main>
-      <SiteFooter note={profile.footerNote} name={profile.name} />
+      <PageTransition>
+        <main>
+          <Hero profile={profile} />
+          <About profile={profile} />
+          <Experience items={experience} />
+          <Projects projects={projects} />
+          <Writing articles={articles} />
+          <Skills groups={skillGroups} />
+          <Quotes quotes={quotes} />
+          <Contact profile={profile} links={socialLinks} />
+        </main>
+        <SiteFooter note={profile.footerNote} name={profile.name} />
+      </PageTransition>
       {/* Last in DOM order: a convenience duplicate of in-page navigation (Q26). */}
       <FloatingNav sections={navSections} />
+      <RevealObserver />
+      <ScrollRestore />
     </>
   );
 }

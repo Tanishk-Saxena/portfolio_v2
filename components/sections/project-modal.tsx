@@ -1,49 +1,107 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import type { Project } from '@/lib/domain/types';
 import { formatProjectKind } from '@/lib/utils/format';
 import { CloseIcon, GitHubIcon, GlobeIcon } from '@/components/ui/icons';
 
+const CLOSE_MS = 320; // spec §5.3: unmount after the reverse animation
+
+export interface ModalOrigin {
+  x: number;
+  y: number;
+  s: number;
+}
+
+/**
+ * Where the modal scales out of: the clicked card, relative to the viewport centre.
+ * Computed at click time, so the dialog's very first frame is already at the right card.
+ */
+export function originFrom(card: HTMLElement): ModalOrigin {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return { x: 0, y: 0, s: 1 }; // reduced motion: fade only
+  }
+  const rect = card.getBoundingClientRect();
+  return {
+    x: Math.round(rect.left + rect.width / 2 - window.innerWidth / 2),
+    y: Math.round(rect.top + rect.height / 2 - window.innerHeight / 2),
+    s: Math.max(0.22, Math.min(0.8, rect.height / Math.min(window.innerHeight * 0.8, 620))),
+  };
+}
+
 /**
  * Project modal (spec §6 ProjectModal, Q16). Native <dialog> + showModal(): focus trap,
  * Escape, inert background and focus return to the trigger come from the platform.
+ * Scales out of the clicked card and back into it on close (spec §5 "Signature moments" 3).
  * Fixed size (880×420 wide, 420×600 narrow, both capped at 88svh). The body can scroll
  * as a last resort so over-long copy never gets cut off.
  */
 export function ProjectModal({
   project,
+  origin,
   onClose,
 }: {
   project: Project | null;
+  origin: ModalOrigin;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const [shown, setShown] = useState(false);
+  const from = origin;
 
   useEffect(() => {
     const dialog = ref.current;
-    if (project && dialog && !dialog.open) dialog.showModal();
+    if (!project || !dialog || dialog.open) return;
+    // This render already placed the (closed) dialog at the card; open it there, then
+    // transition to the centre two frames later.
+    dialog.showModal();
+    let second = 0;
+    const first = requestAnimationFrame(() => {
+      second = requestAnimationFrame(() => setShown(true));
+    });
+    return () => {
+      cancelAnimationFrame(first);
+      cancelAnimationFrame(second);
+    };
   }, [project]);
+
+  function close() {
+    setShown(false);
+    window.setTimeout(() => ref.current?.close(), CLOSE_MS);
+  }
+
+  const style: CSSProperties = {
+    transform: shown ? 'none' : `translate(${from.x}px, ${from.y}px) scale(${from.s})`,
+    opacity: shown ? 1 : 0,
+    transition: `transform .46s var(--ease-out-soft), opacity .3s ease`,
+  };
 
   return (
     <dialog
       ref={ref}
       aria-labelledby={titleId}
+      data-state={shown ? 'in' : 'out'}
+      style={style}
       onClose={onClose}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) e.currentTarget.close(); // backdrop click
+      onCancel={(e) => {
+        e.preventDefault(); // Escape: animate out first
+        close();
       }}
-      className="m-auto h-[min(600px,88svh)] max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal backdrop:bg-scrim-modal backdrop:backdrop-blur-[16px] @wide/page:h-[min(420px,88svh)] @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) close(); // backdrop click
+      }}
+      className="project-modal m-auto h-[min(600px,88svh)] max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal @wide/page:h-[min(420px,88svh)] @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
     >
       {project && (
         <div className="flex h-full flex-col @wide/page:flex-row">
           <button
             type="button"
             aria-label="Close"
-            onClick={() => ref.current?.close()}
-            className="hit-44 absolute top-3 right-3 z-2 grid size-9.5 cursor-pointer place-items-center rounded-full border border-border-close bg-paper text-ink hover:border-accent active:bg-ink active:text-paper"
+            onClick={close}
+            data-ripple="ink"
+            className="hit-44 absolute top-3 right-3 z-2 grid size-9.5 cursor-pointer place-items-center rounded-full border border-border-close bg-paper text-ink hover:border-accent active:text-paper"
           >
             <CloseIcon />
           </button>
@@ -97,7 +155,8 @@ export function ProjectModal({
                   href={project.liveUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92 active:bg-paper active:text-accent"
+                  data-ripple="paper"
+                  className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92 active:text-accent"
                 >
                   <GlobeIcon />
                   Live site<span className="sr-only"> (opens in a new tab)</span>
@@ -108,7 +167,8 @@ export function ProjectModal({
                   href={project.repoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent active:bg-ink active:text-paper"
+                  data-ripple="ink"
+                  className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent active:text-paper"
                 >
                   <GitHubIcon />
                   Source<span className="sr-only"> (opens in a new tab)</span>

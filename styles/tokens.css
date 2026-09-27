@@ -234,3 +234,191 @@
     animation: none !important;
   }
 }
+
+/* ------------------------------------------------------------------ Phase 4: motion */
+
+/* The signature intro (spec §5.3) is shelved until after Milestone A; the hero enters
+   straight away. */
+:root {
+  --enter: 0.05s;
+}
+
+@layer components {
+  /* Hero entrance: staggered fade-up, except the H1 (LCP), which only rises (Q9 R2). */
+  .enter-fade {
+    animation: fade-up 0.85s var(--ease-out-soft) both;
+    animation-delay: calc(var(--enter) + var(--enter-offset, 0s));
+  }
+  .enter-rise {
+    animation: rise 0.85s var(--ease-out-soft) both;
+    animation-delay: calc(var(--enter) + var(--enter-offset, 0s));
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .enter-fade,
+    .enter-rise {
+      animation: none;
+    }
+  }
+}
+
+/* Project modal backdrop fades with the card (spec §5.3). */
+dialog.project-modal::backdrop {
+  background: var(--scrim-modal);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  transition: opacity 0.34s ease;
+}
+dialog.project-modal[data-state='in']::backdrop {
+  opacity: 1;
+}
+
+/*
+ * Page ↔ article (owner direction, replaces the mocked title morph). The whole page moves
+ * as one sheet, the way a reader turns to a new page. Going in, the list lifts away and the
+ * article rises into place; coming back, the article settles out and the list drops in
+ * from just above. The two never overlap (old clears in 170ms, then the new one enters),
+ * so there's never a muddle of two half-faded pages. Under reduced motion it's a plain cross-fade (--motion: 0).
+ * Classes come from each page's <ViewTransition enter/exit> keyed by the link's
+ * transitionTypes; untyped navigations (browser back/forward) swap instantly.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none; /* the page sheets carry the motion; no second cross-fade underneath */
+}
+::view-transition-old(.page-out-forward) {
+  animation: 170ms cubic-bezier(0.4, 0, 1, 1) both vt-out;
+  --vt-drift: -12px;
+}
+::view-transition-new(.page-in-forward) {
+  animation: 460ms var(--ease-out-soft) 170ms both vt-in;
+  --vt-from: 28px;
+}
+::view-transition-old(.page-out-back) {
+  animation: 170ms cubic-bezier(0.4, 0, 1, 1) both vt-out;
+  --vt-drift: 12px;
+}
+::view-transition-new(.page-in-back) {
+  animation: 420ms var(--ease-out-soft) 170ms both vt-in;
+  --vt-from: -16px;
+}
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    translate: 0 calc(var(--vt-drift) * var(--motion));
+  }
+}
+@keyframes vt-in {
+  from {
+    opacity: 0;
+    translate: 0 calc(var(--vt-from) * var(--motion));
+  }
+}
+
+/* The header is the fixed reference point: it never moves. Its snapshot is a flat,
+   translucent image with no live blur, so the moving pages would show through it crisp.
+   Backing it with solid paper for the transition's few hundred ms is indistinguishable
+   from the frosted bar and works in every engine (WebKit ignores backdrop-filter here). */
+::view-transition-group(site-header) {
+  animation: none;
+  z-index: 100;
+  background: var(--paper);
+}
+::view-transition-old(site-header) {
+  display: none;
+}
+::view-transition-new(site-header) {
+  animation: none;
+}
+::view-transition {
+  pointer-events: none;
+}
+
+/*
+ * Section reveals (owner direction): each section's parts fade up the first time it scrolls
+ * into view, in the hero's language (same curve, 14px travel, a short stagger). Only armed
+ * once JS is running and motion is allowed (see RevealObserver), so without JS or under
+ * reduced motion everything is simply there. Anything already on screen at load stays
+ * static. Transform + opacity only.
+ */
+/* The dialog is excluded: a modal child mustn't inherit an entrance. The fill is backwards
+   only, so once a reveal ends it holds nothing (a filling animation would override the
+   inline transforms other components animate, e.g. the modal's scale-from-card). */
+html[data-reveal] [data-reveal-group]:not([data-revealed]) > :not(dialog) {
+  opacity: 0;
+}
+html[data-reveal] [data-reveal-group][data-revealed='in'] > :not(dialog) {
+  animation: fade-up 0.85s var(--ease-out-soft) backwards;
+}
+html[data-reveal] [data-reveal-group][data-revealed='in'] > :nth-child(2) {
+  animation-delay: 0.09s;
+}
+html[data-reveal] [data-reveal-group][data-revealed='in'] > :nth-child(n + 3) {
+  animation-delay: 0.18s;
+}
+
+/*
+ * Header (owner direction): slides away while reading down and returns on any upward
+ * scroll, a tap on the page, keyboard focus, or near the top. Transform only: the page
+ * never reflows. Under reduced motion it still hides, without the slide.
+ */
+.site-header {
+  transition:
+    translate calc(0.42s * var(--motion)) var(--ease-out-soft),
+    background-color 0.45s ease,
+    border-color 0.45s ease;
+}
+.site-header[data-hidden] {
+  translate: 0 -100%;
+}
+
+/*
+ * Press ripple (owner revision, spec §10; RippleHost). The wave sits in a clipped layer
+ * under the control's content: `isolation` makes the control its own stacking context, so
+ * z-index -1 paints above the control's background but below its text and icons. The
+ * layer inherits the control's radius; hit-area pseudo-elements (.hit-44) aren't clipped.
+ */
+[data-ripple] {
+  isolation: isolate;
+}
+
+/* A home-page load onto a #section stays unpainted until it's scrolled there (lib/theme.ts). */
+html[data-anchoring] body {
+  visibility: hidden;
+}
+/* While pressed, the control's own colour changes (text, border) ease in with the wave
+   instead of flipping at once, so the change reads as spreading from the touch point. */
+[data-ripple]:active {
+  /* background-color too: a fill that changes while pressed (a picked nav item) must still
+     honour its own timing instead of snapping. */
+  transition-property: color, border-color, background-color;
+  transition-duration: 0.4s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+.ripple-layer {
+  position: absolute;
+  inset: -1px; /* over the 1px border too, so no old-colour ring shows around the wave */
+  z-index: -1;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+.ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+}
+.ripple-wave[data-tone='accent-fill'] {
+  background: var(--accent-fill);
+}
+.ripple-wave[data-tone='paper'] {
+  background: var(--paper);
+}
+.ripple-wave[data-tone='ink'] {
+  background: var(--ink);
+}
+.ripple-wave[data-tone='press-row'] {
+  background: color-mix(in oklab, var(--accent), transparent 88%);
+}
+.ripple-wave[data-tone='press-writing'] {
+  background: color-mix(in oklab, var(--accent), transparent 86%);
+}

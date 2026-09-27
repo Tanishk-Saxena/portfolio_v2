@@ -10,7 +10,8 @@ export function Quotes({ quotes }: { quotes: Quote[] }) {
       id="quotes"
       aria-roledescription="carousel"
       aria-label="Quotes"
-      className="measure-page scroll-mt-header border-t border-border-section py-section"
+      data-reveal-group
+      className="measure-page -scroll-mt-px border-t border-border-section py-section @wide/page:scroll-mt-[calc(var(--spacing-header)-1px)]"
     >
       <QuoteRotator quotes={quotes} />
     </section>

@@ -111,11 +111,15 @@
   /* spacing — default base (--spacing: 0.25rem) kept; named fluid tokens below */
   --spacing-header: 76px;
   --spacing-anchor-row: 104px;
-  --spacing-section: clamp(72px, 11vh, 132px);
+  --spacing-section: clamp(56px, 8vh, 96px); /* owner: tighter section rhythm */
   --spacing-band: clamp(76px, 12vh, 140px);
+  --spacing-band-about: clamp(40px, 6vh, 64px); /* owner: About's top was too airy */
   --spacing-band-end: clamp(72px, 10vh, 110px);
   --spacing-grid-projects: clamp(16px, 2.4vw, 26px);
   --spacing-grid-about: clamp(30px, 5vw, 72px);
+  /* owner: the portrait was dominating; 224px on phones, a 280px column when wide */
+  --spacing-portrait: 224px;
+  --spacing-portrait-wide: 360px;
   --spacing-grid-skills-row: clamp(30px, 5vw, 40px);
   --spacing-grid-skills-col: clamp(22px, 4vw, 48px);
   --spacing-more: clamp(26px, 4vw, 38px);
@@ -173,7 +177,7 @@
 
   --animate-fade-up: fade-up 0.85s var(--ease-out-soft) both;
   --animate-rise: rise 0.85s var(--ease-out-soft) both;
-  --animate-cue: wheel 1.9s var(--ease-cue) infinite;
+  --animate-cue: wheel 1.9s var(--ease-cue) 3 forwards; /* owner: three loops, then the cue fades */
 }
 
 /* The page measure used by every section (spec §4.1). */

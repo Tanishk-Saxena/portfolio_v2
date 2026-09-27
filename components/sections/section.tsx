@@ -16,7 +16,8 @@ export function Section({
     <section
       id={id}
       aria-labelledby={`${id}-heading`}
-      className={`measure-page scroll-mt-header border-t border-border-section py-section ${className}`}
+      data-reveal-group
+      className={`measure-page -scroll-mt-px border-t border-border-section py-section @wide/page:scroll-mt-[calc(var(--spacing-header)-1px)] ${className}`}
     >
       <SectionHeading id={`${id}-heading`}>{label}</SectionHeading>
       {children}
