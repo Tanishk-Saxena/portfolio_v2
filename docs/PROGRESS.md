@@ -3,8 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 3 — Public site · PR 4 of 4 (`feat/phase-3-article`) built and verified,
-awaiting diff review · next: Phase 4 — Motion
+**Now:** Phase 4 — Motion · branch `feat/phase-4-motion` · built and verified, awaiting diff review
 
 ---
 
@@ -73,7 +72,7 @@ Split into four PRs so each stays reviewable:
 | 3.1 | `feat/phase-3-shell` | Screenshot tooling (Playwright on local Chrome); CSS layering fix; shell: `@container/page`, grain, header (signature, theme toggle), footer, section primitives, icons; Hero; About band | ✅ PR #4 |
 | 3.2 | `feat/phase-3-sections` | Experience accordion, Projects (cards, show more, modal), Writing, Skills, Quotes, Contact band | ✅ PR #5 |
 | 3.3 | `feat/phase-3-nav` | Floating section nav (FAB, arc, curtain) and back-to-top; Playwright e2e suite in CI | ✅ PR #6 |
-| 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body and Listen; axe audits in e2e; Phase 3 verification (CLS fix, font split) | built, awaiting review |
+| 3.4 | `feat/phase-3-article` | `/articles/[slug]` route with Markdown body and Listen; axe audits in e2e; Phase 3 verification (CLS fix, font split) | ✅ PR #7 |
 
 3.1 verification: compared by eye against mockup screenshots at 390px and 1440px (light),
 plus dark mode. Hero type scale, highlight chip, CTAs, scroll cue, About band grid and
@@ -154,7 +153,50 @@ Levers, in order:
 4. The hydration JS footprint.
 Phase 4's intro also changes the LCP picture, so it's re-measured after that.
 
-## Phase 4 — Motion · Phase 5 — Ship
+## Phase 4 — Motion (branch `feat/phase-4-motion`)
+
+Everything in spec §5.3, with the R2 decisions (mockup motion wins; cheap equivalents only where they look identical):
+
+| Moment | Implementation | Reduced motion |
+|---|---|---|
+| Signature intro | **Shelved** until after Milestone A (see below) | — |
+| Hero entrance | Staggered fade-up on load; the H1 (LCP) only rises, never transparent | Static |
+| Scroll cue | Wheel loop; fades in on load, out on first scroll or after 8.2s | Static, fades |
+| Accordion | Grid-rows height .5s expand curve + fade .38s; caret turns | Fade only |
+| Project card | Lift −3px, shadow layer fades in, image blur 3px + scale 1.04 (hover devices only), veil/caption/links settle in | No movement |
+| Project modal | Scales out of the clicked card, back into it on close (Escape/backdrop/button all animate); backdrop blur fades | Fade only |
+| Floating nav | Spiral: rotating arm, 62ms stagger out, reverse unwind in; FAB appears with scale, glyph turns to ×; back-to-top rises in; curtain fades | Fade in place |
+| Writing rows | Padding-left 0 → 16px with the surface wash, as mocked; the date stays pinned right | Background only |
+| Quotes | Cross-fade .7s with a 10px rise every 7s; no controls, as mocked; pauses on hover/focus | Fade, no auto-advance |
+| Page ↔ article | Owner revision: the page moves as one sheet (list lifts away, article rises in; reverse on Back), never overlapping; header fixed and solid. No title morph | Cross-fade |
+| Section entrances | Owner revision: each section fades up the first time it scrolls into view; on-screen-at-load stays static | Static |
+| Header | Owner revision: hides reading down, returns on scroll up / tap / focus / near top | Hides without the slide |
+| Press ripple | Owner revision: pressed colour spreads from the touch point, fades after release | Fade in place |
+
+Also fixed from owner review: 3-up cards stay 3-up after Show more; card hover no longer lingers after the modal closes; the modal scales from the card actually clicked; Listen's pause glyph (two solid bars) and fixed button width; the hero entrance plays.
+
+[ASSUMED] Quotes auto-advance with no pause control, as mocked. WCAG 2.2.2 is met by intent: rotation pauses on hover/focus, never runs under reduced motion, and a static quote is always readable. Owner's call.
+
+**Signature intro: shelved.** The pen-drawn version (Caveat glyph outlines + skeleton-stroke mask, flying into the navbar) still showed a shift at the hand-off, and cost load time (≈31 KB of glyph data in the HTML/JS). (It also never cleared on the owner's phone, but that was the hydration failure below: no JS ran at all.) The work is parked in `git stash` ("wip: signature intro (shelved from Phase 4)"), with its generator script. It is revisited after Milestone A, and only if it can hand off with zero shift at no perf cost. The navbar signature is live Caveat text again.
+
+**Mobile first (owner direction).** The owner's phone, on the local dev server over the LAN, got a dead page: no theme toggle, cards, Show more. Root cause: Next's dev server serves its JS only to `localhost` unless the origin is listed in `allowedDevOrigins`, so the page never hydrated. Every earlier check ran on localhost and passed. Fixed in `next.config.ts` (this machine's LAN IPv4s, read at startup; dev only).
+
+All owner revisions settled in this phase are recorded as final in `docs/DESIGN-SPEC.md` §10 (they override the mockup). Back from an article now restores the exact previous scroll position before paint (direct visits fall back to `/#writing`); expanded lists stay expanded for the session. About has less top space and a smaller portrait.
+
+Regressions caught in owner review: the section-entrance animation filled forwards and pinned the project dialog's transform (no scale-from-card) → reveals exclude the dialog and fill backwards only. A leftover test server once served a stale build → Playwright always starts a fresh server.
+
+Testing (owner direction, end of Phase 4): trimmed to unit tests for data plus a small e2e smoke suite (home loads/hydrates, theme, project modal, section nav, article + Back, 404) and axe on both pages in both modes, on desktop + mobile Chrome. The WebKit/device/motion suites were removed: flaky on Windows WebKit, slow, and testing UI details rather than behaviour.
+
+Later owner rounds (all in spec §10): Show more as a sequence (button glides, page follows, items fade in one by one) and Show less; ripple polish (one speed, touch-scroll cancel, border coverage, inverse back-to-top, nav selection); header auto-hide on phones only; jumps land flush without the divider; reload opens at the URL's #section with no hero flash (URL follows the section being read); articles keep native scroll restoration; scroll cue ends after three loops; tighter section rhythm; About balanced. Open before the PR: Show less smoothness, #hero in the URL, mobile Back-from-article, a designed 404.
+
+Writing rows (owner's call): the read time sits on its own line under the title; the date stays right, level with the title's first line.
+
+Back to top (owner's call) is now a plain `#hero` link, like the header signature: no JS, the URL follows the scroll (a reload no longer jumps back to the last section's hash), native scrolling honours scroll-behavior/reduced motion.
+
+Experience rows: dates and caret are one group, baseline-aligned with the role's first line. On mobile the caret no longer floats at the middle of the two-line block.
+
+
+## Phase 5 — Ship
 
 Not started.
 

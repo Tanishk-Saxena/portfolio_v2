@@ -20,6 +20,10 @@ what a section contains), **the mockup wins** and this document gets corrected.
 
 ### 0.1 Standing direction from the owner (overrides anything below that conflicts)
 
+> **Owner revisions win over the mockup.** Changes the owner settled after building and
+> testing on real devices are recorded in `docs/DESIGN-SPEC.md` §10. They are final and
+> override the mockup and everything below.
+
 - **The mockup wins every contradiction**: visual, structural *and* behavioural. The
   mockups are very close to the intended result. When a rule in this brief would change
   what the mockup does, keep the mockup's look and feel, and meet the rule's *intent*

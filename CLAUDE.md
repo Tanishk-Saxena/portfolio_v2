@@ -16,7 +16,7 @@ Read these before doing any work; they are the source of truth:
 - `docs/design/artifacts/*.dc.html` — the Claude Design mockups (`Portfolio`, `Article`, `Mobile preview`, `Dev notes` = behaviour spec). Single-file HTML rendered via `support.js`; they are a _reference spec_, not code to port. Open them in a browser to inspect behaviour.
 - `docs/DESIGN-SPEC.md` — exact values extracted from the mockup, plus resolved decisions tagged `[ASSUMED]` (§9 lists them). Build from this.
 
-Precedence: **the mockup wins every contradiction** (brief §0.1). Meet the brief's rules by intent, invisibly where possible.
+Precedence: **owner revisions in `docs/DESIGN-SPEC.md` §10 win over everything**; after those, **the mockup wins every contradiction** (brief §0.1). When the owner settles a change in conversation, record it in §10. Meet the brief's rules by intent, invisibly where possible.
 
 Owner's standing direction (brief §0.1): keep the site smooth on older phones without stripping motion. Motion is a crafted feature, subtle in tone. Don't block on questions: make a call, tag it `[ASSUMED]`, keep going.
 
@@ -54,6 +54,8 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 
 ## Constraints that gate every phase
 
+- **Mobile first.** Build for 390px touch first, using platform features that work everywhere (native elements, CSS, transform/opacity) so behaviour is right by construction. Check changed UI on a phone-sized touch viewport (and on the owner's phone via the LAN IP; `allowedDevOrigins` in `next.config.ts` makes that work).
+- **Testing is lean (owner direction).** Unit tests for data/logic (repositories now, Supabase + admin later). E2E is a small smoke suite (`e2e/smoke.spec.ts`, `e2e/a11y.spec.ts`) for major flows only: outcomes, never timings, pixels or animation details. No tests for purely visual UI (ripples, entrances). Don't gate small fixes on the full suite; run what's relevant, and the full suite before a PR. A change that needs edits to unrelated files is a design smell.
 - LCP < 2.0s, CLS < 0.1. Don't hide the LCP text behind an opacity-0 entrance.
 - WCAG 2.1 AA, keyboard operable, 44px hit areas (invisible extension is fine), `prefers-reduced-motion` gives a static but fully usable site.
 - No scroll hijacking. Prefer transform/opacity; small contained exceptions per brief §0.1.
