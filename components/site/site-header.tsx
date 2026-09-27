@@ -1,6 +1,5 @@
-import Link from 'next/link';
+import { HomeLink } from './home-link';
 import { HeaderShell } from './header-shell';
-import { TO_HOME } from './page-transition';
 import { SignatureMark } from './signature-mark';
 import { ThemeToggle } from './theme-toggle';
 
@@ -26,15 +25,14 @@ export function SiteHeader({ name, onHome }: { name: string; onHome: boolean }) 
             <SignatureMark name={name} />
           </a>
         ) : (
-          <Link
+          <HomeLink
             href="/"
-            transitionTypes={TO_HOME}
             aria-label={`${name} — back to portfolio`}
             data-signature-slot
             className={SIGNATURE}
           >
             <SignatureMark name={name} />
-          </Link>
+          </HomeLink>
         )}
         <ThemeToggle />
       </div>

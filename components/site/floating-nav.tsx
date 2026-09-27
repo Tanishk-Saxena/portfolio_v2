@@ -39,6 +39,17 @@ export function FloatingNav({ sections }: { sections: NavSection[] }) {
     if (location.hash === hash) return;
     history.replaceState(history.state, '', location.pathname + location.search + hash);
   }, [active, pastHero]);
+
+  // Native #hero links (the signature) would leave #hero behind: the top has no hash.
+  useEffect(() => {
+    const strip = () => {
+      if (location.hash === '#hero') {
+        history.replaceState(history.state, '', location.pathname + location.search);
+      }
+    };
+    window.addEventListener('hashchange', strip);
+    return () => window.removeEventListener('hashchange', strip);
+  }, []);
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const fabRef = useRef<HTMLButtonElement>(null);
