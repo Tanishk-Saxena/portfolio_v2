@@ -223,6 +223,10 @@ Verification checklist (brief §6):
 - [ ] Tested on an actual phone against the deployed site
 - [ ] P-1: PageSpeed Insights / Speed Insights field data on the deployed site
 
+**Later (owner):** after Milestone B, Phase 10 audits overall performance and a11y scores and
+adds them to CI as an amber warning (read and flagged, never blocking; brief §6). The
+signature intro stays shelved until then.
+
 ---
 
 ## Notes / decisions made during the build
