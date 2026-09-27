@@ -223,13 +223,17 @@ Verification checklist (brief §6):
 - [~] P-1 (LCP 3.3–3.6 s lab vs 2.0 s target): open and flagged in `docs/PERFORMANCE.md`;
       not a blocker (brief §3)
 
-**Post-ship fix (branch `fix/article-transition-fonts`):** on phones, opening an article froze
-the screen (ripple included) before the article rose in, only on the live site. Cause: React
-holds a view transition until newly used fonts load (up to ~500ms), and the article's pull-quote
-italic was first requested after the tap. The article-only faces now download in the background
-once the Writing list nears the screen (and on the row press). Measured on an emulated phone
-(4× CPU, slow 4G): freeze 683–717ms → 350–367ms, no font request inside it; ≈ 65ms unthrottled.
-The rest is the article render + snapshot, network-independent.
+**Post-ship fix, phones opening an article:** the screen froze (ripple included) before the
+article rose in, on the live site only. Two causes. (1) React holds a view transition until
+newly used fonts load, and the pull-quote italic was first requested after the tap: the
+article-only faces now download once the Writing list nears the screen (PR #10). (2) The
+bigger one: the view transition snapshots the full-length home page, which phone GPUs are slow
+at (desktop was fine; the return trip already avoided it). Phones now turn pages with
+transform/opacity both ways: the list lifts away, then the article rises in
+(`openArticle`, `ArticleEntrance`), and the page wrapper mounts without a `<ViewTransition>`
+on phone turns, since React starts a view transition whenever one mounts. Emulated phone (4×
+CPU): worst frame 683 ms → 163–185 ms, and that one falls while the screen is blank between the
+two sheets; return trip ≤ 117 ms, scroll position restored. Desktop keeps the page sheet.
 
 **Later (owner):** after Milestone B, Phase 10 audits overall performance and a11y scores and
 adds them to CI as an amber warning (read and flagged, never blocking; brief §6). The
