@@ -34,6 +34,40 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:9px">
+      <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9A9188">Screen</span>
+      <div style="display:flex;gap:8px">
+        <sc-for list="{{ screens }}" as="o" hint-placeholder-count="2">
+          <button type="button" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;flex-direction:column;gap:26px">
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9A9188">Sign-in screen</span>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ signins }}" as="o" hint-placeholder-count="2">
+              <button type="button" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9A9188">List density</span>
+          <div style="display:flex;gap:8px">
+            <sc-for list="{{ densities }}" as="o" hint-placeholder-count="2">
+              <button type="button" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <p style="font-size:13px;line-height:1.6;color:#9A9188;margin:0">Edits made in the phone are kept, as in the full-size admin. Open <a href="Admin.dc.html" target="_blank">Admin</a> in a tab to compare.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSite }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column;gap:26px">
+
+    <div style="display:flex;flex-direction:column;gap:9px">
       <span style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#9A9188">Accent</span>
       <div style="display:flex;gap:10px">
         <sc-for list="{{ accents }}" as="a" hint-placeholder-count="2">
@@ -77,7 +111,10 @@
       </div>
     </div>
 
-    <button type="button" onClick="{{ reload }}" style="{{ reloadStyle }}">Replay from top</button>
+    </div>
+    </sc-if>
+
+    <button type="button" onClick="{{ reload }}" style="{{ reloadStyle }}">{{ reloadLabel }}</button>
   </div>
 
 </div>
@@ -85,7 +122,7 @@
 </x-dc>
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
-  state = { accent: '#B4532A', fabPosition: 'Bottom right', menuStyle: 'Arc', grain: 5.5, introEnabled: 'true', nonce: 0 };
+  state = { accent: '#B4532A', fabPosition: 'Bottom right', menuStyle: 'Arc', grain: 5.5, introEnabled: 'true', nonce: 0, screen: 'site', requireSignIn: 'true', density: 'Comfortable' };
 
   chip(active) {
     return {
@@ -116,7 +153,12 @@ class Component extends DCLogic {
       '&n=' + s.nonce;
 
     return {
-      src: 'Portfolio.dc.html?' + q,
+      src: s.screen === 'admin' ? 'Admin.dc.html?requireSignIn=' + s.requireSignIn + '&density=' + s.density + '&n=' + s.nonce : 'Portfolio.dc.html?' + q,
+      isAdmin: s.screen === 'admin', isSite: s.screen !== 'admin',
+      reloadLabel: s.screen === 'admin' ? 'Reload' : 'Replay from top',
+      screens: this.group('screen', [['site', 'Website'], ['admin', 'Admin']]),
+      signins: this.group('requireSignIn', [['true', 'Show'], ['false', 'Skip']]),
+      densities: this.group('density', [['Comfortable', 'Comfortable'], ['Compact', 'Compact']]),
       grain: s.grain,
       grainLabel: s.grain.toFixed(1) + '%',
       setGrain: (e) => this.setState({ grain: Number(e.target.value) }),

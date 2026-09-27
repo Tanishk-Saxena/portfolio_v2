@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus, later, an auth-secured admin portal. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Phase 1 (tokens, fonts, theme, tooling, `/tokens` page) is done. Check `docs/PROGRESS.md` for the current phase and step before starting work.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live; Milestone B (Supabase + admin, Phases 6–8) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -15,6 +15,7 @@ Read these before doing any work; they are the source of truth:
 - `docs/design/DESIGN.md` — design rationale, section structure, signature interactions, still-open design options.
 - `docs/design/artifacts/*.dc.html` — the Claude Design mockups (`Portfolio`, `Article`, `Mobile preview`, `Dev notes` = behaviour spec). Single-file HTML rendered via `support.js`; they are a _reference spec_, not code to port. Open them in a browser to inspect behaviour.
 - `docs/DESIGN-SPEC.md` — exact values extracted from the mockup, plus resolved decisions tagged `[ASSUMED]` (§9 lists them). Build from this.
+- `docs/ADMIN-DESIGN-SPEC.md` — the same for the admin (Milestone B): values, behaviour, content-model reconciliation, API, `[ASSUMED]` decisions (§13), owner revisions (§14). Sources: `docs/design/ADMIN-DESIGN.md`, `ADMIN-HANDOFF.md`, `artifacts/Admin.dc.html`, `Field.dc.html`, `admin-data.js`, `ADMIN-Dev notes.dc.html`. Where the admin mockup describes the site (palette, sample copy, Settings options), the shipped site wins (§1).
 
 Precedence: **owner revisions in `docs/DESIGN-SPEC.md` §10 win over everything**; after those, **the mockup wins every contradiction** (brief §0.1). When the owner settles a change in conversation, record it in §10. Meet the brief's rules by intent, invisibly where possible.
 
@@ -42,7 +43,7 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 ## Architecture (planned — see brief §4)
 
 - **Repository boundary is the core rule.** Components never import fixtures or call Supabase. All data goes through interfaces in `lib/domain/repositories.ts` returning domain types from `lib/domain/types.ts`. Implementations live in `lib/repositories/{fixtures,supabase}/`; `lib/container.ts` is the single composition root (ideally env-switched). Every repository method is `async`, even over sync fixtures. Repository tests target the interface so the same suite runs against both implementations.
-- Layout: `app/(site)/page.tsx` (single-page public site), `app/admin/` (Phase 7+), `components/{sections,ui,admin}/`, `styles/tokens.css` (all tokens, both modes, reduced-motion).
+- Layout: `app/(site)/page.tsx` (single-page public site), `app/admin/` + `app/api/admin/` (Phase 7+), `components/{sections,ui,admin}/`, `styles/tokens.css` (all tokens, both modes, reduced-motion).
 - Styling: Tailwind utilities driven by CSS-custom-property tokens (Tailwind v4 `@theme` in CSS; there is no `tailwind.config`). Hand-written CSS only in `tokens.css` or where utilities can't express it. No magic values.
 - Conventions: kebab-case filenames, one PascalCase component per file, ≤200 lines per component file, Server Components by default, conventional commits.
 
@@ -65,4 +66,4 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 
 Phases in order, built in small steps with spaced-out commits. No approval needed to _build_, but **before every commit, stop and ask the owner to review the diff**, then commit only once they approve.
 
-Branching (full rules in `CONTRIBUTING.md`): trunk-based, no `develop`. All work happens on a short-lived `<type>/<desc>` branch (phase work: `feat/phase-<n>-<scope>`) cut from an up-to-date `main`. When a unit is done, push the branch and open a PR into `main` with `gh pr create` (the template fills itself in). CI `check` must pass. **The owner merges**, rebase-and-merge by default. Local hooks block commits and pushes to `main`; never bypass them with `--no-verify`. `gh` lives at `C:\Program Files\GitHub CLI\gh.exe`; in PowerShell, refresh `$env:Path` from the Machine and User scopes first. Keep the ledger `docs/PROGRESS.md` current (phase, step, done, next) and update it before proposing each commit. Don't claim something "matches the design" without comparing against the mockup. The admin UI has no design yet — never improvise one.
+Branching (full rules in `CONTRIBUTING.md`): trunk-based, no `develop`. All work happens on a short-lived `<type>/<desc>` branch (phase work: `feat/phase-<n>-<scope>`) cut from an up-to-date `main`. When a unit is done, push the branch and open a PR into `main` with `gh pr create` (the template fills itself in). CI `check` must pass. **The owner merges**, rebase-and-merge by default. Local hooks block commits and pushes to `main`; never bypass them with `--no-verify`. `gh` lives at `C:\Program Files\GitHub CLI\gh.exe`; in PowerShell, refresh `$env:Path` from the Machine and User scopes first. Keep the ledger `docs/PROGRESS.md` current (phase, step, done, next) and update it before proposing each commit. Don't claim something "matches the design" without comparing against the mockup. The admin is built from `docs/ADMIN-DESIGN-SPEC.md`; never improvise admin UI beyond it.
