@@ -18,35 +18,44 @@ const remembered = new Map<string, number>();
 const GROW_MS = 650;
 const ITEMS_AT_MS = 520; // items start as the growth settles
 const STAGGER_MS = 140;
-const EASE = 'cubic-bezier(0.215, 0.61, 0.355, 1)'; // ease-out cubic (matched in followGrowth)
+const EASE = 'cubic-bezier(0.215, 0.61, 0.355, 1)'; // ease-out cubic (matched in scrollAlong)
 
-/** Where the section and its Show more button were before the new page rendered. */
+/** Where the section and its button were before the list changed. */
 interface Before {
   height: number;
   moreTop: number | null; // page Y of the Show more block (null once it's gone)
+  headingInView: boolean; // the section heading fully on screen at the tap
 }
 
 const pageTop = (el: Element) => el.getBoundingClientRect().top + window.scrollY;
+const px = (v: string) => parseFloat(v) || 0;
 
 function measure(container: HTMLElement): Before {
+  const box = container.parentElement;
   const more = container.nextElementSibling;
+  const heading = box?.querySelector('h2')?.getBoundingClientRect();
   return {
-    height: container.parentElement?.offsetHeight ?? 0,
+    height: box?.offsetHeight ?? 0,
     moreTop: more ? pageTop(more) : null,
+    headingInView: !!heading && heading.top >= 0 && heading.bottom <= window.innerHeight,
   };
 }
 
 /**
- * The button's move, both ways: it slides from where it was to where it now sits (FLIP,
- * transform only), the section's height changes on the same curve so everything below
- * travels with it, and the page follows (below). On Show more the new items are still
- * invisible here; on Show less the leaving items have already faded out.
+ * The shared move, both ways: the section's height changes on one curve so everything below
+ * travels with it, the button glides from where it was to where it now sits (FLIP,
+ * transform only), and the page scrolls to `target` along with it.
  */
-function growSection(box: HTMLElement, container: HTMLElement, before: Before) {
+function moveSection(
+  box: HTMLElement,
+  container: HTMLElement,
+  before: Before,
+  target: number,
+  synced = false,
+) {
   const html = document.documentElement;
   html.style.overflowAnchor = 'none'; // the browser mustn't re-anchor the scroll mid-move
-  const to = box.offsetHeight;
-  box.animate([{ height: `${before.height}px` }, { height: `${to}px` }], {
+  box.animate([{ height: `${before.height}px` }, { height: `${box.offsetHeight}px` }], {
     duration: GROW_MS,
     easing: EASE,
   });
@@ -58,33 +67,61 @@ function growSection(box: HTMLElement, container: HTMLElement, before: Before) {
       easing: EASE,
     });
   }
-  followGrowth(box, to);
+  scrollAlong(target, synced);
   window.setTimeout(() => html.style.removeProperty('overflow-anchor'), GROW_MS);
 }
 
+/** Page Y of the section's end (its button, or the last item) and of its top when jumped to. */
+function sectionBounds(box: HTMLElement) {
+  const cs = getComputedStyle(box);
+  return {
+    top: pageTop(box) - px(cs.scrollMarginTop),
+    end: pageTop(box) + box.offsetHeight - px(cs.paddingBottom),
+  };
+}
+
+/** Show more: the page follows just far enough that the new end sits near the bottom. */
+function growSection(box: HTMLElement, container: HTMLElement, before: Before) {
+  const { end } = sectionBounds(box);
+  moveSection(box, container, before, Math.max(window.scrollY, end - window.innerHeight + 24));
+}
+
 /**
- * Scrolls the page just far enough to keep the section's new end (its button, or the last
- * item) in view: down after Show more, up after Show less. Phones get one native smooth scroll (runs on
- * the compositor; per-frame scrollTo stutters there). Wide layouts step the scroll in sync
- * with the growth (the native curve is too quick there). The header treats it as a jump.
+ * Show less, the reverse of Show more (owner revision, spec §10), after the extra items fade:
+ * - heading and button both on screen at the tap: the heading stays put, the button glides up;
+ * - otherwise, if the collapsed section fits on screen: its heading comes to the top;
+ * - otherwise: its button comes to the bottom.
  */
-function followGrowth(box: HTMLElement, finalHeight: number) {
-  const pad = parseFloat(getComputedStyle(box).paddingBottom) || 0;
-  const endY = box.getBoundingClientRect().top + window.scrollY + finalHeight - pad;
-  const from = window.scrollY;
+function collapseSection(box: HTMLElement, container: HTMLElement, before: Before, still: boolean) {
+  const { top, end } = sectionBounds(box);
   const vh = window.innerHeight;
-  let target: number;
-  if (endY > from + vh - 24)
-    target = endY - vh + 24; // grew past the bottom: follow down
-  else if (endY < from + vh * 0.35)
-    target = Math.max(0, endY - vh * 0.6); // shrank away: up
-  else return; // still comfortably in view
+  const target = before.headingInView ? window.scrollY : end - top <= vh - 24 ? top : end - vh + 24;
+  if (still) {
+    window.dispatchEvent(new Event(JUMP_EVENT));
+    window.scrollTo({ top: Math.max(0, target), behavior: 'instant' });
+    return;
+  }
+  // Frame-synced everywhere: the native smooth scroll starts slower than the shrink, so the
+  // button would rise before the page caught up.
+  moveSection(box, container, before, Math.max(0, target), true);
+}
+
+/**
+ * Scrolls to `target` in step with the section's move. Phones get one native smooth scroll for
+ * Show more (runs on the compositor; per-frame scrollTo stuttered there) unless `synced`. Wide layouts step the scroll
+ * in sync with the move (the native curve is too quick there). The header treats it as a jump.
+ */
+function scrollAlong(target: number, synced: boolean) {
+  const from = window.scrollY;
+  if (Math.abs(target - from) < 1) return;
   window.dispatchEvent(new Event(JUMP_EVENT));
-  if (isNarrow()) {
+  if (isNarrow() && !synced) {
     window.scrollTo({ top: target, behavior: 'smooth' });
     return;
   }
-  const t0 = performance.now();
+  // On the animation timeline, from the moment the section's animations were created, so
+  // the scroll and the shrink share one clock.
+  const t0 = Number(document.timeline.currentTime ?? performance.now());
   const step = (now: number) => {
     const t = Math.min(1, (now - t0) / GROW_MS);
     window.scrollTo({ top: from + (target - from) * (1 - (1 - t) ** 3), behavior: 'instant' });
@@ -173,7 +210,7 @@ export function usePagedList(key: string, total: number, pageSize = PAGE_SIZE) {
     collapsing.current = false;
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (collapsed) {
-      if (from && box && container && !still) growSection(box, container, from);
+      if (from && box && container) collapseSection(box, container, from, still);
       return;
     }
     if (start === null || !container || !box) return;

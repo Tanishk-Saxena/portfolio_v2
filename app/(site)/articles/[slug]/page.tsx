@@ -1,10 +1,10 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { ArticleBody } from '@/components/article/article-body';
 import { BackLink } from '@/components/article/back-link';
 import { ListenButton } from '@/components/article/listen-button';
-import { PageTransition, TO_HOME } from '@/components/site/page-transition';
+import { HomeLink } from '@/components/site/home-link';
+import { PageTransition } from '@/components/site/page-transition';
 import { SiteHeader } from '@/components/site/site-header';
 import { getRepositories } from '@/lib/container';
 import { newsreaderItalic, plexMono } from '@/lib/fonts';
@@ -65,13 +65,12 @@ export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) 
 
           <footer className="mt-article-footer-top flex flex-wrap items-center justify-between gap-3.5 border-t border-border-article pt-article-meta-bottom text-small">
             <span className="text-muted">Written by {profile.name}</span>
-            <Link
+            <HomeLink
               href="/#writing"
-              transitionTypes={TO_HOME}
               className="hit-44 relative inline-flex items-center text-accent transition-colors duration-200 active:text-ink"
             >
               More writing
-            </Link>
+            </HomeLink>
           </footer>
         </main>
       </PageTransition>
