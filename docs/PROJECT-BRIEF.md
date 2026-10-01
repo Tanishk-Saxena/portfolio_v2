@@ -77,7 +77,7 @@ because an off-the-shelf CMS wouldn't work.
 | Styling | **Tailwind CSS**, driven by design tokens as CSS custom properties |
 | Data | **Supabase**: Postgres + Auth + Storage. Live since Phase 6.2 (dev + prod projects, `docs/SUPABASE.md`) |
 | Fixtures | **Typed in-repo fixtures** (§5): the seed, the local default and the test data |
-| Auth | Supabase Auth, single-admin allowlist, no public signup (Phase 7) |
+| Auth | Supabase Auth, single-admin allowlist, no public signup. Live since Phase 7 (`lib/auth/`, `proxy.ts`) |
 | Hosting | **Vercel**: production at https://tanishk-saxena.vercel.app, a preview per branch |
 | Testing | Vitest + Testing Library; Playwright for critical paths |
 
@@ -182,9 +182,10 @@ database exists.
 ```
 app/
   (site)/page.tsx                 // the public page
-  admin/                          // Phase 7+, auth-guarded (routes: ADMIN-DESIGN-SPEC §6)
-  api/admin/                      // Phase 8, write endpoints (ADMIN-DESIGN-SPEC §9)
-proxy.ts                          // Phase 7, optimistic /admin guard (Next 16's middleware)
+  admin/                          // auth-guarded; sign-in (Phase 7), the portal (Phase 8; routes: ADMIN-DESIGN-SPEC §6)
+  api/admin/                      // session check (Phase 7); write endpoints (Phase 8, ADMIN-DESIGN-SPEC §9)
+proxy.ts                          // optimistic /admin + /api/admin guard (Next 16's middleware)
+lib/auth/                         // Supabase session clients, getAdmin(), the gate
 components/
   sections/                       // one per page section
   ui/                             // primitives: Button, Card, Field, ...
