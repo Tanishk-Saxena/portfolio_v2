@@ -22,7 +22,8 @@ Lab = Lighthouse mobile (simulated slow 4G, mid-tier phone). Field = Vercel Spee
 | 2026-09-27 | live, lab | article | 83–89 / 100 / 100 / 100 | 3.5 s | 1.1–1.3 s | 170–340 ms | 0 | LCP = first body paragraph; 710 ms render delay |
 
 Accessibility: axe runs in CI on home and article, both modes, desktop and mobile (a warning
-when it fails, never red). Last result: clean.
+when it fails, never red). Last result: clean. 2026-10-02: one false reading on PR #19 (scroll
+cue audited mid-fade, desktop light); the test now waits for the cue to finish (PROGRESS, T.2).
 
 ## Open items
 

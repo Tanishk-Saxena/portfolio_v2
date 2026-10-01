@@ -43,6 +43,10 @@ jobs:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: reports/a11y.xml
       - if: steps.a11y.outcome == 'failure'
         run: echo "::warning title=Accessibility::axe found violations; see the a11y step and the playwright-traces artifact."
+      # Names each e2e suite after its viewport and writes the PR comment's table.
+      - name: Prepare test report
+        if: ${{ !cancelled() }}
+        run: mkdir -p reports && node scripts/test-summary.mjs "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > reports/comment.md
       # One readable report (every test, pass or fail) on the run's Summary page, linked from
       # the PR's check. It never decides the outcome: the test steps above do.
       - name: Test report
@@ -56,9 +60,6 @@ jobs:
           fail-on-error: 'false'
           fail-on-empty: 'false'
       # The same results as a short table pinned to the PR, edited on every push.
-      - name: Test results comment
-        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
-        run: node scripts/test-summary.mjs "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > reports/comment.md
       - if: ${{ !cancelled() && github.event_name == 'pull_request' }}
         uses: marocchino/sticky-pull-request-comment@v3.0.5
         with:

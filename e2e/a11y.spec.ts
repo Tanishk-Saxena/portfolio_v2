@@ -13,6 +13,10 @@ for (const theme of ['light', 'dark'] as const) {
     test(`${name} passes axe in ${theme} mode`, async ({ page }) => {
       await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
       await page.goto(url);
+      // The hero's scroll cue fades itself out ~5 s after load. Wait for it to finish, or a
+      // slow runner audits it mid-fade and reports its half-opacity text as low contrast.
+      const cue = page.getByText('Scroll', { exact: true }).locator('..');
+      if (await cue.count()) await expect(cue).toHaveCSS('opacity', '0', { timeout: 15_000 });
       // Audit the settled page: text caught mid-fade would be measured at partial opacity.
       await page.waitForFunction(() =>
         document.getAnimations().every((a) => a.playState !== 'running'),
