@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 7 complete — admin sign-in live in dev and prod (owner account allowlisted in both) · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
+**Now:** Phase 7 and the test consolidation complete · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
 
 ---
 
@@ -324,23 +324,37 @@ Footer note on Contact (Q-A8).
 
 ---
 
-## Test consolidation (branch `chore/tests-consolidate`)
+## Test consolidation ✅
+
+| Step | Branch | Scope | Status |
+|---|---|---|---|
+| T.1 | `chore/tests-consolidate` | Fewer tests, same behaviours; live suite opt-in; reports in GitHub | ✅ PR #19 |
+| T.2 | `test/report-polish` | Report per viewport; the flaky scroll-cue axe reading fixed | ✅ |
 
 Owner asked for fewer, faster tests without losing anything important, and readable reports
-in GitHub. Unit: 101 → 33 tests in 7 files (~8 s), every behaviour kept: the repository
-contract 11 → 4 tests (each reads once), migration checks run their constraint test once and
-RLS in both grant modes (15 → 6), small utils merged into `lib/utils/utils.test.ts`, site +
-JSON-LD into `lib/seo.test.ts`. Live: the two dev-project suites merged into
-`lib/repositories/supabase/live.test.ts` (19 → 8 tests), now opt-in `npm run test:live`
-(it never ran in CI, and running two live files side by side caused the one timeout).
-E2E: smoke 6 → 3 journeys (with named steps), still desktop + mobile; axe unchanged, both
-viewports (owner: a11y and perf never judged on one device). 20 → 14 e2e runs, ~38 s.
-Reporting: Vitest + Playwright write JUnit to `reports/`; `dorny/test-reporter@v3` puts
-every test on the run's Summary page (even after a failure, never deciding the outcome);
-failures are also annotated on the PR's lines. On PRs, a pinned comment (`scripts/test-summary.mjs`
-+ `marocchino/sticky-pull-request-comment`) shows a per-suite table (passed / failed /
-skipped / time / gate) linking to that summary, edited on every push; a11y failures show ⚠️,
-never ❌.
+in GitHub. Unit (offline, CI): 82 → 33 tests in 7 files (~8 s), every behaviour kept: the
+repository contract 11 → 4 tests (each reads once), migration checks run their constraint
+test once and RLS in both grant modes (15 → 6), small utils merged into
+`lib/utils/utils.test.ts`, site + JSON-LD into `lib/seo.test.ts`. Live: the two dev-project
+suites merged into `lib/repositories/supabase/live.test.ts` (19 → 8 tests), now opt-in
+`npm run test:live` (it never ran in CI, and two live files side by side caused the one
+timeout). E2E: smoke 6 → 3 journeys (with named steps); axe unchanged. Both run on desktop
+and mobile (owner: a11y and perf are never judged on one device): 20 → 14 runs.
+
+Reporting: Vitest and Playwright write JUnit to `reports/`. `scripts/test-summary.mjs` names
+each e2e suite after its viewport and writes a table; `dorny/test-reporter@v3` puts every
+test on the run's Summary page (one table per suite and viewport, test names prefixed
+`[desktop]` / `[mobile]`); a pinned PR comment (`marocchino/sticky-pull-request-comment`)
+shows unit, smoke × 2 viewports and axe × 2 viewports (passed / failed / skipped / summed test
+time / gate), edited on every push. Neither decides the outcome; a11y failures show ⚠️, never
+❌. Failures are also annotated on the PR's lines.
+
+T.2 fixes: PR #19's report merged both viewports into one suite with duplicate test names, so
+one of the 14 e2e results collapsed (13 shown); fixed by the viewport labels above. Its axe
+run flagged `color-contrast` on the hero's scroll cue (desktop, light). Not a real contrast
+failure (the cue is `--muted`, ≈ 5.2:1): the cue fades itself out ~5 s after load, and the
+slower runner audited it mid-fade. The axe test now waits for the cue to finish before
+auditing.
 
 ## Notes / decisions made during the build
 

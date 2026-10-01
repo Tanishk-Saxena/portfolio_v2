@@ -11,7 +11,9 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   // CI: annotations on the PR, plus JUnit for the run's test report (the workflow names the
   // file per step with PLAYWRIGHT_JUNIT_OUTPUT_FILE).
-  reporter: process.env.CI ? [['list'], ['github'], ['junit']] : 'list',
+  reporter: process.env.CI
+    ? [['list'], ['github'], ['junit', { includeProjectInTestName: true }]]
+    : 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
     channel: 'chrome',
