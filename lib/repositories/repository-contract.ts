@@ -3,8 +3,8 @@ import type { Repositories } from '@/lib/domain/repositories';
 
 /*
  * The repository contract, written against the interfaces only. Every implementation
- * (fixtures now, Supabase in Phase 6) runs this same suite; when Supabase passes it
- * unchanged, the migration is done (brief §4 rule 4).
+ * (fixtures and Supabase) runs this same suite; Supabase passing it unchanged is what
+ * proved the migration (brief §4 rule 4).
  */
 
 /** Ascending (dir 1) or descending (dir -1); equal neighbours are fine either way. */

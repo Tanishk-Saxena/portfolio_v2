@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 6.2 — production switched to Supabase (prod migrated + seeded, Vercel env set) · next: Phase 7 — admin auth
+**Now:** Phase 6 complete — the live site reads Supabase (prod), previews read dev · next: Phase 7 — admin auth (`feat/phase-7-auth`)
 
 ---
 
@@ -139,7 +139,7 @@ Behaviour notes (3.3):
 | Gate | Result |
 |---|---|
 | Side-by-side vs mockup at 390 / 1440 | ✅ every section, modal, nav and article (by eye, light and dark) |
-| axe clean | ✅ `e2e/a11y.spec.ts`: home, open accordion, modal, nav, article × light/dark × desktop/mobile, in CI |
+| axe clean | ✅ `e2e/a11y.spec.ts`: home and article × light/dark × desktop/mobile, in CI (open accordion, modal and nav are not audited separately) |
 | Lighthouse accessibility 100 | ✅ home and article |
 | Lighthouse best practices / SEO | ✅ 100 / 100 (article SEO fixed via a description fallback) |
 | CLS < 0.1 | ✅ 0. Was 0.116: `ch`-based max-widths changed when web fonts swapped in, so the hero wrapped to 3 lines then 2. Above-the-fold measures are now `em` equivalents of the mockup's `ch` (identical render) |
@@ -250,7 +250,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 |---|---|---|---|
 | B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR #12 |
 | 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
-| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + switch-over PR |
+| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + #15 (switch-over) |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |

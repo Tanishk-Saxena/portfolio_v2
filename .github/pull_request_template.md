@@ -12,6 +12,7 @@
 - [ ] `docs/PROGRESS.md` updated
 - [ ] UI changes compared against the mockup at 390px and 1440px (screenshots below)
 - [ ] Reduced motion and keyboard paths still work (if UI changed)
-- [ ] New `[ASSUMED]` decisions recorded in `docs/DESIGN-SPEC.md` §9
+- [ ] New `[ASSUMED]` decisions recorded (`docs/DESIGN-SPEC.md` §9 for the site, `docs/ADMIN-DESIGN-SPEC.md` §13 for the admin)
+- [ ] Persistent docs swept after merge (CLAUDE.md, PROGRESS, specs, runbooks, README)
 
 ## Screenshots / notes
