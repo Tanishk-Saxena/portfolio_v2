@@ -20,9 +20,11 @@ rows; every write (and every read of hidden rows) needs a signed-in user listed 
 
 - `migration.test.ts` runs the migrations, the seed and the RLS policies in PGlite
   (Postgres in WASM), with no project and no Docker. Runs everywhere, CI included.
-- `supabase-repositories.test.ts` runs the repository contract and RLS checks against the
-  **dev** project in `.env.local`. It skips when no keys are set. Never point it at prod: it
-  plants and removes test rows.
+- `live.test.ts` (`npm run test:live`, local only, ~15 s) runs the repository contract, the
+  RLS checks and the admin auth checks (sign-ups off, wrong password, only the allowlisted
+  account writes) against the **dev** project in `.env.local`. Run it when a change touches
+  the database or auth. It skips without keys. Never point it at prod: it plants and removes
+  test rows and throwaway accounts.
 
 ## One-time setup (owner)
 
@@ -70,7 +72,7 @@ the account is made by hand, then put on the allowlist:
 
 Do it in dev and in prod (one account each, same email is fine). A signed-in account that
 isn't on the list sees "That email and password don't match." and can't write anything.
-To remove access, delete the row (or the user). `lib/auth/auth.test.ts` checks all of this
+To remove access, delete the row (or the user). `npm run test:live` checks all of this
 against dev with throwaway accounts.
 
 ## Day to day

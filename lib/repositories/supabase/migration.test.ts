@@ -82,54 +82,50 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
 
     afterAll(() => db?.close());
 
-    describe('migrations + seed', () => {
-      const d = defaultDataset;
+    // Constraints don't depend on the grants, so they run once; RLS runs in both modes.
+    if (autoExpose)
+      describe('migrations + seed', () => {
+        const d = defaultDataset;
 
-      it('seed the shipped content', async () => {
-        expect(await count('authenticated', 'public.project', ADMIN)).toBe(d.projects.length + 1);
-        expect(await count('authenticated', 'public.article', ADMIN)).toBe(d.articles.length + 1);
-        expect(await count('authenticated', 'public.quote', ADMIN)).toBe(d.quotes.length + 1);
-        const [s] = await as<{ grain: string }>('anon', 'select grain from public.settings');
-        expect(Number(s.grain)).toBe(d.settings.grain);
-      });
+        it('seed the shipped content and reject what the site cannot show', async () => {
+          expect(await count('authenticated', 'public.project', ADMIN)).toBe(d.projects.length + 1);
+          expect(await count('authenticated', 'public.article', ADMIN)).toBe(d.articles.length + 1);
+          expect(await count('authenticated', 'public.quote', ADMIN)).toBe(d.quotes.length + 1);
+          const [s] = await as<{ grain: string }>('anon', 'select grain from public.settings');
+          expect(Number(s.grain)).toBe(d.settings.grain);
 
-      it('reject content the site cannot show', async () => {
-        const rejected = [
-          `insert into public.quote (text, author) values ('${'x'.repeat(141)}', 'y')`,
-          // published with neither a body nor an external URL
-          `insert into public.article (slug, title, status) values ('empty', 'E', 'published')`,
-          // live slugs are unique
-          `insert into public.article (slug, title, body) values ('second-render', 'Dup', 'x')`,
-          // exactly one profile
-          `insert into public.profile (name, headline, about_lead, email, contact_statement)
+          const rejected = [
+            `insert into public.quote (text, author) values ('${'x'.repeat(141)}', 'y')`,
+            // published with neither a body nor an external URL
+            `insert into public.article (slug, title, status) values ('empty', 'E', 'published')`,
+            // live slugs are unique
+            `insert into public.article (slug, title, body) values ('second-render', 'Dup', 'x')`,
+            // exactly one profile
+            `insert into public.profile (name, headline, about_lead, email, contact_statement)
          values ('a', 'b', 'c', 'd', 'e')`,
-          `insert into public.experience (role, org, start_date, end_date)
+            `insert into public.experience (role, org, start_date, end_date)
          values ('r', 'o', '2024-01', '2023-01')`,
-        ];
-        for (const sql of rejected) await expect(db.exec(sql)).rejects.toThrow();
-      });
+          ];
+          for (const sql of rejected) await expect(db.exec(sql)).rejects.toThrow();
 
-      it('a deleted slug can be reused', async () => {
-        await db.exec(`update public.article set deleted_at = now() where slug = 'a-draft'`);
-        await db.exec(
-          `insert into public.article (slug, title, body) values ('a-draft', 'D2', 'x')`,
-        );
+          // ...but a deleted slug can be reused
+          await db.exec(`update public.article set deleted_at = now() where slug = 'a-draft'`);
+          await db.exec(
+            `insert into public.article (slug, title, body) values ('a-draft', 'D2', 'x')`,
+          );
+        });
       });
-    });
 
     describe('RLS', () => {
       const d = defaultDataset;
 
-      it('anonymous visitors read only what the site shows', async () => {
+      it('anonymous visitors read only what the site shows, and write nothing', async () => {
         expect(await count('anon', 'public.project')).toBe(d.projects.length);
         expect(await count('anon', 'public.article')).toBe(d.articles.length);
         expect(await count('anon', 'public.quote')).toBe(d.quotes.length);
         expect(await count('anon', 'public.experience')).toBe(d.experience.length - 1);
         expect(await count('anon', 'public.profile')).toBe(1);
         await expect(count('anon', 'public.admin_user')).rejects.toThrow(); // no privilege at all
-      });
-
-      it('anonymous visitors cannot write anything', async () => {
         for (const sql of [
           `insert into public.quote (text, author) values ('x', 'y')`,
           `update public.profile set name = 'hijacked'`,
@@ -140,23 +136,22 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
         }
       });
 
-      it('a signed-in user off the allowlist can neither write nor see hidden rows', async () => {
+      it('only the allowlisted admin sees hidden rows and writes', async () => {
+        // A signed-in stranger reads like the public and writes nothing.
         expect(await count('authenticated', 'public.project', STRANGER)).toBe(d.projects.length);
-        const updated = await as(
+        const ignored = await as(
           'authenticated',
           `update public.profile set name = 'x' returning name`,
           STRANGER,
         );
-        expect(updated).toEqual([]);
+        expect(ignored).toEqual([]);
         for (const sql of [
           `insert into public.quote (text, author) values ('x', 'y')`,
           `insert into storage.objects (bucket_id, name) values ('media', 'x.png')`,
         ]) {
           await expect(as('authenticated', sql, STRANGER)).rejects.toThrow();
         }
-      });
 
-      it('the allowlisted admin sees everything and can write', async () => {
         expect(await count('authenticated', 'public.experience', ADMIN)).toBe(d.experience.length);
         const updated = await as(
           'authenticated',
