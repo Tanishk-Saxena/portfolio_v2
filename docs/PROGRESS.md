@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 6.2 — Supabase (`feat/phase-6-supabase`): dev project migrated + seeded, live suite green, site identical on Supabase data · next: prod project (owner), Vercel switch-over, then Phase 7
+**Now:** Phase 6.2 — production switched to Supabase (prod migrated + seeded, Vercel env set) · next: Phase 7 — admin auth
 
 ---
 
@@ -250,7 +250,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 |---|---|---|---|
 | B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR #12 |
 | 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
-| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | code ✅ · dev ✅ · prod + switch-over: next |
+| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + switch-over PR |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
@@ -289,6 +289,11 @@ token), seed applied; live suite 15/15; fixture and Supabase builds render ident
 home, three articles, sitemap and 404. A second migration grants `service_role` its tables
 (with auto-expose off it had none; the secret-key test caught it). Project settings: Data API
 on, auto-expose new tables off, automatic RLS on, sign-ups off.
+Prod (2026-10-02): same settings; both migrations + seed pushed; read-only live suite 14/14
+(planting tests off for prod); every repository result deep-equals the shipped fixtures.
+Vercel: Production → `DATA_SOURCE=supabase` + prod URL and publishable key; Preview → the
+same with dev. The secret key and DB URLs never go to Vercel. The switch-over PR's merge is
+the production deploy that starts reading Supabase.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
