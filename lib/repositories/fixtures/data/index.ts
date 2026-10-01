@@ -8,7 +8,7 @@ import { quotes } from './quotes';
 import { skillGroups } from './skills';
 import { socialLinks } from './social-links';
 
-/** The content the site ships with until Supabase takes over (Phase 6). */
+/** The shipped placeholder content: the seed for Supabase (supabase/seed.sql) and the local default. */
 export const defaultDataset: FixtureDataset = {
   profile,
   experience,

@@ -75,10 +75,10 @@ because an off-the-shelf CMS wouldn't work.
 | Framework | **Next.js** (App Router, latest stable) |
 | Language | **TypeScript**, `strict: true` |
 | Styling | **Tailwind CSS**, driven by design tokens as CSS custom properties |
-| Data (later) | **Supabase** — Postgres + Auth + Storage |
-| Data (now) | **Typed in-repo fixtures** — see §5 |
-| Auth (later) | Supabase Auth, single-admin allowlist, no public signup |
-| Hosting | **Vercel** (tentative; deployment is finalised in Phase 5, after everything works locally) |
+| Data | **Supabase**: Postgres + Auth + Storage. Live since Phase 6.2 (dev + prod projects, `docs/SUPABASE.md`) |
+| Fixtures | **Typed in-repo fixtures** (§5): the seed, the local default and the test data |
+| Auth | Supabase Auth, single-admin allowlist, no public signup (Phase 7) |
+| Hosting | **Vercel**: production at https://tanishk-saxena.vercel.app, a preview per branch |
 | Testing | Vitest + Testing Library; Playwright for critical paths |
 
 Verify current stable versions before scaffolding rather than trusting this file.
@@ -150,11 +150,12 @@ lib/
     repositories.ts               // the interfaces
   repositories/
     fixtures/
-      project.repository.ts       // Phase 2 implementation
+      fixture-repositories.ts     // in-memory implementation (Phase 2)
       ...
-      data/                       // the hardcoded content itself
+      data/                       // the shipped content, the stress set
     supabase/
-      project.repository.ts       // Phase 6 implementation
+      supabase-repositories.ts    // the database implementation (Phase 6)
+      rows.ts, seed.ts, client.ts // row mapping, seed generation, the client
       ...
   container.ts                    // composition root: picks the implementation
 ```
@@ -364,7 +365,8 @@ rejects everything the client rejects; axe on the admin screens (flagged, not bl
 
 **Phase 9 — Optional**
 Blog (Medium RSS), `/uses`; the shelved signature intro (then a Settings toggle);
-drag-to-reorder; draft preview on the site.
+drag-to-reorder; draft preview on the site; a GitHub contribution heat map (owner
+suggestion, 2026-10-02; placement and data source to decide).
 
 **Phase 10 — Final audit (the last step, after Milestone B)**
 Measure the whole site's overall performance and accessibility scores (Lighthouse

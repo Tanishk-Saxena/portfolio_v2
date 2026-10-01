@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live; Milestone B (Supabase + admin, Phases 6–8) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phase 6 is done (the live site reads Supabase), Phase 7 (admin auth) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -66,4 +66,8 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 
 Phases in order, built in small steps with spaced-out commits. No approval needed to _build_, but **before every commit, stop and ask the owner to review the diff**, then commit only once they approve.
 
-Branching (full rules in `CONTRIBUTING.md`): trunk-based, no `develop`. All work happens on a short-lived `<type>/<desc>` branch (phase work: `feat/phase-<n>-<scope>`) cut from an up-to-date `main`. When a unit is done, push the branch and open a PR into `main` with `gh pr create` (the template fills itself in). CI `check` must pass. **The owner merges**, rebase-and-merge by default. Local hooks block commits and pushes to `main`; never bypass them with `--no-verify`. `gh` lives at `C:\Program Files\GitHub CLI\gh.exe`; in PowerShell, refresh `$env:Path` from the Machine and User scopes first. Keep the ledger `docs/PROGRESS.md` current (phase, step, done, next) and update it before proposing each commit. Don't claim something "matches the design" without comparing against the mockup. The admin is built from `docs/ADMIN-DESIGN-SPEC.md`; never improvise admin UI beyond it.
+Branching (full rules in `CONTRIBUTING.md`): trunk-based, no `develop`. All work happens on a short-lived `<type>/<desc>` branch (phase work: `feat/phase-<n>-<scope>`) cut from an up-to-date `main`. When a unit is done, push the branch and open a PR into `main` with `gh pr create` (the template fills itself in). CI `check` must pass. **The owner merges**, rebase-and-merge by default. Local hooks block commits and pushes to `main`; never bypass them with `--no-verify`. `gh` lives at `C:\Program Files\GitHub CLI\gh.exe`; in PowerShell, refresh `$env:Path` from the Machine and User scopes first. Keep the ledger `docs/PROGRESS.md` current (phase, step, done, next) and update it before proposing each commit.
+
+**After every merge into `main`, sweep the files that carry state between sessions** and fix anything stale before moving on: `CLAUDE.md` (project state), `docs/PROGRESS.md` (status line, phase rows, notes), the brief and specs where the merge changed a fact they state, runbooks (`docs/SUPABASE.md`, `CONTRIBUTING.md`), `README.md`, `.github/pull_request_template.md`, and the auto-memory files. Small fixes ride along with the next PR, or go in a `docs/` PR of their own.
+
+Don't claim something "matches the design" without comparing against the mockup. The admin is built from `docs/ADMIN-DESIGN-SPEC.md`; never improvise admin UI beyond it.
