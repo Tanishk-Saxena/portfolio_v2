@@ -53,3 +53,12 @@ test('an unknown article is a 404', async ({ page }) => {
   const response = await page.goto('/articles/no-such-article');
   expect(response?.status()).toBe(404);
 });
+
+test('the admin is locked: pages go to sign-in, the API answers 401', async ({ page, request }) => {
+  await page.goto('/admin/writing');
+  await expect(page).toHaveURL(/\/admin\/sign-in$/);
+  await page.getByRole('button', { name: 'Sign in' }).click();
+  await expect(page.getByText('Enter your email and password.')).toHaveRole('alert');
+  const api = await request.get('/api/admin/session');
+  expect(api.status()).toBe(401);
+});

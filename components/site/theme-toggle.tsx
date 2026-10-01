@@ -1,7 +1,7 @@
 'use client';
 
 import { useLayoutEffect, useSyncExternalStore } from 'react';
-import { applyTheme, readTheme, THEME_STORAGE_KEY, type Theme } from '@/lib/theme';
+import { applyTheme, readTheme, themeStorageKey, type Theme } from '@/lib/theme';
 
 // The theme lives on <html data-theme> (set pre-paint by the inline script). This component
 // only mirrors it, so there's no hydration flash and no duplicated state.
@@ -12,13 +12,17 @@ function subscribe(onChange: () => void) {
   return () => observer.disconnect();
 }
 
-export function ThemeToggle() {
+/**
+ * `site`: a pressed-state button named "Dark mode". `admin`: names the mode it switches to,
+ * on the admin's outline (ADMIN-DESIGN-SPEC §5).
+ */
+export function ThemeToggle({ variant = 'site' }: { variant?: 'site' | 'admin' }) {
   const theme = useSyncExternalStore<Theme>(subscribe, readTheme, () => 'light');
 
   // Dev-only: Strict Mode's remount resets <html> attributes; re-apply the stored choice.
   useLayoutEffect(() => {
     try {
-      const stored = localStorage.getItem(THEME_STORAGE_KEY);
+      const stored = localStorage.getItem(themeStorageKey(location.pathname));
       if (stored === 'light' || stored === 'dark') applyTheme(stored);
     } catch {}
   }, []);
@@ -27,11 +31,11 @@ export function ThemeToggle() {
   return (
     <button
       type="button"
-      aria-label="Dark mode"
-      aria-pressed={dark}
+      aria-label={variant === 'admin' ? `Switch to ${dark ? 'light' : 'dark'} mode` : 'Dark mode'}
+      aria-pressed={variant === 'admin' ? undefined : dark}
       onClick={() => applyTheme(dark ? 'light' : 'dark')}
       data-ripple="accent-fill"
-      className="grid size-11.5 flex-none cursor-pointer place-items-center rounded-full border border-border-control transition-[border-color,background-color] duration-300 hover:border-accent active:border-accent-fill"
+      className={`grid flex-none cursor-pointer place-items-center rounded-full border ${variant === 'admin' ? 'size-11 border-line' : 'size-11.5 border-border-control'} transition-[border-color,background-color] duration-300 hover:border-accent active:border-accent-fill`}
     >
       {/* Half-filled dial; turns over in dark mode (spec §6 ThemeToggle). */}
       <span
