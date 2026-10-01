@@ -1,5 +1,4 @@
 import type {
-  Article,
   Experience,
   Profile,
   Project,
@@ -8,16 +7,11 @@ import type {
   SkillGroup,
   SocialLink,
 } from '@/lib/domain/types';
+import type { ArticleRecord } from '../article-record';
 
-/**
- * An article as stored: `hasBody` is derived, never authored, and `readMinutes` is an
- * optional override (`null` = estimate from the body, ADMIN-DESIGN-SPEC Q-A11).
- */
-export type ArticleRecord = Omit<Article, 'hasBody' | 'readMinutes'> & {
-  readMinutes: number | null;
-};
+export type { ArticleRecord };
 
-/** Everything one fixture set holds. Shapes mirror the future Supabase tables (spec §7). */
+/** Everything one fixture set holds. Shapes mirror the Supabase tables (spec §7). */
 export interface FixtureDataset {
   profile: Profile;
   experience: Experience[];

@@ -36,7 +36,7 @@ npm run test:e2e      # Playwright critical paths (e2e/) against `next start`; r
 
 CI (`.github/workflows/ci.yml`) runs the same checks plus `build` on every PR and push to `main`.
 
-Data source: `DATA_SOURCE=fixtures` (default, shipped content) · `fixtures-stress` (awkward content, used for layout checks) · `supabase` (Phase 6). Set in `.env.local` or inline: `DATA_SOURCE=fixtures-stress npm run dev`. Pages get data from `getRepositories()` in `lib/container.ts`, never from `lib/repositories/**` (ESLint enforces this).
+Data source: `DATA_SOURCE=fixtures` (default, shipped content) · `fixtures-stress` (awkward content, used for layout checks) · `supabase` (dev project keys in `.env.local`, see `docs/SUPABASE.md`). Set in `.env.local` or inline: `DATA_SOURCE=fixtures-stress npm run dev`. Pages get data from `getRepositories()` in `lib/container.ts`, never from `lib/repositories/**` (ESLint enforces this).
 
 Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome screenshots. For 390px, load the page inside a 390px-wide `<iframe>`, because headless Chrome won't size its window below ~500px.
 

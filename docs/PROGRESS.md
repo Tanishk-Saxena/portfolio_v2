@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 6.1 — content model v2 on fixtures (`feat/phase-6-model`), awaiting review · next: Phase 6.2 — Supabase
+**Now:** Phase 6.2 — Supabase (`feat/phase-6-supabase`): dev project migrated + seeded, live suite green, site identical on Supabase data · next: prod project (owner), Vercel switch-over, then Phase 7
 
 ---
 
@@ -249,8 +249,8 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | Step | Branch | Scope | Status |
 |---|---|---|---|
 | B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR #12 |
-| 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | built, awaiting review |
-| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | |
+| 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
+| 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | code ✅ · dev ✅ · prod + switch-over: next |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
@@ -267,6 +267,28 @@ linked only, a draft's slug is `null`), whole read times, settings, and experien
 the hero's second button reads `ctaLabel` (empty hides it, Q-A19), Listen shows per article.
 Shipped data keeps every value, so the site is unchanged. Also fixed the flaky axe spec: one
 page per test with a 60 s budget (it timed out under parallel load; never a real violation).
+
+**6.2 notes.** Schema in `supabase/migrations/` (one table per entity, snake_case; text ids
+keep the fixtures' ids; articles get a uuid so slugs stay editable; soft delete; `updated_at`
+triggers; CHECKs for the admin's limits: card line 110, description 320, quote 140, slug
+format, published article needs a body or an external URL, one live article per slug).
+RLS: anon reads only what the site shows; writes and hidden reads need `is_admin()` (the
+`admin_user` allowlist, filled in Phase 7); anon write privileges revoked as well. Storage:
+one public `media` bucket, admin-only writes, 10 MB cap (5 MB images checked by the upload
+route, 8.4). [ASSUMED] One bucket rather than one per kind. `supabase/seed.sql` is generated
+from the fixtures through the same row mappers the reads use (file snapshot keeps it in
+sync). Supabase repositories repeat the RLS filters (defence in depth) and share the article
+derivation with the fixtures (`lib/repositories/article-record.ts`). Tests: the migrations,
+seed and RLS run in PGlite on every `npm run test` (7 tests, no Docker); the contract + live
+RLS suite runs against the dev project when `.env.local` has its keys. Pages stay
+prerendered (`fetch` without a cache option is fetched once at build). Waiting on: the two
+projects, `db push --include-seed`, Vercel env (`docs/SUPABASE.md`). Revalidation lands with
+the admin's writes (8.2); dashboard edits show after a deploy until then.
+Dev (2026-10-02): both migrations pushed with `db push --db-url` (session pooler; no access
+token), seed applied; live suite 15/15; fixture and Supabase builds render identical HTML on
+home, three articles, sitemap and 404. A second migration grants `service_role` its tables
+(with auto-expose off it had none; the secret-key test caught it). Project settings: Data API
+on, auto-expose new tables off, automatic RLS on, sign-ups off.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
