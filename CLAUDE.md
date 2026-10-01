@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phase 6 is done (the live site reads Supabase), Phase 7 (admin auth) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), Phase 8.1 (the admin shell) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -43,7 +43,7 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 ## Architecture (planned — see brief §4)
 
 - **Repository boundary is the core rule.** Components never import fixtures or call Supabase. All data goes through interfaces in `lib/domain/repositories.ts` returning domain types from `lib/domain/types.ts`. Implementations live in `lib/repositories/{fixtures,supabase}/`; `lib/container.ts` is the single composition root (ideally env-switched). Every repository method is `async`, even over sync fixtures. Repository tests target the interface so the same suite runs against both implementations.
-- Layout: `app/(site)/page.tsx` (single-page public site), `app/admin/` + `app/api/admin/` (Phase 7+), `components/{sections,ui,admin}/`, `styles/tokens.css` (all tokens, both modes, reduced-motion).
+- Layout: `app/(site)/page.tsx` (single-page public site), `app/admin/` + `app/api/admin/` (auth in `lib/auth/`, guard in `proxy.ts`; pages and handlers re-check with `getAdmin()`), `components/{sections,ui,admin}/`, `styles/tokens.css` (all tokens, both modes, reduced-motion).
 - Styling: Tailwind utilities driven by CSS-custom-property tokens (Tailwind v4 `@theme` in CSS; there is no `tailwind.config`). Hand-written CSS only in `tokens.css` or where utilities can't express it. No magic values.
 - Conventions: kebab-case filenames, one PascalCase component per file, ≤200 lines per component file, Server Components by default, conventional commits.
 

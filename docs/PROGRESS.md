@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 7 built on `feat/phase-7-auth` (PR #17); the owner's admin account is in dev and prod · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
+**Now:** Phase 7 complete — admin sign-in live in dev and prod (owner account allowlisted in both) · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
 
 ---
 
@@ -251,7 +251,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR #12 |
 | 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
 | 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + #15 (switch-over) |
-| 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | 🔶 built, in review |
+| 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | ✅ PR #17 |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
