@@ -66,6 +66,7 @@ export const stressDataset: FixtureDataset = {
     image: null,
     repoUrl: i === 5 ? null : 'https://github.com/Tanishk-Saxena',
     liveUrl: i % 2 === 0 ? 'https://example.com' : null,
+    published: i !== 7, // the last one is hidden
     sortOrder: i + 1,
   })),
   articles: [
@@ -76,6 +77,8 @@ export const stressDataset: FixtureDataset = {
       excerpt: '',
       publishedAt: '2026-09-01',
       readMinutes: 45,
+      status: 'published',
+      listen: true,
       externalUrl: 'https://medium.com/',
       body: null,
     },
@@ -85,9 +88,22 @@ export const stressDataset: FixtureDataset = {
         'A very long article title that keeps going well past the point where any sensible editor would have cut it, just to see what the row does',
       excerpt: '',
       publishedAt: '2023-01-15',
-      readMinutes: 1,
+      readMinutes: null, // estimated from the body
       externalUrl: null,
       body: 'Short.',
+      status: 'published',
+      listen: false, // no Listen button
+    },
+    {
+      slug: 'draft-only',
+      title: 'A draft that must never reach the site',
+      excerpt: '',
+      publishedAt: '2026-09-30',
+      readMinutes: null,
+      externalUrl: null,
+      body: 'Not ready yet.',
+      status: 'draft',
+      listen: true,
     },
   ],
   skillGroups: [
@@ -104,18 +120,21 @@ export const stressDataset: FixtureDataset = {
     },
   ],
   quotes: [
-    { id: 'short', text: 'Ship it.', author: 'Anon', sortOrder: 1 },
+    { id: 'short', text: 'Ship it.', author: 'Anon', active: true, sortOrder: 1 },
     {
       id: 'long',
       text: `${LONG} ${LONG}`,
       author: 'Someone With A Very Long Attribution Line, Author Of Several Books',
+      active: true,
       sortOrder: 2,
     },
+    { id: 'skipped', text: 'Out of rotation.', author: 'Anon', active: false, sortOrder: 3 },
   ],
   socialLinks: Array.from({ length: 6 }, (_, i) => ({
     id: `social-${i}`,
     label: ['GitHub', 'LinkedIn', 'Read.cv', 'X', 'Mastodon', 'A long label'][i],
-    url: 'https://example.com',
+    url: i === 5 ? '' : 'https://example.com', // an empty URL hides the link
     sortOrder: i + 1,
   })),
+  settings: defaultDataset.settings,
 };

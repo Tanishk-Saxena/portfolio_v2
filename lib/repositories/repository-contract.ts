@@ -28,6 +28,7 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
         r.skills.listGroups(),
         r.quotes.list(),
         r.socialLinks.list(),
+        r.settings.get(),
       ];
       for (const call of calls) expect(call).toBeInstanceOf(Promise);
     });
@@ -39,20 +40,15 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       if (p.headlineHighlight) expect(p.headline).toContain(p.headlineHighlight);
     });
 
-    it('experience: current role first, then newest start date; ranges are valid', async () => {
-      const list = await make().experience.list();
-      const firstEnded = list.findIndex((e) => e.endDate !== null);
-      if (firstEnded !== -1)
-        expect(list.slice(firstEnded).every((e) => e.endDate !== null)).toBe(true);
-      for (const group of [list.filter((e) => !e.endDate), list.filter((e) => e.endDate)]) {
-        expect(isSortedBy(group, (e) => e.startDate, -1)).toBe(true);
-      }
-      for (const e of list) if (e.endDate) expect(e.endDate >= e.startDate).toBe(true);
+    it('experience date ranges are valid', async () => {
+      for (const e of await make().experience.list())
+        if (e.endDate) expect(e.endDate >= e.startDate).toBe(true);
     });
 
-    it('projects, skill groups, quotes and social links come back in sortOrder', async () => {
+    it('experience, projects, skill groups, quotes and social links come back in sortOrder', async () => {
       const r = make();
       for (const list of [
+        await r.experience.list(),
         await r.projects.list(),
         await r.skills.listGroups(),
         await r.quotes.list(),
@@ -77,6 +73,30 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
         expect(article!.hasBody || article!.externalUrl !== null).toBe(true);
         expect(article!.hasBody).toBe(article!.body !== null && article!.body.trim() !== '');
       }
+    });
+
+    it('only what the site shows comes back: published, active, linked', async () => {
+      const r = make();
+      expect((await r.projects.list()).every((p) => p.published)).toBe(true);
+      expect((await r.articles.list()).every((a) => a.status === 'published')).toBe(true);
+      expect((await r.quotes.list()).every((q) => q.active)).toBe(true);
+      expect((await r.socialLinks.list()).every((l) => l.url.trim() !== '')).toBe(true);
+    });
+
+    it('every article has a whole, positive read time', async () => {
+      for (const a of await make().articles.list()) {
+        expect(Number.isInteger(a.readMinutes)).toBe(true);
+        expect(a.readMinutes).toBeGreaterThanOrEqual(1);
+      }
+    });
+
+    it('settings are a complete record within range', async () => {
+      const s = await make().settings.get();
+      expect(['terracotta', 'slate']).toContain(s.accent);
+      expect(['right', 'centre']).toContain(s.navPosition);
+      expect(['arc', 'wheel']).toContain(s.menuLayout);
+      expect(s.grain).toBeGreaterThanOrEqual(0);
+      expect(s.grain).toBeLessThanOrEqual(24);
     });
 
     it('getBySlug returns null for an unknown slug', async () => {

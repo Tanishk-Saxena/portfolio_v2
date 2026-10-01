@@ -91,6 +91,7 @@ export const projects: Project[] = ROWS.map(
     image: null,
     repoUrl: `https://example.com/source/${id}`,
     liveUrl: `https://example.com/${id}`,
+    published: true,
     sortOrder: i + 1,
   }),
 );

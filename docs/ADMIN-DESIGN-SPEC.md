@@ -285,7 +285,7 @@ them. Reconciled field by field; **bold** = new to the domain.
 | Highlighted word | `headlineHighlight` | must appear in the headline; empty → `null` |
 | Intro | `standfirst` | |
 | Résumé (side, PDF) | `resumeUrl` | upload §10 |
-| Secondary button (side) | **`ctaLabel`** | today hard-coded "Get in touch" in `hero.tsx` |
+| Secondary button (side) | **`ctaLabel`** | seeded "Get in touch"; empty hides the button (Q-A19) |
 | — | `name` | **[ASSUMED]** added to Hero's side panel as "Name" (required): it drives the signature, footer, metadata and JSON-LD (Q-A8) |
 | — | `location` | **[ASSUMED]** added to Hero's side panel as "Location" (JSON-LD) (Q-A8) |
 
@@ -493,6 +493,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A16 | Restore by id (+ reverse patch), not by client snapshot | The server can't trust a client snapshot |
 | Q-A17 | 5 MB image / 10 MB PDF; no storage cleanup yet | Ample for a portrait, cover or CV |
 | Q-A18 | Wrong-credentials copy | Not in the mockup |
+| Q-A19 | An empty secondary-button label hides the hero's second button | Same rule as social links (Q-A10): empty = hidden, never an empty pill |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no

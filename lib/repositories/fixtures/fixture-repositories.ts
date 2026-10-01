@@ -5,28 +5,31 @@ import type {
   ProjectRepository,
   QuoteRepository,
   Repositories,
+  SettingsRepository,
   SkillRepository,
   SocialLinkRepository,
 } from '@/lib/domain/repositories';
-import type { Article, ArticleSummary, Experience } from '@/lib/domain/types';
+import type { Article, ArticleSummary } from '@/lib/domain/types';
+import { estimateReadMinutes } from '@/lib/utils/read-time';
 import type { ArticleRecord, FixtureDataset } from './dataset';
 
 /*
  * In-memory implementations over a FixtureDataset. Each call returns fresh copies, so
  * callers can't mutate the dataset, which matches what a database round-trip gives.
+ * Hidden rows (unpublished, drafts, inactive, empty links) are filtered here, as the
+ * public database reads will be.
  */
 
 const copy = <T>(value: T): T => structuredClone(value);
 const bySortOrder = <T extends { sortOrder: number }>(a: T, b: T) => a.sortOrder - b.sortOrder;
-
-/** Current role first, then newest start date first. */
-function byRecency(a: Experience, b: Experience) {
-  if ((a.endDate === null) !== (b.endDate === null)) return a.endDate === null ? -1 : 1;
-  return b.startDate.localeCompare(a.startDate);
-}
+const isPublished = (record: ArticleRecord) => record.status === 'published';
 
 function toArticle(record: ArticleRecord): Article {
-  return { ...copy(record), hasBody: record.body !== null && record.body.trim() !== '' };
+  return {
+    ...copy(record),
+    readMinutes: record.readMinutes ?? estimateReadMinutes(record.body),
+    hasBody: record.body !== null && record.body.trim() !== '',
+  };
 }
 
 function toSummary(record: ArticleRecord): ArticleSummary {
@@ -40,18 +43,21 @@ export function createFixtureRepositories(data: FixtureDataset): Repositories {
   };
 
   const experience: ExperienceRepository = {
-    list: async () => copy(data.experience).sort(byRecency),
+    list: async () => copy(data.experience).sort(bySortOrder),
   };
 
   const projects: ProjectRepository = {
-    list: async () => copy(data.projects).sort(bySortOrder),
+    list: async () => copy(data.projects.filter((p) => p.published)).sort(bySortOrder),
   };
 
   const articles: ArticleRepository = {
     list: async () =>
-      data.articles.map(toSummary).sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
+      data.articles
+        .filter(isPublished)
+        .map(toSummary)
+        .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
     getBySlug: async (slug) => {
-      const record = data.articles.find((a) => a.slug === slug);
+      const record = data.articles.find((a) => a.slug === slug && isPublished(a));
       return record ? toArticle(record) : null;
     },
   };
@@ -61,12 +67,16 @@ export function createFixtureRepositories(data: FixtureDataset): Repositories {
   };
 
   const quotes: QuoteRepository = {
-    list: async () => copy(data.quotes).sort(bySortOrder),
+    list: async () => copy(data.quotes.filter((q) => q.active)).sort(bySortOrder),
   };
 
   const socialLinks: SocialLinkRepository = {
-    list: async () => copy(data.socialLinks).sort(bySortOrder),
+    list: async () => copy(data.socialLinks.filter((l) => l.url.trim() !== '')).sort(bySortOrder),
   };
 
-  return { profile, experience, projects, articles, skills, quotes, socialLinks };
+  const settings: SettingsRepository = {
+    get: async () => copy(data.settings),
+  };
+
+  return { profile, experience, projects, articles, skills, quotes, socialLinks, settings };
 }

@@ -25,3 +25,24 @@ describe('stress dataset covers the awkward cases the layouts must survive', () 
     expect(s.profile.headlineHighlight).toBeNull();
   });
 });
+
+describe('hidden content stays off the site (stress set)', () => {
+  const r = createFixtureRepositories(stressDataset);
+  const s = stressDataset;
+
+  it('drops the hidden project, inactive quote and empty social link', async () => {
+    expect((await r.projects.list()).length).toBe(s.projects.filter((p) => p.published).length);
+    expect((await r.quotes.list()).map((q) => q.id)).not.toContain('skipped');
+    expect((await r.socialLinks.list()).length).toBe(s.socialLinks.length - 1);
+  });
+
+  it('a draft is neither listed nor reachable by slug', async () => {
+    expect((await r.articles.list()).map((a) => a.slug)).not.toContain('draft-only');
+    expect(await r.articles.getBySlug('draft-only')).toBeNull();
+  });
+
+  it('a stored read time wins; none stored falls back to the estimate', async () => {
+    expect((await r.articles.getBySlug('external-only'))?.readMinutes).toBe(45);
+    expect((await r.articles.getBySlug('very-long-title'))?.readMinutes).toBe(1);
+  });
+});
