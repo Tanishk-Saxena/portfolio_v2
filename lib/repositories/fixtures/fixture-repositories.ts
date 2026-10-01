@@ -9,9 +9,8 @@ import type {
   SkillRepository,
   SocialLinkRepository,
 } from '@/lib/domain/repositories';
-import type { Article, ArticleSummary } from '@/lib/domain/types';
-import { estimateReadMinutes } from '@/lib/utils/read-time';
-import type { ArticleRecord, FixtureDataset } from './dataset';
+import { type ArticleRecord, toArticle, toSummary } from '../article-record';
+import type { FixtureDataset } from './dataset';
 
 /*
  * In-memory implementations over a FixtureDataset. Each call returns fresh copies, so
@@ -23,19 +22,6 @@ import type { ArticleRecord, FixtureDataset } from './dataset';
 const copy = <T>(value: T): T => structuredClone(value);
 const bySortOrder = <T extends { sortOrder: number }>(a: T, b: T) => a.sortOrder - b.sortOrder;
 const isPublished = (record: ArticleRecord) => record.status === 'published';
-
-function toArticle(record: ArticleRecord): Article {
-  return {
-    ...copy(record),
-    readMinutes: record.readMinutes ?? estimateReadMinutes(record.body),
-    hasBody: record.body !== null && record.body.trim() !== '',
-  };
-}
-
-function toSummary(record: ArticleRecord): ArticleSummary {
-  const { body: _body, ...summary } = toArticle(record);
-  return summary;
-}
 
 export function createFixtureRepositories(data: FixtureDataset): Repositories {
   const profile: ProfileRepository = {

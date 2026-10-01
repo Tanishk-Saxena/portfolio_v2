@@ -2,14 +2,16 @@ import type { Repositories } from '@/lib/domain/repositories';
 import { defaultDataset } from '@/lib/repositories/fixtures/data';
 import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
 import { createFixtureRepositories } from '@/lib/repositories/fixtures/fixture-repositories';
+import { createPublicClient } from '@/lib/repositories/supabase/client';
+import { createSupabaseRepositories } from '@/lib/repositories/supabase/supabase-repositories';
 
 /*
  * Composition root — the one place that decides where data comes from (brief §4).
- * Switching the whole app to Supabase in Phase 6 is a change here and nowhere else.
+ * Switching the whole app to Supabase is a change of DATA_SOURCE and nowhere else.
  *
  *   DATA_SOURCE=fixtures         (default) shipped content
  *   DATA_SOURCE=fixtures-stress  awkward content for layout testing
- *   DATA_SOURCE=supabase         Phase 6
+ *   DATA_SOURCE=supabase         the database (needs NEXT_PUBLIC_SUPABASE_* keys)
  */
 
 export type DataSource = 'fixtures' | 'fixtures-stress' | 'supabase';
@@ -27,7 +29,7 @@ export function createRepositories(source: DataSource = resolveDataSource()): Re
     case 'fixtures-stress':
       return createFixtureRepositories(stressDataset);
     case 'supabase':
-      throw new Error('The Supabase repositories arrive in Phase 6.');
+      return createSupabaseRepositories(createPublicClient());
   }
 }
 
