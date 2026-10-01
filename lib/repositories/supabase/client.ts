@@ -1,8 +1,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * A stateless client for public reads: the publishable (anon) key, no session. Phase 7 adds
- * the cookie-bound client for the admin.
+ * A stateless client for public reads: the publishable (anon) key, no session. The admin's
+ * cookie-bound client lives in `lib/auth/server.ts`.
  */
 export function createPublicClient(env: NodeJS.ProcessEnv = process.env): SupabaseClient {
   const url = env.NEXT_PUBLIC_SUPABASE_URL;

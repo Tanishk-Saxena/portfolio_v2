@@ -279,7 +279,7 @@ route, 8.4). [ASSUMED] One bucket rather than one per kind. `supabase/seed.sql` 
 from the fixtures through the same row mappers the reads use (file snapshot keeps it in
 sync). Supabase repositories repeat the RLS filters (defence in depth) and share the article
 derivation with the fixtures (`lib/repositories/article-record.ts`). Tests: the migrations,
-seed and RLS run in PGlite on every `npm run test` (7 tests, no Docker); the contract + live
+seed and RLS run in PGlite on every `npm run test` (no Docker; 7 tests then, 6 since the test consolidation); the contract + live
 RLS suite runs against the dev project when `.env.local` has its keys. Pages stay
 prerendered (`fetch` without a cache option is fetched once at build). Waiting on: the two
 projects, `db push --include-seed`, Vercel env (`docs/SUPABASE.md`). Revalidation lands with
@@ -308,7 +308,7 @@ out) until 8.1 redirects it to Writing. Theme: one pre-paint script picks `admin
 `/admin`, `theme` elsewhere (Q-A7); the admin toggle names the mode it switches to. Tokens
 `--field`, `--line`, `--line-input`, `--paper-fade-strong` added now (the sign-in needs
 them). Auth uses the Supabase keys whatever `DATA_SOURCE` says; with none (CI) the admin
-stays locked. Tests: gate unit tests; a live dev suite (`lib/auth/auth.test.ts`: sign-ups off,
+stays locked. Tests: gate unit tests; a live dev suite (`lib/auth/auth.test.ts` (removed), now part of `npm run test:live`: sign-ups off,
 wrong password, allowlisted admin writes, a signed-in stranger can't write or read the
 allowlist; two throwaway accounts, deleted after); smoke e2e: `/admin/*` → sign-in, empty
 submit shows the message, `/api/admin/session` 401. Checked by hand on a build against dev
@@ -357,6 +357,11 @@ slower runner audited it mid-fade. The axe test now waits for the cue to finish 
 auditing.
 
 ## Notes / decisions made during the build
+
+- 2026-10-02, docs process (owner): docs move with the code in the same PR, by the five steps
+  in `CLAUDE.md`'s working agreement (facts listed from the diff, old names and numbers
+  grepped, state files walked, prose edited with the Edit tool, staged diff read back). This
+  replaces the after-merge sweep, which twice left stale docs behind.
 
 - `@types/node` bumped to `^24` (Vitest 5 peer requirement; local Node is 26).
 - Tailwind colour utilities are named `paper`, `surface`, `ink`, `muted`, `accent`, `accent-fill`
