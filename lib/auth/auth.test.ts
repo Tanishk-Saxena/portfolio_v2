@@ -23,7 +23,7 @@ const NO_SESSION = { auth: { persistSession: false, autoRefreshToken: false } };
 const client = (k = key) => createClient(url, k, NO_SESSION);
 
 describe.skipIf(!url || !key || !secret)('admin auth (dev project)', () => {
-  const service = client(secret);
+  let service: SupabaseClient; // made in beforeAll: the body runs even when skipped (CI)
   const password = `pw-${randomUUID()}`;
   const accounts = {
     admin: `admin-test-${randomUUID()}@example.com`,
@@ -32,6 +32,7 @@ describe.skipIf(!url || !key || !secret)('admin auth (dev project)', () => {
   const ids: string[] = [];
 
   beforeAll(async () => {
+    service = client(secret);
     for (const [role, email] of Object.entries(accounts)) {
       const { data, error } = await service.auth.admin.createUser({
         email,

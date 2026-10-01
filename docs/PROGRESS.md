@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 7 built on `feat/phase-7-auth`, in review · waiting on: the owner's admin account in dev and prod (`docs/SUPABASE.md`, Admin account) · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
+**Now:** Phase 7 built on `feat/phase-7-auth` (PR #17); the owner's admin account is in dev and prod · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
 
 ---
 
@@ -314,7 +314,7 @@ allowlist; two throwaway accounts, deleted after); smoke e2e: `/admin/*` → sig
 submit shows the message, `/api/admin/session` 401. Checked by hand on a build against dev
 (390px): stranger and wrong password refused, admin lands, API 200, admin theme stored under
 its own key and the site's untouched, sign-in bounces a signed-in admin to `/admin`, sign-out
-→ sign-in and the API back to 401. Flagged: the live Supabase contract suite timed out once
+→ sign-in and the API back to 401. Owner added the admin account in dev and prod (2026-10-02). Flagged: the live Supabase contract suite timed out once
 (1 of 4 runs) when run alongside the new live auth suite; network-bound, not reproduced.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
