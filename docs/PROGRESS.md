@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 6 complete — the live site reads Supabase (prod), previews read dev · next: Phase 7 — admin auth (`feat/phase-7-auth`)
+**Now:** Phase 7 built on `feat/phase-7-auth`, in review · waiting on: the owner's admin account in dev and prod (`docs/SUPABASE.md`, Admin account) · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
 
 ---
 
@@ -251,7 +251,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR #12 |
 | 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
 | 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + #15 (switch-over) |
-| 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | |
+| 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | 🔶 built, in review |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
@@ -294,6 +294,28 @@ Prod (2026-10-02): same settings; both migrations + seed pushed; read-only live 
 Vercel: Production → `DATA_SOURCE=supabase` + prod URL and publishable key; Preview → the
 same with dev. The secret key and DB URLs never go to Vercel. The switch-over PR's merge is
 the production deploy that starts reading Supabase.
+
+**7 notes.** `@supabase/ssr` cookie sessions. `proxy.ts` (matcher `/admin/:path*`,
+`/api/admin/:path*`) refreshes the session and verifies the JWT (`getClaims`); signed out,
+pages redirect to `/admin/sign-in` and the API answers 401 (`lib/auth/gate.ts`, unit tested).
+Pages and handlers check again with `getAdmin()` (`getUser` + the `is_admin()` RPC,
+`lib/auth/server.ts`): the `app/admin/(signed-in)` layout and `/api/admin/session` (the
+pattern for 8.2's handlers). Sign-in is a Server Action (works before hydration): the mockup's
+empty-field message, Q-A18 for a wrong password, and a valid non-admin account is signed back
+out with the same message, so the form never reveals which accounts exist. Sign-out ends this
+device's session only. `/admin` is a temporary landing (session, theme toggle, View site, Sign
+out) until 8.1 redirects it to Writing. Theme: one pre-paint script picks `admin-theme` under
+`/admin`, `theme` elsewhere (Q-A7); the admin toggle names the mode it switches to. Tokens
+`--field`, `--line`, `--line-input`, `--paper-fade-strong` added now (the sign-in needs
+them). Auth uses the Supabase keys whatever `DATA_SOURCE` says; with none (CI) the admin
+stays locked. Tests: gate unit tests; a live dev suite (`lib/auth/auth.test.ts`: sign-ups off,
+wrong password, allowlisted admin writes, a signed-in stranger can't write or read the
+allowlist; two throwaway accounts, deleted after); smoke e2e: `/admin/*` → sign-in, empty
+submit shows the message, `/api/admin/session` 401. Checked by hand on a build against dev
+(390px): stranger and wrong password refused, admin lands, API 200, admin theme stored under
+its own key and the site's untouched, sign-in bounces a signed-in admin to `/admin`, sign-out
+→ sign-in and the API back to 401. Flagged: the live Supabase contract suite timed out once
+(1 of 4 runs) when run alongside the new live auth suite; network-bound, not reproduced.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for

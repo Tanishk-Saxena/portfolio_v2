@@ -13,7 +13,8 @@ The database behind the site and the admin (brief §6, Phase 6.2). Two projects:
 
 Security: RLS is the boundary. Anonymous reads see only published / active, non-deleted
 rows; every write (and every read of hidden rows) needs a signed-in user listed in
-`public.admin_user`. Phase 7 adds that one user.
+`public.admin_user`. `proxy.ts` and the admin's pages and handlers check the session too
+(defence in depth); they never replace RLS.
 
 ## Tests
 
@@ -49,6 +50,28 @@ rows; every write (and every read of hidden rows) needs a signed-in user listed 
    - The secret key never goes into Vercel.
 6. Redeploy. The site should look identical: it now reads the seeded copy of the same
    content.
+
+## Admin account (owner, once per project)
+
+The admin signs in at `/admin/sign-in` with email + password (Phase 7). Sign-ups are off, so
+the account is made by hand, then put on the allowlist:
+
+1. **Authentication → Users → Add user → Create new user**: your email, a strong password,
+   **Auto Confirm User** on.
+2. **SQL Editor**, run:
+
+   ```sql
+   insert into public.admin_user (user_id)
+   select id from auth.users where email = 'you@example.com';
+   ```
+
+3. **Authentication → URL Configuration**: Site URL = the site's address for that project
+   (prod: the live domain; dev: `http://localhost:3000`).
+
+Do it in dev and in prod (one account each, same email is fine). A signed-in account that
+isn't on the list sees "That email and password don't match." and can't write anything.
+To remove access, delete the row (or the user). `lib/auth/auth.test.ts` checks all of this
+against dev with throwaway accounts.
 
 ## Day to day
 

@@ -494,6 +494,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A17 | 5 MB image / 10 MB PDF; no storage cleanup yet | Ample for a portrait, cover or CV |
 | Q-A18 | Wrong-credentials copy | Not in the mockup |
 | Q-A19 | An empty secondary-button label hides the hero's second button | Same rule as social links (Q-A10): empty = hidden, never an empty pill |
+| Q-A20 | Sign-in: "Signing in…" on the button while the request runs; "Could not sign in right now. Try again in a moment." when Auth fails or is rate-limited; a valid account that isn't on the allowlist gets the wrong-credentials copy (Q-A18); inputs at 16px (§3) rather than §4.3's 15px; `/admin` is a plain landing until 8.1 | Not in the mockup. One message for both refusals reveals nothing about which accounts exist; 16px stops iOS zooming |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no

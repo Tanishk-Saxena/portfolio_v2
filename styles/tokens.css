@@ -13,12 +13,17 @@
   --paper: #f5f0e7;
   --paper2: #ede6da;
   --paper-fade: rgb(245 240 231 / 0.8);
+  --paper-fade-strong: rgb(245 240 231 / 0.88); /* admin bars — Q-A2 */
   --ink: #23201c;
   --muted: #6d655c; /* [ASSUMED] Q1 — mockup #7A7268 */
   --accent-base: #a9491f; /* [ASSUMED] Q1 — mockup #B4532A */
   --accent: var(--accent-base); /* text, lines, rings */
   --accent-fill: var(--accent-base); /* filled surfaces in both modes — Q2 */
   --on-accent: #fdf8f0;
+  /* admin only (ADMIN-DESIGN-SPEC §2): input wells, hairlines, control boundaries (3:1) */
+  --field: #fbf8f2;
+  --line: rgb(35 32 28 / 0.14);
+  --line-input: rgb(35 32 28 / 0.5);
   --scrim-nav: rgb(245 240 231 / 0.55);
   --scrim-modal: rgb(232 224 210 / 0.62);
 
@@ -38,8 +43,12 @@
   --paper: #191714;
   --paper2: #221f1a;
   --paper-fade: rgb(25 23 20 / 0.8);
+  --paper-fade-strong: rgb(25 23 20 / 0.88);
   --ink: #ede7db;
   --muted: #938a7d;
+  --field: #1f1c18;
+  --line: rgb(237 231 219 / 0.13);
+  --line-input: rgb(237 231 219 / 0.4);
   --accent: color-mix(in oklab, var(--accent-base), white 24%); /* Q2 — mockup: white 16% */
   --scrim-nav: rgb(25 23 20 / 0.55);
   --scrim-modal: rgb(18 16 14 / 0.62);
