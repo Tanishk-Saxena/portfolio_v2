@@ -3,6 +3,7 @@ import { articles } from './articles';
 import { experience } from './experience';
 import { profile } from './profile';
 import { projects } from './projects';
+import { settings } from './settings';
 import { quotes } from './quotes';
 import { skillGroups } from './skills';
 import { socialLinks } from './social-links';
@@ -16,4 +17,5 @@ export const defaultDataset: FixtureDataset = {
   skillGroups,
   quotes,
   socialLinks,
+  settings,
 };

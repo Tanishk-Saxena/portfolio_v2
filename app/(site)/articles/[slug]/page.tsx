@@ -84,7 +84,7 @@ export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) 
               <time dateTime={article.publishedAt}>{formatLongDate(article.publishedAt)}</time>
               <span aria-hidden="true" className="size-0.75 rounded-full bg-muted" />
               <span>{article.readMinutes} min read</span>
-              <ListenButton targetId="article" />
+              {article.listen && <ListenButton targetId="article" />}
             </div>
 
             <ArticleBody markdown={article.body} />

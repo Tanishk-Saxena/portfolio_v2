@@ -24,6 +24,8 @@ export interface Profile {
   /** One word that appears in `headline`; rendered in the handwriting face. */
   headlineHighlight: string | null;
   standfirst: string;
+  /** The hero's secondary button, linking to Contact. Empty hides the button. */
+  ctaLabel: string;
   aboutLead: string;
   aboutParagraphs: string[];
   portrait: Image | null;
@@ -67,8 +69,12 @@ export interface Project {
   image: Image | null;
   repoUrl: string | null;
   liveUrl: string | null;
+  /** Hidden projects never reach the site. */
+  published: boolean;
   sortOrder: number;
 }
+
+export type ArticleStatus = 'draft' | 'published';
 
 /** What the Writing list needs — no body. */
 export interface ArticleSummary {
@@ -76,7 +82,12 @@ export interface ArticleSummary {
   title: string;
   excerpt: string;
   publishedAt: ISODate;
+  /** The stored override, or the estimate from the body when none is stored. */
   readMinutes: number;
+  /** Drafts never reach the site. */
+  status: ArticleStatus;
+  /** Shows the Listen (text-to-speech) button on the article page. */
+  listen: boolean;
   /** When set, the row links out instead of to `/articles/[slug]`. */
   externalUrl: string | null;
   /** True when an on-site body exists. */
@@ -92,6 +103,8 @@ export interface Quote {
   id: string;
   text: string;
   author: string;
+  /** Inactive quotes are skipped by the rotation. */
+  active: boolean;
   sortOrder: number;
 }
 
@@ -100,4 +113,17 @@ export interface SocialLink {
   label: string;
   url: string;
   sortOrder: number;
+}
+
+export type Accent = 'terracotta' | 'slate';
+export type NavPosition = 'right' | 'centre';
+export type MenuLayout = 'arc' | 'wheel';
+
+/** Site-wide style settings (ADMIN-DESIGN-SPEC §8.9). The defaults are the shipped look. */
+export interface Settings {
+  accent: Accent;
+  /** Paper grain opacity, in percent (0–24, step 0.5). */
+  grain: number;
+  navPosition: NavPosition;
+  menuLayout: MenuLayout;
 }

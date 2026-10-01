@@ -20,5 +20,6 @@ export const quotes: Quote[] = QUOTES.map(([text, author], i) => ({
   id: `quote-${i + 1}`,
   text,
   author,
+  active: true,
   sortOrder: i + 1,
 }));

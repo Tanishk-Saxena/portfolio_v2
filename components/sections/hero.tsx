@@ -60,13 +60,15 @@ export function Hero({ profile }: { profile: Profile }) {
             <DownloadIcon />
           </a>
         )}
-        <a
-          href="#contact"
-          data-ripple="accent-fill"
-          className="inline-flex h-12.5 items-center rounded-pill border border-border-control px-6 text-body-sm transition-[border-color,background-color,color] duration-250 hover:border-accent active:border-accent-fill active:text-on-accent active:duration-180"
-        >
-          Get in touch
-        </a>
+        {profile.ctaLabel && (
+          <a
+            href="#contact"
+            data-ripple="accent-fill"
+            className="inline-flex h-12.5 items-center rounded-pill border border-border-control px-6 text-body-sm transition-[border-color,background-color,color] duration-250 hover:border-accent active:border-accent-fill active:text-on-accent active:duration-180"
+          >
+            {profile.ctaLabel}
+          </a>
+        )}
       </div>
 
       <ScrollCue />

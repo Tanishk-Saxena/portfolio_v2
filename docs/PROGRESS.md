@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Milestone B planned (admin design extracted to `docs/ADMIN-DESIGN-SPEC.md`, phases restructured in brief §6) · next: Phase 6.1 — content model v2
+**Now:** Phase 6.1 — content model v2 on fixtures (`feat/phase-6-model`), awaiting review · next: Phase 6.2 — Supabase
 
 ---
 
@@ -248,8 +248,8 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 
 | Step | Branch | Scope | Status |
 |---|---|---|---|
-| B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR open |
-| 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | next |
+| B.0 | `docs/admin-plan` | Admin spec extracted and reconciled with the shipped site; brief §5/§6 restructured; CLAUDE.md | ✅ PR #12 |
+| 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | built, awaiting review |
 | 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
@@ -257,6 +257,16 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
 | 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | |
 | 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | |
+
+**6.1 notes.** Domain: `Profile.ctaLabel`, `Project.published`, `Article.status` + `listen`,
+`Quote.active`, new `Settings` + `SettingsRepository`; stored `readMinutes` is nullable and the
+repository returns `max(1, round(words / 220))` when it is null (`lib/utils/read-time.ts`,
+reused by the admin in 8.4). The repository contract now covers visibility (published / active /
+linked only, a draft's slug is `null`), whole read times, settings, and experience by
+`sortOrder` (seeded order unchanged). The stress set gains one of each hidden case. The site:
+the hero's second button reads `ctaLabel` (empty hides it, Q-A19), Listen shows per article.
+Shipped data keeps every value, so the site is unchanged. Also fixed the flaky axe spec: one
+page per test with a 60 s budget (it timed out under parallel load; never a real violation).
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for

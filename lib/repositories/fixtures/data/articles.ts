@@ -46,5 +46,7 @@ export const articles: ArticleRecord[] = ROWS.map(([slug, title, readMinutes, pu
   publishedAt,
   readMinutes,
   externalUrl: null,
+  status: 'published',
+  listen: true,
   body: slug === 'second-render' ? SECOND_RENDER_BODY : stub(title),
 }));

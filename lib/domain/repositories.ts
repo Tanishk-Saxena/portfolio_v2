@@ -5,6 +5,7 @@ import type {
   Profile,
   Project,
   Quote,
+  Settings,
   SkillGroup,
   SocialLink,
 } from './types';
@@ -15,9 +16,11 @@ import type {
  * later changes nothing above this line.
  *
  * Ordering contract — list methods return items already sorted for display:
- *   experience: current role first, then by start date, newest first
  *   articles:   by publish date, newest first
- *   everything else: by `sortOrder` ascending
+ *   everything else, experience included: by `sortOrder` ascending
+ * Visibility contract — public reads return only what the site shows: published projects,
+ * published articles (a draft's `getBySlug` is `null`), active quotes, and social links that
+ * have a URL.
  * Returned objects are the caller's to keep: mutating them never affects later calls.
  */
 
@@ -51,6 +54,10 @@ export interface SocialLinkRepository {
   list(): Promise<SocialLink[]>;
 }
 
+export interface SettingsRepository {
+  get(): Promise<Settings>;
+}
+
 export interface Repositories {
   profile: ProfileRepository;
   experience: ExperienceRepository;
@@ -59,4 +66,5 @@ export interface Repositories {
   skills: SkillRepository;
   quotes: QuoteRepository;
   socialLinks: SocialLinkRepository;
+  settings: SettingsRepository;
 }

@@ -9,6 +9,7 @@ export const profile: Profile = {
   headlineHighlight: 'web',
   standfirst:
     'Six years turning tangled requirements into interfaces people can actually use. Currently working on developer tooling and design systems.',
+  ctaLabel: 'Get in touch',
   aboutLead:
     'I care about the unglamorous parts: the empty state, the error copy, the second render.',
   aboutParagraphs: [
