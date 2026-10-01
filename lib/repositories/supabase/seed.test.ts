@@ -29,7 +29,7 @@ describe('seed', () => {
 // fails here first, without a database.
 describe('the shipped content fits the database constraints', () => {
   const d = defaultDataset;
-  it('projects, quotes and articles', () => {
+  it('lengths, slugs, publishable articles and date ranges', () => {
     for (const p of d.projects) {
       expect(p.summary.length).toBeLessThanOrEqual(110);
       expect(p.description.length).toBeLessThanOrEqual(320);
@@ -39,8 +39,6 @@ describe('the shipped content fits the database constraints', () => {
       expect(a.slug).toMatch(/^[a-z0-9]+(-[a-z0-9]+)*$/);
       if (a.status === 'published') expect(a.body?.trim() || a.externalUrl).toBeTruthy();
     }
-  });
-  it('experience dates', () => {
     for (const e of d.experience) {
       expect(e.startDate).toMatch(/^\d{4}-\d{2}$/);
       if (e.endDate) expect(e.endDate >= e.startDate).toBe(true);

@@ -13,6 +13,9 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # the pinned test-results comment
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -23,19 +26,44 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run format:check
-      - run: npm run test
+      - run: npm run test # unit; the live Supabase suite is local only (npm run test:live)
       - run: npm run build
       # Critical-path interaction tests against the production build (uses the runner's Chrome).
       # Functionality gates the PR.
       - run: npx playwright test e2e/smoke.spec.ts
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_FILE: reports/smoke.xml
       # Accessibility is a reading, not a gate (owner, brief §3): a failure is flagged as a
       # warning on the PR (amber), never a red check.
       - name: Accessibility (axe) — flagged, non-blocking
         id: a11y
         continue-on-error: true
         run: npx playwright test e2e/a11y.spec.ts
+        env:
+          PLAYWRIGHT_JUNIT_OUTPUT_FILE: reports/a11y.xml
       - if: steps.a11y.outcome == 'failure'
         run: echo "::warning title=Accessibility::axe found violations; see the a11y step and the playwright-traces artifact."
+      # One readable report (every test, pass or fail) on the run's Summary page, linked from
+      # the PR's check. It never decides the outcome: the test steps above do.
+      - name: Test report
+        if: ${{ !cancelled() }}
+        uses: dorny/test-reporter@v3
+        with:
+          name: Tests
+          path: reports/*.xml
+          reporter: java-junit
+          use-actions-summary: 'true'
+          fail-on-error: 'false'
+          fail-on-empty: 'false'
+      # The same results as a short table pinned to the PR, edited on every push.
+      - name: Test results comment
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        run: node scripts/test-summary.mjs "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" > reports/comment.md
+      - if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
+        with:
+          header: test-results
+          path: reports/comment.md
       - uses: actions/upload-artifact@v4
         if: failure() || steps.a11y.outcome == 'failure'
         with:

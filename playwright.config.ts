@@ -9,7 +9,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  reporter: process.env.CI ? 'github' : 'list',
+  // CI: annotations on the PR, plus JUnit for the run's test report (the workflow names the
+  // file per step with PLAYWRIGHT_JUNIT_OUTPUT_FILE).
+  reporter: process.env.CI ? [['list'], ['github'], ['junit']] : 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
     channel: 'chrome',
@@ -17,6 +19,8 @@ export default defineConfig({
     reducedMotion: 'reduce', // deterministic; the reduced-motion path must work anyway
   },
   projects: [
+    // Every spec runs on both: smoke and axe alike (owner: a11y and perf are never judged
+    // on one device only).
     { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
     {
       name: 'mobile',

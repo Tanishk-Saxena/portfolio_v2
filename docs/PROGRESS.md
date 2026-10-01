@@ -324,6 +324,24 @@ Footer note on Contact (Q-A8).
 
 ---
 
+## Test consolidation (branch `chore/tests-consolidate`)
+
+Owner asked for fewer, faster tests without losing anything important, and readable reports
+in GitHub. Unit: 101 → 33 tests in 7 files (~8 s), every behaviour kept: the repository
+contract 11 → 4 tests (each reads once), migration checks run their constraint test once and
+RLS in both grant modes (15 → 6), small utils merged into `lib/utils/utils.test.ts`, site +
+JSON-LD into `lib/seo.test.ts`. Live: the two dev-project suites merged into
+`lib/repositories/supabase/live.test.ts` (19 → 8 tests), now opt-in `npm run test:live`
+(it never ran in CI, and running two live files side by side caused the one timeout).
+E2E: smoke 6 → 3 journeys (with named steps), still desktop + mobile; axe unchanged, both
+viewports (owner: a11y and perf never judged on one device). 20 → 14 e2e runs, ~38 s.
+Reporting: Vitest + Playwright write JUnit to `reports/`; `dorny/test-reporter@v3` puts
+every test on the run's Summary page (even after a failure, never deciding the outcome);
+failures are also annotated on the PR's lines. On PRs, a pinned comment (`scripts/test-summary.mjs`
++ `marocchino/sticky-pull-request-comment`) shows a per-suite table (passed / failed /
+skipped / time / gate) linking to that summary, edited on every push; a11y failures show ⚠️,
+never ❌.
+
 ## Notes / decisions made during the build
 
 - `@types/node` bumped to `^24` (Vitest 5 peer requirement; local Node is 26).

@@ -29,7 +29,8 @@ npm run build
 npm run lint          # eslint, zero warnings allowed (docs/** ignored)
 npm run typecheck     # next typegen + tsc --noEmit (LayoutProps/PageProps come from typegen)
 npm run format        # prettier --write (Tailwind class sorting); format:check in CI
-npm run test          # vitest run; single file: npx vitest run path/to/file.test.ts
+npm run test          # unit tests (offline, ~8 s); single file: npx vitest run path/to/file.test.ts
+npm run test:live     # the dev Supabase project: contract, RLS, auth (needs .env.local; run when DB/auth changes)
 npm run check         # lint + typecheck + format:check + test
 npm run test:e2e      # Playwright critical paths (e2e/) against `next start`; run `npm run build` first
 ```
@@ -56,7 +57,7 @@ Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome s
 ## Constraints (functionality gates; performance and a11y are flagged, never blocking)
 
 - **Mobile first.** Build for 390px touch first, using platform features that work everywhere (native elements, CSS, transform/opacity) so behaviour is right by construction. Check changed UI on a phone-sized touch viewport (and on the owner's phone via the LAN IP; `allowedDevOrigins` in `next.config.ts` makes that work).
-- **Testing is lean (owner direction).** Unit tests for data/logic (repositories now, Supabase + admin later). E2E is a small smoke suite (`e2e/smoke.spec.ts`, blocking in CI; `e2e/a11y.spec.ts`, axe, a non-blocking warning in CI) for major flows only: outcomes, never timings, pixels or animation details. No tests for purely visual UI (ripples, entrances). Don't gate small fixes on the full suite; run what's relevant, and the full suite before a PR. A change that needs edits to unrelated files is a design smell.
+- **Testing is lean (owner direction).** Unit tests for data/logic (repositories now, Supabase + admin later). Prefer one test per behaviour with several assertions over many tiny tests. E2E is a small smoke suite (`e2e/smoke.spec.ts`, one journey per area, blocking in CI; `e2e/a11y.spec.ts`, axe, a non-blocking warning in CI), both on desktop and phone viewports (a11y is never judged on one device). CI pins a results table to the PR (one comment, `scripts/test-summary.mjs`) and publishes every test to the run's Summary page (dorny/test-reporter) for major flows only: outcomes, never timings, pixels or animation details. No tests for purely visual UI (ripples, entrances). Don't gate small fixes on the full suite; run what's relevant, and the full suite before a PR. A change that needs edits to unrelated files is a design smell.
 - Targets, tracked in `docs/PERFORMANCE.md` and flagged when missed (never a blocker, brief §3): LCP < 2.0s, CLS < 0.1. Don't hide the LCP text behind an opacity-0 entrance.
 - WCAG 2.1 AA, keyboard operable, 44px hit areas (invisible extension is fine), `prefers-reduced-motion` gives a static but fully usable site.
 - No scroll hijacking. Prefer transform/opacity; small contained exceptions per brief §0.1.
