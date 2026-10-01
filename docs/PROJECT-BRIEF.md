@@ -201,7 +201,7 @@ docs/
 ```
 
 ### Conventions
-- Files `kebab-case.ts`. Components `PascalCase`, one per file.
+- Files in kebab-case (`project-card.tsx`). Components `PascalCase`, one per file.
 - **Component files ≤ 200 lines.** Past that, extract.
 - **Server Components by default.** `'use client'` only where interaction
   genuinely requires it.
@@ -399,6 +399,8 @@ guestbook, newsletter.
   request only, CI green, no `develop`. Full rules and safeguards in `CONTRIBUTING.md`.
 - **Ledger:** `docs/PROGRESS.md` tracks the current phase and step, what's done and what's
   next. Update it before proposing each commit.
+- **Docs move with the code.** Any doc that states a fact a PR changes is updated in that
+  same PR, following the five steps in `CLAUDE.md` (working agreement).
 - Don't block on questions. Make a reasonable call, tag it `[ASSUMED]`, and keep going.
   The owner iterates on the output.
 - Push back on decisions that look wrong, but do it in the summary, not as a blocker.

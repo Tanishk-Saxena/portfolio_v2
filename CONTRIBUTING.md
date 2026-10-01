@@ -14,7 +14,7 @@ a second trunk would only drift.
 2. **Commit in small, reviewable steps.** Use conventional commits (`feat:`, `fix:`,
    `chore:`, `docs:`, `refactor:`, `test:`, `ci:`, `perf:`, `style:`).
 3. **Push and open a pull request into `main`.** Fill in the template. CI (`check`: lint,
-   typecheck, format, test, build) must be green.
+   typecheck, format, unit tests, build, smoke e2e; axe is a warning only) must be green.
 4. **Merge on GitHub**, then delete the branch (automatic). Pull `main` locally.
 
 Nothing reaches `main` except through a pull request.
