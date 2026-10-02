@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8 built (8.1–8.5, PRs #22–#26) · next: Phase 8 verification (owner tests the admin and enters real content on a phone; admin axe pass; every Settings combination), then Phase 10 — final audit. Phase 9 is optional
+**Now:** Phase 8 built (8.1–8.5, PRs #22–#26) · next: Phase 9.1 — Lighthouse CI, then the UI review and features; alongside, Phase 8 verification (owner tests the admin and enters real content on a phone; admin axe pass; every Settings combination). Phase 10, the final audit, is last
 
 ---
 
@@ -237,7 +237,8 @@ two sheets; return trip ≤ 117 ms, scroll position restored. Desktop keeps the 
 
 **Later (owner):** after Milestone B, Phase 10 audits overall performance and a11y scores and
 adds them to CI as an amber warning (read and flagged, never blocking; brief §6). The
-signature intro stays shelved until then.
+signature intro stays shelved until then. _(Reordered 2026-10-02: the CI reading moved to
+Phase 9.1, the audit stays last; brief §6.)_
 
 ---
 
@@ -482,9 +483,13 @@ in 10 files; live 9. A production build serves `/favicon.ico` (200, PNG).
       request, so the production path (prerendered pages, `revalidatePath`) is still
       unchecked. Check on a Vercel preview, which reads the dev project.
 
-**What's left after Phase 8 (2026-10-02):** Phase 10, the final audit (Lighthouse on the
-live site and the admin, fix what falls short including P-1 in `docs/PERFORMANCE.md`, then
-Lighthouse CI as an amber warning). Phase 9 is optional: pick from its list (brief §6).
+**What's left after Phase 8 (2026-10-02, owner's order, brief §6):**
+1. Phase 9.1, Lighthouse CI as an amber reading on every PR (small; first, so the UI work
+   shows its scores as it lands).
+2. Phase 9, the UI review: the owner's gaps from testing, plus whichever optional features
+   they pick (RSS blog, `/uses`, signature intro, drag-to-reorder, draft preview, heat map).
+3. Phase 10, the final audit, last: Lighthouse on the live site and the admin, fix what
+   falls short (including P-1 in `docs/PERFORMANCE.md`), record the scores.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
