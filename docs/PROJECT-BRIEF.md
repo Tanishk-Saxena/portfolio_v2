@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B built through Phase 8 (verification open); Phase 10 next, Phase 9 optional. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B built through Phase 8 (verification open); next Phase 9 (Lighthouse CI, then UI review and features), then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
 
 ---
 
@@ -366,21 +366,28 @@ defence in depth.**
 live site on the next reload; every Settings combination works in both modes; server validation
 rejects everything the client rejects; axe on the admin screens (flagged, not blocking).
 
-**Phase 9 — Optional**
-Blog (Medium RSS), `/uses`; the shelved signature intro (then a Settings toggle);
-drag-to-reorder; draft preview on the site; a GitHub contribution heat map (owner
-suggestion, 2026-10-02; placement and data source to decide).
+Order after Phase 8 (owner, 2026-10-02): the UI review comes before the final audit, so the
+audit measures the finished site; Lighthouse CI comes first, so every UI change shows its
+scores as it lands and nothing has to be measured twice.
 
-**Phase 10 — Final audit (the last step, after Milestone B)**
+**Phase 9 — UI review and features**
+- 9.1 *Lighthouse CI.* Lighthouse runs on every PR alongside the axe suite as a **reading,
+  not a blocker**, against a budget (performance ≥ 95, accessibility 100 on mobile). A
+  miss is flagged as a warning (amber), visible on the PR, but never fails the build.
+  *Verify:* a deliberately regressing PR shows the warning with its scores and still passes.
+- Then: the UI gaps the owner flags while testing the site and the admin (Phase 8
+  verification), and whichever optional features the owner picks: blog (Medium RSS),
+  `/uses`, the shelved signature intro (then a Settings toggle), drag-to-reorder, draft
+  preview on the site, a GitHub contribution heat map (owner suggestion, 2026-10-02;
+  placement and data source to decide). Several of these are more than UI (an external
+  feed, auth for drafts, the GitHub API). Watch each PR's Lighthouse reading.
+
+**Phase 10 — Final audit (the last step)**
 Measure the whole site's overall performance and accessibility scores (Lighthouse
 performance / accessibility / best practices / SEO) on the deployed public pages and the
-admin portal, fix what falls short, and record the scores in the ledger. Then add the
-scores to CI alongside the axe suite as a **reading, not a blocker**: Lighthouse CI runs on
-every PR against a budget (performance ≥ 95, accessibility 100 on mobile) and reports the
-scores. A miss is flagged as a warning (amber), visible on the PR, but never fails the build.
-*Verify:* the scores meet §3 on the live site; a deliberately regressing PR shows the
-warning with its scores and still passes.
-Deferred to this point, like the signature intro (shelved in Phase 4, ledger).
+admin portal, fix what falls short (including P-1, `docs/PERFORMANCE.md`), and record the
+scores in the ledger.
+*Verify:* the scores meet §3 on the live site.
 
 ---
 

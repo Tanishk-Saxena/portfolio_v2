@@ -3,8 +3,8 @@
 Readings of the site's performance and accessibility over time, and the open items they
 raise. Owner rule (brief §3): these are **always measured and flagged, never blocking**. A
 miss never holds up a phase, a merge or a deploy; it becomes an open item here and is
-addressed separately. Phase 10 (after Milestone B) is the dedicated audit, and adds a
-Lighthouse reading to CI as an amber warning.
+addressed separately. Phase 9.1 adds a Lighthouse reading to CI as an amber warning;
+Phase 10, the last phase, is the dedicated audit (brief §6).
 
 Targets (brief §3): Lighthouse mobile performance ≥ 95, accessibility 100; LCP < 2.0 s;
 CLS < 0.1; axe clean.
