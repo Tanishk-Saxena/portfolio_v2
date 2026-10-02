@@ -50,7 +50,7 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
     const select = `${columns}, updated_at`;
     const live = () => db.from(table).select(select).is('deleted_at', null);
     // The writable columns: the id is the database's to give, the position is reorder's.
-    const values = (value: Omit<T, 'id' | 'sortOrder'>): Record<string, unknown> => {
+    const values = (value: Partial<Omit<T, 'id' | 'sortOrder'>>): Record<string, unknown> => {
       const {
         id: _id,
         sort_order: _sortOrder,
@@ -60,7 +60,8 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
         id: '',
         sortOrder: 0,
       } as T) as Record<string, unknown>;
-      return row;
+      // A patch maps only the fields it was given.
+      return Object.fromEntries(Object.entries(row).filter(([, v]) => v !== undefined));
     };
     const toStamped = (row: WithStamp<R>) => stamped(toDomain(row), row);
 
@@ -84,19 +85,49 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
         );
         return toStamped(row);
       },
-      update: async (id, value) => {
-        const row = written<WithStamp<R> | null>(
-          await db
-            .from(table)
-            .update(values(value))
-            .eq('id', id)
-            .is('deleted_at', null)
-            .select(select)
-            .maybeSingle(),
+      update: (id, value) => change(id, value),
+      patch: (id, value) => change(id, value),
+      remove: (id) => setDeleted(table, id, true),
+      restore: (id) => setDeleted(table, id, false),
+      reorder: async (ids) => {
+        const results = await Promise.all(
+          ids.map((id, i) =>
+            db
+              .from(table)
+              .update({ sort_order: i + 1 })
+              .eq('id', id),
+          ),
         );
-        return row && toStamped(row);
+        for (const result of results) written(result);
       },
     };
+
+    async function change(id: string, value: Partial<Omit<T, 'id' | 'sortOrder'>>) {
+      const row = written<WithStamp<R> | null>(
+        await db
+          .from(table)
+          .update(values(value))
+          .eq('id', id)
+          .is('deleted_at', null)
+          .select(select)
+          .maybeSingle(),
+      );
+      return row && toStamped(row);
+    }
+  }
+
+  /** Soft delete or restore; false when no entry was in the other state. */
+  async function setDeleted(table: string, id: string, deleted: boolean) {
+    const query = db
+      .from(table)
+      .update({ deleted_at: deleted ? new Date().toISOString() : null })
+      .eq('id', id);
+    const found = written<{ id: string }[]>(
+      await (deleted ? query.is('deleted_at', null) : query.not('deleted_at', 'is', null)).select(
+        'id',
+      ),
+    );
+    return found.length === 1;
   }
 
   const profileSelect = `${COLUMNS.profile}, updated_at`;
@@ -143,13 +174,26 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
     projects: collection('project', COLUMNS.project, toProject, fromProject),
     articles: {
       list: async () =>
-        rows<(ArticleRow & { id: string })[]>(
+        rows<WithStamp<ArticleRow & { id: string }>[]>(
           await db
             .from('article')
-            .select(`id, ${COLUMNS.article}`)
+            .select(`id, ${COLUMNS.article}, updated_at`)
             .is('deleted_at', null)
             .order('published_at', { ascending: false }),
-        ).map((row) => ({ id: row.id, ...toSummary(toArticleRecord(row)) })),
+        ).map((row) => stamped({ id: row.id, ...toSummary(toArticleRecord(row)) }, row)),
+      setStatus: async (id, status) => {
+        const found = written<{ id: string }[]>(
+          await db
+            .from('article')
+            .update({ status })
+            .eq('id', id)
+            .is('deleted_at', null)
+            .select('id'),
+        );
+        return found.length === 1;
+      },
+      remove: (id) => setDeleted('article', id, true),
+      restore: (id) => setDeleted('article', id, false),
     },
     skills: collection('skill_group', COLUMNS.skillGroup, toSkillGroup, fromSkillGroup),
     quotes: collection('quote', COLUMNS.quote, toQuote, fromQuote),

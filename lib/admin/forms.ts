@@ -167,6 +167,15 @@ export function entryValues<S extends EntrySlug>(
   throw new Error(`No form for ${slug satisfies never}`);
 }
 
+/**
+ * An unsaved copy of an entry (§7.2): "(copy)" on its name, title or role. Projects (8.4) are
+ * also set to Hidden and articles to Draft; quotes are copied as they are.
+ */
+export function duplicateDraft(slug: EntrySlug, d: Draft): Draft {
+  const key = { experience: 'role', skills: 'title', quotes: null }[slug];
+  return key ? { ...d, [key]: `${str(d, key)} (copy)` } : { ...d };
+}
+
 /** The editor's title and crumb for an entry (the row title, without a quote's marks). */
 export function entryTitle(slug: EntrySlug, d: Draft): string {
   const key = { experience: 'role', skills: 'title', quotes: 'text' }[slug];

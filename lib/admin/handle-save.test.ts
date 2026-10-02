@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { handleSave } from './handle-save';
+import { Conflict } from './save';
 
 const auth = vi.hoisted(() => ({ admin: null as { id: string; email: string } | null }));
 vi.mock('@/lib/auth/server', () => ({ getAdmin: async () => auth.admin }));
@@ -35,7 +36,7 @@ describe('admin saves (route handlers)', () => {
     expect(write).not.toHaveBeenCalled();
   });
 
-  it('writes a valid draft; a missing entry is 404 and a failed write is 500', async () => {
+  it('writes a valid draft; missing is 404, a stale stamp 409, a failed write 500', async () => {
     const ok = await handleSave(
       post(quote),
       'quotes',
@@ -56,6 +57,18 @@ describe('admin saves (route handlers)', () => {
       async () => null,
     );
     expect(gone.status).toBe(404);
+
+    // The stamp the editor started from reaches the write; a stale one is 409.
+    const stale = await handleSave(
+      post({ ...quote, updatedAt: '2026-01-01T00:00:00Z' }),
+      'quotes',
+      () => true,
+      async (_slug, _draft, expected) => {
+        expect(expected).toBe('2026-01-01T00:00:00Z');
+        throw new Conflict();
+      },
+    );
+    expect(stale.status).toBe(409);
 
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const failed = await handleSave(

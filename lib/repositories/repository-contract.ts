@@ -156,6 +156,22 @@ export async function checkAdminWrites(admin: AdminRepositories, tag: string) {
   expect(saved).toEqual(profile);
   expect(updatedAt).not.toBeNull();
 
+  // The list actions: toggle, reorder (then back), soft delete and restore.
+  expect(await admin.quotes.patch(created.id, { active: true })).toMatchObject({ active: true });
+  const order = (await admin.quotes.list()).map((q) => q.id);
+  const moved = [created.id, ...order.filter((id) => id !== created.id)];
+  await admin.quotes.reorder(moved);
+  expect((await admin.quotes.list()).map((q) => q.id)).toEqual(moved);
+  await admin.quotes.reorder(order);
+  expect(await admin.quotes.remove(created.id)).toBe(true);
+  expect((await admin.quotes.list()).map((q) => q.id)).not.toContain(created.id);
+  expect(
+    await admin.quotes.update(created.id, { text: 'x', author: tag, active: true }),
+  ).toBeNull();
+  expect(await admin.quotes.remove(created.id)).toBe(false);
+  expect(await admin.quotes.restore(created.id)).toBe(true);
+  expect((await admin.quotes.list()).map((q) => q.id)).toContain(created.id);
+
   const links = await admin.socialLinks.list();
   await admin.socialLinks.setUrls(Object.fromEntries(links.map((l) => [l.id, l.url])));
   expect(await admin.socialLinks.list()).toEqual(links);

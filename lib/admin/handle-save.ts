@@ -1,4 +1,5 @@
 import { getAdmin } from '@/lib/auth/server';
+import { Conflict } from './save';
 import { type Draft, type FormSlug, isFormSlug, parseDraft, validate } from './schema';
 
 /**
@@ -6,13 +7,14 @@ import { type Draft, type FormSlug, isFormSlug, parseDraft, validate } from './s
  * and validate the draft with the shared schema → write → respond. The write marks the site
  * stale itself (`save.ts`). Responses:
  *   401 not the admin · 404 no such form or entry · 400 not a draft · 422 `{ errors }`
+ *   409 the record changed since the editor opened it (the body's `updatedAt`)
  *   200 `{ id?, updatedAt }` · 500 the write failed (the editor keeps the draft)
  */
 export async function handleSave(
   request: Request,
   section: string,
   allowed: (slug: FormSlug) => boolean,
-  write: (slug: FormSlug, draft: Draft) => Promise<object | null>,
+  write: (slug: FormSlug, draft: Draft, expectedUpdatedAt: string | null) => Promise<object | null>,
 ): Promise<Response> {
   if (!(await getAdmin())) return Response.json({ error: 'Not signed in' }, { status: 401 });
   if (!isFormSlug(section) || !allowed(section)) {
@@ -20,8 +22,12 @@ export async function handleSave(
   }
 
   let draft: Draft | null = null;
+  let expected: string | null = null;
   try {
-    draft = parseDraft(section, await request.json());
+    const body: unknown = await request.json();
+    draft = parseDraft(section, body);
+    const stamp = (body as { updatedAt?: unknown } | null)?.updatedAt;
+    expected = typeof stamp === 'string' ? stamp : null;
   } catch {
     // not JSON: falls through to 400
   }
@@ -31,11 +37,31 @@ export async function handleSave(
   if (Object.keys(errors).length) return Response.json({ errors }, { status: 422 });
 
   try {
-    const saved = await write(section, draft);
+    const saved = await write(section, draft, expected);
     if (!saved) return Response.json({ error: 'No such entry' }, { status: 404 });
     return Response.json(saved);
+  } catch (error) {
+    if (error instanceof Conflict) {
+      return Response.json({ error: 'Changed elsewhere' }, { status: 409 });
+    }
+    console.error(error);
+    return Response.json({ error: 'The write failed' }, { status: 500 });
+  }
+}
+
+/**
+ * The list actions' shape: 401 unless the admin, then `run`, and 500 if it throws. `run`
+ * answers everything else (404 / 400 / 409 / 422 / 200).
+ */
+export async function handleAction(run: () => Promise<Response>): Promise<Response> {
+  if (!(await getAdmin())) return Response.json({ error: 'Not signed in' }, { status: 401 });
+  try {
+    return await run();
   } catch (error) {
     console.error(error);
     return Response.json({ error: 'The write failed' }, { status: 500 });
   }
 }
+
+/** The request's JSON body, or null when it isn't JSON. */
+export const readJson = (request: Request): Promise<unknown> => request.json().catch(() => null);

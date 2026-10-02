@@ -1,6 +1,7 @@
 import type {
   AdminArticleSummary,
   Article,
+  ArticleStatus,
   ArticleSummary,
   Experience,
   Profile,
@@ -81,6 +82,21 @@ export interface AdminCollection<T extends { id: string; sortOrder: number }> {
   list(): Promise<Stamped<T>[]>;
   create(values: EntryValues<T>): Promise<Stamped<T>>;
   update(id: string, values: EntryValues<T>): Promise<Stamped<T> | null>;
+  /** Changes some fields only (the list's quick toggle). */
+  patch(id: string, values: Partial<EntryValues<T>>): Promise<Stamped<T> | null>;
+  /** Soft delete: the entry leaves the site and the lists until `restore`. */
+  remove(id: string): Promise<boolean>;
+  restore(id: string): Promise<boolean>;
+  /** The new order, every live id once: positions become 1…n. */
+  reorder(ids: string[]): Promise<void>;
+}
+
+/** Articles until 8.4 gives them a form: the list, the status toggle, delete and restore. */
+export interface AdminArticles {
+  list(): Promise<Stamped<AdminArticleSummary>[]>;
+  setStatus(id: string, status: ArticleStatus): Promise<boolean>;
+  remove(id: string): Promise<boolean>;
+  restore(id: string): Promise<boolean>;
 }
 
 /**
@@ -101,7 +117,7 @@ export interface AdminRepositories {
   };
   experience: AdminCollection<Experience>;
   projects: AdminCollection<Project>;
-  articles: { list(): Promise<AdminArticleSummary[]> };
+  articles: AdminArticles;
   skills: AdminCollection<SkillGroup>;
   quotes: AdminCollection<Quote>;
 }

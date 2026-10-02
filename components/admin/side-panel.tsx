@@ -20,19 +20,24 @@ const useHydrated = () =>
 
 /**
  * The editor's side panel (ADMIN-DESIGN-SPEC §4.1): the side fields in a box, then View on
- * site and when it was last saved. 8.3 adds Duplicate and Delete.
+ * site, Duplicate and Delete (saved collection entries), and when it was last saved.
  */
 export function SidePanel({
   section,
   updatedAt,
   isNew,
   fields,
+  onDuplicate,
+  onDelete,
 }: {
   section: Section;
   updatedAt: string | null;
   isNew: boolean;
   fields: ReactNode[];
+  onDuplicate: () => void;
+  onDelete: () => void;
 }) {
+  const entry = section.kind === 'collection' && !isNew;
   const hydrated = useHydrated();
   const saved = isNew
     ? 'Not saved yet'
@@ -54,6 +59,24 @@ export function SidePanel({
         >
           View on site ↗
         </a>
+        {entry && (
+          <>
+            <button
+              type="button"
+              onClick={onDuplicate}
+              className="flex h-10 cursor-pointer items-center self-start px-1 text-left hover:text-accent"
+            >
+              Duplicate
+            </button>
+            <button
+              type="button"
+              onClick={onDelete}
+              className="flex h-10 cursor-pointer items-center self-start px-1 text-left font-medium text-accent hover:underline"
+            >
+              Delete {section.singular}
+            </button>
+          </>
+        )}
         {saved && <span className="px-1 pt-2 text-label text-muted">{saved}</span>}
       </div>
     </div>

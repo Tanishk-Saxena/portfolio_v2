@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8.2 (editor and saving) complete · next: Phase 8.3 — list actions (`feat/phase-8-actions`)
+**Now:** Phase 8.3 (list actions) complete · next: Phase 8.4 — Writing and media (`feat/phase-8-writing-media`)
 
 ---
 
@@ -253,8 +253,8 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + #15 (switch-over) |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | ✅ PR #17 |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | ✅ PR #22 |
-| 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ |
-| 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
+| 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ PR #23 |
+| 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | ✅ |
 | 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | |
 | 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | |
 
@@ -384,6 +384,33 @@ editing), Hero and Experience forms; no page errors. Tests: schema and forms
 (`lib/admin/schema.test.ts`), the handler's statuses (`handle-save.test.ts`), admin writes on
 a fixture copy and live as the signed-in admin (planted quote removed after). Unit 43 tests
 in 10 files; live 9.
+
+**8.3 notes.** The list actions (ADMIN-DESIGN-SPEC §7.1–7.3, §9), optimistic with rollback.
+- Quick toggle: the status pill is a button (Projects Published ↔ Hidden, Writing Published
+  ↔ Draft, Quotes Shown ↔ Skipped); `PATCH /api/admin/[section]/[id]` `{ visible }`; the
+  toast says what changed and offers Undo (sends the toggle back). An article with no body
+  and no external URL can't go live: "Add a body before publishing" (client and server, 422).
+- Reorder: ↑/↓ on ordered lists while no search or filter is active ("Clear the search and
+  filter to reorder."); moves apply at once and one `PATCH /api/admin/[section]/order`
+  `{ ids }` goes 700ms after the last; "Order saved" or rollback. A stale id list is 409. A
+  pending order is sent at once (`keepalive`) when the list is left or the page reloads
+  (found in the browser check: the debounce otherwise dropped it).
+- Delete: side panel "Delete {singular}" → confirm → `DELETE` (soft) → back to the list,
+  toast with Undo → `POST /api/admin/restore`. Duplicate: `/new?from={id}`, built on the
+  server ("(copy)" on the role or heading), guarded when there are unsaved edits.
+- 409: saves send the `updatedAt` they started from; a mismatch keeps the draft and says
+  "This entry changed on another device — reload" (Q-A6).
+- Repositories: `patch`, `remove`, `restore`, `reorder` on collections; articles get
+  `setStatus`, `remove`, `restore` (their form is 8.4). Fixtures keep stamps and soft-deleted
+  entries in the dataset's `admin` bookkeeping, so they last across requests.
+
+Checked in Chrome on the dev server (throwaway admin): toggle + Undo, reorder and back, a
+reorder surviving a reload and an in-app navigation inside the 700ms window, Duplicate on
+Skills and Experience, create, delete + Undo toast, and the 409 across two tabs; no page
+errors. Fixed from it: the arrows' labels doubled a quote's marks. Tests: the write check now
+covers patch, reorder, delete and restore (fixtures and live; the live cleanup renumbers the
+quotes, since planted rows took positions), and the handler's 409. Unit 43 tests in 10 files;
+live 9.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for

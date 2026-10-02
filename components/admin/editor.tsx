@@ -63,6 +63,8 @@ export function Editor({
           updatedAt={editor.updatedAt}
           isNew={editor.isNew}
           fields={shown.filter((f) => f.side).map(field)}
+          onDuplicate={editor.duplicate}
+          onDelete={() => editor.remove(title)}
         />
       </div>
       <BottomBar state={editor.state} />

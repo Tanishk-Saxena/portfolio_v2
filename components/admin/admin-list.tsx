@@ -5,15 +5,25 @@ import { filterRows, type ListRow } from '@/lib/admin/rows';
 import type { CollectionSection, ListFilter } from '@/lib/admin/sections';
 import { SearchIcon } from './admin-icons';
 import { ListRowItem } from './list-row';
+import { useListActions } from './use-list-actions';
 
 /**
- * Search, filters and rows of a collection (ADMIN-DESIGN-SPEC §4.1, §7.1). Read-only in
- * 8.1: reorder arrows and the quick status toggle arrive in 8.3.
+ * Search, filters and rows of a collection (ADMIN-DESIGN-SPEC §4.1, §7.1), with the quick
+ * status toggle and, on ordered lists, ↑/↓ while no search or filter narrows them.
  */
-export function AdminList({ section, rows }: { section: CollectionSection; rows: ListRow[] }) {
+export function AdminList({
+  section,
+  rows: serverRows,
+}: {
+  section: CollectionSection;
+  rows: ListRow[];
+}) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ListFilter>('All');
+  const { rows, move, toggle } = useListActions(section, serverRows);
   const shown = filterRows(rows, query, filter);
+  const narrowed = query.trim() !== '' || filter !== 'All';
+  const reorder = section.ordered && !narrowed;
   const label = section.label.toLowerCase();
 
   return (
@@ -54,8 +64,21 @@ export function AdminList({ section, rows }: { section: CollectionSection; rows:
       </div>
 
       <div className="flex flex-col border-t border-line">
-        {shown.map((row) => (
-          <ListRowItem key={row.id} section={section} row={row} />
+        {shown.map((row, i) => (
+          <ListRowItem
+            key={row.id}
+            section={section}
+            row={row}
+            onToggle={() => void toggle(row)}
+            move={
+              reorder
+                ? {
+                    up: i > 0 && (() => move(row.id, -1)),
+                    down: i < shown.length - 1 && (() => move(row.id, 1)),
+                  }
+                : undefined
+            }
+          />
         ))}
         {shown.length === 0 && (
           <div className="flex flex-col items-start gap-3 py-12">
@@ -70,6 +93,9 @@ export function AdminList({ section, rows }: { section: CollectionSection; rows:
           </div>
         )}
       </div>
+      {section.ordered && narrowed && (
+        <p className="text-small text-muted">Clear the search and filter to reorder.</p>
+      )}
     </>
   );
 }
