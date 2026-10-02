@@ -1,7 +1,7 @@
 # portfolio_v2
 
 Tanishk Saxena's portfolio, live at https://tanishk-saxena.vercel.app, plus an admin portal
-(in progress; sign-in at `/admin`) to edit every piece of its content.
+at `/admin` to edit every piece of its content and the site's style settings.
 
 Next.js 16 (App Router) · React 19 · Tailwind v4 · TypeScript strict · Supabase (Postgres,
 Auth, Storage) · Vercel.

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), Phases 8.1–8.5 are built (the admin shell; editing and saving every section, including Projects and Writing with Markdown and uploads; list actions: toggles, reorder, duplicate, delete + Undo, 409; Settings switching the site's accent, grain, nav button position and menu layout). Next is the owner's test of the whole admin and their real content, entered on a phone; then Phase 9. Check `docs/PROGRESS.md` for the current phase and step before starting work.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), Phases 8.1–8.5 are built (the admin shell; editing and saving every section, including Projects and Writing with Markdown and uploads; list actions: toggles, reorder, duplicate, delete + Undo, 409; Settings switching the site's accent, grain, nav button position and menu layout). Next is Phase 8 verification (the owner's test of the whole admin and their real content, entered on a phone; an axe pass on the admin; every Settings combination), then Phase 10, the final audit. Phase 9 is optional. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -76,6 +76,8 @@ Branching (full rules in `CONTRIBUTING.md`): trunk-based, no `develop`. All work
 3. **Walk the state files.** Open each file in the list above and check its claims against the diff: the status line and phase rows, `CLAUDE.md`'s project state and commands, the runbooks' steps, the README's commands. Fix them in this PR, written as they will read once merged.
 4. **Edit prose with the Edit tool, not scripts.** sed or node replacements can splice sentences or half-apply. If a script edited prose, read every line it touched.
 5. **Read the whole staged diff back** (`git diff --cached`), line by line, before asking for review.
+
+**Before every merge, remind the owner to ask for a docs pass** (owner direction, 2026-10-02: the steps above still missed stale docs). The reminder goes in the message that asks to merge; when the owner asks, update every state file and the memory files against the current state, then merge.
 
 After a merge, `main` should already be correct. Pull it and confirm the status line in `docs/PROGRESS.md` names the next step.
 

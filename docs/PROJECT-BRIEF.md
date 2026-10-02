@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** design mockup complete; `docs/DESIGN-SPEC.md` extracted and resolved; build in progress
+**Status:** Milestone A live; Milestone B built through Phase 8 (verification open); Phase 10 next, Phase 9 optional. Current step: `docs/PROGRESS.md`
 
 ---
 
