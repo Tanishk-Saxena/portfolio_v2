@@ -25,8 +25,35 @@ export interface ListRow {
   meta: string;
   /** The status pill: `live` takes the accent wash. */
   status?: { label: string; live: boolean };
+  /** False for an article with nothing to show yet: it can't be published from the list. */
+  canGoLive?: boolean;
   /** Text the search box matches ([S] `search()`), lower-cased. */
   search: string;
+}
+
+/** The status pill, the quick toggle's label and its toast, per section (§7.1, §7.3). */
+const STATUS = {
+  projects: { on: 'Published', off: 'Hidden', show: 'Publish', hide: 'Hide from site' },
+  writing: { on: 'Published', off: 'Draft', show: 'Publish', hide: 'Unpublish' },
+  quotes: { on: 'Shown', off: 'Skipped', show: 'Put in rotation', hide: 'Take out of rotation' },
+} as const;
+export type StatusSlug = keyof typeof STATUS;
+export const hasStatus = (slug: string): slug is StatusSlug => Object.hasOwn(STATUS, slug);
+
+export const statusOf = (slug: StatusSlug, live: boolean) => ({
+  label: live ? STATUS[slug].on : STATUS[slug].off,
+  live,
+});
+
+/** What pressing the pill does: "Publish", "Hide from site", "Take out of rotation"… */
+export const toggleLabel = (slug: StatusSlug, live: boolean) =>
+  live ? STATUS[slug].hide : STATUS[slug].show;
+
+/** The toast once a toggle is saved; `sub` is the article's path. */
+export function toggleToast(slug: StatusSlug, live: boolean, sub: string) {
+  if (slug === 'writing') return live ? `Live at ${sub}` : 'Saved as draft, not on the site';
+  if (!live) return slug === 'projects' ? 'Saved, hidden from the site' : 'Saved, out of rotation';
+  return 'Saved, live on the site';
 }
 
 const row = (r: Omit<ListRow, 'search'>, ...searchable: string[]): ListRow => ({
@@ -58,9 +85,7 @@ export function toRows(slug: CollectionSlug, content: AdminContent): ListRow[] {
             title: p.title,
             sub: formatProjectKind(p.kind),
             meta: String(p.year),
-            status: p.published
-              ? { label: 'Published', live: true }
-              : { label: 'Hidden', live: false },
+            status: statusOf('projects', p.published),
           },
           p.title,
           formatProjectKind(p.kind),
@@ -75,10 +100,8 @@ export function toRows(slug: CollectionSlug, content: AdminContent): ListRow[] {
             title: a.title,
             sub: `/articles/${a.slug}`,
             meta: `${formatMonthYear(a.publishedAt)} · ${a.readMinutes} min`,
-            status:
-              a.status === 'published'
-                ? { label: 'Published', live: true }
-                : { label: 'Draft', live: false },
+            status: statusOf('writing', a.status === 'published'),
+            canGoLive: a.hasBody || a.externalUrl !== null,
           },
           a.title,
           a.slug,
@@ -105,7 +128,7 @@ export function toRows(slug: CollectionSlug, content: AdminContent): ListRow[] {
             title: `“${q.text}”`,
             sub: q.author,
             meta: '',
-            status: q.active ? { label: 'Shown', live: true } : { label: 'Skipped', live: false },
+            status: statusOf('quotes', q.active),
           },
           q.text,
           q.author,

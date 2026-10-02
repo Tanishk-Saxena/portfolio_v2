@@ -12,7 +12,8 @@ import {
 } from '@/lib/admin/schema';
 import { adminHref, type Section } from '@/lib/admin/sections';
 import type { EditorState } from './editor-bar';
-import { setUnsaved } from './guarded-link';
+import { askConfirm } from './confirm-dialog';
+import { leaveGuarded, setUnsaved } from './guarded-link';
 import { showToast } from './toast';
 
 const needAttention = (n: number) =>
@@ -61,7 +62,8 @@ export function useEditor({
     const response = await fetch(path, {
       method: isNew ? 'POST' : 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(draft),
+      // The stamp it started from: a save over someone else's newer one is refused (409).
+      body: JSON.stringify({ ...draft, updatedAt }),
     }).catch(() => null);
     setSaving(false);
 
@@ -70,6 +72,10 @@ export function useEditor({
       setServerErrors(rejected);
       setShowErrors(true);
       showToast(needAttention(Object.keys(rejected).length));
+      return;
+    }
+    if (response?.status === 409) {
+      showToast('This entry changed on another device — reload'); // the draft stays (Q-A6)
       return;
     }
     if (!response?.ok) {
@@ -98,6 +104,46 @@ export function useEditor({
     setDraft(saved);
     setShowErrors(false);
     setServerErrors({});
+  }
+
+  /** Opens an unsaved copy (§7.2): built on the server from `?from=`, so a reload keeps it. */
+  function duplicate() {
+    if (entryId === null) return;
+    void leaveGuarded(() =>
+      router.push(`${adminHref(section.slug, 'new')}?from=${encodeURIComponent(entryId)}`),
+    );
+  }
+
+  /** Confirm, soft delete, back to the list; the toast offers Undo (§7.2–7.3). */
+  async function remove(title: string) {
+    if (entryId === null || section.kind !== 'collection') return;
+    const sure = await askConfirm({
+      title: `Delete this ${section.singular}?`,
+      body: `“${title}” will be removed from the site. You can undo straight after.`,
+      ok: 'Delete',
+      cancel: 'Cancel',
+    });
+    if (!sure) return;
+    const path = `/api/admin/${section.slug}/${encodeURIComponent(entryId)}`;
+    const response = await fetch(path, { method: 'DELETE' }).catch(() => null);
+    if (!response?.ok) {
+      showToast('Could not delete. Try again.');
+      return;
+    }
+    setUnsaved(false);
+    router.push(adminHref(section.slug));
+    router.refresh();
+    showToast('Deleted, removed from the site', {
+      undo: async () => {
+        const restored = await fetch('/api/admin/restore', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ section: section.slug, id: entryId }),
+        }).catch(() => null);
+        showToast(restored?.ok ? 'Restored' : 'Could not undo.');
+        router.refresh();
+      },
+    });
   }
 
   // The guard follows the draft; leaving the editor clears it.
@@ -143,5 +189,7 @@ export function useEditor({
     updatedAt,
     isNew,
     state,
+    duplicate,
+    remove: (title: string) => void remove(title),
   };
 }

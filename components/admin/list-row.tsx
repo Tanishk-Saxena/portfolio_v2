@@ -1,20 +1,70 @@
 import Link from 'next/link';
-import type { ListRow } from '@/lib/admin/rows';
+import { hasStatus, type ListRow, toggleLabel } from '@/lib/admin/rows';
 import { adminHref, type CollectionSection } from '@/lib/admin/sections';
 import { ChevronRightIcon } from './admin-icons';
 
+const ARROW =
+  'grid h-7.5 w-10 cursor-pointer place-items-center text-muted hover:text-accent disabled:cursor-default disabled:opacity-30 disabled:hover:text-muted @wide:h-7 @wide:w-8';
+
 /**
- * One list row (ADMIN-DESIGN-SPEC §4.1–4.2): title (2-line clamp), sub, meta; wide puts the
- * meta and a chevron on the right, phones put the meta under the title. The status pill sits
- * outside the link; it becomes the quick toggle in 8.3.
+ * One list row (ADMIN-DESIGN-SPEC §4.1–4.2): ↑/↓ on ordered lists, then the link (title with
+ * a 2-line clamp, sub, meta; wide puts the meta and a chevron on the right, phones put the
+ * meta under the title), then the status pill, which is the quick toggle.
  */
-export function ListRowItem({ section, row }: { section: CollectionSection; row: ListRow }) {
+export function ListRowItem({
+  section,
+  row,
+  move,
+  onToggle,
+}: {
+  section: CollectionSection;
+  row: ListRow;
+  /** Present while the list can be reordered; false = that way is the end. */
+  move?: { up: false | (() => void); down: false | (() => void) };
+  onToggle: () => void;
+}) {
   return (
     <div className="flex items-stretch border-b border-line">
+      {move && (
+        <div className="flex flex-none flex-col justify-center pr-1">
+          <button
+            type="button"
+            aria-label={`Move ${row.title} up`}
+            disabled={!move.up}
+            onClick={move.up || undefined}
+            className={ARROW}
+          >
+            <svg width="10" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true">
+              <path
+                d="M1 5.8 5.5 1.4 10 5.8"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+          <button
+            type="button"
+            aria-label={`Move ${row.title} down`}
+            disabled={!move.down}
+            onClick={move.down || undefined}
+            className={ARROW}
+          >
+            <svg width="10" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true">
+              <path
+                d="M1 1.2 5.5 5.6 10 1.2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
+      )}
       <Link
         href={adminHref(section.slug, row.id)}
         data-ripple="press-row"
-        className="flex min-w-0 flex-1 items-center gap-3 px-2.5 py-4.5 transition-colors duration-150 hover:bg-hover-row hover:text-ink @wide:gap-5"
+        className={`flex min-w-0 flex-1 items-center gap-3 py-4.5 transition-colors duration-150 hover:bg-hover-row hover:text-ink @wide:gap-5 ${move ? 'px-2' : 'px-2.5'}`}
       >
         <span className="flex min-w-0 flex-1 flex-col gap-0.75">
           <span className="line-clamp-2 font-serif text-list-serif text-pretty">{row.title}</span>
@@ -30,13 +80,19 @@ export function ListRowItem({ section, row }: { section: CollectionSection; row:
         )}
         <ChevronRightIcon className="hidden flex-none text-muted @wide:block" />
       </Link>
-      {row.status && (
+      {row.status && hasStatus(section.slug) && (
         <div className="flex flex-none items-center pl-1.5">
-          <span
-            className={`inline-flex min-h-9 min-w-11 items-center justify-center rounded-full border px-2.5 text-admin-meta font-medium ${row.status.live ? 'border-transparent bg-wash-accent text-accent' : 'border-line text-muted'}`}
+          <button
+            type="button"
+            onClick={onToggle}
+            // The name starts with the visible status (WCAG 2.5.3), then says what pressing does.
+            aria-label={`${row.status.label}. ${toggleLabel(section.slug, row.status.live)}: ${row.title}`}
+            title={toggleLabel(section.slug, row.status.live)}
+            data-ripple="press-row"
+            className={`inline-flex min-h-9 min-w-11 cursor-pointer items-center justify-center rounded-full border px-2.5 text-admin-meta font-medium transition-colors duration-150 hover:border-accent ${row.status.live ? 'border-transparent bg-wash-accent text-accent' : 'border-line text-muted'}`}
           >
             {row.status.label}
-          </span>
+          </button>
         </div>
       )}
     </div>

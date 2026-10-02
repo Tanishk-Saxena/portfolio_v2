@@ -79,6 +79,18 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
       await service.from('project').delete().eq('id', tag);
       await service.from('quote').delete().eq('id', tag);
       await service.from('quote').delete().eq('author', tag); // the admin-write check's
+      // Reorder renumbers the live quotes, planted ones included: close the gaps they leave.
+      const { data: left } = await service
+        .from('quote')
+        .select('id')
+        .is('deleted_at', null)
+        .order('sort_order');
+      for (const [i, q] of (left ?? []).entries()) {
+        await service
+          .from('quote')
+          .update({ sort_order: i + 1 })
+          .eq('id', q.id);
+      }
       await service.from('article').delete().eq('slug', tag);
       // Deleting a user cascades to admin_user.
       for (const id of userIds) await service.auth.admin.deleteUser(id);
@@ -146,7 +158,7 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
 
     it('the signed-in admin creates and edits entries and saves the profile', async () => {
       await checkAdminWrites(createSupabaseAdminRepositories(await signedIn(accounts.admin)), tag);
-    });
+    }, 30_000); // ~20 round trips
 
     it('auth: only the allowlisted account can write; a signed-in stranger cannot', async () => {
       const admin = await signedIn(accounts.admin);

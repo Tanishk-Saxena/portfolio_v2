@@ -20,7 +20,7 @@ export async function generateMetadata(props: PageProps<'/admin/[section]'>): Pr
 
 /**
  * A section: a collection's list, or a single record's form (ADMIN-DESIGN-SPEC §6, §7.1).
- * Lists are read-only until 8.3 adds their actions; Settings arrives in 8.5.
+ * Settings arrives in 8.5.
  */
 export default async function SectionPage(props: PageProps<'/admin/[section]'>) {
   const section = findSection((await props.params).section);

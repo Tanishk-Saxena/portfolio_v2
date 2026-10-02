@@ -21,4 +21,9 @@ export interface FixtureDataset {
   quotes: Quote[];
   socialLinks: SocialLink[];
   settings: Settings;
+  /**
+   * The admin's bookkeeping over a working copy (never in the shipped data): when each record
+   * was last saved, and soft-deleted entries kept for Undo, by 'collection:id'.
+   */
+  admin?: { stamps: Record<string, string>; trash: Record<string, unknown> };
 }

@@ -31,15 +31,30 @@ function entries<S extends EntrySlug>(r: AdminRepositories, slug: S) {
  */
 const markSiteStale = () => revalidatePath('/', 'layout');
 
+/**
+ * The record changed since the editor opened it (another device saved, or a list toggle):
+ * the save is refused with 409 and the editor keeps the draft (§7.3, Q-A6).
+ */
+export class Conflict extends Error {}
+
+function assertUnchanged(current: string | null, expected: string | null) {
+  if (current !== expected) throw new Conflict();
+}
+
 export async function loadSingle(slug: SingleFormSlug): Promise<LoadedForm> {
   const r = await getAdminRepositories();
   const [profile, links] = await Promise.all([r.profile.get(), r.socialLinks.list()]);
   return { draft: singleDraft(slug, profile, links), updatedAt: profile.updatedAt };
 }
 
-export async function saveSingle(slug: SingleFormSlug, draft: Draft): Promise<LoadedForm> {
+export async function saveSingle(
+  slug: SingleFormSlug,
+  draft: Draft,
+  expectedUpdatedAt: string | null,
+): Promise<LoadedForm> {
   const r = await getAdminRepositories();
   const current = await r.profile.get();
+  assertUnchanged(current.updatedAt, expectedUpdatedAt);
   const saved = await r.profile.update(applySingle(slug, current, draft));
   if (slug === 'contact') await r.socialLinks.setUrls(socialUrls(draft));
   markSiteStale();
@@ -61,11 +76,17 @@ export async function createEntry(slug: EntrySlug, draft: Draft) {
 }
 
 /** Null when no live entry has this id (deleted meanwhile, or never existed). */
-export async function updateEntry(slug: EntrySlug, id: string, draft: Draft) {
+export async function updateEntry(
+  slug: EntrySlug,
+  id: string,
+  draft: Draft,
+  expectedUpdatedAt: string | null,
+) {
   const r = await getAdminRepositories();
   const collection = entries(r, slug);
   const original = (await collection.list()).find((e) => e.id === id);
   if (!original) return null;
+  assertUnchanged(original.updatedAt, expectedUpdatedAt);
   const saved = await collection.update(id, entryValues(slug, draft, original));
   if (!saved) return null;
   markSiteStale();

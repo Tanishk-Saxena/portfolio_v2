@@ -407,7 +407,7 @@ published / active.
 | PATCH | `/api/admin/{collection}/:id` | Quick toggle |
 | DELETE | `/api/admin/{collection}/:id` | Soft delete |
 | PATCH | `/api/admin/{collection}/order` | Reorder, `{ ids: [...] }` |
-| POST | `/api/admin/restore` | Undo a delete or toggle |
+| POST | `/api/admin/restore` | Undo a delete (a toggle is undone by toggling back, Q-A24) |
 
 - **"Live" = the database confirmed the write** (owner, §14). The success toast appears when
   the write succeeds; nothing reloads, in the admin or on the site. The owner reloads the site
@@ -498,6 +498,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A21 | List search at 16px on phones, 14px when wide | §3's 14px search would make iOS zoom the page on focus, which §3 rules out for every other input |
 | Q-A22 | Skills at 4 groups: **New group** is a disabled button at 45% opacity, like the editor's clean **Discard** | The mockup disables New with no visual change; the faded state reuses its own convention |
 | Q-A23 | Year fields: "Enter a four-digit year." and "The end year can’t be before the start year."; an unchanged year keeps its stored month, a changed one is stored as January | The database requires `YYYY-MM` with end ≥ start, and the mockup has no copy for either; the site shows years only |
+| Q-A24 | List actions: a toggle's Undo sends the toggle back (`/restore` only clears deletes, refining Q-A16); a reorder whose ids no longer match the live list is refused (409, rolled back); a reorder still pending when the list is left (in the app or a reload) is sent at once, `keepalive`; the arrows' and pills' names include the row title, and a pill's name starts with its visible status (WCAG 2.5.3) | The mockup's 700ms debounce otherwise drops a move made just before leaving; screen readers need to know which row an arrow moves |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no

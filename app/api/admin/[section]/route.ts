@@ -8,8 +8,8 @@ const isSingle = (slug: string) => SECTIONS[slug as SingleFormSlug]?.kind === 's
 /** Save a single record: Hero, About, Contact (ADMIN-DESIGN-SPEC §9). */
 export async function PUT(request: Request, ctx: RouteContext<'/api/admin/[section]'>) {
   const { section } = await ctx.params;
-  return handleSave(request, section, isSingle, (slug, draft) =>
-    saveSingle(slug as SingleFormSlug, draft),
+  return handleSave(request, section, isSingle, (slug, draft, expected) =>
+    saveSingle(slug as SingleFormSlug, draft, expected),
   );
 }
 

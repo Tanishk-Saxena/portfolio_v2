@@ -4,7 +4,13 @@ import { Editor } from '@/components/admin/editor';
 import { EditorBar } from '@/components/admin/editor-bar';
 import { EditorPending } from '@/components/admin/editor-pending';
 import { loadAdminContent } from '@/lib/admin/content';
-import { type EntrySlug, entryDraft, entryTitle, type LoadedForm } from '@/lib/admin/forms';
+import {
+  duplicateDraft,
+  type EntrySlug,
+  entryDraft,
+  entryTitle,
+  type LoadedForm,
+} from '@/lib/admin/forms';
 import { toRows } from '@/lib/admin/rows';
 import { loadEntry } from '@/lib/admin/save';
 import { isFormSlug } from '@/lib/admin/schema';
@@ -29,16 +35,24 @@ async function pendingTitle(section: CollectionSection, id: string | null) {
   return row?.title ?? null;
 }
 
-async function load(section: CollectionSection, id: string | null) {
+/** The entry's form; for `new`, a blank one, or a copy of `?from=` (Duplicate). */
+async function load(section: CollectionSection, id: string | null, from?: string) {
   if (!isEntrySlug(section.slug)) return null;
-  if (id === null) return { draft: entryDraft(section.slug), updatedAt: null } as LoadedForm;
-  return loadEntry(section.slug, id);
+  if (id !== null) return loadEntry(section.slug, id);
+  const original = from ? await loadEntry(section.slug, from) : null;
+  const draft = original ? duplicateDraft(section.slug, original.draft) : entryDraft(section.slug);
+  return { draft, updatedAt: null } as LoadedForm;
 }
+
+const fromParam = async (props: Props) => {
+  const from = (await props.searchParams).from;
+  return typeof from === 'string' ? from : undefined;
+};
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const entry = await resolve(props);
   if (!entry) return {};
-  const form = await load(entry.section, entry.id);
+  const form = await load(entry.section, entry.id, await fromParam(props));
   const title = form
     ? entryTitle(entry.section.slug as EntrySlug, form.draft) || `New ${entry.section.singular}`
     : await pendingTitle(entry.section, entry.id);
@@ -52,10 +66,17 @@ export default async function EntryPage(props: Props) {
   const { section, id } = entry;
 
   if (isEntrySlug(section.slug)) {
-    const form = await load(section, id);
+    const from = await fromParam(props);
+    const form = await load(section, id, from);
     if (!form) notFound();
     return (
-      <Editor key={id ?? 'new'} slug={section.slug} section={section} entryId={id} initial={form} />
+      <Editor
+        key={id ?? `new:${from ?? ''}`}
+        slug={section.slug}
+        section={section}
+        entryId={id}
+        initial={form}
+      />
     );
   }
 
