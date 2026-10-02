@@ -19,7 +19,8 @@ export type FieldType =
   | 'select'
   | 'markdown'
   | 'image'
-  | 'pdf';
+  | 'pdf'
+  | 'range';
 
 export interface FieldDef {
   key: string;
@@ -37,6 +38,10 @@ export interface FieldDef {
   off?: string;
   /** Pills for `select`. */
   options?: { value: string; label: string }[];
+  /** `range`: bounds, step and the unit shown beside the value. */
+  min?: number;
+  step?: number;
+  unit?: string;
   /** Hidden (not disabled) while this toggle is on (§7.2). */
   hideIf?: string;
 }
@@ -52,8 +57,8 @@ export type DraftValue = string | boolean | string[] | ImageValue | null;
 export type Draft = Record<string, DraftValue>;
 export type FieldErrors = Record<string, string>;
 
-/** Sections with a form. Settings arrives in 8.5. */
-export type FormSlug = Exclude<SectionSlug, 'settings'>;
+/** Every section has a form. */
+export type FormSlug = SectionSlug;
 
 export const FIELDS: Record<FormSlug, FieldDef[]> = {
   hero: [
@@ -268,6 +273,38 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       side: true,
       on: 'Shown',
       off: 'Skipped',
+    },
+  ],
+  // §8.9 (owner, §14): style settings to demo and choose between. Defaults = the shipped look.
+  settings: [
+    {
+      key: 'accent',
+      label: 'Accent',
+      type: 'select',
+      options: [
+        { value: 'terracotta', label: 'Terracotta' },
+        { value: 'slate', label: 'Slate blue' },
+      ],
+      hint: 'The dark-mode accent is derived from this.',
+    },
+    { key: 'grain', label: 'Grain', type: 'range', min: 0, max: 24, step: 0.5, unit: '%' },
+    {
+      key: 'navPosition',
+      label: 'Navigation button',
+      type: 'select',
+      options: [
+        { value: 'right', label: 'Bottom right' },
+        { value: 'centre', label: 'Bottom centre' },
+      ],
+    },
+    {
+      key: 'menuLayout',
+      label: 'Menu layout',
+      type: 'select',
+      options: [
+        { value: 'arc', label: 'Arc' },
+        { value: 'wheel', label: 'Centre wheel' },
+      ],
     },
   ],
 };

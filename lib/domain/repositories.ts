@@ -117,6 +117,10 @@ export interface AdminRepositories {
     get(): Promise<Stamped<Profile>>;
     update(profile: Profile): Promise<Stamped<Profile>>;
   };
+  settings: {
+    get(): Promise<Stamped<Settings>>;
+    update(settings: Settings): Promise<Stamped<Settings>>;
+  };
   /** All four fixed links, empty URLs included (an empty URL hides the link, Q-A10). */
   socialLinks: {
     list(): Promise<SocialLink[]>;

@@ -196,6 +196,11 @@ export async function checkAdminWrites(admin: AdminRepositories, tag: string) {
   expect(await admin.articles.remove(articleId)).toBe(true);
   expect(await admin.articles.get(articleId)).toBeNull();
 
+  const { updatedAt: _s, ...settings } = await admin.settings.get();
+  const { updatedAt: settingsStamp, ...savedSettings } = await admin.settings.update(settings);
+  expect(savedSettings).toEqual(settings);
+  expect(settingsStamp).not.toBeNull();
+
   const links = await admin.socialLinks.list();
   await admin.socialLinks.setUrls(Object.fromEntries(links.map((l) => [l.id, l.url])));
   expect(await admin.socialLinks.list()).toEqual(links);

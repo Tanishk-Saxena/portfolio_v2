@@ -17,6 +17,7 @@
   --ink: #23201c;
   --muted: #6d655c; /* [ASSUMED] Q1 — mockup #7A7268 */
   --accent-base: #a9491f; /* [ASSUMED] Q1 — mockup #B4532A */
+  --accent-dark-mix: 24%; /* white mixed into the base for dark-mode text (ADMIN §2) */
   --accent: var(--accent-base); /* text, lines, rings */
   --accent-fill: var(--accent-base); /* filled surfaces in both modes — Q2 */
   --on-accent: #fdf8f0;
@@ -49,7 +50,8 @@
   --field: #1f1c18;
   --line: rgb(237 231 219 / 0.13);
   --line-input: rgb(237 231 219 / 0.4);
-  --accent: color-mix(in oklab, var(--accent-base), white 24%); /* Q2 — mockup: white 16% */
+  /* Q2 — mockup: white 16%. The mix is per accent (ADMIN-DESIGN-SPEC §2). */
+  --accent: color-mix(in oklab, var(--accent-base), white var(--accent-dark-mix));
   --scrim-nav: rgb(25 23 20 / 0.55);
   --scrim-modal: rgb(18 16 14 / 0.62);
 
@@ -62,6 +64,16 @@
 
   --grain-blend: screen;
   color-scheme: dark;
+}
+
+/*
+ * Settings → Accent (ADMIN-DESIGN-SPEC §2, §8.9): set on <html> from the saved settings.
+ * Slate's dark shade needs more white to pass AA (owner, §14): 5.15 / 4.73 on dark paper.
+ * After the mode blocks, so it wins over them on <html>.
+ */
+[data-accent='slate'] {
+  --accent-base: #2f5d72;
+  --accent-dark-mix: 32%;
 }
 
 /* About + Contact accent bands re-point the tokens for their contents (spec §1.2).

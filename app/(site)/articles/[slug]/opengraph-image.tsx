@@ -1,4 +1,5 @@
 import { getRepositories } from '@/lib/container';
+import { savedAccent } from '@/lib/og/accent';
 import { OG_SIZE, renderOgCard } from '@/lib/og/og-card';
 import { formatLongDate } from '@/lib/utils/format';
 
@@ -10,9 +11,10 @@ export const contentType = 'image/png';
 export default async function Image(props: { params: Promise<{ slug: string }> }) {
   const { slug } = await props.params;
   const repos = getRepositories();
-  const [article, profile] = await Promise.all([
+  const [article, profile, accent] = await Promise.all([
     repos.articles.getBySlug(slug),
     repos.profile.get(),
+    savedAccent(),
   ]);
   const title = article?.title ?? profile.name;
   return renderOgCard({
@@ -21,7 +23,8 @@ export default async function Image(props: { params: Promise<{ slug: string }> }
       ? `Writing — ${formatLongDate(article.publishedAt)} · ${article.readMinutes} min read`
       : 'Writing',
     title,
-    titleColor: '#a9491f',
+    accent,
+    titleColor: accent,
     titleSize: title.length > 60 ? 64 : 76,
   });
 }

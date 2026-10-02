@@ -385,6 +385,12 @@ today, so the site looks unchanged until a setting moves.
 Every combination keeps the site's rules: reduced motion, focus handling in the menu (Q26),
 44px targets, and AA in both modes.
 
+As built (8.5): the root layout reads the settings and sets `data-accent` and
+`--grain-opacity` on `<html>`, so the site, the admin and the 404 all follow them; the
+accent is `--accent-base` + `--accent-dark-mix` per accent (`styles/tokens.css`). The home
+page passes the nav button position and menu layout to the floating nav. A save marks the
+site stale like any other (Q-A15). See Q-A26 for what the mockup left open.
+
 ### 8.10 Every record
 
 `id`, `created_at`, `updated_at`, `deleted_at` (soft delete); `position` on ordered
@@ -507,6 +513,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A23 | Year fields: "Enter a four-digit year." and "The end year can’t be before the start year."; an unchanged year keeps its stored month, a changed one is stored as January | The database requires `YYYY-MM` with end ≥ start, and the mockup has no copy for either; the site shows years only |
 | Q-A24 | List actions: a toggle's Undo sends the toggle back (`/restore` only clears deletes, refining Q-A16); a reorder whose ids no longer match the live list is refused (409, rolled back); a reorder still pending when the list is left (in the app or a reload) is sent at once, `keepalive`; the arrows' and pills' names include the row title, and a pill's name starts with its visible status (WCAG 2.5.3) | The mockup's 700ms debounce otherwise drops a move made just before leaving; screen readers need to know which row an arrow moves |
 | Q-A25 | Writing and media copy the mockup lacks: slug format "Use lowercase letters, numbers and single hyphens."; read time "Enter whole minutes, or leave it blank."; uploads "Images must be JPG, PNG or WebP, up to 5 MB." / "The résumé must be a PDF, up to 10 MB." / "Could not upload. Try again."; External URL hint "Where the article lives if it has no body here, like Medium."; a blank publish date saves as today; the Markdown preview uses the site's own renderer (so it shows exactly what the article page will) | The database requires the slug format and positive minutes; the limits are Q-A17's; the renderer avoids a second Markdown dialect |
+| Q-A26 | Settings details: the wheel's dock slides to the centre of the *visible* screen (`dvh`, the mockup used `vh`), and under reduced motion it moves there without sliding; the grain range's error "Choose a value from 0 to 24." (steps of 0.5) | `vh` puts the wheel low on phones while the address bar shows; reduced motion keeps the site usable but static |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no
@@ -521,3 +528,4 @@ Record admin changes the owner settles here, as DESIGN-SPEC §10 does for the si
 | Settings | Keep the mockup's style settings so the owner can demo and choose: accent (Terracotta / Slate blue), grain, navigation button (Bottom right / Bottom centre), menu layout (Arc / Centre wheel). The site builds the variants it lacks. **Signature tilt dropped.** The intro stays shelved | Q-A13 (Terracotta + grain only) |
 | Contrast | Where a design value misses a threshold and isn't shipped yet, tweak the shade slightly until it passes, in the admin and on the site. **Never change what's already shipped.** Applied so far: slate's dark mix 32% (§2), `--line-input` for control boundaries (§2) | Keeping mocked values and flagging them |
 | Saved = live | The toast confirms the database write; nothing reloads, in the admin or on the site. The owner reloads when they want to look | Toast after "saved and revalidated" |
+| Accent in images | Share cards and app icons (favicon included) follow the saved accent from the next deploy on; picking it up sooner is fine but not required | Images always terracotta |

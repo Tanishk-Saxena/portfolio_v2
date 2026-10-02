@@ -4,9 +4,9 @@ import { ImageResponse } from 'next/og';
 
 /**
  * App icon: the handwritten initial on the accent chip, the hero's highlight in miniature.
- * `radius` is a fraction of the size (0 for Apple's own mask).
+ * `radius` is a fraction of the size (0 for Apple's own mask); `accent` is the saved one.
  */
-export async function renderMonogram(size: number, radius = 0.22) {
+export async function renderMonogram(size: number, accent: string, radius = 0.22) {
   const caveat = await readFile(join(process.cwd(), 'assets/og-fonts/caveat-600.ttf'));
   return new ImageResponse(
     <div
@@ -16,7 +16,7 @@ export async function renderMonogram(size: number, radius = 0.22) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: '#a9491f',
+        background: accent,
         borderRadius: size * radius,
         color: '#fdf8f0',
         fontFamily: 'Caveat',

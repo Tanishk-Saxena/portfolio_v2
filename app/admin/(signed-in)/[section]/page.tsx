@@ -5,12 +5,9 @@ import { FILLED_PILL, OUTLINE_PILL } from '@/components/admin/admin-classes';
 import { AdminHeader } from '@/components/admin/admin-header';
 import { AdminList } from '@/components/admin/admin-list';
 import { Editor } from '@/components/admin/editor';
-import { EditorBar } from '@/components/admin/editor-bar';
-import { EditorPending } from '@/components/admin/editor-pending';
 import { loadAdminContent } from '@/lib/admin/content';
 import { countLine, toRows } from '@/lib/admin/rows';
 import { loadSingle } from '@/lib/admin/save';
-import { isFormSlug } from '@/lib/admin/schema';
 import { adminHref, findSection } from '@/lib/admin/sections';
 
 export async function generateMetadata(props: PageProps<'/admin/[section]'>): Promise<Metadata> {
@@ -20,13 +17,12 @@ export async function generateMetadata(props: PageProps<'/admin/[section]'>): Pr
 
 /**
  * A section: a collection's list, or a single record's form (ADMIN-DESIGN-SPEC §6, §7.1).
- * Settings arrives in 8.5.
  */
 export default async function SectionPage(props: PageProps<'/admin/[section]'>) {
   const section = findSection((await props.params).section);
   if (!section) notFound();
 
-  if (section.kind === 'single' && section.slug !== 'settings' && isFormSlug(section.slug)) {
+  if (section.kind === 'single') {
     return (
       <Editor
         key={section.slug}
@@ -35,15 +31,6 @@ export default async function SectionPage(props: PageProps<'/admin/[section]'>) 
         entryId={null}
         initial={await loadSingle(section.slug)}
       />
-    );
-  }
-  if (section.kind === 'single') {
-    // Settings arrives in 8.5.
-    return (
-      <>
-        <EditorBar section={section} title={section.label} />
-        <EditorPending title={section.label} />
-      </>
     );
   }
 

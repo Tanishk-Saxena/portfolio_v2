@@ -24,7 +24,7 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 // Skills → Quotes → Contact → footer.
 export default async function HomePage() {
   const repos = getRepositories();
-  const [profile, experience, projects, articles, skillGroups, quotes, socialLinks] =
+  const [profile, experience, projects, articles, skillGroups, quotes, socialLinks, settings] =
     await Promise.all([
       repos.profile.get(),
       repos.experience.list(),
@@ -33,6 +33,7 @@ export default async function HomePage() {
       repos.skills.listGroups(),
       repos.quotes.list(),
       repos.socialLinks.list(),
+      repos.settings.get(),
     ]);
 
   // The nav lists only sections that render (empty sections return null).
@@ -64,7 +65,11 @@ export default async function HomePage() {
         <SiteFooter note={profile.footerNote} name={profile.name} />
       </PageTransition>
       {/* Last in DOM order: a convenience duplicate of in-page navigation (Q26). */}
-      <FloatingNav sections={navSections} />
+      <FloatingNav
+        sections={navSections}
+        position={settings.navPosition}
+        layout={settings.menuLayout}
+      />
       <RevealObserver />
       <ScrollRestore />
     </>

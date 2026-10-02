@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8.4 (Writing and media) complete · next: Phase 8.5 — Settings and hand-over (`feat/phase-8-settings`)
+**Now:** Phase 8.5 (Settings) built · next: the owner tests the whole admin and enters real content on a phone (8.5 hand-over), then Phase 9
 
 ---
 
@@ -255,8 +255,8 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | ✅ PR #22 |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ PR #23 |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | ✅ PR #24 |
-| 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | ✅ |
-| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | |
+| 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | ✅ PR #25 |
+| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | ✅ built · hand-over: owner |
 
 **6.1 notes.** Domain: `Profile.ctaLabel`, `Project.published`, `Article.status` + `listen`,
 `Quote.active`, new `Settings` + `SettingsRepository`; stored `readMinutes` is nullable and the
@@ -439,6 +439,35 @@ the test uploads removed from the bucket. A signed upload by plain `fetch` was v
 against dev first. Tests: writing rules, slugs, duplicates, images and upload limits
 (`schema.test.ts`); article create / read / edit / publish / delete in the write check
 (fixtures and live). Unit 45 tests in 10 files; live 9.
+
+**8.5 notes.** Settings (ADMIN-DESIGN-SPEC §8.9, owner §14) and the site variants it switches.
+Every admin section now has its form; the temporary editor body is gone.
+- Site: the root layout reads the settings and sets `data-accent` and `--grain-opacity` on
+  `<html>` (site, admin and 404 alike). The accent is a base plus a dark-mode mix
+  (`--accent-dark-mix`: terracotta 24%, renders exactly as shipped; slate `#2F5D72` with 32%).
+  The floating nav takes the button position (bottom right / bottom centre: the arc fans
+  −158°…−22° and the dock parks lower) and the menu layout (arc, or the centre wheel: θ =
+  −90° + 360° × i / n, R = 150px, the dock slides to the screen's centre over .72s). Motion
+  helpers moved to `components/site/nav-motion.ts` (the component was over 200 lines).
+- Admin: Accent, Grain (range 0–24, step 0.5, value shown beside the label), Navigation
+  button and Menu layout; saves like any single record (409, toast, site marked stale).
+- Q-A26: the wheel centres on the visible screen (`dvh`).
+- Share cards and icons (owner, §14): they read the saved accent when they're generated, so a
+  deploy picks up the setting (an admin save also marks them stale, so they follow on their
+  next request). `lib/og/accent.ts` holds each accent's hex (`next/og` can't read CSS; a test
+  keeps it equal to `tokens.css`). The static `app/favicon.ico` became a prerendered route
+  drawing the same monogram, so it follows too.
+
+Checked in Chrome on the dev server (throwaway admin): saved slate + bottom centre + centre
+wheel + 12% grain, opened the wheel on the home page at 1440 and 390 in light and dark (centred,
+items evenly round it, slate current item), then saved the shipped defaults back; no page
+errors. Tests: settings round trip and the grain's steps (`schema.test.ts`), nav angles for
+both positions and layouts (`utils.test.ts`), settings save in the write check (fixtures and
+live), and the images' accent colours equal to `tokens.css` (`lib/seo.test.ts`). Unit 47 tests
+in 10 files; live 9. A production build serves `/favicon.ico` (200, PNG).
+
+Hand-over (owner): test the whole admin, flag gaps, then replace the placeholder content
+through the admin on a phone (brief §6 Phase 8 verification).
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for

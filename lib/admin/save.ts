@@ -9,6 +9,8 @@ import {
   entryDraft,
   entryValues,
   type LoadedForm,
+  settingsDraft,
+  settingsValues,
   singleDraft,
   socialUrls,
 } from './forms';
@@ -20,7 +22,7 @@ import type { Draft, FieldErrors } from './schema';
  * the draft. Every write ends by marking the site stale (Q-A15).
  */
 
-export type SingleFormSlug = 'hero' | 'about' | 'contact';
+export type SingleFormSlug = 'hero' | 'about' | 'contact' | 'settings';
 
 /** One section's entries: read one, create, update. Writing goes through the articles. */
 interface EntryStore<T> {
@@ -81,6 +83,10 @@ function assertUnchanged(current: string | null, expected: string | null) {
 
 export async function loadSingle(slug: SingleFormSlug): Promise<LoadedForm> {
   const r = await getAdminRepositories();
+  if (slug === 'settings') {
+    const settings = await r.settings.get();
+    return { draft: settingsDraft(settings), updatedAt: settings.updatedAt };
+  }
   const [profile, links] = await Promise.all([r.profile.get(), r.socialLinks.list()]);
   return { draft: singleDraft(slug, profile, links), updatedAt: profile.updatedAt };
 }
@@ -91,6 +97,12 @@ export async function saveSingle(
   expectedUpdatedAt: string | null,
 ): Promise<LoadedForm> {
   const r = await getAdminRepositories();
+  if (slug === 'settings') {
+    assertUnchanged((await r.settings.get()).updatedAt, expectedUpdatedAt);
+    const saved = await r.settings.update(settingsValues(draft));
+    markSiteStale();
+    return { draft, updatedAt: saved.updatedAt };
+  }
   const current = await r.profile.get();
   assertUnchanged(current.updatedAt, expectedUpdatedAt);
   const saved = await r.profile.update(applySingle(slug, current, draft));
