@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { AdminRepositories, Repositories } from '@/lib/domain/repositories';
+import type { Repositories } from '@/lib/domain/repositories';
 import { toArticle, toSummary } from '../article-record';
 import {
   type ArticleRow,
@@ -26,7 +26,7 @@ import {
  * contract holds whichever key a caller uses (defence in depth, brief §6).
  */
 
-const COLUMNS = {
+export const COLUMNS = {
   profile:
     'name, eyebrow, headline, headline_highlight, standfirst, cta_label, about_lead, about_paragraphs, portrait, resume_url, email, contact_statement, location, footer_note',
   settings: 'accent, grain, nav_position, menu_layout',
@@ -40,7 +40,7 @@ const COLUMNS = {
 } as const;
 
 /** A failed read is a broken page, never an empty one: fail loudly. */
-function rows<T>({ data, error }: { data: unknown; error: { message: string } | null }): T {
+export function rows<T>({ data, error }: { data: unknown; error: { message: string } | null }): T {
   if (error) throw new Error(`Supabase read failed: ${error.message}`);
   return data as T;
 }
@@ -127,48 +127,6 @@ export function createSupabaseRepositories(db: SupabaseClient): Repositories {
     settings: {
       get: async () =>
         toSettings(rows<SettingsRow>(await db.from('settings').select(COLUMNS.settings).single())),
-    },
-  };
-}
-
-/**
- * The admin's reads: hidden rows included, deleted ones not. `db` must carry the admin's
- * session (`lib/auth/server.ts`); with any other key RLS quietly returns only public rows.
- */
-export function createSupabaseAdminRepositories(db: SupabaseClient): AdminRepositories {
-  const live = (table: string, columns: string) =>
-    db.from(table).select(columns).is('deleted_at', null);
-
-  return {
-    experience: {
-      list: async () =>
-        rows<ExperienceRow[]>(await live('experience', COLUMNS.experience).order('sort_order')).map(
-          toExperience,
-        ),
-    },
-    projects: {
-      list: async () =>
-        rows<ProjectRow[]>(await live('project', COLUMNS.project).order('sort_order')).map(
-          toProject,
-        ),
-    },
-    articles: {
-      list: async () =>
-        rows<(ArticleRow & { id: string })[]>(
-          await live('article', `id, ${COLUMNS.article}`).order('published_at', {
-            ascending: false,
-          }),
-        ).map((row) => ({ id: row.id, ...toSummary(toArticleRecord(row)) })),
-    },
-    skills: {
-      listGroups: async () =>
-        rows<SkillGroupRow[]>(
-          await live('skill_group', COLUMNS.skillGroup).order('sort_order'),
-        ).map(toSkillGroup),
-    },
-    quotes: {
-      list: async () =>
-        rows<QuoteRow[]>(await live('quote', COLUMNS.quote).order('sort_order')).map(toQuote),
     },
   };
 }

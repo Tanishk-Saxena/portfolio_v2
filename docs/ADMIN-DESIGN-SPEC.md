@@ -401,7 +401,7 @@ published / active.
 
 | Method | Path | Use |
 |---|---|---|
-| PUT | `/api/admin/{profile,about,contact,settings}` | Save a single record |
+| PUT | `/api/admin/{hero,about,contact,settings}` | Save a single record (named as the admin's routes, §6) |
 | POST | `/api/admin/{collection}` | Create |
 | PUT | `/api/admin/{collection}/:id` | Save an edit (with `updatedAt`, 409 on mismatch) |
 | PATCH | `/api/admin/{collection}/:id` | Quick toggle |
@@ -497,6 +497,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A20 | Sign-in: "Signing in…" on the button while the request runs; "Could not sign in right now. Try again in a moment." when Auth fails or is rate-limited; a valid account that isn't on the allowlist gets the wrong-credentials copy (Q-A18); inputs at 16px (§3) rather than §4.3's 15px; `/admin` was a plain landing until 8.1, which made it redirect to Writing (Q-A5) | Not in the mockup. One message for both refusals reveals nothing about which accounts exist; 16px stops iOS zooming |
 | Q-A21 | List search at 16px on phones, 14px when wide | §3's 14px search would make iOS zoom the page on focus, which §3 rules out for every other input |
 | Q-A22 | Skills at 4 groups: **New group** is a disabled button at 45% opacity, like the editor's clean **Discard** | The mockup disables New with no visual change; the faded state reuses its own convention |
+| Q-A23 | Year fields: "Enter a four-digit year." and "The end year can’t be before the start year."; an unchanged year keeps its stored month, a changed one is stored as January | The database requires `YYYY-MM` with end ≥ start, and the mockup has no copy for either; the site shows years only |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no

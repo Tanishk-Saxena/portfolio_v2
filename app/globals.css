@@ -23,6 +23,9 @@
   --color-wash-accent: color-mix(in oklab, var(--accent), transparent 86%); /* live pills */
   --color-hover-nav: color-mix(in oklab, var(--ink), transparent 94%);
   --color-hover-row: color-mix(in oklab, var(--ink), transparent 96%);
+  --color-wash-error: color-mix(in oklab, var(--accent), transparent 88%); /* error summary */
+  --color-scrim-confirm: rgb(20 18 15 / 0.42);
+  --color-knob: #fdf8f0; /* toggle knob, both modes */
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
@@ -105,6 +108,10 @@
   --text-admin-meta: 12.5px; /* inline row meta, status pills */
   --text-admin-pill: 13.5px; /* filter and picker pills */
   --text-admin-group: 10.5px; /* nav group heading */
+  --text-admin-confirm: 23px; /* confirm dialog title */
+  --text-admin-confirm--line-height: 1.25;
+  --text-admin-hint: 12.5px; /* field hint and error */
+  --text-admin-hint--line-height: 1.5;
   --text-signature: 31px;
   --text-signature--line-height: 0.95;
   --text-body-lg: clamp(16px, 1.5vw, 18px);
@@ -132,6 +139,7 @@
   --tracking-years: 0.06em;
   --tracking-tag: 0.02em;
   --tracking-group: 0.18em; /* admin nav group heading */
+  --tracking-field: 0.01em; /* admin field label */
 
   /* spacing — default base (--spacing: 0.25rem) kept; named fluid tokens below */
   --spacing-header: 76px;
@@ -167,6 +175,12 @@
   --spacing-admin-editor-top: clamp(24px, 5vh, 44px);
   --spacing-admin-bar: 60px; /* phone header, sheet header */
   --spacing-admin-editor-bar: 64px;
+  --spacing-admin-main: 720px; /* editor main column max */
+  --spacing-admin-editor: 1160px; /* editor body max */
+  --spacing-admin-gap: clamp(24px, 4vw, 48px); /* main column ↔ side panel */
+  --spacing-admin-side: 360px; /* side panel max */
+  --spacing-admin-confirm: 420px;
+  --spacing-admin-sticky: 88px; /* side panel top offset under the bar */
 
   /* Above-the-fold measures (spec 16ch / 52ch / 20ch) as em: `ch` follows the *current*
      font, so it changed when web fonts swapped in and caused layout shift (CLS 0.116).
@@ -188,9 +202,13 @@
   --shadow-modal: 0 40px 90px rgb(var(--shadow-rgb) / var(--shadow-a-modal));
   --shadow-fab: 0 12px 30px rgb(var(--shadow-rgb) / var(--shadow-a-fab));
   --shadow-float: 0 8px 22px rgb(var(--shadow-rgb) / var(--shadow-a-float));
+  --shadow-dialog: 0 24px 60px rgb(0 0 0 / 0.22); /* admin confirm */
+  --shadow-toast: 0 10px 30px rgb(0 0 0 / 0.18);
+  --shadow-knob: 0 1px 2px rgb(0 0 0 / 0.2);
   --shadow-float-top: 0 8px 22px rgb(var(--shadow-rgb) / var(--shadow-a-float-top));
 
   --blur-bar: 10px; /* admin sticky bars */
+  --blur-scrim: 3px; /* behind the admin confirm */
 
   /* layout */
   --container-wide: 760px; /* @wide: → the single breakpoint (container query) */
@@ -206,6 +224,8 @@
   --ease-expand: cubic-bezier(0.32, 0.72, 0.3, 1);
   --ease-spiral-out: cubic-bezier(0.16, 0.9, 0.24, 1);
   --ease-spiral-in: cubic-bezier(0.4, 0.05, 0.25, 1);
+  --ease-admin: cubic-bezier(0.3, 0.8, 0.3, 1); /* toggle knob, dial */
+  --ease-toast: cubic-bezier(0.2, 0.8, 0.3, 1);
   --ease-cue: cubic-bezier(0.4, 0, 0.3, 1);
 
   --animate-fade-up: fade-up 0.85s var(--ease-out-soft) both;

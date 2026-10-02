@@ -1,12 +1,14 @@
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { checkAdminRepositories, runRepositoryContract } from '../repository-contract';
-import { createPublicClient } from './client';
 import {
-  createSupabaseAdminRepositories,
-  createSupabaseRepositories,
-} from './supabase-repositories';
+  checkAdminRepositories,
+  checkAdminWrites,
+  runRepositoryContract,
+} from '../repository-contract';
+import { createPublicClient } from './client';
+import { createSupabaseAdminRepositories } from './supabase-admin-repositories';
+import { createSupabaseRepositories } from './supabase-repositories';
 
 /*
  * Everything that needs the real dev project in .env.local, in one file so the network
@@ -76,6 +78,7 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
     afterAll(async () => {
       await service.from('project').delete().eq('id', tag);
       await service.from('quote').delete().eq('id', tag);
+      await service.from('quote').delete().eq('author', tag); // the admin-write check's
       await service.from('article').delete().eq('slug', tag);
       // Deleting a user cascades to admin_user.
       for (const id of userIds) await service.auth.admin.deleteUser(id);
@@ -139,6 +142,10 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
         password: 'wrong',
       });
       expect(wrong.error?.code).toBe('invalid_credentials');
+    });
+
+    it('the signed-in admin creates and edits entries and saves the profile', async () => {
+      await checkAdminWrites(createSupabaseAdminRepositories(await signedIn(accounts.admin)), tag);
     });
 
     it('auth: only the allowlisted account can write; a signed-in stranger cannot', async () => {

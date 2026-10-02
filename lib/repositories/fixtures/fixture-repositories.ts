@@ -1,5 +1,4 @@
 import type {
-  AdminRepositories,
   ArticleRepository,
   ExperienceRepository,
   ProfileRepository,
@@ -64,21 +63,4 @@ export function createFixtureRepositories(data: FixtureDataset): Repositories {
   };
 
   return { profile, experience, projects, articles, skills, quotes, socialLinks, settings };
-}
-
-/**
- * The admin's reads over the same dataset, hidden rows included. Fixture articles have no
- * stored id, so the slug stands in for it.
- */
-export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepositories {
-  return {
-    experience: { list: async () => copy(data.experience).sort(bySortOrder) },
-    projects: { list: async () => copy(data.projects).sort(bySortOrder) },
-    articles: {
-      list: async () =>
-        data.articles.map((a) => ({ id: a.slug, ...toSummary(a) })).sort(newestFirst),
-    },
-    skills: { listGroups: async () => copy(data.skillGroups).sort(bySortOrder) },
-    quotes: { list: async () => copy(data.quotes).sort(bySortOrder) },
-  };
 }

@@ -13,7 +13,7 @@ export const loadAdminContent = cache(async (): Promise<AdminContent> => {
     r.experience.list(),
     r.projects.list(),
     r.articles.list(),
-    r.skills.listGroups(),
+    r.skills.list(),
     r.quotes.list(),
   ]);
   return { experience, projects, writing, skills, quotes };

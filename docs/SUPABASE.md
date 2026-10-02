@@ -45,8 +45,9 @@ rows; every write (and every read of hidden rows) needs a signed-in user listed 
 4. Put the **dev** keys in `.env.local` (template: `.env.example`): Project URL, publishable
    key, secret key. Leave `DATA_SOURCE` unset to keep working on fixtures, or set it to
    `supabase`. The admin's lists follow the same setting: sign-in always uses Supabase, but
-   with fixtures the lists show the fixtures. Use `DATA_SOURCE=supabase npm run dev` to see
-   the dev database in the admin.
+   with fixtures the lists show the fixtures and saves only change an in-memory copy (lost on
+   restart). Use `DATA_SOURCE=supabase npm run dev` to see and edit the dev database in the
+   admin.
 5. In Vercel → Settings → Environment Variables:
    - **Production**: `DATA_SOURCE=supabase`, prod `NEXT_PUBLIC_SUPABASE_URL` and
      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
@@ -81,5 +82,7 @@ against dev with throwaway accounts.
 
 - New schema change → a new file in `supabase/migrations/` (`npx supabase migration new
   <name>`), pushed to dev first, then prod.
-- Pages are prerendered at build. Until the admin's writes revalidate them (Phase 8.2),
-  an edit made directly in the Supabase dashboard shows on the site after the next deploy.
+- Pages are prerendered at build. A save in the admin marks them stale
+  (`revalidatePath('/', 'layout')`), so the site shows it on the next visit. An edit made
+  directly in the Supabase dashboard skips that, and shows after the next deploy or the next
+  admin save.

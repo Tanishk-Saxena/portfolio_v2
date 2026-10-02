@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8.1 (admin shell and lists) complete · next: Phase 8.2 — editor and saving (`feat/phase-8-editor`)
+**Now:** Phase 8.2 (editor and saving) complete · next: Phase 8.3 — list actions (`feat/phase-8-actions`)
 
 ---
 
@@ -252,8 +252,8 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
 | 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + #15 (switch-over) |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | ✅ PR #17 |
-| 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | ✅ |
-| 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
+| 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | ✅ PR #22 |
+| 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
 | 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | |
 | 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | |
@@ -282,8 +282,8 @@ derivation with the fixtures (`lib/repositories/article-record.ts`). Tests: the 
 seed and RLS run in PGlite on every `npm run test` (no Docker; 7 tests then, 6 since the test consolidation); the contract + live
 RLS suite runs against the dev project when `.env.local` has its keys. Pages stay
 prerendered (`fetch` without a cache option is fetched once at build). Waiting on: the two
-projects, `db push --include-seed`, Vercel env (`docs/SUPABASE.md`). Revalidation lands with
-the admin's writes (8.2); dashboard edits show after a deploy until then.
+projects, `db push --include-seed`, Vercel env (`docs/SUPABASE.md`). Revalidation landed with
+the admin's writes (8.2); dashboard edits still show only after a deploy or an admin save.
 Dev (2026-10-02): both migrations pushed with `db push --db-url` (session pooler; no access
 token), seed applied; live suite 15/15; fixture and Supabase builds render identical HTML on
 home, three articles, sitemap and 404. A second migration grants `service_role` its tables
@@ -351,6 +351,39 @@ RLS against the allowlist.
 Flagged (site, not changed here): this Node's ICU formats September as "Sept" in `en-GB`, so
 the Writing list shows "Sept 2026" where the mockup has "Sep". The admin uses the same
 formatter, so both agree. A fixed month table would pin it; owner's call.
+
+**8.2 notes.** Hero, About, Contact, Experience, Skills and Quotes edit and save end to end
+(ADMIN-DESIGN-SPEC §5, §7.2–7.3, §9, §11).
+- One schema module (`lib/admin/schema.ts`): the fields per section, `parseDraft` (only known
+  fields, each of its own type) and `validate` (every §11 rule with the mockup's copy, plus
+  Q-A23 for years). Drafts ↔ domain in `lib/admin/forms.ts`; load and save on the server in
+  `lib/admin/save.ts`.
+- Route handlers `PUT /api/admin/[section]` (single records), `POST /api/admin/[section]`
+  (create; joins the end of the list) and `PUT /api/admin/[section]/[id]`, all through
+  `handleSave`: admin check (401) → section (404) → parse (400) → validate (422 with the field
+  errors) → write → `revalidatePath('/', 'layout')` → 200. The toast says saved only after
+  that.
+- Writes sit behind the repository boundary: `AdminRepositories` gains `profile`,
+  `socialLinks` and `create` / `update` on collections, with `updatedAt` on every record.
+  Supabase runs them as the signed-in admin (RLS). The admin implementations moved to
+  `fixture-admin-repositories.ts` and `supabase-admin-repositories.ts`.
+- The editor: Field (text, textarea with live count, url, email, year, toggle switch, tags;
+  file, markdown, pills and range come with the forms that use them, 8.4/8.5), the bar's state
+  pill (New / Unsaved changes / Saving… / Saved) with Discard and Save, the phones' bottom
+  bar, the error summary, the side panel (side fields, View on site, Last saved), ⌘S / Ctrl+S,
+  toasts, the confirm dialog (native modal `<dialog>`, `role="alertdialog"`), and the
+  unsaved-changes guard on in-app links, Back and Sign out (`beforeunload` for the tab).
+- Fixtures mode: Next gives pages and route handlers separate module instances, so the first
+  try saved into one copy and read from another (a new entry 404'd). The composition root
+  now keeps one working copy of each fixture set per process on `globalThis`; the site and
+  the admin share it.
+
+Checked in Chrome at 1440 and 390 with a throwaway admin account on the dev server: errors on
+an empty create, create with ⌘S, the toast copy, the Unsaved pill, the leave guard (Keep
+editing), Hero and Experience forms; no page errors. Tests: schema and forms
+(`lib/admin/schema.test.ts`), the handler's statuses (`handle-save.test.ts`), admin writes on
+a fixture copy and live as the signed-in admin (planted quote removed after). Unit 43 tests
+in 10 files; live 9.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
