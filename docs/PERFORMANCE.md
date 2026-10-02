@@ -3,8 +3,10 @@
 Readings of the site's performance and accessibility over time, and the open items they
 raise. Owner rule (brief §3): these are **always measured and flagged, never blocking**. A
 miss never holds up a phase, a merge or a deploy; it becomes an open item here and is
-addressed separately. Phase 9.1 adds a Lighthouse reading to CI as an amber warning;
-Phase 10, the last phase, is the dedicated audit (brief §6).
+addressed separately. Since Phase 9.1, CI's `lighthouse` job reads every PR (home, the
+article, the admin sign-in; mobile and desktop; median of 3) and pins the scores to the PR,
+with a warning under budget; `npm run lighthouse` runs the same locally. Phase 10, the last
+phase, is the dedicated audit (brief §6).
 
 Targets (brief §3): Lighthouse mobile performance ≥ 95, accessibility 100; LCP < 2.0 s;
 CLS < 0.1; axe clean.
@@ -20,6 +22,10 @@ Lab = Lighthouse mobile (simulated slow 4G, mid-tier phone). Field = Vercel Spee
 | 2026-09 (Phase 3) | local build | article | 87–91 / 100 / 100 / 100 | — | — | — | 0 | |
 | 2026-09-27 | live, lab (local Chrome; PSI API out of quota) | home | 83–86 / 100 / 100 / 100 | 3.3–3.6 s | 1.5–1.7 s | 200–220 ms | 0 | network chain 475 ms; nothing blocks the fonts |
 | 2026-09-27 | live, lab | article | 83–89 / 100 / 100 / 100 | 3.5 s | 1.1–1.3 s | 170–340 ms | 0 | LCP = first body paragraph; 710 ms render delay |
+| 2026-10-02 (9.1) | local build, `npm run lighthouse`, mobile | home | 80 / 100 / 96 / 100 | 3.8 s | — | — | 0 | median of 3; first Lighthouse CI reading |
+| 2026-10-02 (9.1) | same, mobile | article | 85 / 100 / 96 / 100 | 3.9 s | — | — | 0 | |
+| 2026-10-02 (9.1) | same, mobile | admin sign-in | 90 / 100 / 96 / 63 | 3.3 s | — | — | 0 | SEO 63 is expected: the admin is `noindex` |
+| 2026-10-02 (9.1) | same, desktop | home / article / sign-in | 99 / 99 / 100 perf; a11y 100; BP 96 | 0.7–0.9 s | — | — | 0 | best practices 96 on every page: for Phase 10 |
 
 Accessibility: axe runs in CI on home and article, both modes, desktop and mobile (a warning
 when it fails, never red). Last result: clean. 2026-10-02: one false reading on PR #19 (scroll

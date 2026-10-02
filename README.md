@@ -12,6 +12,7 @@ Auth, Storage) · Vercel.
 npm install
 npm run dev        # http://localhost:3000, on the shipped fixture content
 npm run check      # lint + typecheck + format check + unit tests
+npm run lighthouse # after `npm run build`: Lighthouse on mobile + desktop (a reading)
 ```
 
 The site and the admin read their content through repository interfaces

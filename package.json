@@ -15,7 +15,8 @@
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",
     "prepare": "git config core.hooksPath .githooks || true",
     "test:e2e": "playwright test",
-    "test:live": "vitest run --project live"
+    "test:live": "vitest run --project live",
+    "lighthouse": "lhci autorun && lhci autorun --collect.settings.preset=desktop --upload.outputDir=.lighthouseci/desktop && node scripts/lighthouse-summary.mjs reports/lighthouse.md"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@electric-sql/pglite": "^0.5.8",
+    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",

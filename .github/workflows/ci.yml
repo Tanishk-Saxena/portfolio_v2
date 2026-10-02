@@ -71,3 +71,41 @@ jobs:
           name: playwright-traces
           path: test-results/
           retention-days: 7
+
+  # Lighthouse is a reading, not a gate (brief §3, §6 Phase 9.1): its own job beside `check`,
+  # so it neither slows nor fails the required check. Scores below budget show as warnings
+  # (amber) and in a pinned PR comment; the job itself always passes.
+  lighthouse:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # the pinned scores comment
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Lighthouse (mobile + desktop) — flagged, non-blocking
+        id: lighthouse
+        continue-on-error: true
+        run: npm run lighthouse
+      - if: steps.lighthouse.outcome == 'failure'
+        run: echo "::warning title=Lighthouse::The Lighthouse run itself failed; see the step log."
+      - name: Scores on the run's Summary page
+        if: ${{ !cancelled() && hashFiles('reports/lighthouse.md') != '' }}
+        run: cat reports/lighthouse.md >> "$GITHUB_STEP_SUMMARY"
+      - if: ${{ !cancelled() && github.event_name == 'pull_request' && hashFiles('reports/lighthouse.md') != '' }}
+        uses: marocchino/sticky-pull-request-comment@v3.0.5
+        with:
+          header: lighthouse
+          path: reports/lighthouse.md
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci/
+          include-hidden-files: true
+          retention-days: 7

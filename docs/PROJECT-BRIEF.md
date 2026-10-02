@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B built through Phase 8 (verification open); next Phase 9 (Lighthouse CI, then UI review and features), then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B built through Phase 8 (verification open); Phase 9.1 (Lighthouse CI) done, the UI review and features next, then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
 
 ---
 
