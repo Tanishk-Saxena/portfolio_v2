@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8.5 (Settings) built · next: the owner tests the whole admin and enters real content on a phone (8.5 hand-over), then Phase 9
+**Now:** Phase 8 built (8.1–8.5, PRs #22–#26) · next: Phase 8 verification (owner tests the admin and enters real content on a phone; admin axe pass; every Settings combination), then Phase 10 — final audit. Phase 9 is optional
 
 ---
 
@@ -256,7 +256,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ PR #23 |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | ✅ PR #24 |
 | 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | ✅ PR #25 |
-| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | ✅ built · hand-over: owner |
+| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | ✅ PR #26 · hand-over: owner |
 
 **6.1 notes.** Domain: `Profile.ctaLabel`, `Project.published`, `Article.status` + `listen`,
 `Quote.active`, new `Settings` + `SettingsRepository`; stored `readMinutes` is nullable and the
@@ -466,8 +466,25 @@ both positions and layouts (`utils.test.ts`), settings save in the write check (
 live), and the images' accent colours equal to `tokens.css` (`lib/seo.test.ts`). Unit 47 tests
 in 10 files; live 9. A production build serves `/favicon.ico` (200, PNG).
 
-Hand-over (owner): test the whole admin, flag gaps, then replace the placeholder content
-through the admin on a phone (brief §6 Phase 8 verification).
+**Phase 8 verification (brief §6), still open:**
+- [ ] Owner tests the whole admin (sign in at `/admin`; `DATA_SOURCE=supabase` so saves reach
+      the dev database) and flags gaps; fixes go in follow-up PRs.
+- [ ] Owner replaces the placeholder content through the admin, on a phone.
+- [ ] axe on the admin screens, desktop and phone (flagged, never blocking). It can't run in
+      CI, where the admin stays locked without Supabase keys: run it locally, signed in with
+      a throwaway admin as the browser checks above did.
+- [ ] Every Settings combination in both modes (so far: the defaults, and slate + bottom
+      centre + centre wheel at 1440 and 390, light and dark).
+- [x] Server validation repeats every client rule (one schema module; the handlers'
+      statuses are unit-tested).
+- [x] A save confirms with a toast once the database has it (checked on the dev server).
+- [ ] …and shows on the *deployed* site on the next reload: the dev server renders every
+      request, so the production path (prerendered pages, `revalidatePath`) is still
+      unchecked. Check on a Vercel preview, which reads the dev project.
+
+**What's left after Phase 8 (2026-10-02):** Phase 10, the final audit (Lighthouse on the
+live site and the admin, fix what falls short including P-1 in `docs/PERFORMANCE.md`, then
+Lighthouse CI as an amber warning). Phase 9 is optional: pick from its list (brief §6).
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
@@ -514,6 +531,8 @@ auditing.
   in `CLAUDE.md`'s working agreement (facts listed from the diff, old names and numbers
   grepped, state files walked, prose edited with the Edit tool, staged diff read back). This
   replaces the after-merge sweep, which twice left stale docs behind.
+- 2026-10-02, after Phase 8 (owner): the steps still missed stale docs, so before every merge
+  Claude reminds the owner to ask for a docs pass, and does it when asked (`CLAUDE.md`).
 
 - `@types/node` bumped to `^24` (Vitest 5 peer requirement; local Node is 26).
 - Tailwind colour utilities are named `paper`, `surface`, `ink`, `muted`, `accent`, `accent-fill`
