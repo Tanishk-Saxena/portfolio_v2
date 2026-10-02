@@ -18,7 +18,6 @@ const C = {
   paper: '#f5f0e7',
   ink: '#23201c',
   muted: '#6d655c',
-  accent: '#a9491f',
   onAccent: '#fdf8f0',
   rule: 'rgba(35, 32, 28, 0.14)',
 };
@@ -47,10 +46,12 @@ interface CardProps {
   highlight?: string | null;
   titleColor?: string;
   titleSize?: number;
+  /** The saved accent's base colour (`lib/og/accent.ts`). */
+  accent: string;
 }
 
 /** Words as flex items: satori can't mix inline boxes in running text. */
-function DisplayLine({ title, highlight, titleColor = C.ink, titleSize = 88 }: CardProps) {
+function DisplayLine({ title, highlight, accent, titleColor = C.ink, titleSize = 88 }: CardProps) {
   const { before, word, after } = splitHighlight(title, highlight ?? null);
   const words = (s: string) => s.split(/\s+/).filter(Boolean);
   const gap = titleSize * 0.24;
@@ -79,7 +80,7 @@ function DisplayLine({ title, highlight, titleColor = C.ink, titleSize = 88 }: C
             fontFamily: 'Caveat',
             fontSize: titleSize * 1.1,
             lineHeight: 0.84,
-            background: C.accent,
+            background: accent,
             color: C.onAccent,
             borderRadius: 6,
             padding: `${titleSize * 0.04}px ${titleSize * 0.16}px ${titleSize * 0.1}px ${titleSize * 0.14}px`,
@@ -124,7 +125,7 @@ export async function renderOgCard(props: CardProps) {
         >
           <path
             d={SIGNATURE_PATH}
-            stroke={C.accent}
+            stroke={props.accent}
             strokeWidth="2.6"
             fill="none"
             strokeLinecap="round"

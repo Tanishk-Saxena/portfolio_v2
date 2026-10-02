@@ -5,6 +5,8 @@ import {
   duplicateDraft,
   entryDraft,
   entryValues,
+  settingsDraft,
+  settingsValues,
   singleDraft,
   slugify,
   socialUrls,
@@ -157,5 +159,23 @@ describe('admin schema', () => {
     expect(checkUpload('image', 'image/png', 6 * 1024 * 1024)).toMatch(/5 MB/);
     expect(checkUpload('pdf', 'application/pdf', 9 * 1024 * 1024)).toBeNull();
     expect(checkUpload('pdf', 'image/png', 1000)).toMatch(/PDF/);
+  });
+
+  it('settings: the shipped look round-trips; the grain stays on its 0.5 steps', () => {
+    const shipped = defaultDataset.settings;
+    const draft = settingsDraft(shipped);
+    expect(validate('settings', draft)).toEqual({});
+    expect(settingsValues(draft)).toEqual(shipped);
+    for (const grain of ['0', '6.5', '24']) {
+      expect(validate('settings', { ...draft, grain })).toEqual({});
+    }
+    for (const grain of ['6.3', '25', '-1', 'x']) {
+      expect(validate('settings', { ...draft, grain }).grain).toBe('Choose a value from 0 to 24.');
+    }
+    expect(parseDraft('settings', { ...draft, accent: 'teal' })).toBeNull();
+    expect(settingsValues({ ...draft, accent: 'slate', grain: '12.5' })).toMatchObject({
+      accent: 'slate',
+      grain: 12.5,
+    });
   });
 });

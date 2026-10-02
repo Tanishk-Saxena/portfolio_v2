@@ -1,36 +1,35 @@
 'use client';
 
-import {
-  useEffect,
-  useId,
-  useRef,
-  useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type MouseEvent,
-} from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
 import { useSectionSpy } from '@/lib/hooks/use-section-spy';
 import { jumpTo } from '@/lib/anchor-jump';
-import { afterRipple, RIPPLE_MS } from '@/lib/ripple';
-
-const PICKED_FILL = {
-  transitionDelay: `${Math.round(RIPPLE_MS * 0.63)}ms`,
-  transitionDuration: '1ms', // with 0s the browser skips the delay and fills at once
-};
-import { arcAngles } from '@/lib/utils/arc';
+import { afterRipple } from '@/lib/ripple';
+import type { MenuLayout, NavPosition } from '@/lib/domain/types';
+import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
+import { closeDuration, PICKED_FILL, spiral, WHEEL_DOCK } from './nav-motion';
 import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
- * Floating section navigation (spec §6 FloatingNav, Q26). A round button bottom-right shows
- * the current section's icon; it opens an arc of destinations over a blurred curtain.
- * Appears once the hero is past; sticky, parking above the footer rule.
+ * Floating section navigation (spec §6 FloatingNav, Q26). A round button (bottom right, or
+ * bottom centre) shows the current section's icon; it opens an arc of destinations, or a
+ * full wheel round the screen's centre, over a blurred curtain (Settings, ADMIN-DESIGN-SPEC
+ * §8.9). Appears once the hero is past; sticky, parking above the footer rule.
  *
  * Geometry is pure CSS: each item is rotate(θ) translateX(var(--r)) rotate(-θ), with
- * --r = 250px narrow / 334px wide via the page container query. Phase 4 animates it.
+ * --r = 250px narrow / 334px wide via the page container query (the wheel: 150px at every
+ * width). Phase 4 animates it.
  */
-export function FloatingNav({ sections }: { sections: NavSection[] }) {
+export function FloatingNav({
+  sections,
+  position = 'right',
+  layout = 'arc',
+}: {
+  sections: NavSection[];
+  position?: NavPosition;
+  layout?: MenuLayout;
+}) {
   const { active, pastHero } = useSectionSpy(sections.map((s) => s.id));
 
   // The URL follows the section being read, so a reload returns there (owner revision).
@@ -54,7 +53,9 @@ export function FloatingNav({ sections }: { sections: NavSection[] }) {
   const menuId = useId();
   const fabRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLElement>(null);
-  const angles = arcAngles(sections.length);
+  const angles = navAngles(sections.length, position, layout);
+  const right = position === 'right';
+  const wheel = layout === 'wheel';
   // A tapped destination is the selection from the tap on (the old one unfills at once), until
   // the section spy catches up after the jump; then the spy leads again.
   const [picked, setPicked] = useState<string | null>(null);
@@ -62,29 +63,7 @@ export function FloatingNav({ sections }: { sections: NavSection[] }) {
   const current = sections.find((s) => s.id === (picked ?? active)) ?? sections[0];
   const shown = pastHero || open;
   const reducedMotion = useReducedMotion();
-  const n = sections.length;
-  const closeTotal = 1.02 + (n - 1) * 0.07;
-
-  /**
-   * The spiral (spec §5.3): each item rides a rotating arm from the button to its place on
-   * the arc: rotate(θ + 200° → θ), arm length 0 → r, counter-rotated so the icon stays
-   * upright, scaling .35 → 1. It opens on a soft overshoot-free curve with a 62ms stagger,
-   * and unwinds in reverse order on close. Reduced motion: items fade in place.
-   */
-  function spiral(th: number, i: number): CSSProperties {
-    const place = `rotate(${th}deg) translateX(var(--r)) rotate(${-th}deg) scale(1)`;
-    const tucked = `rotate(${th + 200}deg) translateX(0px) rotate(${-(th + 200)}deg) scale(.35)`;
-    const delay = open ? i * 0.062 : (n - 1 - i) * 0.07;
-    return {
-      transform: open || reducedMotion ? place : tucked,
-      opacity: open ? 1 : 0,
-      transition: reducedMotion
-        ? 'opacity .3s ease'
-        : open
-          ? `transform .82s var(--ease-spiral-out) ${delay}s, opacity .34s ease ${delay}s`
-          : `transform 1.02s var(--ease-spiral-in) ${delay}s, opacity .5s ease ${delay}s`,
-    };
-  }
+  const closeTotal = closeDuration(sections.length);
 
   // Escape closes; focus returns to the button that opened the menu.
   useEffect(() => {
@@ -136,8 +115,15 @@ export function FloatingNav({ sections }: { sections: NavSection[] }) {
         className={`fixed inset-0 z-55 bg-scrim-nav backdrop-blur-[14px] [transition:opacity_.5s_ease,visibility_0s_linear_var(--vis-delay)] ${open ? '[--vis-delay:0s]' : 'pointer-events-none invisible opacity-0 [--vis-delay:.5s]'}`}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[calc(var(--spacing-float)+114px)] z-60 flex flex-col items-end justify-end pr-float">
-        <div className="pointer-events-auto sticky bottom-float size-14.5" onKeyDown={trapTab}>
+      <div
+        className={`pointer-events-none absolute inset-x-0 top-0 z-60 flex flex-col justify-end ${right ? 'bottom-[calc(var(--spacing-float)+114px)] items-end pr-float' : 'bottom-[calc(var(--spacing-float)+30px)] items-center'}`}
+      >
+        <div
+          className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
+          // The wheel opens round the screen's centre: the dock slides there (spec §5.3).
+          style={wheel && open ? { transform: WHEEL_DOCK[position] } : undefined}
+          onKeyDown={trapTab}
+        >
           <nav
             id={menuId}
             ref={menuRef}
@@ -145,7 +131,7 @@ export function FloatingNav({ sections }: { sections: NavSection[] }) {
             inert={!open}
             // Stay visible until the last item has unwound, then hide.
             style={{ transition: `visibility 0s linear ${open ? 0 : closeTotal}s` }}
-            className={`[--r:250px] @wide/page:[--r:334px] ${open ? '' : 'invisible'}`}
+            className={`${wheel ? '[--r:150px]' : '[--r:250px] @wide/page:[--r:334px]'} ${open ? '' : 'invisible'}`}
           >
             <ul>
               {sections.map((section, i) => {
@@ -156,7 +142,7 @@ export function FloatingNav({ sections }: { sections: NavSection[] }) {
                 return (
                   <li
                     key={section.id}
-                    style={spiral(angles[i], i)}
+                    style={spiral(angles[i], i, sections.length, open, reducedMotion)}
                     className="absolute top-1/2 left-1/2 -mt-5.5 -ml-5.5 size-11"
                   >
                     <a

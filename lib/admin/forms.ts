@@ -7,6 +7,7 @@ import type {
   Project,
   ProjectKind,
   Quote,
+  Settings,
   SkillGroup,
   SocialLink,
 } from '@/lib/domain/types';
@@ -117,6 +118,21 @@ export function applySingle(slug: 'hero' | 'about' | 'contact', p: Profile, d: D
 
 export const socialUrls = (d: Draft) =>
   Object.fromEntries(SOCIAL_IDS.map((id) => [id, str(d, id)]));
+
+/** Settings (§8.9): the range edits the grain as text, the store keeps a number. */
+export const settingsDraft = (s: Settings): Draft => ({
+  accent: s.accent,
+  grain: String(s.grain),
+  navPosition: s.navPosition,
+  menuLayout: s.menuLayout,
+});
+
+export const settingsValues = (d: Draft): Settings => ({
+  accent: d.accent as Settings['accent'],
+  grain: Number(str(d, 'grain')),
+  navPosition: d.navPosition as Settings['navPosition'],
+  menuLayout: d.menuLayout as Settings['menuLayout'],
+});
 
 // ── Collections ───────────────────────────────────────────────────────────────────────────
 

@@ -54,6 +54,7 @@ export function Field({
   if (field.type === 'markdown' && typeof value === 'string') {
     aside = `${countWords(value)} words · ${estimateReadMinutes(value)} min`;
   }
+  if (field.type === 'range') aside = `${String(value)}${field.unit ?? ''}`; // not a length
   const labelId = `${id}-label`;
 
   return (
@@ -126,6 +127,19 @@ export function Field({
           kind={field.type}
           value={value as ImageValue | string | null}
           onChange={onChange}
+        />
+      )}
+      {field.type === 'range' && (
+        <input
+          {...control}
+          type="range"
+          min={field.min}
+          max={field.max}
+          step={field.step}
+          value={String(value)}
+          aria-valuetext={`${String(value)}${field.unit ?? ''}`}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-8 w-full cursor-pointer accent-accent-fill"
         />
       )}
       {field.type === 'tags' && (

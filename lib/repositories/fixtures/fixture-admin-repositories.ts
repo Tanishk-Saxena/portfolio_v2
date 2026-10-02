@@ -106,6 +106,14 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
         return stamp('profile', data.profile);
       },
     },
+    settings: {
+      get: async () => stamp('settings', data.settings),
+      update: async (settings) => {
+        data.settings = copy(settings);
+        touch('settings');
+        return stamp('settings', data.settings);
+      },
+    },
     socialLinks: {
       list: async () => copy(data.socialLinks).sort(bySortOrder),
       setUrls: async (urls) => {

@@ -1,7 +1,10 @@
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { defaultDataset } from '@/lib/repositories/fixtures/data';
 import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
 import { createFixtureRepositories } from '@/lib/repositories/fixtures/fixture-repositories';
+import { ACCENT_BASE } from './og/accent';
 import { resolveSiteUrl } from './site';
 import { personJsonLd, profilePageJsonLd, serializeJsonLd } from './structured-data';
 
@@ -43,5 +46,14 @@ describe('seo', () => {
 
   it('JSON-LD cannot close its script tag', () => {
     expect(serializeJsonLd({ name: '</script><script>alert(1)</script>' })).not.toContain('<');
+  });
+
+  it('share cards and icons use the same accent colours as the site', async () => {
+    // next/og can't read CSS, so lib/og keeps its own copy of each accent's base.
+    const css = await readFile(join(process.cwd(), 'styles/tokens.css'), 'utf8');
+    const base = (block: RegExp) =>
+      block.exec(css)?.[1]?.match(/--accent-base:\s*(#[0-9a-f]{6})/i)?.[1];
+    expect(base(/:root,\s*\[data-theme='light'\]\s*\{([^}]*)\}/)).toBe(ACCENT_BASE.terracotta);
+    expect(base(/\[data-accent='slate'\]\s*\{([^}]*)\}/)).toBe(ACCENT_BASE.slate);
   });
 });

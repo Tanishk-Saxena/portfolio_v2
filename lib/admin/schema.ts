@@ -94,6 +94,13 @@ function fieldError(field: FieldDef, value: DraftValue): string | undefined {
     case 'pdf':
       // A full address, or a file the site itself serves (the shipped placeholder).
       return URL_RE.test(text) || text.startsWith('/') ? undefined : 'Upload the PDF again.';
+    case 'range': {
+      const [min, max, step] = [field.min ?? 0, field.max ?? 100, field.step ?? 1];
+      const n = Number(text);
+      const onStep =
+        Number.isFinite(n) && Math.abs((n - min) / step - Math.round((n - min) / step)) < 1e-9;
+      return onStep && n >= min && n <= max ? undefined : `Choose a value from ${min} to ${max}.`;
+    }
   }
   return undefined;
 }

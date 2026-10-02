@@ -6,14 +6,17 @@ import {
   type ArticleRow,
   fromExperience,
   fromProfile,
+  fromSettings,
   fromProject,
   fromQuote,
   fromSkillGroup,
   type ProfileRow,
+  type SettingsRow,
   type SocialLinkRow,
   toArticleRecord,
   toExperience,
   toProfile,
+  toSettings,
   toProject,
   toQuote,
   toSkillGroup,
@@ -171,6 +174,7 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
   }
 
   const profileSelect = `${COLUMNS.profile}, updated_at`;
+  const settingsSelect = `${COLUMNS.settings}, updated_at`;
 
   return {
     profile: {
@@ -190,6 +194,25 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
             .single(),
         );
         return stamped(toProfile(row), row);
+      },
+    },
+    settings: {
+      get: async () => {
+        const row = rows<WithStamp<SettingsRow>>(
+          await db.from('settings').select(settingsSelect).single(),
+        );
+        return stamped(toSettings(row), row);
+      },
+      update: async (settings) => {
+        const row = written<WithStamp<SettingsRow>>(
+          await db
+            .from('settings')
+            .update(fromSettings(settings))
+            .eq('id', true)
+            .select(settingsSelect)
+            .single(),
+        );
+        return stamped(toSettings(row), row);
       },
     },
     socialLinks: {
