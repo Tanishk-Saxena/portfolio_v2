@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8 built (8.1–8.5, PRs #22–#26) · next: Phase 9.1 — Lighthouse CI, then the UI review and features; alongside, Phase 8 verification (owner tests the admin and enters real content on a phone; admin axe pass; every Settings combination). Phase 10, the final audit, is last
+**Now:** Phase 9.1 (Lighthouse CI) complete · next: Phase 9 — the UI review and features (owner's gaps, optional features); alongside, Phase 8 verification (owner tests the admin and enters real content on a phone; admin axe pass; every Settings combination). Phase 10, the final audit, is last
 
 ---
 
@@ -484,8 +484,7 @@ in 10 files; live 9. A production build serves `/favicon.ico` (200, PNG).
       unchecked. Check on a Vercel preview, which reads the dev project.
 
 **What's left after Phase 8 (2026-10-02, owner's order, brief §6):**
-1. Phase 9.1, Lighthouse CI as an amber reading on every PR (small; first, so the UI work
-   shows its scores as it lands).
+1. ~~Phase 9.1, Lighthouse CI as an amber reading on every PR~~ — done (Phase 9 below).
 2. Phase 9, the UI review: the owner's gaps from testing, plus whichever optional features
    they pick (RSS blog, `/uses`, signature intro, drag-to-reorder, draft preview, heat map).
 3. Phase 10, the final audit, last: Lighthouse on the live site and the admin, fix what
@@ -495,6 +494,31 @@ Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt droppe
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
 the owner (§13): articles keep an External URL field (Q-A12); Name/Location on Hero and
 Footer note on Contact (Q-A8).
+
+---
+
+## Phase 9 — UI review and features
+
+Order (owner, 2026-10-02; brief §6): Lighthouse CI first, then the UI review and features;
+Phase 10, the final audit, last.
+
+| Step | Branch | Scope | Status |
+|---|---|---|---|
+| 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | ✅ |
+| 9.x | — | The owner's UI gaps from testing; the optional features they pick | next |
+
+**9.1 notes.** `@lhci/cli` with `lighthouserc.cjs`: the production build (`next start`),
+home, `/articles/second-render` (the fixture article with a full body) and `/admin/sign-in`
+(CI can't sign in), three runs each (the median counts), mobile then desktop.
+`npm run lighthouse` runs it all and `scripts/lighthouse-summary.mjs` writes the scores
+table and a `::warning::` per page under budget (performance ≥ 95, accessibility 100). CI:
+a separate `lighthouse` job beside `check`, so it neither slows nor gates the required
+check; the step is `continue-on-error`; the table goes to the run's Summary page and a
+pinned PR comment; the full reports are the `lighthouse-reports` artifact (7 days).
+First reading (local, median of 3), in `docs/PERFORMANCE.md`: mobile performance 80 / 85 /
+90 (home / article / sign-in, LCP 3.3–3.9 s: P-1), desktop 99 / 99 / 100; accessibility 100
+everywhere; best practices 96 everywhere; sign-in SEO 63 (expected: `noindex`). So this PR
+already shows the amber warning while CI stays green, which is 9.1's verification.
 
 ---
 

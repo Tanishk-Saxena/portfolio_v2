@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), Phases 8.1–8.5 are built (the admin shell; editing and saving every section, including Projects and Writing with Markdown and uploads; list actions: toggles, reorder, duplicate, delete + Undo, 409; Settings switching the site's accent, grain, nav button position and menu layout). Next is Phase 9 (owner's order, brief §6): 9.1 Lighthouse CI as an amber reading, then the UI review (the owner's gaps plus the optional features they pick), with Phase 8 verification alongside (the owner's test of the admin and their real content, entered on a phone; an axe pass on the admin; every Settings combination). Phase 10, the final audit, is last. Check `docs/PROGRESS.md` for the current phase and step before starting work.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), Phases 8.1–8.5 are built (the admin shell; editing and saving every section, including Projects and Writing with Markdown and uploads; list actions: toggles, reorder, duplicate, delete + Undo, 409; Settings switching the site's accent, grain, nav button position and menu layout). Phase 9.1 (Lighthouse CI as an amber reading) is done. Next is the rest of Phase 9 (owner's order, brief §6): the UI review (the owner's gaps plus the optional features they pick), with Phase 8 verification alongside (the owner's test of the admin and their real content, entered on a phone; an axe pass on the admin; every Settings combination). Phase 10, the final audit, is last. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -33,9 +33,10 @@ npm run test          # unit tests (offline, ~8 s); single file: npx vitest run 
 npm run test:live     # the dev Supabase project: contract, RLS, auth (needs .env.local; run when DB/auth changes)
 npm run check         # lint + typecheck + format:check + test
 npm run test:e2e      # Playwright critical paths (e2e/) against `next start`; run `npm run build` first
+npm run lighthouse    # after a build: Lighthouse CI on home, article, sign-in; mobile + desktop (a reading)
 ```
 
-CI (`.github/workflows/ci.yml`) runs the same checks plus `build` on every PR and push to `main`.
+CI (`.github/workflows/ci.yml`) runs the same checks plus `build` on every PR and push to `main`. A separate `lighthouse` job (never required, never red) pins Lighthouse scores to the PR and warns under budget.
 
 Data source: `DATA_SOURCE=fixtures` (default, shipped content) · `fixtures-stress` (awkward content, used for layout checks) · `supabase` (dev project keys in `.env.local`, see `docs/SUPABASE.md`). Set in `.env.local` or inline: `DATA_SOURCE=fixtures-stress npm run dev`. Pages get data from `getRepositories()` in `lib/container.ts`, never from `lib/repositories/**` (ESLint enforces this). The admin reads through `getAdminRepositories()` (same `DATA_SOURCE`, hidden rows included; over Supabase it runs as the signed-in admin, per request, via `loadAdminContent()` in `lib/admin/content.ts`). So with the default fixtures, the admin lists show fixtures even when signed in, and its saves change a per-process working copy of them (lost on restart); use `DATA_SOURCE=supabase` to edit the dev database.
 
