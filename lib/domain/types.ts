@@ -99,6 +99,12 @@ export interface AdminArticleSummary extends ArticleSummary {
   id: string;
 }
 
+/** A record as the admin holds it: when it was last saved (`null` = never, or unknown). */
+export type Stamped<T> = T & { updatedAt: string | null };
+
+/** What the admin writes for a collection entry: everything but the id and the position. */
+export type EntryValues<T> = Omit<T, 'id' | 'sortOrder'>;
+
 export interface Article extends ArticleSummary {
   /** Markdown. `null` when the article only lives at `externalUrl`. */
   body: string | null;

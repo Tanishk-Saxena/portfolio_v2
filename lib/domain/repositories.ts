@@ -9,6 +9,8 @@ import type {
   Settings,
   SkillGroup,
   SocialLink,
+  Stamped,
+  EntryValues,
 } from './types';
 
 /*
@@ -71,14 +73,35 @@ export interface Repositories {
 }
 
 /**
- * The admin's reads (ADMIN-DESIGN-SPEC §7.1): every collection with its hidden rows (hidden
- * projects, drafts, skipped quotes), soft-deleted rows excluded, in the same order as above.
- * Over Supabase these run as the signed-in admin, so RLS is what lets the hidden rows through.
+ * An owner-ordered collection as the admin sees it: every entry, hidden ones included, in
+ * `sortOrder`. `create` appends at the end; `update` returns null when no live entry has
+ * that id.
+ */
+export interface AdminCollection<T extends { id: string; sortOrder: number }> {
+  list(): Promise<Stamped<T>[]>;
+  create(values: EntryValues<T>): Promise<Stamped<T>>;
+  update(id: string, values: EntryValues<T>): Promise<Stamped<T> | null>;
+}
+
+/**
+ * The admin's reads and writes (ADMIN-DESIGN-SPEC §7–§9): every collection with its hidden
+ * rows (hidden projects, drafts, skipped quotes), soft-deleted rows excluded, in the same
+ * order as above. Over Supabase these run as the signed-in admin, so RLS is what lets the
+ * hidden rows through and the writes in.
  */
 export interface AdminRepositories {
-  experience: ExperienceRepository;
-  projects: ProjectRepository;
+  profile: {
+    get(): Promise<Stamped<Profile>>;
+    update(profile: Profile): Promise<Stamped<Profile>>;
+  };
+  /** All four fixed links, empty URLs included (an empty URL hides the link, Q-A10). */
+  socialLinks: {
+    list(): Promise<SocialLink[]>;
+    setUrls(urls: Record<string, string>): Promise<void>;
+  };
+  experience: AdminCollection<Experience>;
+  projects: AdminCollection<Project>;
   articles: { list(): Promise<AdminArticleSummary[]> };
-  skills: SkillRepository;
-  quotes: QuoteRepository;
+  skills: AdminCollection<SkillGroup>;
+  quotes: AdminCollection<Quote>;
 }

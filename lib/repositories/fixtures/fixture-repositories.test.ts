@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { checkAdminRepositories, runRepositoryContract } from '../repository-contract';
+import {
+  checkAdminRepositories,
+  checkAdminWrites,
+  runRepositoryContract,
+} from '../repository-contract';
 import { defaultDataset } from './data';
 import { stressDataset } from './data/stress';
-import { createFixtureAdminRepositories, createFixtureRepositories } from './fixture-repositories';
+import { createFixtureAdminRepositories } from './fixture-admin-repositories';
+import { createFixtureRepositories } from './fixture-repositories';
 
 runRepositoryContract('fixtures (default)', () => createFixtureRepositories(defaultDataset));
 runRepositoryContract('fixtures (stress)', () => createFixtureRepositories(stressDataset));
@@ -40,5 +45,12 @@ describe('stress dataset', () => {
     expect(admin.articles.find((a) => a.slug === 'draft-only')?.status).toBe('draft');
     const shipped = createFixtureAdminRepositories(defaultDataset);
     await checkAdminRepositories(shipped, createFixtureRepositories(defaultDataset));
+  });
+
+  it('the admin writes: on a copy of the data, which the site then reads', async () => {
+    const data = structuredClone(stressDataset);
+    const id = await checkAdminWrites(createFixtureAdminRepositories(data), 'tag');
+    expect(data.quotes.find((q) => q.id === id)?.text).toBe('Edited.');
+    expect(stressDataset.quotes.some((q) => q.id === id)).toBe(false);
   });
 });

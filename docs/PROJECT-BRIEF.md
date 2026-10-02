@@ -151,10 +151,12 @@ lib/
   repositories/
     fixtures/
       fixture-repositories.ts     // in-memory implementation (Phase 2)
+      fixture-admin-repositories.ts // the admin's reads and writes over fixtures (Phase 8)
       ...
       data/                       // the shipped content, the stress set
     supabase/
       supabase-repositories.ts    // the database implementation (Phase 6)
+      supabase-admin-repositories.ts // the admin's, run as the signed-in admin (Phase 8)
       rows.ts, seed.ts, client.ts // row mapping, seed generation, the client
       ...
   container.ts                    // composition root: picks the implementation

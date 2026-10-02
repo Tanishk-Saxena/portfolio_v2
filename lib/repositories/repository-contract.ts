@@ -103,7 +103,7 @@ export async function checkAdminRepositories(admin: AdminRepositories, site: Rep
     admin.experience.list(),
     admin.projects.list(),
     admin.articles.list(),
-    admin.skills.listGroups(),
+    admin.skills.list(),
     admin.quotes.list(),
   ]);
   for (const list of [experience, projects, skills, quotes]) {
@@ -126,4 +126,38 @@ export async function checkAdminRepositories(admin: AdminRepositories, site: Rep
   );
   expect(ids(quotes, (q) => q.id)).toEqual(expect.arrayContaining(ids(siteQuotes, (q) => q.id)));
   return { experience, projects, articles, skills, quotes };
+}
+
+/**
+ * The admin's writes: a created entry joins the end of its list, an edit changes it, an
+ * unknown id is null, and the single records save unchanged values back. Creates one quote
+ * whose author is `tag` (the live run deletes it after).
+ */
+export async function checkAdminWrites(admin: AdminRepositories, tag: string) {
+  const before = await admin.quotes.list();
+  const created = await admin.quotes.create({ text: 'Planted.', author: tag, active: false });
+  expect(created.updatedAt).not.toBeNull();
+  const after = await admin.quotes.list();
+  expect(after.at(-1)?.id).toBe(created.id);
+  expect(created.sortOrder).toBeGreaterThan(Math.max(0, ...before.map((q) => q.sortOrder)));
+
+  const edited = await admin.quotes.update(created.id, {
+    text: 'Edited.',
+    author: tag,
+    active: false,
+  });
+  expect(edited).toMatchObject({ id: created.id, text: 'Edited.', sortOrder: created.sortOrder });
+  expect(
+    await admin.quotes.update('__no-such-entry__', { text: 'x', author: tag, active: false }),
+  ).toBeNull();
+
+  const { updatedAt: _stamp, ...profile } = await admin.profile.get();
+  const { updatedAt, ...saved } = await admin.profile.update(profile);
+  expect(saved).toEqual(profile);
+  expect(updatedAt).not.toBeNull();
+
+  const links = await admin.socialLinks.list();
+  await admin.socialLinks.setUrls(Object.fromEntries(links.map((l) => [l.id, l.url])));
+  expect(await admin.socialLinks.list()).toEqual(links);
+  return created.id;
 }

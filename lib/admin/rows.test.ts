@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
-import { createFixtureAdminRepositories } from '@/lib/repositories/fixtures/fixture-repositories';
+import { createFixtureAdminRepositories } from '@/lib/repositories/fixtures/fixture-admin-repositories';
 import { type AdminContent, countLine, filterRows, toRows } from './rows';
 import { findSection, SECTIONS, sectionFromPath } from './sections';
 
@@ -10,7 +10,7 @@ async function content(): Promise<AdminContent> {
     r.experience.list(),
     r.projects.list(),
     r.articles.list(),
-    r.skills.listGroups(),
+    r.skills.list(),
     r.quotes.list(),
   ]);
   return { experience, projects, writing, skills, quotes };

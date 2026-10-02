@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { AdminSidebar } from '@/components/admin/admin-sidebar';
+import { ConfirmHost } from '@/components/admin/confirm-dialog';
 import { SectionsSheet } from '@/components/admin/sections-sheet';
+import { ToastHost } from '@/components/admin/toast';
 import { countsOf, loadAdminContent } from '@/lib/admin/content';
 import { SIGN_IN_PATH } from '@/lib/auth/gate';
 import { getAdmin } from '@/lib/auth/server';
@@ -21,6 +23,8 @@ export default async function SignedInLayout({ children }: LayoutProps<'/admin'>
       <AdminSidebar counts={counts} />
       <main className="flex min-w-0 flex-1 flex-col">{children}</main>
       <SectionsSheet counts={counts} />
+      <ConfirmHost />
+      <ToastHost />
     </div>
   );
 }

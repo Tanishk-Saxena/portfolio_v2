@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { GuardedLink } from './guarded-link';
 import { usePathname } from 'next/navigation';
 import {
   adminHref,
@@ -53,7 +53,7 @@ export function AdminNav({
           {items.map((slug) => {
             const section = SECTIONS[slug];
             return (
-              <Link
+              <GuardedLink
                 key={slug}
                 href={adminHref(slug)}
                 aria-current={slug === current ? 'page' : undefined}
@@ -65,7 +65,7 @@ export function AdminNav({
                 {section.kind === 'collection' && (
                   <span className={COUNT[variant]}>{counts[section.slug]}</span>
                 )}
-              </Link>
+              </GuardedLink>
             );
           })}
         </div>

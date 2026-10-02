@@ -2,15 +2,12 @@ import { createAuthClient } from '@/lib/auth/server';
 import type { AdminRepositories, Repositories } from '@/lib/domain/repositories';
 import { defaultDataset } from '@/lib/repositories/fixtures/data';
 import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
-import {
-  createFixtureAdminRepositories,
-  createFixtureRepositories,
-} from '@/lib/repositories/fixtures/fixture-repositories';
+import type { FixtureDataset } from '@/lib/repositories/fixtures/dataset';
+import { createFixtureAdminRepositories } from '@/lib/repositories/fixtures/fixture-admin-repositories';
+import { createFixtureRepositories } from '@/lib/repositories/fixtures/fixture-repositories';
 import { createPublicClient } from '@/lib/repositories/supabase/client';
-import {
-  createSupabaseAdminRepositories,
-  createSupabaseRepositories,
-} from '@/lib/repositories/supabase/supabase-repositories';
+import { createSupabaseAdminRepositories } from '@/lib/repositories/supabase/supabase-admin-repositories';
+import { createSupabaseRepositories } from '@/lib/repositories/supabase/supabase-repositories';
 
 /*
  * Composition root — the one place that decides where data comes from (brief §4).
@@ -29,12 +26,25 @@ export function resolveDataSource(value = process.env.DATA_SOURCE): DataSource {
   throw new Error(`Unknown DATA_SOURCE "${value}"`);
 }
 
+/**
+ * One working copy of each fixture set per process, shared through `globalThis`: Next gives
+ * pages and route handlers separate module instances, and the admin's saves (route handlers)
+ * must be what the pages read. Edits last until the server restarts; the shipped data is
+ * never touched.
+ */
+function fixtures(source: 'fixtures' | 'fixtures-stress'): FixtureDataset {
+  const shared = globalThis as { __fixtureData?: Partial<Record<string, FixtureDataset>> };
+  shared.__fixtureData ??= {};
+  return (shared.__fixtureData[source] ??= structuredClone(
+    source === 'fixtures' ? defaultDataset : stressDataset,
+  ));
+}
+
 export function createRepositories(source: DataSource = resolveDataSource()): Repositories {
   switch (source) {
     case 'fixtures':
-      return createFixtureRepositories(defaultDataset);
     case 'fixtures-stress':
-      return createFixtureRepositories(stressDataset);
+      return createFixtureRepositories(fixtures(source));
     case 'supabase':
       return createSupabaseRepositories(createPublicClient());
   }
@@ -59,9 +69,8 @@ export async function getAdminRepositories(
 ): Promise<AdminRepositories> {
   switch (source) {
     case 'fixtures':
-      return createFixtureAdminRepositories(defaultDataset);
     case 'fixtures-stress':
-      return createFixtureAdminRepositories(stressDataset);
+      return createFixtureAdminRepositories(fixtures(source));
     case 'supabase': {
       const db = await createAuthClient();
       if (!db) throw new Error('DATA_SOURCE=supabase needs the Supabase keys for the admin');
