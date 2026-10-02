@@ -1,9 +1,12 @@
 import { randomUUID } from 'node:crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { runRepositoryContract } from '../repository-contract';
+import { checkAdminRepositories, runRepositoryContract } from '../repository-contract';
 import { createPublicClient } from './client';
-import { createSupabaseRepositories } from './supabase-repositories';
+import {
+  createSupabaseAdminRepositories,
+  createSupabaseRepositories,
+} from './supabase-repositories';
 
 /*
  * Everything that needs the real dev project in .env.local, in one file so the network
@@ -103,6 +106,15 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
       expect((await site.projects.list()).map((p) => p.id)).not.toContain(tag);
       expect((await site.quotes.list()).map((q) => q.id)).not.toContain(tag);
       expect(await site.articles.getBySlug(tag)).toBeNull();
+
+      // The signed-in admin reads them all (RLS lets the hidden rows through).
+      const admin = await checkAdminRepositories(
+        createSupabaseAdminRepositories(await signedIn(accounts.admin)),
+        site,
+      );
+      expect(admin.projects.map((p) => p.id)).toContain(tag);
+      expect(admin.quotes.map((q) => q.id)).toContain(tag);
+      expect(admin.articles.find((a) => a.slug === tag)?.status).toBe('draft');
 
       // Published but soft-deleted is hidden too, and anon sees nothing even unfiltered.
       await service

@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 7 and the test consolidation complete · next: Phase 8.1 — admin shell (`feat/phase-8-shell`)
+**Now:** Phase 8.1 (admin shell and lists) complete · next: Phase 8.2 — editor and saving (`feat/phase-8-editor`)
 
 ---
 
@@ -252,7 +252,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 6.1 | `feat/phase-6-model` | Content model v2 on fixtures: `published`, `status`, `active`, `listen`, `ctaLabel`, nullable read time, `settings`; experience by `sortOrder`; the site honours them | ✅ PR #13 |
 | 6.2 | `feat/phase-6-supabase` | Supabase dev + prod, migrations, RLS, seed from fixtures, Storage buckets; Supabase repositories with the contract suite on both; production switched over with on-demand revalidation | ✅ PR #14 + #15 (switch-over) |
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | ✅ PR #17 |
-| 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | |
+| 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | ✅ |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | |
 | 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | |
@@ -298,13 +298,13 @@ the production deploy that starts reading Supabase.
 **7 notes.** `@supabase/ssr` cookie sessions. `proxy.ts` (matcher `/admin/:path*`,
 `/api/admin/:path*`) refreshes the session and verifies the JWT (`getClaims`); signed out,
 pages redirect to `/admin/sign-in` and the API answers 401 (`lib/auth/gate.ts`, unit tested).
-Pages and handlers check again with `getAdmin()` (`getUser` + the `is_admin()` RPC,
-`lib/auth/server.ts`): the `app/admin/(signed-in)` layout and `/api/admin/session` (the
+Pages and handlers check again with `getAdmin()` (`getUser`, `getClaims` since 8.1, + the
+`is_admin()` RPC, `lib/auth/server.ts`): the `app/admin/(signed-in)` layout and `/api/admin/session` (the
 pattern for 8.2's handlers). Sign-in is a Server Action (works before hydration): the mockup's
 empty-field message, Q-A18 for a wrong password, and a valid non-admin account is signed back
 out with the same message, so the form never reveals which accounts exist. Sign-out ends this
-device's session only. `/admin` is a temporary landing (session, theme toggle, View site, Sign
-out) until 8.1 redirects it to Writing. Theme: one pre-paint script picks `admin-theme` under
+device's session only. `/admin` was a temporary landing (session, theme toggle, View site, Sign
+out) until 8.1 redirected it to Writing. Theme: one pre-paint script picks `admin-theme` under
 `/admin`, `theme` elsewhere (Q-A7); the admin toggle names the mode it switches to. Tokens
 `--field`, `--line`, `--line-input`, `--paper-fade-strong` added now (the sign-in needs
 them). Auth uses the Supabase keys whatever `DATA_SOURCE` says; with none (CI) the admin
@@ -316,6 +316,41 @@ submit shows the message, `/api/admin/session` 401. Checked by hand on a build a
 its own key and the site's untouched, sign-in bounces a signed-in admin to `/admin`, sign-out
 → sign-in and the API back to 401. Owner added the admin account in dev and prod (2026-10-02). Flagged: the live Supabase contract suite timed out once
 (1 of 4 runs) when run alongside the new live auth suite; network-bound, not reproduced.
+
+**8.1 notes.** The shell (ADMIN-DESIGN-SPEC §4–§7.1): the sidebar when wide; on phones a
+sticky header and the Sections sheet, a native modal `<dialog>` (the browser traps focus,
+closes it on Escape and returns focus to the trigger, §12). Routes as Q-A5: `/admin` →
+Writing, `/admin/[section]` (a list, or a single record), `/admin/[section]/[id]` (an entry,
+or `new`); unknown sections and ids 404. Lists: title, count line, View on site, + New, search
+as you type, the status filters, rows (meta on the right when wide, under the title on
+phones), both empty states, and the 4-group cap on Skills (Q-A22). Read-only: status pills
+display only (quick toggles, reorder: 8.3); single records and entries show the real editor
+bar over a temporary "editor arrives in 8.2" body. Admin tokens in `app/globals.css`;
+visible scrollbars under `[data-admin]`. Section registry, row mapping and search/filter:
+`lib/admin/` (rows reuse the site's date and kind formatters).
+
+Data: `AdminRepositories` (`lib/domain/repositories.ts`), every collection with its hidden
+rows, deleted rows excluded, same order as the site. Fixtures and Supabase implement it; over
+Supabase it runs as the signed-in admin, so RLS is what lets hidden rows through. Articles
+carry their id (uuid in the database, the slug over fixtures). `getAdminRepositories()`
+follows `DATA_SOURCE` like the site (so `fixtures-stress` checks the admin's layouts);
+`loadAdminContent()` reads all five lists once per request, for the nav counts and the page.
+Tests: rows/filters/routes (`lib/admin/rows.test.ts`); admin reads ⊇ public reads in order,
+on both fixture sets and live, where the signed-in admin sees the planted hidden rows. Unit
+37 tests in 8 files; live 8. No signed-in e2e: CI has no Supabase keys, so the admin stays
+locked there (the locked journey is unchanged).
+
+Speed (owner: pages slow on desktop): each call to the dev project is ≈ 300 ms from here, and
+the layout made three in a row. `getAdmin()` now verifies the token locally (`getClaims`, as
+the proxy does) instead of asking Auth (`getUser`), and the allowlist check runs alongside the
+list reads (RLS still decides what they return; nothing renders unless the check passes).
+Warm admin pages 1.4 s → ≈ 450 ms in dev. Trade-off: a session signed out on another device
+stays valid here until its token expires (≈ 1 h); every read and write is still checked by
+RLS against the allowlist.
+
+Flagged (site, not changed here): this Node's ICU formats September as "Sept" in `en-GB`, so
+the Writing list shows "Sept 2026" where the mockup has "Sep". The admin uses the same
+formatter, so both agree. A fixed month table would pin it; owner's call.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for

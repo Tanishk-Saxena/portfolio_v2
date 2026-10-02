@@ -104,7 +104,7 @@ The admin uses the site's tokens unchanged, plus two admin-only tokens [AH]:
 | Editor title | Newsreader 400 | `clamp(26px,3.2vw,34px)` / 1.15 | |
 | Breadcrumb | Plex | 14px; current item 500 | |
 | Field label | Plex 500 | 13px, `.01em` | Required mark `*` in accent |
-| Input text | Plex | **16px** everywhere (no iOS zoom) | Search is 14px |
+| Input text | Plex | **16px** everywhere (no iOS zoom) | Search is 14px when wide, 16px on phones **[ASSUMED]** (Q-A21) |
 | Hint / error | Plex | 12.5px / 1.5; error 500 in accent | |
 | Markdown preview | Newsreader h3 24/1.25; quote 20/1.5 with 2px accent rule; Plex p 16/1.8 muted | | Approximates the article page |
 | Confirm title | Newsreader 400 | 23px / 1.25 | Body 14.5/1.6 muted |
@@ -494,7 +494,9 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A17 | 5 MB image / 10 MB PDF; no storage cleanup yet | Ample for a portrait, cover or CV |
 | Q-A18 | Wrong-credentials copy | Not in the mockup |
 | Q-A19 | An empty secondary-button label hides the hero's second button | Same rule as social links (Q-A10): empty = hidden, never an empty pill |
-| Q-A20 | Sign-in: "Signing in…" on the button while the request runs; "Could not sign in right now. Try again in a moment." when Auth fails or is rate-limited; a valid account that isn't on the allowlist gets the wrong-credentials copy (Q-A18); inputs at 16px (§3) rather than §4.3's 15px; `/admin` is a plain landing until 8.1 | Not in the mockup. One message for both refusals reveals nothing about which accounts exist; 16px stops iOS zooming |
+| Q-A20 | Sign-in: "Signing in…" on the button while the request runs; "Could not sign in right now. Try again in a moment." when Auth fails or is rate-limited; a valid account that isn't on the allowlist gets the wrong-credentials copy (Q-A18); inputs at 16px (§3) rather than §4.3's 15px; `/admin` was a plain landing until 8.1, which made it redirect to Writing (Q-A5) | Not in the mockup. One message for both refusals reveals nothing about which accounts exist; 16px stops iOS zooming |
+| Q-A21 | List search at 16px on phones, 14px when wide | §3's 14px search would make iOS zoom the page on focus, which §3 rules out for every other input |
+| Q-A22 | Skills at 4 groups: **New group** is a disabled button at 45% opacity, like the editor's clean **Discard** | The mockup disables New with no visual change; the faded state reuses its own convention |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no

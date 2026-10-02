@@ -14,9 +14,15 @@ function subscribe(onChange: () => void) {
 
 /**
  * `site`: a pressed-state button named "Dark mode". `admin`: names the mode it switches to,
- * on the admin's outline (ADMIN-DESIGN-SPEC §5).
+ * on the admin's outline (ADMIN-DESIGN-SPEC §5); `small` is the sidebar's 40px circle.
  */
-export function ThemeToggle({ variant = 'site' }: { variant?: 'site' | 'admin' }) {
+export function ThemeToggle({
+  variant = 'site',
+  small = false,
+}: {
+  variant?: 'site' | 'admin';
+  small?: boolean;
+}) {
   const theme = useSyncExternalStore<Theme>(subscribe, readTheme, () => 'light');
 
   // Dev-only: Strict Mode's remount resets <html> attributes; re-apply the stored choice.
@@ -35,7 +41,7 @@ export function ThemeToggle({ variant = 'site' }: { variant?: 'site' | 'admin' }
       aria-pressed={variant === 'admin' ? undefined : dark}
       onClick={() => applyTheme(dark ? 'light' : 'dark')}
       data-ripple="accent-fill"
-      className={`grid flex-none cursor-pointer place-items-center rounded-full border ${variant === 'admin' ? 'size-11 border-line' : 'size-11.5 border-border-control'} transition-[border-color,background-color] duration-300 hover:border-accent active:border-accent-fill`}
+      className={`grid flex-none cursor-pointer place-items-center rounded-full border ${variant === 'admin' ? `border-line ${small ? 'size-10' : 'size-11'}` : 'size-11.5 border-border-control'} transition-[border-color,background-color] duration-300 hover:border-accent active:border-accent-fill`}
     >
       {/* Half-filled dial; turns over in dark mode (spec §6 ThemeToggle). */}
       <span

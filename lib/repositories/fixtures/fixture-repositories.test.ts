@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { runRepositoryContract } from '../repository-contract';
+import { checkAdminRepositories, runRepositoryContract } from '../repository-contract';
 import { defaultDataset } from './data';
 import { stressDataset } from './data/stress';
-import { createFixtureRepositories } from './fixture-repositories';
+import { createFixtureAdminRepositories, createFixtureRepositories } from './fixture-repositories';
 
 runRepositoryContract('fixtures (default)', () => createFixtureRepositories(defaultDataset));
 runRepositoryContract('fixtures (stress)', () => createFixtureRepositories(stressDataset));
@@ -31,5 +31,14 @@ describe('stress dataset', () => {
     expect(await r.articles.getBySlug('draft-only')).toBeNull();
     expect((await r.articles.getBySlug('external-only'))?.readMinutes).toBe(45);
     expect((await r.articles.getBySlug('very-long-title'))?.readMinutes).toBe(1);
+  });
+
+  it('the admin reads every row, hidden ones included, in display order', async () => {
+    const admin = await checkAdminRepositories(createFixtureAdminRepositories(s), r);
+    expect(admin.projects).toHaveLength(s.projects.length);
+    expect(admin.quotes.map((q) => q.id)).toContain('skipped');
+    expect(admin.articles.find((a) => a.slug === 'draft-only')?.status).toBe('draft');
+    const shipped = createFixtureAdminRepositories(defaultDataset);
+    await checkAdminRepositories(shipped, createFixtureRepositories(defaultDataset));
   });
 });

@@ -14,9 +14,10 @@ npm run dev        # http://localhost:3000, on the shipped fixture content
 npm run check      # lint + typecheck + format check + unit tests
 ```
 
-The site reads its content through repository interfaces (`lib/domain/repositories.ts`).
-`DATA_SOURCE` picks the source: `fixtures` (default), `fixtures-stress` (awkward content for
-layout checks) or `supabase` (needs the keys in `.env.local`; template: `.env.example`).
+The site and the admin read their content through repository interfaces
+(`lib/domain/repositories.ts`). `DATA_SOURCE` picks the source for both: `fixtures`
+(default), `fixtures-stress` (awkward content for layout checks) or `supabase` (needs the
+keys in `.env.local`; template: `.env.example`).
 
 ## Where things are
 

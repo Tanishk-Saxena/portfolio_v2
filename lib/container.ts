@@ -1,9 +1,16 @@
-import type { Repositories } from '@/lib/domain/repositories';
+import { createAuthClient } from '@/lib/auth/server';
+import type { AdminRepositories, Repositories } from '@/lib/domain/repositories';
 import { defaultDataset } from '@/lib/repositories/fixtures/data';
 import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
-import { createFixtureRepositories } from '@/lib/repositories/fixtures/fixture-repositories';
+import {
+  createFixtureAdminRepositories,
+  createFixtureRepositories,
+} from '@/lib/repositories/fixtures/fixture-repositories';
 import { createPublicClient } from '@/lib/repositories/supabase/client';
-import { createSupabaseRepositories } from '@/lib/repositories/supabase/supabase-repositories';
+import {
+  createSupabaseAdminRepositories,
+  createSupabaseRepositories,
+} from '@/lib/repositories/supabase/supabase-repositories';
 
 /*
  * Composition root — the one place that decides where data comes from (brief §4).
@@ -39,4 +46,26 @@ let instance: Repositories | undefined;
 export function getRepositories(): Repositories {
   instance ??= createRepositories();
   return instance;
+}
+
+/**
+ * The admin's reads, hidden rows included, from the same DATA_SOURCE as the site (so
+ * `fixtures-stress` exercises the admin's layouts too). Over Supabase they run with this
+ * request's session, so make them per request; RLS returns hidden rows only to the admin,
+ * and pages render nothing until `getAdmin()` has said yes.
+ */
+export async function getAdminRepositories(
+  source: DataSource = resolveDataSource(),
+): Promise<AdminRepositories> {
+  switch (source) {
+    case 'fixtures':
+      return createFixtureAdminRepositories(defaultDataset);
+    case 'fixtures-stress':
+      return createFixtureAdminRepositories(stressDataset);
+    case 'supabase': {
+      const db = await createAuthClient();
+      if (!db) throw new Error('DATA_SOURCE=supabase needs the Supabase keys for the admin');
+      return createSupabaseAdminRepositories(db);
+    }
+  }
 }

@@ -9,7 +9,7 @@ The database behind the site and the admin (brief §6, Phase 6.2). Two projects:
 |---|---|
 | `supabase/migrations/*.sql` | The schema: tables, constraints, `updated_at` triggers, RLS, the `admin_user` allowlist, the `media` bucket. Applied in filename order |
 | `supabase/seed.sql` | The shipped placeholder content. **Generated** from the fixtures by `lib/repositories/supabase/seed.ts`; regenerate with `npx vitest run seed -u` |
-| `lib/repositories/supabase/` | Row mappers, the public repositories, the client |
+| `lib/repositories/supabase/` | Row mappers, the public repositories, the admin's reads (run as the signed-in admin), the client |
 
 Security: RLS is the boundary. Anonymous reads see only published / active, non-deleted
 rows; every write (and every read of hidden rows) needs a signed-in user listed in
@@ -44,7 +44,9 @@ rows; every write (and every read of hidden rows) needs a signed-in user listed 
    session, so these run non-interactively.
 4. Put the **dev** keys in `.env.local` (template: `.env.example`): Project URL, publishable
    key, secret key. Leave `DATA_SOURCE` unset to keep working on fixtures, or set it to
-   `supabase`.
+   `supabase`. The admin's lists follow the same setting: sign-in always uses Supabase, but
+   with fixtures the lists show the fixtures. Use `DATA_SOURCE=supabase npm run dev` to see
+   the dev database in the admin.
 5. In Vercel → Settings → Environment Variables:
    - **Production**: `DATA_SOURCE=supabase`, prod `NEXT_PUBLIC_SUPABASE_URL` and
      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import type { Repositories } from '@/lib/domain/repositories';
+import type { AdminRepositories, Repositories } from '@/lib/domain/repositories';
 import { toArticle, toSummary } from '../article-record';
 import {
   type ArticleRow,
@@ -127,6 +127,48 @@ export function createSupabaseRepositories(db: SupabaseClient): Repositories {
     settings: {
       get: async () =>
         toSettings(rows<SettingsRow>(await db.from('settings').select(COLUMNS.settings).single())),
+    },
+  };
+}
+
+/**
+ * The admin's reads: hidden rows included, deleted ones not. `db` must carry the admin's
+ * session (`lib/auth/server.ts`); with any other key RLS quietly returns only public rows.
+ */
+export function createSupabaseAdminRepositories(db: SupabaseClient): AdminRepositories {
+  const live = (table: string, columns: string) =>
+    db.from(table).select(columns).is('deleted_at', null);
+
+  return {
+    experience: {
+      list: async () =>
+        rows<ExperienceRow[]>(await live('experience', COLUMNS.experience).order('sort_order')).map(
+          toExperience,
+        ),
+    },
+    projects: {
+      list: async () =>
+        rows<ProjectRow[]>(await live('project', COLUMNS.project).order('sort_order')).map(
+          toProject,
+        ),
+    },
+    articles: {
+      list: async () =>
+        rows<(ArticleRow & { id: string })[]>(
+          await live('article', `id, ${COLUMNS.article}`).order('published_at', {
+            ascending: false,
+          }),
+        ).map((row) => ({ id: row.id, ...toSummary(toArticleRecord(row)) })),
+    },
+    skills: {
+      listGroups: async () =>
+        rows<SkillGroupRow[]>(
+          await live('skill_group', COLUMNS.skillGroup).order('sort_order'),
+        ).map(toSkillGroup),
+    },
+    quotes: {
+      list: async () =>
+        rows<QuoteRow[]>(await live('quote', COLUMNS.quote).order('sort_order')).map(toQuote),
     },
   };
 }

@@ -1,4 +1,5 @@
 import type {
+  AdminArticleSummary,
   Article,
   ArticleSummary,
   Experience,
@@ -67,4 +68,17 @@ export interface Repositories {
   quotes: QuoteRepository;
   socialLinks: SocialLinkRepository;
   settings: SettingsRepository;
+}
+
+/**
+ * The admin's reads (ADMIN-DESIGN-SPEC §7.1): every collection with its hidden rows (hidden
+ * projects, drafts, skipped quotes), soft-deleted rows excluded, in the same order as above.
+ * Over Supabase these run as the signed-in admin, so RLS is what lets the hidden rows through.
+ */
+export interface AdminRepositories {
+  experience: ExperienceRepository;
+  projects: ProjectRepository;
+  articles: { list(): Promise<AdminArticleSummary[]> };
+  skills: SkillRepository;
+  quotes: QuoteRepository;
 }

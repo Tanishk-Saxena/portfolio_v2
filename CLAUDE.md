@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project state
 
-Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), Phase 8.1 (the admin shell) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
+Personal portfolio for Tanishk Saxena (frontend engineer, TypeScript/Angular trading UIs) plus an auth-secured admin portal to edit its content. Stack: Next.js 16, React 19, Tailwind v4, TypeScript strict. Milestone A (the public site, Phases 0–5) is live. Milestone B (Supabase + admin, Phases 6–8) is underway: Phases 6–7 are done (the live site reads Supabase; `/admin` sign-in works in dev and prod), and Phase 8.1 (the admin shell: sidebar, Sections sheet, routes, read-only lists) is built. Phase 8.2 (the editor and saving) is next. Check `docs/PROGRESS.md` for the current phase and step before starting work.
 
 Read these before doing any work; they are the source of truth:
 
@@ -37,7 +37,7 @@ npm run test:e2e      # Playwright critical paths (e2e/) against `next start`; r
 
 CI (`.github/workflows/ci.yml`) runs the same checks plus `build` on every PR and push to `main`.
 
-Data source: `DATA_SOURCE=fixtures` (default, shipped content) · `fixtures-stress` (awkward content, used for layout checks) · `supabase` (dev project keys in `.env.local`, see `docs/SUPABASE.md`). Set in `.env.local` or inline: `DATA_SOURCE=fixtures-stress npm run dev`. Pages get data from `getRepositories()` in `lib/container.ts`, never from `lib/repositories/**` (ESLint enforces this).
+Data source: `DATA_SOURCE=fixtures` (default, shipped content) · `fixtures-stress` (awkward content, used for layout checks) · `supabase` (dev project keys in `.env.local`, see `docs/SUPABASE.md`). Set in `.env.local` or inline: `DATA_SOURCE=fixtures-stress npm run dev`. Pages get data from `getRepositories()` in `lib/container.ts`, never from `lib/repositories/**` (ESLint enforces this). The admin reads through `getAdminRepositories()` (same `DATA_SOURCE`, hidden rows included; over Supabase it runs as the signed-in admin, per request, via `loadAdminContent()` in `lib/admin/content.ts`). So with the default fixtures, the admin lists show fixtures even when signed in.
 
 Visual checks: `npm run build && npx next start -p 3100`, then headless Chrome screenshots. For 390px, load the page inside a 390px-wide `<iframe>`, because headless Chrome won't size its window below ~500px.
 
