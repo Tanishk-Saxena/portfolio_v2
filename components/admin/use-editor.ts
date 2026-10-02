@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { type LoadedForm, liveText } from '@/lib/admin/forms';
+import { type LoadedForm, liveText, slugify } from '@/lib/admin/forms';
 import {
   type Draft,
   type DraftValue,
   type FieldErrors,
   type FormSlug,
-  validate,
+  validate as validateDraft,
 } from '@/lib/admin/schema';
 import { adminHref, type Section } from '@/lib/admin/sections';
 import type { EditorState } from './editor-bar';
@@ -29,12 +29,15 @@ export function useEditor({
   section,
   entryId,
   initial,
+  takenSlugs,
 }: {
   slug: FormSlug;
   section: Section;
   /** null for a single record or a new entry. */
   entryId: string | null;
   initial: LoadedForm;
+  /** Writing: the other articles' slugs (a slug must be unique). */
+  takenSlugs?: string[];
 }) {
   const router = useRouter();
   const [draft, setDraft] = useState<Draft>(initial.draft);
@@ -43,14 +46,29 @@ export function useEditor({
   const [showErrors, setShowErrors] = useState(false);
   const [serverErrors, setServerErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
+  // §7.2: a new article's slug follows its title until the slug is edited by hand.
+  const [slugTouched, setSlugTouched] = useState(slug !== 'writing' || initial.draft.slug !== '');
 
   const isNew = section.kind === 'collection' && entryId === null;
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
-  const errors = showErrors ? { ...serverErrors, ...validate(slug, draft) } : {};
+  const validate = (d: Draft) => validateDraft(slug, d, { takenSlugs });
+  const errors = showErrors ? { ...serverErrors, ...validate(draft) } : {};
+  // "Publish" when an article is about to go live (§7.2).
+  const publishing =
+    slug === 'writing' && draft.status === 'published' && saved.status !== 'published';
+
+  function setField(key: string, value: DraftValue) {
+    if (key === 'slug') setSlugTouched(true);
+    setDraft((d) => ({
+      ...d,
+      [key]: value,
+      ...(key === 'title' && !slugTouched && { slug: slugify(String(value)) }),
+    }));
+  }
 
   async function save() {
     if (saving) return;
-    const found = Object.keys(validate(slug, draft)).length;
+    const found = Object.keys(validate(draft)).length;
     if (found) {
       setShowErrors(true);
       showToast(needAttention(found));
@@ -176,14 +194,14 @@ export function useEditor({
   const state: EditorState = {
     status: saving ? 'saving' : isNew ? 'new' : dirty ? 'dirty' : 'saved',
     dirty,
-    saveLabel: saving ? 'Saving…' : isNew ? 'Create' : 'Save',
+    saveLabel: saving ? 'Saving…' : isNew ? 'Create' : publishing ? 'Publish' : 'Save',
     onDiscard: discard,
     onSave: () => void save(),
   };
 
   return {
     draft,
-    setField: (key: string, value: DraftValue) => setDraft((d) => ({ ...d, [key]: value })),
+    setField,
     errors,
     errorCount: Object.keys(errors).length,
     updatedAt,

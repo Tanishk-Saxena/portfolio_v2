@@ -8,6 +8,8 @@ import { estimateReadMinutes } from '@/lib/utils/read-time';
  */
 export type ArticleRecord = Omit<Article, 'hasBody' | 'readMinutes'> & {
   readMinutes: number | null;
+  /** Fixtures only: set once an article is created or its slug edited in the admin. */
+  id?: string;
 };
 
 export function toArticle(record: ArticleRecord): Article {

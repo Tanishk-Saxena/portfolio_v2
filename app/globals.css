@@ -111,6 +111,10 @@
   --text-admin-confirm: 23px; /* confirm dialog title */
   --text-admin-confirm--line-height: 1.25;
   --text-admin-hint: 12.5px; /* field hint and error */
+  --text-admin-md-heading: 24px; /* Markdown preview (ADMIN-DESIGN-SPEC §3) */
+  --text-admin-md-heading--line-height: 1.25;
+  --text-admin-md-quote: 20px;
+  --text-admin-md-quote--line-height: 1.5;
   --text-admin-hint--line-height: 1.5;
   --text-signature: 31px;
   --text-signature--line-height: 0.95;
@@ -181,6 +185,9 @@
   --spacing-admin-side: 360px; /* side panel max */
   --spacing-admin-confirm: 420px;
   --spacing-admin-sticky: 88px; /* side panel top offset under the bar */
+  --spacing-admin-md: 420px; /* Markdown write/preview min height */
+  --spacing-admin-md-measure: 680px; /* Markdown preview max width */
+  --spacing-admin-md-pad: clamp(18px, 3vw, 32px);
 
   /* Above-the-fold measures (spec 16ch / 52ch / 20ch) as em: `ch` follows the *current*
      font, so it changed when web fonts swapped in and caused layout shift (CLS 0.116).

@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AdminCollection, AdminRepositories } from '@/lib/domain/repositories';
-import type { Stamped } from '@/lib/domain/types';
+import type { ArticleValues, Stamped } from '@/lib/domain/types';
 import { toSummary } from '../article-record';
 import {
   type ArticleRow,
@@ -29,6 +29,46 @@ import { COLUMNS, rows } from './supabase-repositories';
  */
 
 type WithStamp<R> = R & { updated_at: string | null };
+
+/** What the admin edits on an article, as columns (the excerpt is left alone, Q-A12). */
+const ARTICLE_EDIT =
+  'id, slug, title, body, external_url, status, published_at, read_minutes, listen, updated_at';
+type ArticleEditRow = WithStamp<{
+  id: string;
+  slug: string;
+  title: string;
+  body: string | null;
+  external_url: string | null;
+  status: ArticleValues['status'];
+  published_at: string;
+  read_minutes: number | null;
+  listen: boolean;
+}>;
+const toArticleValues = (r: ArticleEditRow) =>
+  stamped(
+    {
+      id: r.id,
+      slug: r.slug,
+      title: r.title,
+      body: r.body,
+      externalUrl: r.external_url,
+      status: r.status,
+      publishedAt: r.published_at,
+      readMinutes: r.read_minutes,
+      listen: r.listen,
+    },
+    r,
+  );
+const fromArticleValues = (v: ArticleValues) => ({
+  slug: v.slug,
+  title: v.title,
+  body: v.body,
+  external_url: v.externalUrl,
+  status: v.status,
+  published_at: v.publishedAt,
+  read_minutes: v.readMinutes,
+  listen: v.listen,
+});
 const stamped = <T>(value: T, row: { updated_at: string | null }): Stamped<T> => ({
   ...value,
   updatedAt: row.updated_at,
@@ -181,6 +221,39 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
             .is('deleted_at', null)
             .order('published_at', { ascending: false }),
         ).map((row) => stamped({ id: row.id, ...toSummary(toArticleRecord(row)) }, row)),
+      get: async (id) => {
+        const row = rows<ArticleEditRow | null>(
+          await db
+            .from('article')
+            .select(ARTICLE_EDIT)
+            .eq('id', id)
+            .is('deleted_at', null)
+            .maybeSingle(),
+        );
+        return row && toArticleValues(row);
+      },
+      create: async (values) =>
+        toArticleValues(
+          written<ArticleEditRow>(
+            await db
+              .from('article')
+              .insert({ ...fromArticleValues(values), excerpt: '' })
+              .select(ARTICLE_EDIT)
+              .single(),
+          ),
+        ),
+      update: async (id, values) => {
+        const row = written<ArticleEditRow | null>(
+          await db
+            .from('article')
+            .update(fromArticleValues(values))
+            .eq('id', id)
+            .is('deleted_at', null)
+            .select(ARTICLE_EDIT)
+            .maybeSingle(),
+        );
+        return row && toArticleValues(row);
+      },
       setStatus: async (id, status) => {
         const found = written<{ id: string }[]>(
           await db

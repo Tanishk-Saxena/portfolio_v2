@@ -1,12 +1,16 @@
 import type {
+  ArticleValues,
   EntryValues,
   Experience,
+  Image,
   Profile,
+  Project,
+  ProjectKind,
   Quote,
   SkillGroup,
   SocialLink,
 } from '@/lib/domain/types';
-import type { Draft, FormSlug } from './schema';
+import type { Draft, FormSlug, ImageValue } from './schema';
 
 /*
  * Domain records ↔ editor drafts (ADMIN-DESIGN-SPEC §8). Drafts hold exactly what the form
@@ -15,6 +19,7 @@ import type { Draft, FormSlug } from './schema';
 
 const str = (draft: Draft, key: string) => String(draft[key] ?? '').trim();
 const list = (draft: Draft, key: string) => (draft[key] as string[] | undefined) ?? [];
+const orNull = (text: string) => text || null;
 
 /** A form as the editor opens it: the draft and when the record was last saved. */
 export interface LoadedForm {
@@ -24,6 +29,17 @@ export interface LoadedForm {
 
 /** The fixed social links the Contact form edits, in order (Q-A10). */
 export const SOCIAL_IDS = ['github', 'linkedin', 'read-cv', 'x'] as const;
+
+const toImageValue = (image: Image | null): ImageValue | null =>
+  image && { src: image.src, width: image.width, height: image.height };
+
+/** The stored image from the form's; an unchanged image keeps its focal point (Q28). */
+function fromImageValue(value: unknown, alt: string, stored: Image | null): Image | null {
+  const v = value as ImageValue | null;
+  if (!v) return null;
+  const focalPoint = stored?.src === v.src ? stored.focalPoint : undefined;
+  return { src: v.src, width: v.width, height: v.height, alt, ...(focalPoint && { focalPoint }) };
+}
 
 // ── Single records ────────────────────────────────────────────────────────────────────────
 
@@ -39,13 +55,18 @@ export function singleDraft(
         headline: p.headline,
         headlineHighlight: p.headlineHighlight ?? '',
         standfirst: p.standfirst,
+        resumeUrl: p.resumeUrl ?? '',
+        ctaLabel: p.ctaLabel,
         name: p.name,
         location: p.location,
-        ctaLabel: p.ctaLabel,
       };
     case 'about':
       // §8.2: paragraphs are joined with a blank line for editing and split on them again.
-      return { aboutLead: p.aboutLead, aboutBody: p.aboutParagraphs.join('\n\n') };
+      return {
+        aboutLead: p.aboutLead,
+        aboutBody: p.aboutParagraphs.join('\n\n'),
+        portrait: toImageValue(p.portrait),
+      };
     case 'contact': {
       const url = (id: string) => links.find((l) => l.id === id)?.url ?? '';
       return {
@@ -66,11 +87,12 @@ export function applySingle(slug: 'hero' | 'about' | 'contact', p: Profile, d: D
         ...p,
         eyebrow: str(d, 'eyebrow'),
         headline: str(d, 'headline'),
-        headlineHighlight: str(d, 'headlineHighlight') || null,
+        headlineHighlight: orNull(str(d, 'headlineHighlight')),
         standfirst: str(d, 'standfirst'),
+        resumeUrl: orNull(str(d, 'resumeUrl')),
+        ctaLabel: str(d, 'ctaLabel'),
         name: str(d, 'name'),
         location: str(d, 'location'),
-        ctaLabel: str(d, 'ctaLabel'),
       };
     case 'about':
       return {
@@ -80,6 +102,8 @@ export function applySingle(slug: 'hero' | 'about' | 'contact', p: Profile, d: D
           .split(/\n\s*\n/)
           .map((para) => para.trim())
           .filter(Boolean),
+        // Q-A9: the mockup has no alt field; a portrait's alt is predictable.
+        portrait: fromImageValue(d.portrait, `Portrait of ${p.name}`, p.portrait),
       };
     case 'contact':
       return {
@@ -96,12 +120,19 @@ export const socialUrls = (d: Draft) =>
 
 // ── Collections ───────────────────────────────────────────────────────────────────────────
 
-export type EntrySlug = Extract<FormSlug, 'experience' | 'skills' | 'quotes'>;
+export type EntrySlug = Extract<
+  FormSlug,
+  'experience' | 'projects' | 'writing' | 'skills' | 'quotes'
+>;
 export interface EntryTypes {
   experience: Experience;
+  projects: Project;
+  writing: ArticleValues & { id: string };
   skills: SkillGroup;
   quotes: Quote;
 }
+
+const today = () => new Date().toISOString().slice(0, 10);
 
 /** An entry's draft, or a blank one for a new entry ([S] `blank()`). */
 export function entryDraft<S extends EntrySlug>(slug: S, entry?: EntryTypes[S]): Draft {
@@ -115,6 +146,34 @@ export function entryDraft<S extends EntrySlug>(slug: S, entry?: EntryTypes[S]):
         startYear: e?.startDate.slice(0, 4) ?? '',
         current: e ? e.endDate === null : false,
         endYear: e?.endDate?.slice(0, 4) ?? '',
+      };
+    }
+    case 'projects': {
+      const p = entry as Project | undefined;
+      return {
+        title: p?.title ?? '',
+        kind: p?.kind ?? 'side-project',
+        summary: p?.summary ?? '',
+        description: p?.description ?? '',
+        tags: [...(p?.tags ?? [])],
+        liveUrl: p?.liveUrl ?? '',
+        repoUrl: p?.repoUrl ?? '',
+        published: p?.published ?? false,
+        year: String(p?.year ?? new Date().getFullYear()),
+        image: toImageValue(p?.image ?? null),
+      };
+    }
+    case 'writing': {
+      const a = entry as ArticleValues | undefined;
+      return {
+        title: a?.title ?? '',
+        body: a?.body ?? '',
+        status: a?.status ?? 'draft',
+        slug: a?.slug ?? '',
+        publishedAt: a?.publishedAt ?? today(),
+        readMinutes: a?.readMinutes ? String(a.readMinutes) : '',
+        listen: a?.listen ?? true,
+        externalUrl: a?.externalUrl ?? '',
       };
     }
     case 'skills': {
@@ -136,54 +195,102 @@ export function entryDraft<S extends EntrySlug>(slug: S, entry?: EntryTypes[S]):
 const yearToDate = (year: string, stored?: string | null) =>
   stored?.startsWith(`${year}-`) ? stored : `${year}-01`;
 
-export function entryValues<S extends EntrySlug>(
-  slug: S,
-  d: Draft,
-  original?: EntryTypes[S],
-): EntryValues<EntryTypes[S]> {
+function values(slug: EntrySlug, d: Draft, original?: EntryTypes[EntrySlug]): object {
   switch (slug) {
     case 'experience': {
       const e = original as Experience | undefined;
-      const values: EntryValues<Experience> = {
+      return {
         role: str(d, 'role'),
         org: str(d, 'org'),
         summary: str(d, 'summary'),
         startDate: yearToDate(str(d, 'startYear'), e?.startDate),
         endDate: d.current ? null : yearToDate(str(d, 'endYear'), e?.endDate),
-      };
-      return values as unknown as EntryValues<EntryTypes[S]>;
+      } satisfies EntryValues<Experience>;
+    }
+    case 'projects': {
+      const p = original as Project | undefined;
+      return {
+        title: str(d, 'title'),
+        kind: str(d, 'kind') as ProjectKind,
+        summary: str(d, 'summary'),
+        description: str(d, 'description'),
+        tags: list(d, 'tags'),
+        liveUrl: orNull(str(d, 'liveUrl')),
+        repoUrl: orNull(str(d, 'repoUrl')),
+        published: d.published === true,
+        year: Number(str(d, 'year')),
+        // §8.5: the card image is decorative today, so its alt stays empty.
+        image: fromImageValue(d.image, '', p?.image ?? null),
+      } satisfies EntryValues<Project>;
+    }
+    case 'writing': {
+      const body = str(d, 'body');
+      const minutes = str(d, 'readMinutes');
+      return {
+        title: str(d, 'title'),
+        body: orNull(body),
+        status: d.status === 'published' ? 'published' : 'draft',
+        slug: str(d, 'slug'),
+        publishedAt: str(d, 'publishedAt') || today(),
+        readMinutes: minutes ? Number(minutes) : null, // blank = the estimate (Q-A11)
+        listen: d.listen === true,
+        externalUrl: orNull(str(d, 'externalUrl')),
+      } satisfies ArticleValues;
     }
     case 'skills':
-      return { title: str(d, 'title'), items: list(d, 'items') } as unknown as EntryValues<
-        EntryTypes[S]
-      >;
+      return { title: str(d, 'title'), items: list(d, 'items') } satisfies EntryValues<SkillGroup>;
     case 'quotes':
       return {
         text: str(d, 'text'),
         author: str(d, 'author'),
         active: d.active === true,
-      } as unknown as EntryValues<EntryTypes[S]>;
+      } satisfies EntryValues<Quote>;
   }
-  throw new Error(`No form for ${slug satisfies never}`);
+}
+
+export const entryValues = <S extends EntrySlug>(slug: S, d: Draft, original?: EntryTypes[S]) =>
+  values(slug, d, original) as EntryValues<EntryTypes[S]>;
+
+/** "On shipping less!" → "on-shipping-less": the slug while it follows the title (§7.2). */
+export function slugify(title: string): string {
+  return title
+    .normalize('NFKD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 64)
+    .replace(/-+$/, '');
 }
 
 /**
- * An unsaved copy of an entry (§7.2): "(copy)" on its name, title or role. Projects (8.4) are
- * also set to Hidden and articles to Draft; quotes are copied as they are.
+ * An unsaved copy of an entry (§7.2): "(copy)" on its name, title or role, `-copy` on an
+ * article's slug, and set to Hidden / Draft. Quotes are copied as they are.
  */
 export function duplicateDraft(slug: EntrySlug, d: Draft): Draft {
-  const key = { experience: 'role', skills: 'title', quotes: null }[slug];
-  return key ? { ...d, [key]: `${str(d, key)} (copy)` } : { ...d };
+  const key = { experience: 'role', projects: 'title', writing: 'title', skills: 'title' }[
+    slug as Exclude<EntrySlug, 'quotes'>
+  ];
+  const copy: Draft = key ? { ...d, [key]: `${str(d, key)} (copy)` } : { ...d };
+  if (slug === 'projects') copy.published = false;
+  if (slug === 'writing') Object.assign(copy, { slug: `${str(d, 'slug')}-copy`, status: 'draft' });
+  return copy;
 }
 
 /** The editor's title and crumb for an entry (the row title, without a quote's marks). */
 export function entryTitle(slug: EntrySlug, d: Draft): string {
-  const key = { experience: 'role', skills: 'title', quotes: 'text' }[slug];
-  return str(d, key);
+  const key = { experience: 'role', projects: 'title', writing: 'title', skills: 'title' };
+  return str(d, slug === 'quotes' ? 'text' : key[slug]);
 }
 
 /** The toast once the database has the write (§7.3). */
 export function liveText(slug: FormSlug, d: Draft): string {
+  if (slug === 'writing') {
+    return d.status === 'published'
+      ? `Live at /articles/${str(d, 'slug')}`
+      : 'Saved as draft, not on the site';
+  }
+  if (slug === 'projects' && d.published === false) return 'Saved, hidden from the site';
   if (slug === 'quotes' && d.active === false) return 'Saved, out of rotation';
   return 'Saved, live on the site';
 }

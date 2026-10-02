@@ -172,6 +172,30 @@ export async function checkAdminWrites(admin: AdminRepositories, tag: string) {
   expect(await admin.quotes.restore(created.id)).toBe(true);
   expect((await admin.quotes.list()).map((q) => q.id)).toContain(created.id);
 
+  // Articles: create, read back, edit (the id survives a slug change), publish, delete.
+  const article = {
+    slug: `${tag}-article`,
+    title: 'Planted',
+    body: 'Body.',
+    externalUrl: null,
+    status: 'draft' as const,
+    publishedAt: '2026-01-01',
+    readMinutes: null,
+    listen: true,
+  };
+  const { id: articleId, updatedAt: _a, ...stored } = await admin.articles.create(article);
+  expect(stored).toEqual(article);
+  const renamed = { ...article, title: 'Edited', slug: `${tag}-renamed` };
+  expect(await admin.articles.update(articleId, renamed)).toMatchObject({
+    id: articleId,
+    ...renamed,
+  });
+  expect((await admin.articles.get(articleId))?.slug).toBe(`${tag}-renamed`);
+  expect(await admin.articles.setStatus(articleId, 'published')).toBe(true);
+  expect((await admin.articles.list()).find((a) => a.id === articleId)?.status).toBe('published');
+  expect(await admin.articles.remove(articleId)).toBe(true);
+  expect(await admin.articles.get(articleId)).toBeNull();
+
   const links = await admin.socialLinks.list();
   await admin.socialLinks.setUrls(Object.fromEntries(links.map((l) => [l.id, l.url])));
   expect(await admin.socialLinks.list()).toEqual(links);

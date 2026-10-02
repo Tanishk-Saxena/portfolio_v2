@@ -1,5 +1,5 @@
 import { getAdmin } from '@/lib/auth/server';
-import { Conflict } from './save';
+import { Conflict, Rejected } from './save';
 import { type Draft, type FormSlug, isFormSlug, parseDraft, validate } from './schema';
 
 /**
@@ -41,6 +41,7 @@ export async function handleSave(
     if (!saved) return Response.json({ error: 'No such entry' }, { status: 404 });
     return Response.json(saved);
   } catch (error) {
+    if (error instanceof Rejected) return Response.json({ errors: error.errors }, { status: 422 });
     if (error instanceof Conflict) {
       return Response.json({ error: 'Changed elsewhere' }, { status: 409 });
     }

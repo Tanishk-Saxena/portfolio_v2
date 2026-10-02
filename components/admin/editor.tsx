@@ -19,13 +19,15 @@ export function Editor({
   section,
   entryId,
   initial,
+  takenSlugs,
 }: {
   slug: FormSlug;
   section: Section;
   entryId: string | null;
   initial: LoadedForm;
+  takenSlugs?: string[];
 }) {
-  const editor = useEditor({ slug, section, entryId, initial });
+  const editor = useEditor({ slug, section, entryId, initial, takenSlugs });
   const { draft, errors, errorCount } = editor;
 
   const title =

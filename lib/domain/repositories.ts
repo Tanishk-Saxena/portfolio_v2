@@ -2,6 +2,7 @@ import type {
   AdminArticleSummary,
   Article,
   ArticleStatus,
+  ArticleValues,
   ArticleSummary,
   Experience,
   Profile,
@@ -91,9 +92,15 @@ export interface AdminCollection<T extends { id: string; sortOrder: number }> {
   reorder(ids: string[]): Promise<void>;
 }
 
-/** Articles until 8.4 gives them a form: the list, the status toggle, delete and restore. */
+/** Articles, by an id that survives slug edits. Not owner-ordered: newest first. */
 export interface AdminArticles {
   list(): Promise<Stamped<AdminArticleSummary>[]>;
+  get(id: string): Promise<Stamped<ArticleValues & { id: string }> | null>;
+  create(values: ArticleValues): Promise<Stamped<ArticleValues & { id: string }>>;
+  update(
+    id: string,
+    values: ArticleValues,
+  ): Promise<Stamped<ArticleValues & { id: string }> | null>;
   setStatus(id: string, status: ArticleStatus): Promise<boolean>;
   remove(id: string): Promise<boolean>;
   restore(id: string): Promise<boolean>;

@@ -1,7 +1,11 @@
 'use client';
 
 import { useId } from 'react';
-import type { DraftValue, FieldDef } from '@/lib/admin/schema';
+import type { DraftValue, FieldDef, ImageValue } from '@/lib/admin/schema';
+import { countWords, estimateReadMinutes } from '@/lib/utils/read-time';
+import { FileField } from './file-field';
+import { MarkdownField } from './markdown-field';
+import { SelectPills } from './select-pills';
 import { TagsInput } from './tags-input';
 import { ToggleSwitch } from './toggle-switch';
 
@@ -9,12 +13,18 @@ import { ToggleSwitch } from './toggle-switch';
 export const WELL =
   'w-full rounded-row border border-line-input bg-field text-body text-ink outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-muted focus:border-accent focus:ring-3 focus:ring-halo';
 
-const INPUT_TYPE = { text: 'text', url: 'url', email: 'email', year: 'text' } as const;
+const INPUT_TYPE = {
+  text: 'text',
+  url: 'url',
+  email: 'email',
+  year: 'text',
+  date: 'date',
+  minutes: 'text',
+} as const;
 
 /**
  * One field, driven by the schema ([F]): label (+ required mark), aside (live count), the
- * control, hint, then the error (`role="alert"`). File, markdown, pills and range arrive with
- * the forms that use them (8.4, 8.5).
+ * control, hint, then the error (`role="alert"`). The range arrives with Settings (8.5).
  */
 export function Field({
   field,
@@ -41,11 +51,15 @@ export function Field({
   let aside = '';
   if (field.max && typeof value === 'string') aside = `${value.length} / ${field.max}`;
   if (field.type === 'tags' && Array.isArray(value) && value.length) aside = String(value.length);
+  if (field.type === 'markdown' && typeof value === 'string') {
+    aside = `${countWords(value)} words · ${estimateReadMinutes(value)} min`;
+  }
+  const labelId = `${id}-label`;
 
   return (
     <div className="flex min-w-0 flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3">
-        <label htmlFor={id} className="text-small font-medium tracking-field">
+        <label id={labelId} htmlFor={id} className="text-small font-medium tracking-field">
           {field.label}
           {field.req && (
             <span aria-hidden="true" className="ml-0.75 text-accent">
@@ -71,7 +85,7 @@ export function Field({
         <input
           {...control}
           type={INPUT_TYPE[field.type as keyof typeof INPUT_TYPE]}
-          inputMode={field.type === 'year' ? 'numeric' : undefined}
+          inputMode={field.type === 'year' || field.type === 'minutes' ? 'numeric' : undefined}
           required={field.req}
           value={String(value)}
           placeholder={field.placeholder}
@@ -85,6 +99,33 @@ export function Field({
           on={value === true}
           text={value === true ? (field.on ?? '') : (field.off ?? '')}
           onToggle={() => onChange(value !== true)}
+        />
+      )}
+      {field.type === 'select' && (
+        <SelectPills
+          id={id}
+          aria-labelledby={labelId}
+          aria-describedby={describedBy}
+          options={field.options ?? []}
+          value={String(value)}
+          onChange={onChange}
+        />
+      )}
+      {field.type === 'markdown' && (
+        <MarkdownField
+          {...control}
+          value={String(value ?? '')}
+          placeholder={field.placeholder}
+          onChange={onChange}
+        />
+      )}
+      {(field.type === 'image' || field.type === 'pdf') && (
+        <FileField
+          id={id}
+          aria-describedby={describedBy}
+          kind={field.type}
+          value={value as ImageValue | string | null}
+          onChange={onChange}
         />
       )}
       {field.type === 'tags' && (
