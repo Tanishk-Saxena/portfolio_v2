@@ -108,6 +108,30 @@
     display: none;
   }
 
+  /* The admin shows its scrollbars (ADMIN-DESIGN-SPEC §2): thin, ink at 78–80% transparent,
+     the thumb turns accent on hover; 10px track with a 3px transparent border. */
+  html:has([data-admin]),
+  [data-admin] * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklab, var(--ink), transparent 78%) transparent;
+  }
+  html:has([data-admin])::-webkit-scrollbar,
+  [data-admin] ::-webkit-scrollbar {
+    display: block;
+    width: 10px;
+    height: 10px;
+  }
+  html:has([data-admin])::-webkit-scrollbar-thumb,
+  [data-admin] ::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--ink), transparent 80%) padding-box;
+    border: 3px solid transparent;
+    border-radius: 999px;
+  }
+  html:has([data-admin])::-webkit-scrollbar-thumb:hover,
+  [data-admin] ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklab, var(--accent), transparent 30%);
+  }
+
   /* Background stays exactly where it was while a modal is open (spec §6 ProjectModal).
      Scrollbars are hidden, so locking causes no layout shift. */
   html:has(dialog[open]) {

@@ -8,11 +8,12 @@ export const metadata: Metadata = {
 
 /**
  * Admin shell: its own `admin` container for the 760px switch (Q-A3), no grain (ADMIN-DESIGN
- * §4), the site's ripple for presses (Q-A4). The theme comes from the admin's own key.
+ * §4), the site's ripple for presses (Q-A4), visible scrollbars (`data-admin`, §2). The
+ * theme comes from the admin's own key.
  */
 export default function AdminLayout({ children }: LayoutProps<'/admin'>) {
   return (
-    <div className="@container/admin min-h-svh bg-paper text-body-sm text-ink">
+    <div data-admin className="@container/admin min-h-svh bg-paper text-body-sm text-ink">
       {children}
       <RippleHost />
     </div>

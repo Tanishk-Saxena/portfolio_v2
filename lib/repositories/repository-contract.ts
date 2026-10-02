@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Repositories } from '@/lib/domain/repositories';
+import type { AdminRepositories, Repositories } from '@/lib/domain/repositories';
 
 /*
  * The repository contract, written against the interfaces only. Every implementation
@@ -92,4 +92,38 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       expect(await r.articles.getBySlug('__no-such-article__')).toBeNull();
     });
   });
+}
+
+/**
+ * The admin's reads hold everything the site shows plus the hidden rows, in the same order.
+ * Run over the same data as `site`.
+ */
+export async function checkAdminRepositories(admin: AdminRepositories, site: Repositories) {
+  const [experience, projects, articles, skills, quotes] = await Promise.all([
+    admin.experience.list(),
+    admin.projects.list(),
+    admin.articles.list(),
+    admin.skills.listGroups(),
+    admin.quotes.list(),
+  ]);
+  for (const list of [experience, projects, skills, quotes]) {
+    expect(isSortedBy(list, (x: { sortOrder: number }) => x.sortOrder)).toBe(true);
+  }
+  expect(isSortedBy(articles, (a) => a.publishedAt, -1)).toBe(true);
+  expect(new Set(articles.map((a) => a.id)).size).toBe(articles.length);
+
+  const ids = <T>(list: T[], key: (x: T) => string) => list.map(key);
+  const [siteProjects, siteArticles, siteQuotes] = await Promise.all([
+    site.projects.list(),
+    site.articles.list(),
+    site.quotes.list(),
+  ]);
+  expect(ids(projects, (p) => p.id)).toEqual(
+    expect.arrayContaining(ids(siteProjects, (p) => p.id)),
+  );
+  expect(ids(articles, (a) => a.slug)).toEqual(
+    expect.arrayContaining(ids(siteArticles, (a) => a.slug)),
+  );
+  expect(ids(quotes, (q) => q.id)).toEqual(expect.arrayContaining(ids(siteQuotes, (q) => q.id)));
+  return { experience, projects, articles, skills, quotes };
 }

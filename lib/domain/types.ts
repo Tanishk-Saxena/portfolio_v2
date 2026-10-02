@@ -94,6 +94,11 @@ export interface ArticleSummary {
   hasBody: boolean;
 }
 
+/** The admin's view of an article: drafts included, keyed by an id that survives slug edits. */
+export interface AdminArticleSummary extends ArticleSummary {
+  id: string;
+}
+
 export interface Article extends ArticleSummary {
   /** Markdown. `null` when the article only lives at `externalUrl`. */
   body: string | null;

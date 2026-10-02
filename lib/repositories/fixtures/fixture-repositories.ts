@@ -1,4 +1,5 @@
 import type {
+  AdminRepositories,
   ArticleRepository,
   ExperienceRepository,
   ProfileRepository,
@@ -22,6 +23,8 @@ import type { FixtureDataset } from './dataset';
 const copy = <T>(value: T): T => structuredClone(value);
 const bySortOrder = <T extends { sortOrder: number }>(a: T, b: T) => a.sortOrder - b.sortOrder;
 const isPublished = (record: ArticleRecord) => record.status === 'published';
+const newestFirst = <T extends { publishedAt: string }>(a: T, b: T) =>
+  b.publishedAt.localeCompare(a.publishedAt);
 
 export function createFixtureRepositories(data: FixtureDataset): Repositories {
   const profile: ProfileRepository = {
@@ -37,11 +40,7 @@ export function createFixtureRepositories(data: FixtureDataset): Repositories {
   };
 
   const articles: ArticleRepository = {
-    list: async () =>
-      data.articles
-        .filter(isPublished)
-        .map(toSummary)
-        .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
+    list: async () => data.articles.filter(isPublished).map(toSummary).sort(newestFirst),
     getBySlug: async (slug) => {
       const record = data.articles.find((a) => a.slug === slug && isPublished(a));
       return record ? toArticle(record) : null;
@@ -65,4 +64,21 @@ export function createFixtureRepositories(data: FixtureDataset): Repositories {
   };
 
   return { profile, experience, projects, articles, skills, quotes, socialLinks, settings };
+}
+
+/**
+ * The admin's reads over the same dataset, hidden rows included. Fixture articles have no
+ * stored id, so the slug stands in for it.
+ */
+export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepositories {
+  return {
+    experience: { list: async () => copy(data.experience).sort(bySortOrder) },
+    projects: { list: async () => copy(data.projects).sort(bySortOrder) },
+    articles: {
+      list: async () =>
+        data.articles.map((a) => ({ id: a.slug, ...toSummary(a) })).sort(newestFirst),
+    },
+    skills: { listGroups: async () => copy(data.skillGroups).sort(bySortOrder) },
+    quotes: { list: async () => copy(data.quotes).sort(bySortOrder) },
+  };
 }
