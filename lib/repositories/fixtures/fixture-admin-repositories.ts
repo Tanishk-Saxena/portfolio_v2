@@ -80,7 +80,22 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
     };
   }
 
-  const article = (id: string) => data.articles.find((a) => a.slug === id);
+  // Fixture articles store no id: the slug stands in until an edit pins it (`id`), so the
+  // admin's URL survives a slug change.
+  const idOf = (a: ArticleRecord) => a.id ?? a.slug;
+  const article = (id: string) => data.articles.find((a) => idOf(a) === id);
+  const values = (a: ArticleRecord, id: string) =>
+    stamp(`writing:${id}`, {
+      id,
+      slug: a.slug,
+      title: a.title,
+      body: a.body,
+      externalUrl: a.externalUrl,
+      status: a.status,
+      publishedAt: a.publishedAt,
+      readMinutes: a.readMinutes,
+      listen: a.listen,
+    });
 
   return {
     profile: {
@@ -99,12 +114,28 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
     },
     experience: collection('experience', () => data.experience),
     projects: collection('projects', () => data.projects),
-    // Fixture articles have no stored id: the slug stands in for it.
     articles: {
       list: async () =>
         data.articles
-          .map((a) => stamp(`writing:${a.slug}`, { id: a.slug, ...toSummary(a) }))
+          .map((a) => stamp(`writing:${idOf(a)}`, { id: idOf(a), ...toSummary(a) }))
           .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
+      get: async (id) => {
+        const found = article(id);
+        return found ? values(found, id) : null;
+      },
+      create: async (fields) => {
+        const id = randomUUID();
+        data.articles.push({ ...copy(fields), id, excerpt: '' });
+        touch(`writing:${id}`);
+        return values(data.articles.at(-1)!, id);
+      },
+      update: async (id, fields) => {
+        const found = article(id);
+        if (!found) return null;
+        Object.assign(found, copy(fields), { id });
+        touch(`writing:${id}`);
+        return values(found, id);
+      },
       setStatus: async (id, status) => {
         const found = article(id);
         if (!found) return false;
@@ -113,7 +144,7 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
         return true;
       },
       remove: async (id) => {
-        const i = data.articles.findIndex((a) => a.slug === id);
+        const i = data.articles.findIndex((a) => idOf(a) === id);
         if (i < 0) return false;
         trash<ArticleRecord>('writing', data.articles, i);
         return true;

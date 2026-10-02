@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { defaultDataset } from '@/lib/repositories/fixtures/data';
-import { applySingle, entryDraft, entryValues, singleDraft, socialUrls } from './forms';
+import {
+  applySingle,
+  duplicateDraft,
+  entryDraft,
+  entryValues,
+  singleDraft,
+  slugify,
+  socialUrls,
+} from './forms';
 import { parseDraft, validate } from './schema';
+import { checkUpload } from './uploads';
 
 const experience = (over: Record<string, unknown> = {}) => ({
   ...entryDraft('experience'),
@@ -77,5 +86,76 @@ describe('admin schema', () => {
       '2024-01',
     );
     expect(entryValues('experience', { ...draft, current: true }, stored).endDate).toBeNull();
+  });
+
+  it('writing: slug rules, the publish rule, read time; slugs follow titles', () => {
+    const article = { ...entryDraft('writing'), title: 'On shipping', slug: 'on-shipping' };
+    expect(validate('writing', article)).toEqual({});
+    expect(validate('writing', { ...article, slug: 'On Shipping!' }).slug).toBe(
+      'Use lowercase letters, numbers and single hyphens.',
+    );
+    expect(validate('writing', article, { takenSlugs: ['on-shipping'] }).slug).toBe(
+      'Another article already uses this slug.',
+    );
+    expect(validate('writing', { ...article, status: 'published' }).status).toBe(
+      'Add a body before publishing',
+    );
+    expect(
+      validate('writing', { ...article, status: 'published', externalUrl: 'https://medium.com/x' }),
+    ).toEqual({});
+    expect(validate('writing', { ...article, readMinutes: '0' }).readMinutes).toMatch(
+      /whole minutes/,
+    );
+    expect(entryValues('writing', { ...article, readMinutes: '' })).toMatchObject({
+      readMinutes: null, // blank = the estimate
+      body: null,
+      status: 'draft',
+    });
+    expect(slugify('  Ça va? On shipping — less!  ')).toBe('ca-va-on-shipping-less');
+    expect(slugify('x'.repeat(80))).toHaveLength(64);
+    expect(duplicateDraft('writing', article)).toMatchObject({
+      title: 'On shipping (copy)',
+      slug: 'on-shipping-copy',
+      status: 'draft',
+    });
+  });
+
+  it('images and files: sizes kept, portrait alt, focal point, upload limits', () => {
+    const p = { ...defaultDataset.profile, name: 'Ada' };
+    const image = {
+      src: 'https://x.supabase.co/storage/v1/object/public/media/a.jpg',
+      width: 900,
+      height: 1125,
+    };
+    expect(parseDraft('about', { aboutLead: 'L', aboutBody: '', portrait: image })).not.toBeNull();
+    expect(
+      parseDraft('about', { aboutLead: 'L', aboutBody: '', portrait: { src: 'x' } }),
+    ).toBeNull();
+    const withFocus = { ...p, portrait: { ...image, alt: '', focalPoint: '50% 20%' } };
+    expect(
+      applySingle('about', withFocus, { aboutLead: 'L', aboutBody: '', portrait: image }).portrait,
+    ).toEqual({ ...image, alt: 'Portrait of Ada', focalPoint: '50% 20%' });
+    const replaced = { ...image, src: image.src.replace('a.jpg', 'b.jpg') };
+    expect(
+      applySingle('about', withFocus, { aboutLead: 'L', aboutBody: '', portrait: replaced })
+        .portrait,
+    ).not.toHaveProperty('focalPoint');
+
+    const project = entryDraft('projects');
+    expect(project).toMatchObject({ kind: 'side-project', published: false, image: null });
+    expect(validate('projects', { ...project, title: 'P', year: '20' }).year).toBe(
+      'Enter a four-digit year.',
+    );
+    expect(parseDraft('projects', { ...project, kind: 'hobby' })).toBeNull();
+    expect(duplicateDraft('projects', { ...project, title: 'P', published: true })).toMatchObject({
+      title: 'P (copy)',
+      published: false,
+    });
+
+    expect(checkUpload('image', 'image/webp', 4 * 1024 * 1024)).toBeNull();
+    expect(checkUpload('image', 'image/gif', 1000)).toMatch(/JPG, PNG or WebP/);
+    expect(checkUpload('image', 'image/png', 6 * 1024 * 1024)).toMatch(/5 MB/);
+    expect(checkUpload('pdf', 'application/pdf', 9 * 1024 * 1024)).toBeNull();
+    expect(checkUpload('pdf', 'image/png', 1000)).toMatch(/PDF/);
   });
 });

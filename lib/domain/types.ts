@@ -99,6 +99,21 @@ export interface AdminArticleSummary extends ArticleSummary {
   id: string;
 }
 
+/**
+ * What the admin edits on an article (ADMIN-DESIGN-SPEC §8.6). `readMinutes` is the stored
+ * override (`null` = estimate from the body); the excerpt isn't edited (Q-A12).
+ */
+export interface ArticleValues {
+  slug: string;
+  title: string;
+  body: string | null;
+  externalUrl: string | null;
+  status: ArticleStatus;
+  publishedAt: ISODate;
+  readMinutes: number | null;
+  listen: boolean;
+}
+
 /** A record as the admin holds it: when it was last saved (`null` = never, or unknown). */
 export type Stamped<T> = T & { updatedAt: string | null };
 

@@ -408,6 +408,7 @@ published / active.
 | DELETE | `/api/admin/{collection}/:id` | Soft delete |
 | PATCH | `/api/admin/{collection}/order` | Reorder, `{ ids: [...] }` |
 | POST | `/api/admin/restore` | Undo a delete (a toggle is undone by toggling back, Q-A24) |
+| POST | `/api/admin/upload` | A signed upload URL for one file (§10) |
 
 - **"Live" = the database confirmed the write** (owner, §14). The success toast appears when
   the write succeeds; nothing reloads, in the admin or on the site. The owner reloads the site
@@ -432,6 +433,12 @@ reads `naturalWidth` / `naturalHeight` before upload and sends them with the URL
 domain `Image` is complete (needed for CLS). Accept: images `JPG, PNG or WebP`; résumé `PDF`.
 **[ASSUMED]** Limits 5 MB image / 10 MB PDF; files replaced or removed stay in storage until a
 later cleanup (Q-A17).
+
+As built (8.4): `POST /api/admin/upload` `{ kind, type, bytes }` checks the admin and the
+limits, then returns a signed upload URL for a new name (`media/images/…`, `media/files/…`)
+and its public URL. The browser uploads straight to Storage (Storage RLS: admin only), and the
+record stores the public URL when the form is saved. The site's `next/image` allows only that
+bucket of the environment's own project (`next.config.ts`).
 
 ## 11. Validation (one module, client and server)
 
@@ -499,6 +506,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A22 | Skills at 4 groups: **New group** is a disabled button at 45% opacity, like the editor's clean **Discard** | The mockup disables New with no visual change; the faded state reuses its own convention |
 | Q-A23 | Year fields: "Enter a four-digit year." and "The end year can’t be before the start year."; an unchanged year keeps its stored month, a changed one is stored as January | The database requires `YYYY-MM` with end ≥ start, and the mockup has no copy for either; the site shows years only |
 | Q-A24 | List actions: a toggle's Undo sends the toggle back (`/restore` only clears deletes, refining Q-A16); a reorder whose ids no longer match the live list is refused (409, rolled back); a reorder still pending when the list is left (in the app or a reload) is sent at once, `keepalive`; the arrows' and pills' names include the row title, and a pill's name starts with its visible status (WCAG 2.5.3) | The mockup's 700ms debounce otherwise drops a move made just before leaving; screen readers need to know which row an arrow moves |
+| Q-A25 | Writing and media copy the mockup lacks: slug format "Use lowercase letters, numbers and single hyphens."; read time "Enter whole minutes, or leave it blank."; uploads "Images must be JPG, PNG or WebP, up to 5 MB." / "The résumé must be a PDF, up to 10 MB." / "Could not upload. Try again."; External URL hint "Where the article lives if it has no body here, like Medium."; a blank publish date saves as today; the Markdown preview uses the site's own renderer (so it shows exactly what the article page will) | The database requires the slug format and positive minutes; the limits are Q-A17's; the renderer avoids a second Markdown dialect |
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no

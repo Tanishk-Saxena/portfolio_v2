@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8.3 (list actions) complete · next: Phase 8.4 — Writing and media (`feat/phase-8-writing-media`)
+**Now:** Phase 8.4 (Writing and media) complete · next: Phase 8.5 — Settings and hand-over (`feat/phase-8-settings`)
 
 ---
 
@@ -254,8 +254,8 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 7 | `feat/phase-7-auth` | Supabase Auth, sign-in screen, `proxy.ts`, allowlist, sign-out, admin theme key | ✅ PR #17 |
 | 8.1 | `feat/phase-8-shell` | Admin tokens, sidebar / header + sheet, routes, read-only lists | ✅ PR #22 |
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ PR #23 |
-| 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | ✅ |
-| 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | |
+| 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | ✅ PR #24 |
+| 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | ✅ |
 | 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | |
 
 **6.1 notes.** Domain: `Profile.ctaLabel`, `Project.published`, `Article.status` + `listen`,
@@ -411,6 +411,34 @@ errors. Fixed from it: the arrows' labels doubled a quote's marks. Tests: the wr
 covers patch, reorder, delete and restore (fixtures and live; the live cleanup renumbers the
 quotes, since planted rows took positions), and the handler's 409. Unit 43 tests in 10 files;
 live 9.
+
+**8.4 notes.** Projects and Writing edit end to end; Hero gets the résumé, About the portrait
+(ADMIN-DESIGN-SPEC §5, §8.1–8.6, §10, §11). Every section but Settings now has its form.
+- Fields: Type and Status as pills (`role="radiogroup"`), the Markdown body (Write / Preview
+  through the site's own renderer, "n words · m min"), publish date, read time ("Auto" =
+  blank = the estimate, Q-A11), External URL (Q-A12), and the file field (drop zone or a
+  row with thumbnail / PDF tile, Replace, remove). Field definitions moved to
+  `lib/admin/fields.ts`; `schema.ts` keeps parsing and validation.
+- Writing rules: the slug follows the title until edited by hand; slug format and
+  uniqueness (client, with the other articles' slugs; server again, 422); publishing needs a
+  body or an external URL; Save reads "Publish" when an article switches to Published.
+  Duplicate adds "(copy)", `-copy` on the slug, Draft / Hidden.
+- Articles have an id that survives slug edits (`AdminArticles.get/create/update`; fixtures
+  pin `id` on first edit). The excerpt isn't edited (Q-A12).
+- Uploads (§10): `POST /api/admin/upload` checks the admin and the limits (Q-A17, shared with
+  the browser in `lib/admin/uploads.ts`) and returns a signed URL; the browser reads an
+  image's size, uploads straight to the `media` bucket and the form stores the public URL.
+  The portrait's alt is "Portrait of {name}" (Q-A9); an unchanged image keeps its focal
+  point. `next.config.ts` lets `next/image` load that bucket of the environment's project.
+  Uploads use Supabase whatever `DATA_SOURCE` says (like sign-in).
+
+Checked in Chrome on the dev server (throwaway admin): a project's Type pill and cover upload
+and save, a new article (slug follows the title, publish blocked without a body, Preview,
+hand-edited slug kept, created and live at its URL), the Hero résumé upload; no page errors;
+the test uploads removed from the bucket. A signed upload by plain `fetch` was verified
+against dev first. Tests: writing rules, slugs, duplicates, images and upload limits
+(`schema.test.ts`); article create / read / edit / publish / delete in the write check
+(fixtures and live). Unit 45 tests in 10 files; live 9.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
 shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for

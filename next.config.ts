@@ -12,8 +12,19 @@ const lanAddresses = Object.values(networkInterfaces())
   .filter((net) => net && net.family === 'IPv4' && !net.internal)
   .map((net) => net!.address);
 
+/**
+ * Uploaded images (portrait, project covers) live in the Supabase project's public `media`
+ * bucket (ADMIN-DESIGN-SPEC §10); `next/image` may optimise those and nothing else remote.
+ * The project comes from the environment, so dev and prod each allow their own.
+ */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const mediaPattern = supabaseUrl
+  ? [new URL('/storage/v1/object/public/media/**', supabaseUrl)]
+  : [];
+
 const nextConfig: NextConfig = {
   allowedDevOrigins: lanAddresses,
+  images: { remotePatterns: mediaPattern },
 };
 
 export default nextConfig;
