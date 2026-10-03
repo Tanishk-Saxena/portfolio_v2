@@ -20,7 +20,11 @@
   --color-line-input: var(--line-input);
   --color-halo: color-mix(in oklab, var(--accent), transparent 82%); /* admin input focus */
   /* admin washes (ADMIN-DESIGN-SPEC §2, §4.1) */
-  --color-wash-accent: color-mix(in oklab, var(--accent), transparent 86%); /* live pills */
+  --color-wash-accent: color-mix(
+    in oklab,
+    var(--accent),
+    transparent 92%
+  ); /* live pills, chips (A-1: 8%, AA) */
   --color-hover-nav: color-mix(in oklab, var(--ink), transparent 94%);
   --color-hover-row: color-mix(in oklab, var(--ink), transparent 96%);
   --color-wash-error: color-mix(in oklab, var(--accent), transparent 88%); /* error summary */

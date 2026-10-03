@@ -30,8 +30,21 @@ Lab = Lighthouse mobile (simulated slow 4G, mid-tier phone). Field = Vercel Spee
 Accessibility: axe runs in CI on home and article, both modes, desktop and mobile (a warning
 when it fails, never red). Last result: clean. 2026-10-02: one false reading on PR #19 (scroll
 cue audited mid-fade, desktop light); the test now waits for the cue to finish (PROGRESS, T.2).
+Since 9.4 (2026-10-04) it also opens the experience row, the project modal and the nav menu:
+clean. The **admin** is audited too, in the same CI step (signed in as the dev project's test
+admin, on the fixtures build; every screen, both modes, both viewports). First reading, 2026-10-04: one
+finding, A-1 below, on four screens, fixed the same day; now clean.
 
 ## Open items
+
+### A-1 · Admin live pills under 4.5:1 (fixed, 2026-10-04)
+
+Accent text on the accent wash (`--color-wash-accent`, accent at 14% over the paper) measured
+**4.17:1** light and **4.24:1** dark at 12–12.5px, under AA's 4.5:1: the live status pill in
+the Writing, Projects and Quotes lists ("Published", "Shown") and the editor's "New" state
+pill. Fixed with the owner's OK (ADMIN-DESIGN-SPEC §14, shipped values): the wash is 8%
+(4.53 light, 4.62 dark), one token in `app/globals.css`, shared by the tag chips. Admin axe
+clean after it.
 
 ### P-1 · LCP above 2.0 s on lab mobile (open, flagged)
 

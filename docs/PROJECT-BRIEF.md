@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), test infrastructure (9.4) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
 
 ---
 
@@ -377,8 +377,9 @@ scores as it lands and nothing has to be measured twice.
   *Verify:* a deliberately regressing PR shows the warning with its scores and still passes.
 - The rest is planned item by item in the ledger's **Phase 9 roadmap** (owner, 2026-10-04),
   which carries every decision. In order:
-  - 9.4 *Test infrastructure*: a read-only viewer admin, so axe audits the admin in CI; the
-    site states its axe spec never opens.
+  - 9.4 *Test infrastructure*: a dev test admin, so CI runs a blocking signed-in admin
+    journey and axe on every admin screen (on the fixtures build); the site states its axe
+    spec never opened; admin roles (editor | viewer).
   - 9.3 *The owner's findings from the Phase 8 admin test*: bugs (skill-group and item caps,
     External URL or body, validation timing), admin and site UI/UX, drag to reorder, pasted
     images and rotating modal media.

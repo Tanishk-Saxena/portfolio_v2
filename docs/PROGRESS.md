@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) complete · next: 9.4, test infrastructure (roadmap A: a read-only viewer admin, admin axe in CI, the site's unaudited states), then 9.3 (the owner's findings), 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states; admin roles) complete · next: 9.3 (the owner's findings, roadmap B first: items 4–7), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -482,8 +482,8 @@ left is minor bugs and UI/UX, which are Phase 9's (9.3).
         flows; real content later, once the owner's own portfolio is ready).
   - [ ] A save shows on the *deployed* site on the next reload (the production path:
         prerendered pages, `revalidatePath`); the prod smoke test covers it.
-  - [ ] axe on the admin screens, desktop and phone (flagged, never blocking), in CI as a
-        read-only viewer admin: Phase 9 roadmap items 1–2.
+  - [x] axe on the admin screens, desktop and phone (flagged, never blocking), in CI as a
+        dev test admin: Phase 9 roadmap items 1–2 (done in 9.4).
 
 **What's left after Phase 8 (2026-10-02, owner's order, brief §6):**
 1. ~~Phase 9.1, Lighthouse CI as an amber reading on every PR~~ — done (Phase 9 below).
@@ -508,8 +508,8 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | Step | Branch | Scope | Roadmap | Status |
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
-| 9.4 | — | Test infrastructure: a read-only viewer admin, admin axe in CI, the site's unaudited states | A (1–3) | next |
-| 9.3 | — | The owner's findings from the admin test (list below) | B–F (4–23) | after 9.4 |
+| 9.4 | `feat/phase-9-test-infra` | Test infrastructure: admin roles and a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
+| 9.3 | — | The owner's findings from the admin test (list below) | B–F (4–23) | next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 
@@ -525,22 +525,26 @@ design change in DESIGN-SPEC §10 (site) or ADMIN-DESIGN-SPEC §14 (admin) as it
 numbers are stable: refer to them in PRs.
 
 **A. Test infrastructure (9.4, first)**
-- [ ] 1. **Viewer admin role.** A migration adds a role to `admin_user` (`editor` | `viewer`;
-      existing rows become `editor`). RLS: both roles read everything the admin shows (hidden
-      rows, drafts); only `editor` writes (tables and the `media` bucket). App: a viewer
-      signs in and sees every admin screen; every write route answers 403. Tests: PGlite
-      (viewer reads, viewer writes refused), live (a viewer save is refused). Claude creates
-      the viewer in **dev** with the secret key (as `test:live` does) and hands the owner
-      its credentials. Applied to dev, then prod (prod gets no viewer).
-- [ ] 2. **Admin axe in CI**, mirroring `e2e/a11y.spec.ts` (WCAG 2.1 AA, light and dark,
+- [x] 1. **Admin roles and one test admin.** A migration adds a role to `admin_user`
+      (`editor` | `viewer`; existing rows become `editor`): both read everything the admin
+      shows, only `editor` writes (tables and the `media` bucket); the write routes answer a
+      viewer with 403. Tested in PGlite and live. CI uses **one** account (owner,
+      2026-10-04: one test user, an editor; dev is test data): `e2e-admin@example.com` in
+      **dev** only, made by Claude with the secret key. Applied to dev, then prod (prod gets
+      no test account). The `viewer` role stays available, unused by any account.
+- [x] 2. **Admin axe in CI**, mirroring `e2e/a11y.spec.ts` (WCAG 2.1 AA, light and dark,
       desktop and phone, a non-blocking warning): sign-in, every list, an editor of each
-      kind, the delete and leave dialogs, the Sections sheet, Settings. A CI job builds
-      against **dev** (`DATA_SOURCE=supabase`) and signs in as the viewer; it skips when the
-      secrets are missing. Owner adds four repository secrets (Settings → Secrets and
-      variables → Actions): `E2E_SUPABASE_URL` and `E2E_SUPABASE_PUBLISHABLE_KEY` (dev's,
-      from `.env.local`), `E2E_ADMIN_VIEWER_EMAIL` and `E2E_ADMIN_VIEWER_PASSWORD` (from
-      Claude). No secret key in CI.
-- [ ] 3. **Site axe gaps**: audit the open experience row, the project modal and the open nav
+      kind, the delete and leave dialogs, the Sections sheet, Settings. Runs in `check` on
+      the same **fixtures** build as the site's tests (owner: one build); only sign-in
+      reaches dev. Skips when the secrets are missing. Repository secrets (owner, Settings →
+      Secrets and variables → Actions): `E2E_SUPABASE_URL` and `E2E_SUPABASE_PUBLISHABLE_KEY`
+      (dev's), `E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD`. No secret key in CI.
+- [x] 2b. **Blocking admin journey** (owner, 2026-10-04: admin functionality tests that gate
+      like the site's): in `e2e/smoke.spec.ts`, signed in as the test admin on the fixtures
+      build, so saves change only the server's in-memory copy: create a quote, edit and
+      save, take it out of rotation from the list, delete and undo, open Settings. Desktop
+      and phone.
+- [x] 3. **Site axe gaps**: audit the open experience row, the project modal and the open nav
       menu, which the site's spec never opens.
 
 **B. Bugs (9.3)**: details in the 9.3 findings below.
@@ -632,6 +636,39 @@ numbers are stable: refer to them in PRs.
       covers a save showing on the deployed site.
 
 **Not in Phase 9:** P-1 (LCP) and the full Lighthouse audit, Phase 10.
+
+**9.4 notes (roadmap A).**
+- Migration `20261004000000_admin_roles.sql`: `admin_user.role` (`editor` default |
+  `viewer`), `is_editor()` and `admin_role()` (security definer, like `is_admin()`); each
+  table's "admin manages" policy split into "admin reads" (any role) and "editor
+  inserts / updates / deletes"; the `media` bucket's policies need `is_editor()`. Additive:
+  the old code runs on the new schema. Pushed to dev and prod (`db push --db-url`); prod
+  before the merge.
+- App: `getAdmin()` returns the role (`admin_role()`); `handleSave` and `handleAction`, which
+  every `/api/admin/*` write goes through, answer a viewer with 403.
+- One build (owner): `check` builds on fixtures with the dev project's public keys. Sign-in
+  always uses Supabase, whatever `DATA_SOURCE` says, while the site's and the admin's content
+  are the fixtures, so the signed-in tests are deterministic and never write to dev.
+- The test admin: `e2e-admin@example.com` in **dev** only, an editor (first made as a viewer
+  for axe alone; the owner chose one account for every admin test). Credentials in four
+  repository secrets and in `.env.local` for local runs (`.env.example` lists the names).
+  `e2e/admin-account.ts` holds the credentials and the sign-in, shared by both specs.
+- `e2e/admin-a11y.spec.ts`: one test per mode and viewport signs in once and audits sign-in,
+  the four single forms, every list, an editor of each kind with its delete confirmation
+  (opened, cancelled), a new project with the leave dialog (Keep editing), and on phones the
+  Sections sheet; a soft assertion per screen names each failure. Runs in `check`'s axe step
+  with the site's (non-blocking).
+- `e2e/smoke.spec.ts` gains the admin journey (2b): blocking.
+- `e2e/a11y.spec.ts` gains "home's open states" per mode: the open experience row, the
+  project modal, the open nav menu.
+- Results (2026-10-04): site open states clean; admin clean except **A-1** (the live pills'
+  accent wash, 4.17–4.24:1), fixed with the owner's OK (wash 14% → 8%, 4.53 / 4.62;
+  `docs/PERFORMANCE.md`), after which admin axe is clean. Tests: unit 49 in 10 files (+2:
+  roles in RLS in both grant modes, and 403 in the handler test); live 9 (a viewer's reads
+  and refused writes, upload included); e2e on one fixtures build: smoke 8 (admin journey
+  included, stable over 6 repeats), site axe 12, admin axe 4.
+- Local note: `.env.local` has `DATA_SOURCE=supabase` (the owner's admin testing), so build
+  with `DATA_SOURCE=fixtures` before the e2e specs (`CLAUDE.md` commands).
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",

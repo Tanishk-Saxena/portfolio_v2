@@ -16,6 +16,16 @@ jobs:
     permissions:
       contents: read
       pull-requests: write # the pinned test-results comment
+    # The admin's e2e tests sign in through the dev project as its test admin (Phase 9
+    # roadmap items 1–2b). The build stays on fixtures (DATA_SOURCE unset), so the site's and
+    # the admin's content are the fixtures and the admin's saves change only the server's
+    # in-memory copy; only sign-in reaches dev. Repository secrets, no secret key. Without
+    # them (a fork's PR) the signed-in admin tests skip themselves.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.E2E_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.E2E_SUPABASE_PUBLISHABLE_KEY }}
+      E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+      E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5
@@ -28,17 +38,17 @@ jobs:
       - run: npm run format:check
       - run: npm run test # unit; the live Supabase suite is local only (npm run test:live)
       - run: npm run build
-      # Critical-path interaction tests against the production build (uses the runner's Chrome).
-      # Functionality gates the PR.
+      # Critical-path interaction tests against the production build (uses the runner's Chrome),
+      # the signed-in admin journey included. Functionality gates the PR.
       - run: npx playwright test e2e/smoke.spec.ts
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: reports/smoke.xml
       # Accessibility is a reading, not a gate (owner, brief §3): a failure is flagged as a
-      # warning on the PR (amber), never a red check.
+      # warning on the PR (amber), never a red check. The site and every admin screen.
       - name: Accessibility (axe) — flagged, non-blocking
         id: a11y
         continue-on-error: true
-        run: npx playwright test e2e/a11y.spec.ts
+        run: npx playwright test e2e/a11y.spec.ts e2e/admin-a11y.spec.ts
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: reports/a11y.xml
       - if: steps.a11y.outcome == 'failure'

@@ -32,6 +32,7 @@ const SUPABASE_STUBS = `
 
 const ADMIN = '00000000-0000-0000-0000-00000000000a';
 const STRANGER = '00000000-0000-0000-0000-00000000000b';
+const VIEWER = '00000000-0000-0000-0000-00000000000c';
 type Role = 'anon' | 'authenticated';
 
 const root = new URL('../../../supabase/', import.meta.url);
@@ -70,8 +71,9 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
       for (const sql of migrations) await db.exec(sql);
       await db.exec(read('seed.sql'));
       await db.exec(`
-    insert into auth.users (id) values ('${ADMIN}'), ('${STRANGER}');
+    insert into auth.users (id) values ('${ADMIN}'), ('${STRANGER}'), ('${VIEWER}');
     insert into public.admin_user (user_id) values ('${ADMIN}');
+    insert into public.admin_user (user_id, role) values ('${VIEWER}', 'viewer');
     -- hidden rows the public must never see
     insert into public.project (id, title, kind, year) values ('hidden', 'H', 'side-project', 2026);
     insert into public.quote (id, text, author, active) values ('skipped', 'x', 'y', false);
@@ -164,6 +166,35 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
           `insert into storage.objects (bucket_id, name) values ('media', 'cover.webp')`,
           ADMIN,
         );
+        const [role] = await as<{ r: string }>(
+          'authenticated',
+          'select public.admin_role() r',
+          ADMIN,
+        );
+        expect(role.r).toBe('editor');
+      });
+
+      it('a viewer reads everything the admin sees and writes nothing', async () => {
+        expect(await count('authenticated', 'public.experience', VIEWER)).toBe(d.experience.length);
+        expect(await count('authenticated', 'public.project', VIEWER)).toBe(d.projects.length + 1);
+        const [role] = await as<{ r: string }>(
+          'authenticated',
+          'select public.admin_role() r',
+          VIEWER,
+        );
+        expect(role.r).toBe('viewer');
+        for (const sql of [
+          `update public.profile set name = 'x' returning name`,
+          `delete from public.quote returning id`,
+        ]) {
+          expect(await as('authenticated', sql, VIEWER)).toEqual([]);
+        }
+        for (const sql of [
+          `insert into public.quote (text, author) values ('x', 'y')`,
+          `insert into storage.objects (bucket_id, name) values ('media', 'x.png')`,
+        ]) {
+          await expect(as('authenticated', sql, VIEWER)).rejects.toThrow();
+        }
       });
     });
   },
