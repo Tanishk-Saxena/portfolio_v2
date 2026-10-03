@@ -78,13 +78,31 @@ isn't on the list sees "That email and password don't match." and can't write an
 To remove access, delete the row (or the user). `npm run test:live` checks all of this
 against dev with throwaway accounts.
 
+**Roles** (Phase 9.4). A row's `role` is `editor` (the default: reads and writes) or `viewer`
+(signs in and reads everything the admin shows, writes nothing; RLS and the `media` bucket
+refuse it, the write routes answer 403). Every account today is an editor; `viewer` is there
+for a read-only account should one be wanted.
+
+**The test admin (dev only).** `e2e-admin@example.com`, an editor made with the secret key,
+for the signed-in admin e2e tests (smoke and axe) in CI's `check` job and locally. Those
+tests run on a fixtures build, so it signs in through dev but its saves change only the
+server's in-memory fixtures. Its password lives in the repository secret `E2E_ADMIN_PASSWORD`
+(with `E2E_ADMIN_EMAIL`, `E2E_SUPABASE_URL`, `E2E_SUPABASE_PUBLISHABLE_KEY`) and, for local
+runs, in `.env.local`. It could write to dev directly if leaked; dev holds only test content.
+To rotate: set a new password in Authentication → Users, then update both. Prod has no test
+account.
+
 ## Day to day
 
 - What dev holds: since the owner's admin test (2026-10-03), the **dev** project has the
   fictional test persona from `docs/admin-test-content/` (git-ignored, local only), not the
   seed. Prod still has the seed until the owner's own smoke test there.
 - New schema change → a new file in `supabase/migrations/` (`npx supabase migration new
-  <name>`), pushed to dev first, then prod.
+  <name>`), pushed to dev first, then prod. Without linking, the database URLs in
+  `.env.local` work directly: `npx supabase db push --db-url "$SUPABASE_DB_URL" --dry-run`,
+  then without `--dry-run` (prod: `$SUPABASE_PROD_DB_URL`, once the PR is approved, before it
+  merges, so the deployed code never meets an old schema). Keep migrations additive so the
+  live code runs on either side of the push.
 - Pages are prerendered at build. A save in the admin marks them stale
   (`revalidatePath('/', 'layout')`), so the site shows it on the next visit. An edit made
   directly in the Supabase dashboard skips that, and shows after the next deploy or the next

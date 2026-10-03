@@ -8,7 +8,12 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 const FILES = [
   { file: 'unit.xml', label: 'Unit', gate: 'blocks merge', viewports: false },
   { file: 'smoke.xml', label: 'E2E smoke', gate: 'blocks merge', viewports: true },
-  { file: 'a11y.xml', label: 'Accessibility (axe)', gate: 'flag only', viewports: true },
+  {
+    file: 'a11y.xml',
+    label: 'Accessibility (axe): site + admin',
+    gate: 'flag only',
+    viewports: true,
+  },
 ];
 
 const SUITE = /<testsuite\b([^>]*)>([\s\S]*?)<\/testsuite>/g;
