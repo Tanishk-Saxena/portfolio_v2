@@ -80,6 +80,9 @@ against dev with throwaway accounts.
 
 ## Day to day
 
+- What dev holds: since the owner's admin test (2026-10-03), the **dev** project has the
+  fictional test persona from `docs/admin-test-content/` (git-ignored, local only), not the
+  seed. Prod still has the seed until the owner's own smoke test there.
 - New schema change → a new file in `supabase/migrations/` (`npx supabase migration new
   <name>`), pushed to dev first, then prod.
 - Pages are prerendered at build. A save in the admin marks them stale

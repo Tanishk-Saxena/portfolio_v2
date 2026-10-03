@@ -51,3 +51,6 @@ next-env.d.ts
 
 # lighthouse ci
 /.lighthouseci
+
+# admin test content (local only: fictional data, images; see docs/PROGRESS.md 9.3)
+/docs/admin-test-content/
