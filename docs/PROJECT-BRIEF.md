@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) done, the owner's findings (9.3), an editable site title and description (9.2) and the optional features next, then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), test infrastructure (9.4) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
 
 ---
 
@@ -375,16 +375,20 @@ scores as it lands and nothing has to be measured twice.
   not a blocker**, against a budget (performance ≥ 95, accessibility 100 on mobile). A
   miss is flagged as a warning (amber), visible on the PR, but never fails the build.
   *Verify:* a deliberately regressing PR shows the warning with its scores and still passes.
-- 9.2 *Editable site title and description* (owner, 2026-10-03): today they are hard-coded
-  in the root layout; make them Settings fields.
-- 9.3 *The owner's findings from the Phase 8 admin test* (2026-10-03; the list is in the
-  ledger): bugs first (skill-group and item caps, External URL with a body, validation
-  timing), then admin and site UI/UX, then enhancements (pasted images, modal media).
-- Then whichever optional features the owner picks: blog (Medium RSS), `/uses`, the shelved
-  signature intro (then a Settings toggle), drag-to-reorder (now wanted: 9.3 #12), draft
-  preview on the site, a GitHub contribution heat map (owner suggestion, 2026-10-02;
-  placement and data source to decide). Several of these are more than UI (an external
-  feed, auth for drafts, the GitHub API). Watch each PR's Lighthouse reading.
+- The rest is planned item by item in the ledger's **Phase 9 roadmap** (owner, 2026-10-04),
+  which carries every decision. In order:
+  - 9.4 *Test infrastructure*: a read-only viewer admin, so axe audits the admin in CI; the
+    site states its axe spec never opens.
+  - 9.3 *The owner's findings from the Phase 8 admin test*: bugs (skill-group and item caps,
+    External URL or body, validation timing), admin and site UI/UX, drag to reorder, pasted
+    images and rotating modal media.
+  - 9.2 *Editable site title and description* as Settings fields.
+  - 9.5 *Re-evaluation outcomes*: handwriting replaced (a signature font drawn stroke by
+    stroke; a new hero-word treatment), the signature intro with a Settings switch, a GitHub
+    contribution heat map, Markdown experience descriptions, contact links as a list,
+    storage cleanup, options for the skills layout. Skipped by the owner: Medium RSS blog,
+    `/uses`, draft preview on the site.
+  Watch each PR's Lighthouse reading.
 
 **Phase 10 — Final audit (the last step)**
 Measure the whole site's overall performance and accessibility scores (Lighthouse

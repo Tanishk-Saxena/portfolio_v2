@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 8 closed (owner's admin test on dev, 2026-10-03) · Phase 9.1 (Lighthouse CI) complete · next: Phase 9.3, the owner's findings from the admin test (bugs B1–B4 first), and 9.2, an editable site title and description; alongside, the owner's prod smoke test on a phone and the admin axe pass (a local spec, to build). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) complete · next: 9.4, test infrastructure (roadmap A: a read-only viewer admin, admin axe in CI, the site's unaudited states), then 9.3 (the owner's findings), 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -482,37 +482,156 @@ left is minor bugs and UI/UX, which are Phase 9's (9.3).
         flows; real content later, once the owner's own portfolio is ready).
   - [ ] A save shows on the *deployed* site on the next reload (the production path:
         prerendered pages, `revalidatePath`); the prod smoke test covers it.
-  - [ ] axe on the admin screens, desktop and phone (flagged, never blocking). Planned as a
-        local-only Playwright spec beside `e2e/a11y.spec.ts`: it signs in with an admin
-        account from `.env.local`, audits every admin screen (list, editor, dialogs, Settings)
-        in both modes on both viewports, and skips itself in CI, which has no Supabase keys.
-        Claude builds it in Phase 9 and runs it; the owner only supplies the account.
+  - [ ] axe on the admin screens, desktop and phone (flagged, never blocking), in CI as a
+        read-only viewer admin: Phase 9 roadmap items 1–2.
 
 **What's left after Phase 8 (2026-10-02, owner's order, brief §6):**
 1. ~~Phase 9.1, Lighthouse CI as an amber reading on every PR~~ — done (Phase 9 below).
-2. Phase 9, the UI review: the owner's gaps from testing, plus whichever optional features
-   they pick (RSS blog, `/uses`, signature intro, drag-to-reorder, draft preview, heat map).
+2. Phase 9, the UI review and features: now planned in full in the **Phase 9 roadmap**
+   below (owner, 2026-10-04).
 3. Phase 10, the final audit, last: Lighthouse on the live site and the admin, fix what
    falls short (including P-1 in `docs/PERFORMANCE.md`), record the scores.
 
 Owner revisions so far: ADMIN-DESIGN-SPEC §14 (style settings kept, tilt dropped; unshipped
-shades tweaked to pass AA; "saved" = database confirmed, no reloads). Defaults still open for
-the owner (§13): articles keep an External URL field (Q-A12); Name/Location on Hero and
-Footer note on Contact (Q-A8).
+shades tweaked to pass AA; "saved" = database confirmed, no reloads; the Phase 9 decisions of
+2026-10-04). The §13 defaults the owner had left open are settled: articles keep External URL,
+as either/or with a body (Q-A12); Name and Location stay on Hero, Footer note on Contact (Q-A8).
 
 ---
 
 ## Phase 9 — UI review and features
 
 Order (owner, 2026-10-02; brief §6): Lighthouse CI first, then the UI review and features;
-Phase 10, the final audit, last.
+Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below (owner,
+2026-10-04): start every Phase 9 session there.
 
-| Step | Branch | Scope | Status |
-|---|---|---|---|
-| 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | ✅ |
-| 9.2 | — | Editable site title and description: new Settings fields (owner, 2026-10-03) | planned |
-| 9.3 | — | The owner's findings from the admin test (list below): bugs first, then UI/UX, then enhancements | next |
-| 9.x | — | The optional features the owner picks (brief §6) | later |
+| Step | Branch | Scope | Roadmap | Status |
+|---|---|---|---|---|
+| 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
+| 9.4 | — | Test infrastructure: a read-only viewer admin, admin axe in CI, the site's unaudited states | A (1–3) | next |
+| 9.3 | — | The owner's findings from the admin test (list below) | B–F (4–23) | after 9.4 |
+| 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
+| 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
+
+Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
+every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
+is the very last item of Phase 9.
+
+### Phase 9 roadmap (owner, 2026-10-04): the final pass
+
+Everything Phase 9 will do, with the owner's answers to every open question. A new session
+picks up from the first unchecked item. Owner decisions are final (brief §0.1); record each
+design change in DESIGN-SPEC §10 (site) or ADMIN-DESIGN-SPEC §14 (admin) as it lands. Item
+numbers are stable: refer to them in PRs.
+
+**A. Test infrastructure (9.4, first)**
+- [ ] 1. **Viewer admin role.** A migration adds a role to `admin_user` (`editor` | `viewer`;
+      existing rows become `editor`). RLS: both roles read everything the admin shows (hidden
+      rows, drafts); only `editor` writes (tables and the `media` bucket). App: a viewer
+      signs in and sees every admin screen; every write route answers 403. Tests: PGlite
+      (viewer reads, viewer writes refused), live (a viewer save is refused). Claude creates
+      the viewer in **dev** with the secret key (as `test:live` does) and hands the owner
+      its credentials. Applied to dev, then prod (prod gets no viewer).
+- [ ] 2. **Admin axe in CI**, mirroring `e2e/a11y.spec.ts` (WCAG 2.1 AA, light and dark,
+      desktop and phone, a non-blocking warning): sign-in, every list, an editor of each
+      kind, the delete and leave dialogs, the Sections sheet, Settings. A CI job builds
+      against **dev** (`DATA_SOURCE=supabase`) and signs in as the viewer; it skips when the
+      secrets are missing. Owner adds four repository secrets (Settings → Secrets and
+      variables → Actions): `E2E_SUPABASE_URL` and `E2E_SUPABASE_PUBLISHABLE_KEY` (dev's,
+      from `.env.local`), `E2E_ADMIN_VIEWER_EMAIL` and `E2E_ADMIN_VIEWER_PASSWORD` (from
+      Claude). No secret key in CI.
+- [ ] 3. **Site axe gaps**: audit the open experience row, the project modal and the open nav
+      menu, which the site's spec never opens.
+
+**B. Bugs (9.3)**: details in the 9.3 findings below.
+- [ ] 4. B1 · four skill groups at most, on create, duplicate and Undo; client and server.
+- [ ] 5. B2 · 4–6 items per skill group, a hard limit; client and server.
+- [ ] 6. B3 · an article has an External URL **or** a body, never both; client, server and a
+      database check.
+- [ ] 7. B4 · every rule that can show early does, the same way in every section.
+
+**C. Admin UI/UX (9.3)**
+- [ ] 8. #6 Save disabled when there is nothing to save.
+- [ ] 9. #8 The Markdown hint says Markdown is supported, nothing partial.
+- [ ] 10. #4 Toasts stack, and follow the theme and accent.
+- [ ] 11. #11 Autofocus: a delete confirmation focuses Delete; dialogs their primary action.
+- [ ] 12. #16 Reset to defaults on Settings.
+- [ ] 13. #9 Every button and request audited for double fires (owner: not just toggles):
+      **debounce** where only the final state matters (toggles, reorder arrows, search and
+      filter typing); an **in-flight lock** where each press is a real action (Save,
+      Duplicate, Delete, Undo, uploads, sign-in, sign-out). The PR lists every one.
+- [ ] 14. #5 Delete from the list, for every kind of entry.
+- [ ] 15. #17 The leave dialog lists what changed.
+
+**D. Site UI/UX (9.3)**
+- [ ] 16. #2 The no-image placeholder reads like "No preview to show".
+- [ ] 17. #3 The modal's date moves below the project name (the close button overlapped it).
+- [ ] 18. #14 A calmer quote rotation.
+- [ ] 19. #15 Menus close in reverse (items hide one by one, reverse order, behind the centre
+      button); the button travels home only as the last one hides.
+- [ ] 20. #7 Press feedback rethought, site and admin alike: Claude presents two or three
+      alternatives to the ripple (no artificial delays; reads at any speed), the owner picks.
+- [ ] 21. **Card line: dropped** (owner: a single line says too little on a card and could
+      discourage opening it). Remove the field from the admin, the domain and the database;
+      the modal uses Description. Nothing else needs it (projects have no pages); the
+      migration drops the column after copying any summary into an empty description.
+      **Owner rule (2026-10-04): drop any unused field, it adds confusion.** Audit every
+      admin field and domain property for others that nothing on the site reads, and drop
+      them the same way (the PR lists what was found).
+
+**E. Drag to reorder (9.3 #12)**
+- [ ] 22. Drag to reorder the lists and the skill pills within a group (arrows stay for
+      keyboards). Settles ADMIN-DESIGN-SPEC §13's "revisit drag-to-reorder after real use".
+
+**F. Media (9.3 #1)**
+- [ ] 23. Paste images into image fields, alongside upload. Optional **modal media** for a
+      project: a **list** of items (GIF, video or image) that rotates automatically like a
+      carousel while the modal is open (owner, 2026-10-04); the card keeps its cover image,
+      and the modal shows the cover when the list is empty.
+
+**G. Site title and description (9.2)**
+- [ ] 24. Settings fields for the site title and description (root metadata, Open Graph);
+      the name's other hard-coded spots (title template, preview images' alt text, the
+      admin wordmark) read the profile's Name.
+
+**H. Re-evaluation outcomes (9.5)**
+- [ ] 25. **Skills layout.** Claude presents two or three alternatives to the four columns,
+      like #7's press feedback; the columns stay until the owner picks one.
+- 26. **External URL on articles: kept**, as either/or with a body (item 6). No pulling in
+      articles from elsewhere. Decided, nothing to build.
+- 27. **Name and Location on Hero, Footer note on Contact: kept** (Q-A8). Decided.
+- [ ] 28a. **Handwriting out.** The Caveat hero word and signature aren't coming out well
+      and aren't worth more iterations. Refine the fonts instead: the hero word moves to a
+      non-handwritten treatment (Claude proposes options), and the signature becomes a proper
+      signature font with a stroke-by-stroke animation, as if written by hand. Goes with
+      29c. **Last in Phase 9** (owner: it will take time), together with 29c.
+- 28b. **Experience stays rows** (no card/modal treatment). Decided.
+- 28c. **The quote section stays** (with item 18's calmer rotation). Decided.
+- 29a. Medium RSS blog: **skipped** (the Writing section and External URL cover it).
+- 29b. `/uses` page: **skipped**, not needed.
+- [ ] 29c. **Signature intro: build it**, with a Settings switch to turn it off, using the
+      new signature font and stroke animation (28a); fix the hand-off shift and the load cost
+      that shelved it (Phase 4 notes; `git stash` "wip: signature intro"). **Last in Phase 9**,
+      after everything else; its Settings switch may land earlier (e.g. with item 24),
+      inert until the intro exists.
+- 29d. Draft preview on the site: **skipped**; the editor's Preview is enough.
+- [ ] 29e. **GitHub contribution heat map: build it.** Claude proposes where it sits; data
+      from GitHub's API at build time (revalidated), never in the browser.
+- [ ] 30. **Experience descriptions in Markdown**, simple formatting: paragraphs, `- `
+      lists, **bold**, *italic* and underline. Same renderer as articles, limited to these.
+      Underline isn't part of standard Markdown, so the renderer gains it for **articles too**
+      (owner: articles may use it); Claude picks the most standard syntax when building it
+      (inline `<u>…</u>`, allowed through the sanitiser, unless something better fits).
+- [ ] 31. **Contact links as an editable list** (label, URL, order) instead of the four fixed
+      slots, so any service (LeetCode…) can be added.
+- [ ] 32. **Keep storage clean**: deleting or replacing an image or résumé removes the old
+      file from the `media` bucket.
+
+**I. Carried checks**
+- [ ] 33. The owner's smoke test of every admin feature on **prod, on a phone**; it also
+      covers a save showing on the deployed site.
+
+**Not in Phase 9:** P-1 (LCP) and the full Lighthouse audit, Phase 10.
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",
@@ -527,7 +646,8 @@ drafting the admin test content (`docs/admin-test-content/`, git-ignored, local 
 
 **9.3 findings (owner's admin test on dev, desktop, 2026-10-03).** Numbered as the owner
 reported them; owner calls are final (record design changes in the specs' revision sections
-as each lands).
+as each lands). The roadmap above orders them and carries the decisions of 2026-10-04 (items
+4–23); where the two differ, the roadmap wins.
 
 Bugs:
 - **B1 · Skill groups past four.** Duplicate creates a fifth group, past the hard limit of four.
@@ -552,7 +672,8 @@ Admin UI/UX:
 - **#8 Markdown hint** above the article body: say it supports Markdown, instead of the partial
   syntax list (`## heading · > quote · blank line = paragraph`).
 - **#9 Debounce** quick repeated actions: e.g. toggling Published on one row several times sends
-  one request (the final state), not one per press. Review buttons and queries for the same.
+  one request (the final state), not one per press. Widened (2026-10-04): every button and
+  request, debounce or in-flight lock (roadmap item 13).
 - **#11 Focus.** The admin lacks autofocus in general: a delete confirmation focuses its Delete
   button; a dialog focuses its primary action.
 - **#12 Drag to reorder**: the skill pills within a group, and the lists (already an optional
@@ -568,7 +689,7 @@ Site UI/UX:
 - **Card line (owner's question).** The project's Card line (`summary`) shows nowhere today
   except as the modal's fallback when Description is empty (the card shows image, name, type
   and year; projects have no pages, so no link previews either, despite the field's hint).
-  Decide: show it on the card, or drop the field.
+  Decided 2026-10-04: drop the field (roadmap item 21).
 - **#7 Ripple effect.** Rethink the Material-style ripple, consistently across the site and
   admin: the delays added so it registers don't sit right, places without them finish before
   it shows, and on some buttons it looks wrong. Choose an effect that reads at any speed.
@@ -580,7 +701,8 @@ Site UI/UX:
 Enhancements:
 - **#1 Paste images** into image fields (alongside upload). And optional **modal media** for
   projects: a GIF, a video or a different image, shown in the modal only (the card keeps its
-  image; the modal falls back to the card image when none is set).
+  image; the modal falls back to the card image when none is set). Widened (2026-10-04): a
+  list that rotates like a carousel (roadmap item 23).
 
 **9.1 notes.** `@lhci/cli` with `lighthouserc.cjs`: the production build (`next start`),
 home, `/articles/second-render` (the fixture article with a full body) and `/admin/sign-in`
