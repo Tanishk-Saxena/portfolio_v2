@@ -78,14 +78,9 @@ isn't on the list sees "That email and password don't match." and can't write an
 To remove access, delete the row (or the user). `npm run test:live` checks all of this
 against dev with throwaway accounts.
 
-**Roles** (Phase 9.4). A row's `role` is `editor` (the default: reads and writes) or `viewer`
-(signs in and reads everything the admin shows, writes nothing; RLS and the `media` bucket
-refuse it, the write routes answer 403). Every account today is an editor; `viewer` is there
-for a read-only account should one be wanted.
-
-**The test admin (dev only).** `e2e-admin@example.com`, an editor made with the secret key,
-for the signed-in admin e2e tests (smoke and axe) in CI's `check` job and locally. Those
-tests run on a fixtures build, so it signs in through dev but its saves change only the
+**The test admin (dev only).** `e2e-admin@example.com`, made with the secret key and put on
+the allowlist (a full admin, like the owner; there are no roles), for the signed-in admin
+e2e tests (smoke and axe) in CI's `check` job and locally. Those tests run on a fixtures build, so it signs in through dev but its saves change only the
 server's in-memory fixtures. Its password lives in the repository secret `E2E_ADMIN_PASSWORD`
 (with `E2E_ADMIN_EMAIL`, `E2E_SUPABASE_URL`, `E2E_SUPABASE_PUBLISHABLE_KEY`) and, for local
 runs, in `.env.local`. It could write to dev directly if leaked; dev holds only test content.

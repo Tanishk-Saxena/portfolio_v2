@@ -379,7 +379,7 @@ scores as it lands and nothing has to be measured twice.
   which carries every decision. In order:
   - 9.4 *Test infrastructure*: a dev test admin, so CI runs a blocking signed-in admin
     journey and axe on every admin screen (on the fixtures build); the site states its axe
-    spec never opened; admin roles (editor | viewer).
+    spec never opened.
   - 9.3 *The owner's findings from the Phase 8 admin test*: bugs (skill-group and item caps,
     External URL or body, validation timing), admin and site UI/UX, drag to reorder, pasted
     images and rotating modal media.

@@ -55,10 +55,8 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
     const accounts = {
       admin: `admin-test-${randomUUID()}@example.com`,
       stranger: `stranger-test-${randomUUID()}@example.com`,
-      viewer: `viewer-test-${randomUUID()}@example.com`,
     };
     const userIds: string[] = [];
-    const viewerUpload = `test/${tag}-viewer.png`;
 
     beforeAll(async () => {
       service = client(secret);
@@ -70,10 +68,8 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
         });
         if (error) throw error;
         userIds.push(data.user.id);
-        if (role === 'admin' || role === 'viewer') {
-          const listed = await service
-            .from('admin_user')
-            .insert({ user_id: data.user.id, role: role === 'admin' ? 'editor' : 'viewer' });
+        if (role === 'admin') {
+          const listed = await service.from('admin_user').insert({ user_id: data.user.id });
           if (listed.error) throw listed.error;
         }
       }
@@ -96,7 +92,6 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
           .eq('id', q.id);
       }
       await service.from('article').delete().like('slug', `${tag}%`); // planted + admin-written
-      await service.storage.from('media').remove([viewerUpload]); // only if a check failed
       // Deleting a user cascades to admin_user.
       for (const id of userIds) await service.auth.admin.deleteUser(id);
     });
@@ -179,18 +174,6 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
         (await stranger.from('quote').insert({ text: 'x', author: 'y' })).error,
       ).not.toBeNull();
       expect((await stranger.from('admin_user').select('user_id')).data ?? []).toEqual([]);
-
-      // A viewer (CI's axe account) is an admin for reads only.
-      const viewer = await signedIn(accounts.viewer);
-      expect((await viewer.rpc('admin_role')).data).toBe('viewer');
-      expect((await admin.rpc('admin_role')).data).toBe('editor');
-      expect((await rewriteProfile(viewer)).data ?? []).toHaveLength(0);
-      expect((await viewer.from('quote').insert({ text: 'x', author: 'y' })).error).not.toBeNull();
-      // An allowed type, so only the role can refuse it (removed again if it ever got in).
-      const upload = await viewer.storage
-        .from('media')
-        .upload(viewerUpload, new Blob(['x'], { type: 'image/png' }));
-      expect(upload.error).not.toBeNull();
-    }, 20_000); // three sign-ins and ~10 round trips
+    });
   });
 });
