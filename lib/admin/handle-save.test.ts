@@ -1,10 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { handleAction, handleSave } from './handle-save';
+import { handleSave } from './handle-save';
 import { Conflict } from './save';
 
-type Admin = { id: string; email: string; role: 'editor' | 'viewer' };
-const auth = vi.hoisted(() => ({ admin: null as Admin | null }));
-const EDITOR: Admin = { id: 'u1', email: 'owner@example.com', role: 'editor' };
+const auth = vi.hoisted(() => ({ admin: null as { id: string; email: string } | null }));
 vi.mock('@/lib/auth/server', () => ({ getAdmin: async () => auth.admin }));
 
 const post = (body: unknown) =>
@@ -16,7 +14,7 @@ const quote = { text: 'Less, but better.', author: 'Dieter Rams', active: true }
 
 describe('admin saves (route handlers)', () => {
   beforeEach(() => {
-    auth.admin = EDITOR;
+    auth.admin = { id: 'u1', email: 'owner@example.com' };
   });
 
   it('answers each failure with its status, and writes nothing', async () => {
@@ -25,13 +23,7 @@ describe('admin saves (route handlers)', () => {
 
     auth.admin = null;
     expect((await handleSave(post(quote), 'quotes', all, write)).status).toBe(401);
-    // A read-only viewer (CI's axe account) is refused every write: saves and list actions.
-    auth.admin = { ...EDITOR, role: 'viewer' };
-    expect((await handleSave(post(quote), 'quotes', all, write)).status).toBe(403);
-    const action = vi.fn(async () => Response.json({}));
-    expect((await handleAction(action)).status).toBe(403);
-    expect(action).not.toHaveBeenCalled();
-    auth.admin = EDITOR;
+    auth.admin = { id: 'u1', email: 'owner@example.com' };
 
     expect((await handleSave(post(quote), 'nope', all, write)).status).toBe(404);
     expect((await handleSave(post(quote), 'quotes', () => false, write)).status).toBe(404);

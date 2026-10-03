@@ -31,23 +31,18 @@ export async function isAdmin(supabase: SupabaseClient) {
   return !error && data === true;
 }
 
-/** An `editor` reads and writes; a `viewer` reads everything and writes nothing (CI's axe). */
-export type AdminRole = 'editor' | 'viewer';
-export type Admin = { id: string; email: string; role: AdminRole };
+export type Admin = { id: string; email: string };
 
 /**
  * The signed-in admin, or null. Verifies the session token's signature (`getClaims`, locally
- * with the project's asymmetric keys, as the proxy does) and asks the database's allowlist
- * for the role. Every admin page and `/api/admin/*` handler calls this; RLS checks every
- * query again.
+ * with the project's asymmetric keys, as the proxy does) and asks the database's allowlist.
+ * Every admin page and `/api/admin/*` handler calls this; RLS checks every query again.
  */
 export async function getAdmin(): Promise<Admin | null> {
   const supabase = await createAuthClient();
   if (!supabase) return null;
   const { data } = await supabase.auth.getClaims();
   const claims = data?.claims;
-  if (!claims) return null;
-  const { data: role, error } = await supabase.rpc('admin_role');
-  if (error || (role !== 'editor' && role !== 'viewer')) return null;
-  return { id: claims.sub, email: typeof claims.email === 'string' ? claims.email : '', role };
+  if (!claims || !(await isAdmin(supabase))) return null;
+  return { id: claims.sub, email: typeof claims.email === 'string' ? claims.email : '' };
 }

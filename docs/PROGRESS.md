@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states; admin roles) complete · next: 9.3 (the owner's findings, roadmap B first: items 4–7), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · next: 9.3 (the owner's findings, roadmap B first: items 4–7), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -508,7 +508,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | Step | Branch | Scope | Roadmap | Status |
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
-| 9.4 | `feat/phase-9-test-infra` | Test infrastructure: admin roles and a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
+| 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | — | The owner's findings from the admin test (list below) | B–F (4–23) | next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
@@ -525,13 +525,11 @@ design change in DESIGN-SPEC §10 (site) or ADMIN-DESIGN-SPEC §14 (admin) as it
 numbers are stable: refer to them in PRs.
 
 **A. Test infrastructure (9.4, first)**
-- [x] 1. **Admin roles and one test admin.** A migration adds a role to `admin_user`
-      (`editor` | `viewer`; existing rows become `editor`): both read everything the admin
-      shows, only `editor` writes (tables and the `media` bucket); the write routes answer a
-      viewer with 403. Tested in PGlite and live. CI uses **one** account (owner,
-      2026-10-04: one test user, an editor; dev is test data): `e2e-admin@example.com` in
-      **dev** only, made by Claude with the secret key. Applied to dev, then prod (prod gets
-      no test account). The `viewer` role stays available, unused by any account.
+- [x] 1. **One test admin.** CI signs in to the admin with **one** account (owner,
+      2026-10-04: one test user, a full admin; dev is test data): `e2e-admin@example.com`
+      on the **dev** allowlist only, made by Claude with the secret key. Prod has no test
+      account. (A read-only viewer role was built first, then removed at the owner's call,
+      from the code and from both databases, history included: no schema change remains.)
 - [x] 2. **Admin axe in CI**, mirroring `e2e/a11y.spec.ts` (WCAG 2.1 AA, light and dark,
       desktop and phone, a non-blocking warning): sign-in, every list, an editor of each
       kind, the delete and leave dialogs, the Sections sheet, Settings. Runs in `check` on
@@ -638,19 +636,16 @@ numbers are stable: refer to them in PRs.
 **Not in Phase 9:** P-1 (LCP) and the full Lighthouse audit, Phase 10.
 
 **9.4 notes (roadmap A).**
-- Migration `20261004000000_admin_roles.sql`: `admin_user.role` (`editor` default |
-  `viewer`), `is_editor()` and `admin_role()` (security definer, like `is_admin()`); each
-  table's "admin manages" policy split into "admin reads" (any role) and "editor
-  inserts / updates / deletes"; the `media` bucket's policies need `is_editor()`. Additive:
-  the old code runs on the new schema. Pushed to dev and prod (`db push --db-url`); prod
-  before the merge.
-- App: `getAdmin()` returns the role (`admin_role()`); `handleSave` and `handleAction`, which
-  every `/api/admin/*` write goes through, answer a viewer with 403.
+- Roles, built then dropped (owner, 2026-10-04): a migration gave `admin_user` an
+  `editor | viewer` role for a read-only CI account; once the owner chose one full test admin
+  it had no use, so it was reverted in dev and prod (a revert migration, then both versions
+  marked reverted in each history with `supabase migration repair`, and both files removed).
+  Both databases are back to `main`'s two migrations; no app code changed.
 - One build (owner): `check` builds on fixtures with the dev project's public keys. Sign-in
   always uses Supabase, whatever `DATA_SOURCE` says, while the site's and the admin's content
   are the fixtures, so the signed-in tests are deterministic and never write to dev.
-- The test admin: `e2e-admin@example.com` in **dev** only, an editor (first made as a viewer
-  for axe alone; the owner chose one account for every admin test). Credentials in four
+- The test admin: `e2e-admin@example.com` in **dev** only, on the allowlist (the owner chose
+  one account for every admin test). Credentials in four
   repository secrets and in `.env.local` for local runs (`.env.example` lists the names).
   `e2e/admin-account.ts` holds the credentials and the sign-in, shared by both specs.
 - `e2e/admin-a11y.spec.ts`: one test per mode and viewport signs in once and audits sign-in,
@@ -658,15 +653,18 @@ numbers are stable: refer to them in PRs.
   (opened, cancelled), a new project with the leave dialog (Keep editing), and on phones the
   Sections sheet; a soft assertion per screen names each failure. Runs in `check`'s axe step
   with the site's (non-blocking).
-- `e2e/smoke.spec.ts` gains the admin journey (2b): blocking.
+- `e2e/smoke.spec.ts` gains the admin journey (2b), and the home journey a Show more / Show
+  less step (Projects and Writing page in threes and collapse; owner, 2026-10-04): both
+  blocking. The articles journey's first click now retries while still on the home page: a
+  row clicked before hydration was sometimes lost under parallel load (pre-existing flake,
+  seen in repeated runs).
 - `e2e/a11y.spec.ts` gains "home's open states" per mode: the open experience row, the
   project modal, the open nav menu.
 - Results (2026-10-04): site open states clean; admin clean except **A-1** (the live pills'
   accent wash, 4.17–4.24:1), fixed with the owner's OK (wash 14% → 8%, 4.53 / 4.62;
-  `docs/PERFORMANCE.md`), after which admin axe is clean. Tests: unit 49 in 10 files (+2:
-  roles in RLS in both grant modes, and 403 in the handler test); live 9 (a viewer's reads
-  and refused writes, upload included); e2e on one fixtures build: smoke 8 (admin journey
-  included, stable over 6 repeats), site axe 12, admin axe 4.
+  `docs/PERFORMANCE.md`), after which admin axe is clean. Tests: unit 47 and live 9,
+  unchanged; e2e on one fixtures build: smoke 8 (the admin journey, stable over 6 repeats),
+  site axe 12, admin axe 4.
 - Local note: `.env.local` has `DATA_SOURCE=supabase` (the owner's admin testing), so build
   with `DATA_SOURCE=fixtures` before the e2e specs (`CLAUDE.md` commands).
 

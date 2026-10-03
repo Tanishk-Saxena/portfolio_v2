@@ -6,7 +6,7 @@ import { NO_ADMIN, NO_ADMIN_REASON, signIn } from './admin-account';
 // iteration doesn't break them. Runs under reduced motion (config) for determinism. One
 // journey per area, so each page loads once; a failing step is named in the report.
 
-test('home: hydrates without errors, a project opens and closes, the nav jumps', async ({
+test('home: hydrates without errors, a project opens and closes, lists page, the nav jumps', async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -29,6 +29,28 @@ test('home: hydrates without errors, a project opens and closes, the nav jumps',
     await expect(dialog).toBeHidden();
   });
 
+  await test.step('Show more pages Projects and Writing in threes; Show less collapses', async () => {
+    for (const [id, items] of [
+      ['#projects', '.card-trigger'],
+      ['#writing', 'a[href^="/articles/"]'],
+    ] as const) {
+      const section = page.locator(id);
+      const shown = section.locator(items);
+      await expect(shown).toHaveCount(3);
+      const more = section.getByRole('button', { name: 'Show more' });
+      const less = section.getByRole('button', { name: 'Show less' });
+      // Each press shows more, until the button turns into Show less (fixtures: 7 and 10).
+      for (let count = 3, presses = 0; !(await less.isVisible()); presses++) {
+        expect(presses).toBeLessThan(5);
+        await more.click();
+        await expect.poll(() => shown.count()).toBeGreaterThan(count);
+        count = await shown.count();
+      }
+      await less.click();
+      await expect(shown).toHaveCount(3);
+    }
+  });
+
   await test.step('the section nav jumps to a section', async () => {
     await page.locator('#projects').scrollIntoViewIfNeeded();
     await page.getByRole('button', { name: 'Jump to section' }).click();
@@ -46,10 +68,17 @@ test('articles: one opens from its row, Back returns home, an unknown slug is a 
   page,
 }) => {
   await page.goto('/');
-  await page
-    .locator('#writing')
-    .getByRole('link', { name: /second render/i })
-    .click();
+  // A row clicked before the page hydrates can be lost under load (parallel runs): click again
+  // while still on the home page. The outcome is what's tested, not the first click.
+  await expect(async () => {
+    if (!page.url().includes('/articles/')) {
+      await page
+        .locator('#writing')
+        .getByRole('link', { name: /second render/i })
+        .click({ timeout: 2_000 });
+    }
+    await expect(page).toHaveURL(/\/articles\/second-render$/, { timeout: 5_000 });
+  }).toPass({ timeout: 30_000 });
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(
     'The second render is the one users feel',
   );
