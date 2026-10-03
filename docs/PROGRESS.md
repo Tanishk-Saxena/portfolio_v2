@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9.1 (Lighthouse CI) complete · next: Phase 9 — the UI review and features (owner's gaps, optional features); alongside, Phase 8 verification (owner tests the admin and enters real content on a phone; admin axe pass; every Settings combination). Phase 10, the final audit, is last
+**Now:** Phase 8 closed (owner's admin test on dev, 2026-10-03) · Phase 9.1 (Lighthouse CI) complete · next: Phase 9.3, the owner's findings from the admin test (bugs B1–B4 first), and 9.2, an editable site title and description; alongside, the owner's prod smoke test on a phone and the admin axe pass (a local spec, to build). Phase 10, the final audit, is last
 
 ---
 
@@ -257,7 +257,7 @@ Plan: brief §6. Design: `docs/ADMIN-DESIGN-SPEC.md` (from `docs/design/ADMIN-*`
 | 8.2 | `feat/phase-8-editor` | Schema + validation module, Field, editor, save + revalidate, toasts, dirty guard | ✅ PR #23 |
 | 8.3 | `feat/phase-8-actions` | Quick toggles, reorder, delete + Undo, restore, duplicate, rollback, 409 | ✅ PR #24 |
 | 8.4 | `feat/phase-8-writing-media` | Markdown, slugs, read time, publish rules, uploads | ✅ PR #25 |
-| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings; owner enters real content on a phone | ✅ PR #26 · hand-over: owner |
+| 8.5 | `feat/phase-8-settings` | Site variants (slate blue, bottom-centre button, centre wheel, grain) + admin Settings | ✅ PR #26 · owner's test on dev: closed 2026-10-03 (findings → 9.3) |
 
 **6.1 notes.** Domain: `Profile.ctaLabel`, `Project.published`, `Article.status` + `listen`,
 `Quote.active`, new `Settings` + `SettingsRepository`; stored `readMinutes` is nullable and the
@@ -467,21 +467,26 @@ both positions and layouts (`utils.test.ts`), settings save in the write check (
 live), and the images' accent colours equal to `tokens.css` (`lib/seo.test.ts`). Unit 47 tests
 in 10 files; live 9. A production build serves `/favicon.ico` (200, PNG).
 
-**Phase 8 verification (brief §6), still open:**
-- [ ] Owner tests the whole admin (sign in at `/admin`; `DATA_SOURCE=supabase` so saves reach
-      the dev database) and flags gaps; fixes go in follow-up PRs.
-- [ ] Owner replaces the placeholder content through the admin, on a phone.
-- [ ] axe on the admin screens, desktop and phone (flagged, never blocking). It can't run in
-      CI, where the admin stays locked without Supabase keys: run it locally, signed in with
-      a throwaway admin as the browser checks above did.
-- [ ] Every Settings combination in both modes (so far: the defaults, and slate + bottom
-      centre + centre wheel at 1440 and 390, light and dark).
+**Phase 8 verification (brief §6). Closed by the owner, 2026-10-03:** the admin works; what's
+left is minor bugs and UI/UX, which are Phase 9's (9.3).
+- [x] Owner tested the whole admin on dev (desktop, `DATA_SOURCE=supabase`), entering a full
+      set of fictional test content (`docs/admin-test-content/`, git-ignored, local only)
+      through every section, field and list action. Findings → 9.3.
 - [x] Server validation repeats every client rule (one schema module; the handlers'
       statuses are unit-tested).
 - [x] A save confirms with a toast once the database has it (checked on the dev server).
-- [ ] …and shows on the *deployed* site on the next reload: the dev server renders every
-      request, so the production path (prerendered pages, `revalidatePath`) is still
-      unchecked. Check on a Vercel preview, which reads the dev project.
+- [x] Every Settings combination: the owner checked them on desktop (2026-10-03), after the
+      earlier check of slate + bottom centre + centre wheel at 1440 and 390, light and dark.
+- Carried into Phase 9 (open, not blocking the close):
+  - [ ] The owner's smoke test of every admin feature on **prod, on a phone** (the same
+        flows; real content later, once the owner's own portfolio is ready).
+  - [ ] A save shows on the *deployed* site on the next reload (the production path:
+        prerendered pages, `revalidatePath`); the prod smoke test covers it.
+  - [ ] axe on the admin screens, desktop and phone (flagged, never blocking). Planned as a
+        local-only Playwright spec beside `e2e/a11y.spec.ts`: it signs in with an admin
+        account from `.env.local`, audits every admin screen (list, editor, dialogs, Settings)
+        in both modes on both viewports, and skips itself in CI, which has no Supabase keys.
+        Claude builds it in Phase 9 and runs it; the owner only supplies the account.
 
 **What's left after Phase 8 (2026-10-02, owner's order, brief §6):**
 1. ~~Phase 9.1, Lighthouse CI as an amber reading on every PR~~ — done (Phase 9 below).
@@ -505,7 +510,77 @@ Phase 10, the final audit, last.
 | Step | Branch | Scope | Status |
 |---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | ✅ |
-| 9.x | — | The owner's UI gaps from testing; the optional features they pick | next |
+| 9.2 | — | Editable site title and description: new Settings fields (owner, 2026-10-03) | planned |
+| 9.3 | — | The owner's findings from the admin test (list below): bugs first, then UI/UX, then enhancements | next |
+| 9.x | — | The optional features the owner picks (brief §6) | later |
+
+**9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
+hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",
+"…a frontend engineer in Delhi building quiet, careful software…"), so the admin can't change
+them and they still describe the placeholder. Make both editable, probably as new Settings
+fields (site title, site description), read by the root metadata (title default and template,
+`description`, `openGraph`). Related, also hard-coded today: the name in the title template
+(could come from the profile's Name), the preview images' alt text
+(`app/opengraph-image.tsx`, `app/(site)/articles/[slug]/opengraph-image.tsx`), and the admin's
+wordmark (`components/admin/{admin-header,admin-sidebar,sign-in-form}.tsx`). Found while
+drafting the admin test content (`docs/admin-test-content/`, git-ignored, local only).
+
+**9.3 findings (owner's admin test on dev, desktop, 2026-10-03).** Numbered as the owner
+reported them; owner calls are final (record design changes in the specs' revision sections
+as each lands).
+
+Bugs:
+- **B1 · Skill groups past four.** Duplicate creates a fifth group, past the hard limit of four.
+  The cap lives only in the list page, which hides New at four
+  (`app/admin/(signed-in)/[section]/page.tsx:38`); no route enforces it, though
+  ADMIN-DESIGN-SPEC §8.7 says "enforced on the server too". Enforce it on create, duplicate and
+  restore (Undo of a delete), client and server. The owner isn't sold on four skill columns
+  either: explore a better layout in Phase 9, keep the columns until then.
+- **B2 · Items per skill group (#13).** "Four to six per column" is only a hint today; the owner
+  wants it a hard limit (4–6), enforced client and server.
+- **B3 · External URL and body together (#19).** An article can be saved with both. Allow one
+  or the other, never both (client, server, and a database check).
+- **B4 · Validation timing (#18).** Some errors show as you type, others only after Save; make
+  every rule that can show early show early, the same way in every section.
+
+Admin UI/UX:
+- **#6 Save disabled when clean**, like Discard.
+- **#4 Toasts** stack when several are up (vertically or horizontally), and follow the theme and
+  accent (pure white today).
+- **#5 Delete from the list**, for every kind of entry (project, role, group, article, quote),
+  not only from inside the editor.
+- **#8 Markdown hint** above the article body: say it supports Markdown, instead of the partial
+  syntax list (`## heading · > quote · blank line = paragraph`).
+- **#9 Debounce** quick repeated actions: e.g. toggling Published on one row several times sends
+  one request (the final state), not one per press. Review buttons and queries for the same.
+- **#11 Focus.** The admin lacks autofocus in general: a delete confirmation focuses its Delete
+  button; a dialog focuses its primary action.
+- **#12 Drag to reorder**: the skill pills within a group, and the lists (already an optional
+  feature, now wanted).
+- **#16 Reset to defaults** on the Settings page.
+- **#17 Leave dialog shows the changes.** "Keep editing / Discard" lists what was changed.
+
+Site UI/UX:
+- **#2 No-image placeholder.** The project card's "Project image" label becomes something
+  like "No preview to show".
+- **#3 Modal close button vs. date.** The close button sometimes overlaps the project's date;
+  move the date below the project name.
+- **Card line (owner's question).** The project's Card line (`summary`) shows nowhere today
+  except as the modal's fallback when Description is empty (the card shows image, name, type
+  and year; projects have no pages, so no link previews either, despite the field's hint).
+  Decide: show it on the card, or drop the field.
+- **#7 Ripple effect.** Rethink the Material-style ripple, consistently across the site and
+  admin: the delays added so it registers don't sit right, places without them finish before
+  it shows, and on some buttons it looks wrong. Choose an effect that reads at any speed.
+- **#14 Quote rotation** transition is too busy; make it calmer.
+- **#15 Menu closing.** The arc and the wheel close in reverse (items hide one by one, in
+  reverse circular order, behind the centre button), and only as the last one hides does the
+  button travel back to its place.
+
+Enhancements:
+- **#1 Paste images** into image fields (alongside upload). And optional **modal media** for
+  projects: a GIF, a video or a different image, shown in the modal only (the card keeps its
+  image; the modal falls back to the card image when none is set).
 
 **9.1 notes.** `@lhci/cli` with `lighthouserc.cjs`: the production build (`next start`),
 home, `/articles/second-render` (the fixture article with a full body) and `/admin/sign-in`
