@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · next: 9.3 (the owner's findings, roadmap B first: items 4–7), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) done · next: 9.3's roadmap C (admin UI/UX, items 8–15), then D–F, then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -509,7 +509,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
-| 9.3 | — | The owner's findings from the admin test (list below) | B–F (4–23) | next |
+| 9.3 | `fix/phase-9-admin-rules` (B), then one per group | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 
@@ -546,11 +546,11 @@ numbers are stable: refer to them in PRs.
       menu, which the site's spec never opens.
 
 **B. Bugs (9.3)**: details in the 9.3 findings below.
-- [ ] 4. B1 · four skill groups at most, on create, duplicate and Undo; client and server.
-- [ ] 5. B2 · 4–6 items per skill group, a hard limit; client and server.
-- [ ] 6. B3 · an article has an External URL **or** a body, never both; client, server and a
+- [x] 4. B1 · four skill groups at most, on create, duplicate and Undo; client and server.
+- [x] 5. B2 · 4–6 items per skill group, a hard limit; client and server.
+- [x] 6. B3 · an article has an External URL **or** a body, never both; client, server and a
       database check.
-- [ ] 7. B4 · every rule that can show early does, the same way in every section.
+- [x] 7. B4 · every rule that can show early does, the same way in every section.
 
 **C. Admin UI/UX (9.3)**
 - [ ] 8. #6 Save disabled when there is nothing to save.
@@ -667,6 +667,26 @@ numbers are stable: refer to them in PRs.
   site axe 12, admin axe 4.
 - Local note: `.env.local` has `DATA_SOURCE=supabase` (the owner's admin testing), so build
   with `DATA_SOURCE=fixtures` before the e2e specs (`CLAUDE.md` commands).
+
+**9.3 notes, roadmap B (items 4–7; branch `fix/phase-9-admin-rules`).**
+- B1: `isFull()` in `lib/admin/save.ts` counts the live entries of a capped list. Create
+  (Duplicate saves through it) and `/api/admin/restore` answer 409 `{ full: true }`; the
+  editor's toast and Undo's say "The skills grid holds 4 columns. Delete one to add another."
+  At four, the editor has no Duplicate and `/admin/skills/new` returns to the list.
+- B2: `minItems` / `maxItems` on the schema's tags field (4 and 6 for skill items), checked by
+  the shared `validate()`, so client and server agree: "Add 4 to 6 items: there are `n`." The
+  tag box takes no seventh and shows "`n` / 6". A stored group outside the range (dev data,
+  the stress fixtures) still opens and must be brought into range to save.
+- B3: `validate()` puts "An article has a body or an External URL, not both. Clear one." on
+  External URL. Migration `20261004000000_article_body_or_external.sql` adds the check; for a
+  row holding both it first clears the External URL, which the site never used (the body
+  wins on `/articles/[slug]`). **To push**: dev, then prod before the PR merges
+  (`docs/SUPABASE.md`, Day to day); the owner's OK first, as it edits rows.
+- B4: a field shows its error once edited, in every section; a filled field whose rule reads
+  the edited one shows too (`RECHECKS` in `lib/admin/schema.ts`). Untouched fields wait for
+  Save, as does the summary above the fields. Before this, nothing showed until a failed
+  Save, then everything showed live: the mix the owner saw.
+- Tests: unit 47, unchanged in count (the schema, save and migration tests gain assertions).
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",

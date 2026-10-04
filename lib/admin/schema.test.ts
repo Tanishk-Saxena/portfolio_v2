@@ -105,6 +105,16 @@ describe('admin schema', () => {
     expect(
       validate('writing', { ...article, status: 'published', externalUrl: 'https://medium.com/x' }),
     ).toEqual({});
+    // A body or an External URL, never both.
+    expect(
+      validate('writing', { ...article, body: 'Text', externalUrl: 'https://medium.com/x' }),
+    ).toEqual({ externalUrl: 'An article has a body or an External URL, not both. Clear one.' });
+    // A skill group holds four to six items.
+    const group = (n: number) => ({ title: 'Languages', items: Array.from({ length: n }, String) });
+    expect(validate('skills', group(4))).toEqual({});
+    expect(validate('skills', group(6))).toEqual({});
+    expect(validate('skills', group(1)).items).toBe('Add 4 to 6 items: there is 1.');
+    expect(validate('skills', group(7)).items).toBe('Add 4 to 6 items: there are 7.');
     expect(validate('writing', { ...article, readMinutes: '0' }).readMinutes).toMatch(
       /whole minutes/,
     );

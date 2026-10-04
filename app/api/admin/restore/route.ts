@@ -1,5 +1,6 @@
 import { handleAction, readJson } from '@/lib/admin/handle-save';
 import { setDeleted } from '@/lib/admin/list-actions';
+import { isFull } from '@/lib/admin/save';
 import { findSection } from '@/lib/admin/sections';
 
 /**
@@ -12,6 +13,10 @@ export async function POST(request: Request) {
     const section = findSection(String(body?.section ?? ''));
     if (section?.kind !== 'collection' || typeof body?.id !== 'string') {
       return Response.json({ error: 'Expected { section, id }' }, { status: 400 });
+    }
+    // A full list has no room for it back (four skill groups, §7.1).
+    if (await isFull(section.slug)) {
+      return Response.json({ error: 'Full', full: true }, { status: 409 });
     }
     return (await setDeleted(section.slug, body.id, false))
       ? Response.json({ ok: true })

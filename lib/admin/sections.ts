@@ -35,6 +35,10 @@ export interface CollectionSection extends SectionBase {
 
 export type Section = SingleSection | CollectionSection;
 
+/** What a full list says (§7.1); only Skills has a cap. */
+export const fullMessage = (section: CollectionSection) =>
+  `The skills grid holds ${section.max} columns. Delete one to add another.`;
+
 export const SECTIONS = {
   hero: { kind: 'single', slug: 'hero', label: 'Hero', view: '/#hero' },
   about: { kind: 'single', slug: 'about', label: 'About', view: '/#about' },

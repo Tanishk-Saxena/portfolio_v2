@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Editor } from '@/components/admin/editor';
 import {
   duplicateDraft,
@@ -8,8 +8,8 @@ import {
   entryTitle,
   type LoadedForm,
 } from '@/lib/admin/forms';
-import { loadEntry, takenSlugs } from '@/lib/admin/save';
-import { findSection } from '@/lib/admin/sections';
+import { isFull, loadEntry, takenSlugs } from '@/lib/admin/save';
+import { adminHref, findSection } from '@/lib/admin/sections';
 
 type Props = PageProps<'/admin/[section]/[id]'>;
 
@@ -51,11 +51,14 @@ export default async function EntryPage(props: Props) {
   if (!entry) notFound();
   const { section, slug, id } = entry;
   const from = await fromParam(props);
-  const [form, taken] = await Promise.all([
+  const [form, taken, full] = await Promise.all([
     load(slug, id, from),
     slug === 'writing' ? takenSlugs(id) : undefined,
+    isFull(slug),
   ]);
   if (!form) notFound();
+  // A full list takes no new entry, typed address and Duplicate included (§7.1).
+  if (id === null && full) redirect(adminHref(section.slug));
   return (
     <Editor
       key={id ?? `new:${from ?? ''}`}
@@ -64,6 +67,7 @@ export default async function EntryPage(props: Props) {
       entryId={id}
       initial={form}
       takenSlugs={taken}
+      full={full}
     />
   );
 }

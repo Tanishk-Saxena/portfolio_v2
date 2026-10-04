@@ -8,7 +8,7 @@ import { Editor } from '@/components/admin/editor';
 import { loadAdminContent } from '@/lib/admin/content';
 import { countLine, toRows } from '@/lib/admin/rows';
 import { loadSingle } from '@/lib/admin/save';
-import { adminHref, findSection } from '@/lib/admin/sections';
+import { adminHref, findSection, fullMessage } from '@/lib/admin/sections';
 
 export async function generateMetadata(props: PageProps<'/admin/[section]'>): Promise<Metadata> {
   const section = findSection((await props.params).section);
@@ -72,11 +72,7 @@ export default async function SectionPage(props: PageProps<'/admin/[section]'>) 
           </div>
         </div>
         <AdminList section={section} rows={rows} />
-        {atMax && (
-          <p className="text-small text-muted">
-            The skills grid holds {section.max} columns. Delete one to add another.
-          </p>
-        )}
+        {atMax && <p className="text-small text-muted">{fullMessage(section)}</p>}
       </div>
     </>
   );

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { handleSave } from './handle-save';
-import { Conflict } from './save';
+import { Conflict, createEntry, Full, isFull } from './save';
 
 const auth = vi.hoisted(() => ({ admin: null as { id: string; email: string } | null }));
 vi.mock('@/lib/auth/server', () => ({ getAdmin: async () => auth.admin }));
@@ -69,6 +69,21 @@ describe('admin saves (route handlers)', () => {
       },
     );
     expect(stale.status).toBe(409);
+
+    // A full list (four skill groups) is a 409 the editor can tell apart.
+    const full = await handleSave(
+      post(quote),
+      'quotes',
+      () => true,
+      async () => {
+        throw new Full();
+      },
+    );
+    expect([full.status, await full.json()]).toEqual([409, { error: 'Full', full: true }]);
+    // The shipped fixtures hold four groups: a fifth is refused before any write.
+    expect([await isFull('skills'), await isFull('quotes')]).toEqual([true, false]);
+    const fifth = { title: 'Fifth', items: ['a', 'b', 'c', 'd'] };
+    await expect(createEntry('skills', fifth)).rejects.toBeInstanceOf(Full);
 
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const failed = await handleSave(

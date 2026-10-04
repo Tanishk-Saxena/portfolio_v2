@@ -98,6 +98,9 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
             `insert into public.quote (text, author) values ('${'x'.repeat(141)}', 'y')`,
             // published with neither a body nor an external URL
             `insert into public.article (slug, title, status) values ('empty', 'E', 'published')`,
+            // a body and an external URL together
+            `insert into public.article (slug, title, body, external_url)
+         values ('both', 'B', 'x', 'https://medium.com/x')`,
             // live slugs are unique
             `insert into public.article (slug, title, body) values ('second-render', 'Dup', 'x')`,
             // exactly one profile

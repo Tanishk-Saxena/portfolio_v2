@@ -6,26 +6,29 @@ import { SmallCloseIcon } from './admin-icons';
 /**
  * The schema's tag box (ADMIN-DESIGN-SPEC §5): chips with a remove ×, then an inline input.
  * Enter, comma or blur adds; Backspace on an empty input removes the last; duplicates are
- * ignored.
+ * ignored. At `max` the input stops taking more.
  */
 export function TagsInput({
   tags,
+  max = Infinity,
   placeholder,
   onChange,
   ...control
 }: {
   id: string;
   tags: string[];
+  max?: number;
   placeholder?: string;
   onChange: (tags: string[]) => void;
   'aria-invalid'?: boolean;
   'aria-describedby'?: string;
 }) {
   const [text, setText] = useState('');
+  const full = tags.length >= max;
 
   function add() {
     const tag = text.trim().replace(/,$/, '').trim();
-    if (tag && !tags.includes(tag)) onChange([...tags, tag]);
+    if (tag && !full && !tags.includes(tag)) onChange([...tags, tag]);
     setText('');
   }
 
@@ -50,7 +53,8 @@ export function TagsInput({
       <input
         {...control}
         value={text}
-        placeholder={placeholder}
+        readOnly={full}
+        placeholder={full ? `${max} at most: remove one to add another` : placeholder}
         onChange={(e) => setText(e.target.value)}
         onBlur={add}
         onKeyDown={(e) => {

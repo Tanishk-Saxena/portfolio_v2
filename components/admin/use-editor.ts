@@ -8,9 +8,10 @@ import {
   type DraftValue,
   type FieldErrors,
   type FormSlug,
+  RECHECKS,
   validate as validateDraft,
 } from '@/lib/admin/schema';
-import { adminHref, type Section } from '@/lib/admin/sections';
+import { adminHref, fullMessage, type Section } from '@/lib/admin/sections';
 import type { EditorState } from './editor-bar';
 import { askConfirm } from './confirm-dialog';
 import { leaveGuarded, setUnsaved } from './guarded-link';
@@ -23,6 +24,7 @@ const needAttention = (n: number) =>
  * The editor's behaviour (ADMIN-DESIGN-SPEC §7.2–7.3): the draft against the saved record
  * (dirty = any difference), Discard, Save (validate first; nothing is sent while a field is
  * invalid), ⌘S / Ctrl+S, and the unsaved-changes guard. "Saved" means the database has it.
+ * A field shows its error as soon as it is edited (§11); Save shows every field's.
  */
 export function useEditor({
   slug,
@@ -44,6 +46,7 @@ export function useEditor({
   const [saved, setSaved] = useState<Draft>(initial.draft);
   const [updatedAt, setUpdatedAt] = useState(initial.updatedAt);
   const [showErrors, setShowErrors] = useState(false);
+  const [touched, setTouched] = useState<ReadonlySet<string>>(new Set());
   const [serverErrors, setServerErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   // §7.2: a new article's slug follows its title until the slug is edited by hand.
@@ -52,13 +55,22 @@ export function useEditor({
   const isNew = section.kind === 'collection' && entryId === null;
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const validate = (d: Draft) => validateDraft(slug, d, { takenSlugs });
-  const errors = showErrors ? { ...serverErrors, ...validate(draft) } : {};
+  const found = { ...serverErrors, ...validate(draft) };
+  const errors = showErrors
+    ? found
+    : Object.fromEntries(Object.entries(found).filter(([key]) => touched.has(key)));
   // "Publish" when an article is about to go live (§7.2).
   const publishing =
     slug === 'writing' && draft.status === 'published' && saved.status !== 'published';
 
   function setField(key: string, value: DraftValue) {
     if (key === 'slug') setSlugTouched(true);
+    // This field's rule shows from now on; so do rules on filled fields that read this one.
+    const rechecked = (RECHECKS[slug]?.[key] ?? []).filter((k) => draft[k] !== '');
+    setTouched((t) => new Set([...t, key, ...rechecked]));
+    if (serverErrors[key]) {
+      setServerErrors((e) => Object.fromEntries(Object.entries(e).filter(([k]) => k !== key)));
+    }
     setDraft((d) => ({
       ...d,
       [key]: value,
@@ -93,6 +105,11 @@ export function useEditor({
       return;
     }
     if (response?.status === 409) {
+      const { full } = (await response.json().catch(() => ({}))) as { full?: boolean };
+      if (full && section.kind === 'collection') {
+        showToast(fullMessage(section));
+        return;
+      }
       showToast('This entry changed on another device — reload'); // the draft stays (Q-A6)
       return;
     }
@@ -104,6 +121,7 @@ export function useEditor({
     setSaved(draft);
     setUpdatedAt(result.updatedAt);
     setShowErrors(false);
+    setTouched(new Set());
     setServerErrors({});
     showToast(liveText(slug, draft));
     if (isNew && result.id) {
@@ -121,6 +139,7 @@ export function useEditor({
     }
     setDraft(saved);
     setShowErrors(false);
+    setTouched(new Set());
     setServerErrors({});
   }
 
@@ -158,7 +177,8 @@ export function useEditor({
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ section: section.slug, id: entryId }),
         }).catch(() => null);
-        showToast(restored?.ok ? 'Restored' : 'Could not undo.');
+        const full = restored?.status === 409 && section.kind === 'collection';
+        showToast(restored?.ok ? 'Restored' : full ? fullMessage(section) : 'Could not undo.');
         router.refresh();
       },
     });
@@ -203,7 +223,8 @@ export function useEditor({
     draft,
     setField,
     errors,
-    errorCount: Object.keys(errors).length,
+    /** The summary above the fields counts only after a Save that found errors (§7.2). */
+    summaryCount: showErrors ? Object.keys(errors).length : 0,
     updatedAt,
     isNew,
     state,
