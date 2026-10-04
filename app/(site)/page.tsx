@@ -36,6 +36,8 @@ export default async function HomePage() {
       repos.settings.get(),
     ]);
 
+  const contributions = await repos.contributions.get(settings.githubUsername);
+
   // The nav lists only sections that render (empty sections return null).
   const present: Record<string, boolean> = {
     about: true,
@@ -58,7 +60,7 @@ export default async function HomePage() {
           <Experience items={experience} />
           <Projects projects={projects} mediaAutoRotate={settings.mediaAutoRotate} />
           <Writing articles={articles} />
-          <Skills groups={skillGroups} />
+          <Skills groups={skillGroups} contributions={contributions} />
           <Quotes quotes={quotes} />
           <Contact profile={profile} links={socialLinks} />
         </main>

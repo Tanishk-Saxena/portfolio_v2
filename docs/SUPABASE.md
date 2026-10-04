@@ -53,6 +53,10 @@ rows; every write (and every read of hidden rows) needs a signed-in user listed 
      `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
    - **Preview**: the same three, with the dev project's values.
    - The secret key never goes into Vercel.
+   - **Production and Preview**, optional: `GITHUB_TOKEN`, a read-only GitHub token (a
+     fine-grained token with no extra permissions is enough) for the contribution heat map
+     under Skills. Server only. Without it, or without a GitHub username in the admin's
+     Settings, the heat map is not shown.
 6. Redeploy. The site should look identical: it now reads the seeded copy of the same
    content.
 

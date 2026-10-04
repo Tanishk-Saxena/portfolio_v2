@@ -1,8 +1,18 @@
-import type { SkillGroup } from '@/lib/domain/types';
+import type { ContributionCalendar, SkillGroup } from '@/lib/domain/types';
+import { Contributions } from './contributions';
 import { Section } from './section';
 
-/** Skills (spec §7): labelled columns of serif items, no bars or percentages. */
-export function Skills({ groups }: { groups: SkillGroup[] }) {
+/**
+ * Skills (spec §7): labelled columns of serif items, no bars or percentages. The GitHub heat
+ * map, when there is one, closes the section (§10 "Contributions").
+ */
+export function Skills({
+  groups,
+  contributions,
+}: {
+  groups: SkillGroup[];
+  contributions: ContributionCalendar | null;
+}) {
   if (groups.length === 0) return null;
 
   return (
@@ -23,6 +33,7 @@ export function Skills({ groups }: { groups: SkillGroup[] }) {
           </div>
         ))}
       </div>
+      {contributions && <Contributions calendar={contributions} />}
     </Section>
   );
 }
