@@ -47,6 +47,8 @@ export interface SettingsRow {
   menu_layout: MenuLayout;
   press_feedback: PressFeedback;
   media_auto_rotate: boolean;
+  site_title: string;
+  site_description: string;
 }
 
 export interface ExperienceRow {
@@ -134,6 +136,8 @@ export const toSettings = (r: SettingsRow): Settings => ({
   menuLayout: r.menu_layout,
   pressFeedback: r.press_feedback,
   mediaAutoRotate: r.media_auto_rotate,
+  siteTitle: r.site_title,
+  siteDescription: r.site_description,
 });
 
 export const toExperience = (r: ExperienceRow): Experience => ({
@@ -222,6 +226,8 @@ export const fromSettings = (s: Settings): SettingsRow => ({
   menu_layout: s.menuLayout,
   press_feedback: s.pressFeedback,
   media_auto_rotate: s.mediaAutoRotate,
+  site_title: s.siteTitle,
+  site_description: s.siteDescription,
 });
 
 export const fromExperience = (e: Experience): ExperienceRow => ({

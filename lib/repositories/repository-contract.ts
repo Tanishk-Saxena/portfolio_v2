@@ -52,6 +52,8 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       expect(['right', 'centre']).toContain(s.navPosition);
       expect(['arc', 'wheel']).toContain(s.menuLayout);
       expect(['ripple', 'ring', 'press']).toContain(s.pressFeedback);
+      expect(s.siteTitle.trim()).not.toBe('');
+      expect(s.siteDescription.length).toBeLessThanOrEqual(200);
       expect(s.grain).toBeGreaterThanOrEqual(0);
       expect(s.grain).toBeLessThanOrEqual(24);
     });

@@ -43,7 +43,15 @@ export function Editor({
     main.current?.querySelector<HTMLElement>('input, textarea')?.focus();
   }, [isNew]);
 
-  const defaults = slug === 'settings' ? settingsDraft(DEFAULT_SETTINGS) : null;
+  // Reset to defaults puts back the shipped look; the site's title and description stay.
+  const defaults =
+    slug === 'settings'
+      ? {
+          ...settingsDraft(DEFAULT_SETTINGS),
+          siteTitle: draft.siteTitle,
+          siteDescription: draft.siteDescription,
+        }
+      : null;
   const atDefaults = JSON.stringify(defaults) === JSON.stringify(draft);
 
   const title =

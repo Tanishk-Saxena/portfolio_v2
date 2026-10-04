@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete** · next: 9.2 (site title and description), then 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · next: 9.5 (re-evaluation outcomes and chosen features), **starting a new session at "What's left of Phase 9" below**; alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -510,8 +510,8 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
-| 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | next |
-| 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
+| 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
+| 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | next (new session) |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -535,7 +535,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | D. Site UI/UX (9.3) | 16–21 | 16, 17, 18, 19, 20, 21 | — |
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
-| G. Site title and description (9.2) | 24 | — | 24 |
+| G. Site title and description (9.2) | 24 | 24 | — |
 | H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | — | 25 (owner picks), 29e, 30, 31, 32, then 28a + 29c last |
 | I. Carried checks | 33 | — | 33 (owner, prod on a phone) |
 
@@ -609,7 +609,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       switch is on (F notes below).
 
 **G. Site title and description (9.2)**
-- [ ] 24. Settings fields for the site title and description (root metadata, Open Graph);
+- [x] 24. Settings fields for the site title and description (root metadata, Open Graph);
       the name's other hard-coded spots (title template, preview images' alt text, the
       admin wordmark) read the profile's Name.
 
@@ -651,6 +651,33 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       covers a save showing on the deployed site.
 
 **Not in Phase 9:** P-1 (LCP) and the full Lighthouse audit, Phase 10.
+
+### What's left of Phase 9 (as of 2026-10-04): start the next session here
+
+Everything in groups A–G is built and merged. What remains is group H (9.5) and the owner's
+own check. In the order to build them:
+
+| # | Item | What it needs | Owner input first? |
+|---|---|---|---|
+| 30 | **Experience descriptions in Markdown** | Paragraphs, `- ` lists, bold, italic, underline; the articles' renderer limited to these; underline (`<u>`) allowed for articles too. Admin: the Description becomes a Markdown field | no |
+| 31 | **Contact links as an editable list** | Label, URL, order, in place of the four fixed slots (`social_link` already holds rows; the admin's Contact form and `setUrls` change). Drag to reorder with `use-drag-sort` | no |
+| 32 | **Keep storage clean** | Deleting or replacing an image, résumé or modal media item removes the old file from the `media` bucket (today they stay: Q-A17) | no |
+| 29e | **GitHub contribution heat map** | Data from GitHub's API at build time (revalidated), never in the browser. Claude proposes where it sits | placement: Claude proposes, owner confirms |
+| 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
+| 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
+| 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
+| 33 | **Owner's smoke test on prod, on a phone** | Every admin feature, and a save showing on the deployed site | the owner's own |
+
+Also open, small, from this session:
+- The quote change, the nav's close curve, the ring and press-in styles, drag with a real
+  finger, a real clipboard paste and a real media upload were built to the owner's word and
+  measured where possible, but only the owner's eye and phone settle them. Anything the owner
+  flags from that testing comes before group H.
+- Sample modal media sits on the first two projects in dev and prod (`docs/SUPABASE.md`):
+  remove it from the admin when real media goes in.
+
+After group H: **Phase 10**, the final audit (P-1 LCP, the full Lighthouse audit, the a11y
+and performance sweep on real devices).
 
 **9.4 notes (roadmap A).**
 - Roles, built then dropped (owner, 2026-10-04): a migration gave `admin_user` an
@@ -877,6 +904,25 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
   the setting off, rotation with it on, the video playing in view, the admin list (remove,
   count). Tests: unit 47, unchanged (seed snapshot regenerated); e2e 24 passed, the axe specs included.
 
+**9.2 notes (roadmap G, item 24; branch `feat/phase-9-site-meta`).**
+- Settings gains **Site title** (required, 70) and **Site description** (200):
+  `settings.site_title`, `settings.site_description` (migration
+  `20261008000000_settings_site_meta.sql`, additive; the defaults are the old constants, so
+  nothing changes until they are edited). The root layout's `generateMetadata` reads them.
+  Reset to defaults leaves them alone: it puts back the look, not the words.
+- The profile's **Name** now drives every spot that was hard-coded: the title template
+  ("Article — Name"), authors and the Open Graph site name, the share cards' alt text, and
+  the admin's wordmark (sidebar, phone header, sign-in).
+- The share cards moved from the `opengraph-image` file convention to route handlers
+  (`app/og/route.tsx`, `app/(site)/articles/[slug]/og/route.tsx`), named with their alt text
+  in the pages' metadata: the convention's alt is a constant, and its `generateImageMetadata`
+  broke the build under the `(site)` route group.
+- Checked in a browser on a fixtures build: the shipped title, description and alt text;
+  then, after editing Settings and Hero → Name in the admin, the new title, description,
+  `og:title`, `og:site_name`, `og:image:alt`, the article's title suffix and the wordmark;
+  both card URLs answer `image/png`. Tests: unit 47, unchanged in count (settings assertions
+  added); e2e 24 passed.
+
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",
 "…a frontend engineer in Delhi building quiet, careful software…"), so the admin can't change
@@ -884,7 +930,8 @@ them and they still describe the placeholder. Make both editable, probably as ne
 fields (site title, site description), read by the root metadata (title default and template,
 `description`, `openGraph`). Related, also hard-coded today: the name in the title template
 (could come from the profile's Name), the preview images' alt text
-(`app/opengraph-image.tsx`, `app/(site)/articles/[slug]/opengraph-image.tsx`), and the admin's
+(`app/opengraph-image.tsx`, `app/(site)/articles/[slug]/opengraph-image.tsx`, both since
+replaced by route handlers, see the 9.2 notes), and the admin's
 wordmark (`components/admin/{admin-header,admin-sidebar,sign-in-form}.tsx`). Found while
 drafting the admin test content (`docs/admin-test-content/`, git-ignored, local only).
 

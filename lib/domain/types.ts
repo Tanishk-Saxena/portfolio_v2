@@ -160,6 +160,9 @@ export const DEFAULT_SETTINGS: Settings = {
   menuLayout: 'arc',
   pressFeedback: 'ripple',
   mediaAutoRotate: false,
+  siteTitle: 'Tanishk Saxena — Software Engineer',
+  siteDescription:
+    'Tanishk Saxena is a frontend engineer in Delhi building quiet, careful software for the web.',
 };
 
 /** What a press looks like, on the site and the admin (spec §10). */
@@ -174,4 +177,8 @@ export interface Settings {
   pressFeedback: PressFeedback;
   /** A project's modal media moves on by itself (5s an image; a video when it ends). */
   mediaAutoRotate: boolean;
+  /** The home page's tab title, and its title when shared or found in a search. */
+  siteTitle: string;
+  /** The description search engines and share previews show for the site. */
+  siteDescription: string;
 }

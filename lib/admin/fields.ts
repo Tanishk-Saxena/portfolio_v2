@@ -289,6 +289,22 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
   // §8.9 (owner, §14): style settings to demo and choose between. Defaults = the shipped look.
   settings: [
     {
+      key: 'siteTitle',
+      label: 'Site title',
+      type: 'text',
+      req: true,
+      max: 70,
+      hint: 'The home page’s tab title, and its title when shared or found in a search.',
+    },
+    {
+      key: 'siteDescription',
+      label: 'Site description',
+      type: 'textarea',
+      rows: 3,
+      max: 200,
+      hint: 'One or two sentences, shown under the title in search results and share previews.',
+    },
+    {
       key: 'accent',
       label: 'Accent',
       type: 'select',

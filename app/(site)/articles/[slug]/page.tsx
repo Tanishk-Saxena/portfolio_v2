@@ -11,6 +11,7 @@ import { SiteHeader } from '@/components/site/site-header';
 import { getRepositories } from '@/lib/container';
 import type { Article } from '@/lib/domain/types';
 import { newsreaderItalic, plexMono } from '@/lib/fonts';
+import { OG_SIZE } from '@/lib/og/size';
 import { blogPostingJsonLd } from '@/lib/structured-data';
 import { formatLongDate } from '@/lib/utils/format';
 import { plainExcerpt } from '@/lib/utils/markdown';
@@ -44,6 +45,7 @@ export async function generateMetadata(props: PageProps<'/articles/[slug]'>): Pr
       title: article.title,
       description,
       publishedTime: article.publishedAt,
+      images: [{ url: `${path}/og`, ...OG_SIZE, alt: `Article by ${profile.name}` }],
     },
   };
 }

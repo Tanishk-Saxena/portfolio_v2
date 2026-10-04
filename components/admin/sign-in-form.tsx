@@ -12,14 +12,14 @@ const initial: SignInState = { error: '', email: '' };
  * The designed sign-in (ADMIN-DESIGN-SPEC §4.3). `noValidate`: the mockup's own message
  * replaces the browser's bubbles. Works before hydration (a plain form post to the action).
  */
-export function SignInForm() {
+export function SignInForm({ name }: { name: string }) {
   const [state, action, pending] = useActionState(signIn, initial);
   const described = state.error ? 'sign-in-error' : undefined;
 
   return (
     <form action={action} noValidate className="flex w-[min(380px,100%)] flex-col gap-4.5">
       <div className="mb-3.5 flex flex-col items-start gap-1">
-        <h1 className="font-script text-admin-mark font-semibold">Tanishk Saxena</h1>
+        <h1 className="font-script text-admin-mark font-semibold">{name}</h1>
         <p className="text-label tracking-eyebrow text-muted uppercase">Content admin</p>
       </div>
       <label className="flex flex-col gap-2 text-small font-medium">
