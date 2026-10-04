@@ -7,7 +7,7 @@ The database behind the site and the admin (brief §6, Phase 6.2). Two projects:
 
 | Path | What |
 |---|---|
-| `supabase/migrations/*.sql` | The schema: tables, constraints, `updated_at` triggers, RLS, the `admin_user` allowlist, the `media` bucket (the admin's uploads: `images/`, `files/`, and `media/` for projects' modal media, GIFs and short videos included; replaced files are not cleaned up yet). Applied in filename order |
+| `supabase/migrations/*.sql` | The schema: tables, constraints, `updated_at` triggers, RLS, the `admin_user` allowlist, the `media` bucket (the admin's uploads: `images/`, `files/`, and `media/` for projects' modal media, GIFs and short videos included; a file no record points at any more is removed on save, `lib/admin/storage.ts`). Applied in filename order |
 | `supabase/seed.sql` | The shipped placeholder content. **Generated** from the fixtures by `lib/repositories/supabase/seed.ts`; regenerate with `npx vitest run seed -u` |
 | `lib/repositories/supabase/` | Row mappers, the public repositories, the admin's reads (run as the signed-in admin), the client |
 

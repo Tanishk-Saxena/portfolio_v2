@@ -6,8 +6,9 @@ import { createAuthClient } from '@/lib/auth/server';
 /**
  * A signed upload URL for one file (ADMIN-DESIGN-SPEC §10): `{ kind, type, bytes }` →
  * `{ signedUrl, publicUrl }`. The browser then uploads straight to Storage, so the file
- * never passes through this server. Storage RLS allows the upload only for the admin. Files
- * replaced or removed later stay in the bucket (Q-A17). Saving the record stores `publicUrl`.
+ * never passes through this server. Storage RLS allows the upload only for the admin. Saving
+ * the record stores `publicUrl`; a file a later save no longer points at is removed then
+ * (`lib/admin/storage.ts`). A file uploaded and never saved stays in the bucket.
  */
 export async function POST(request: Request) {
   return handleAction(async () => {
