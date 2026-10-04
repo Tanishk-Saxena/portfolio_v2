@@ -401,6 +401,13 @@ will keep bringing fixes and requests, and none of them reopens it.
   roadmap item 1). Scores go to the run's Summary; a score under budget is a warning, never
   a failure. It sees what the PR reading can't: real hosting, real content, changes made in
   the admin with no PR, and the signed-in admin screens.
+  **Signed-in admin Lighthouse lives here, not on every PR** (owner's question, 2026-10-04):
+  the admin is a private, `noindex` tool for one person, so its SEO score means nothing and
+  its speed matters less than the site's; its accessibility is already read on every PR by
+  axe on every signed-in screen (Phase 9.4), and its function by the blocking journey. A
+  per-PR signed-in Lighthouse would need the credentials and a login script in a second job
+  and add minutes to every PR for little. The audit covers a representative set: a list
+  (Writing), an entry editor (an article), a single form (Hero) and Settings.
 - 10.2 *The one-time fixes.* Fix what the first run shows under target, P-1 (phone LCP,
   `docs/PERFORMANCE.md`) first, and record the scores in the ledger.
 *Verify:* the scores meet §3 on the live site, once; Phase 10 then closes. From then on a fix
