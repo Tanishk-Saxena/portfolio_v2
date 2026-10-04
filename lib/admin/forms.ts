@@ -125,6 +125,7 @@ export const settingsDraft = (s: Settings): Draft => ({
   grain: String(s.grain),
   navPosition: s.navPosition,
   menuLayout: s.menuLayout,
+  pressFeedback: s.pressFeedback,
 });
 
 export const settingsValues = (d: Draft): Settings => ({
@@ -132,6 +133,7 @@ export const settingsValues = (d: Draft): Settings => ({
   grain: Number(str(d, 'grain')),
   navPosition: d.navPosition as Settings['navPosition'],
   menuLayout: d.menuLayout as Settings['menuLayout'],
+  pressFeedback: d.pressFeedback as Settings['pressFeedback'],
 });
 
 // ── Collections ───────────────────────────────────────────────────────────────────────────

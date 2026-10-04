@@ -7,11 +7,14 @@ import type { CollectionSection } from '@/lib/admin/sections';
 import { deleteEntry } from './delete-entry';
 import { showToast } from './toast';
 
-/**
- * The order is sent this long after the last ↑/↓ (one request for five taps, §7.1), and a
- * status this long after the last press on its pill: only the final state goes.
- */
+/** The order is sent this long after the last move (one request for five taps, §7.1). */
 const SETTLE_DELAY_MS = 700;
+/**
+ * A status is sent this long after the last press on its pill: only the final state goes,
+ * and presses that cancel out send nothing. Longer than the order's, since a second thought
+ * comes slower than a second tap (owner, §14).
+ */
+const TOGGLE_DELAY_MS = 1200;
 
 export async function send(method: string, path: string, body?: unknown, keepalive = false) {
   return fetch(path, {
@@ -32,7 +35,7 @@ interface PendingToggle {
 
 /**
  * A list's optimistic actions (ADMIN-DESIGN-SPEC §7.1, §7.3): the quick toggle (with Undo),
- * ↑/↓ reorder and Delete. Toggle and reorder change the rows at once, send one request once
+ * reorder (↑/↓ or a drag) and Delete. Toggle and reorder change the rows at once, send one request once
  * the presses stop, and roll back if the server says no. Fresh rows from the server (after
  * `router.refresh()`) replace the local ones.
  */
@@ -40,11 +43,18 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
   const router = useRouter();
   const [rows, setRows] = useState(serverRows);
   const [synced, setSynced] = useState(serverRows);
+  // Moves not sent yet: server rows arriving meanwhile (an earlier save's refresh) are older
+  // than what is on screen, so they are skipped; the pending save's own refresh follows.
+  const [reordering, setReordering] = useState(false);
   if (serverRows !== synced) {
     setSynced(serverRows);
-    setRows(serverRows);
+    if (!reordering) setRows(serverRows);
   }
 
+  const latest = useRef(rows);
+  useEffect(() => {
+    latest.current = rows;
+  }, [rows]);
   const orderTimer = useRef<number | undefined>(undefined);
   const beforeMoves = useRef<ListRow[] | null>(null);
   const pendingOrder = useRef<string[] | null>(null);
@@ -77,15 +87,18 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
     };
   }, [orderPath, slug]);
 
-  function move(id: string, by: -1 | 1) {
-    const i = rows.findIndex((r) => r.id === id);
-    const j = i + by;
-    if (i < 0 || j < 0 || j >= rows.length) return;
-    const next = [...rows];
-    [next[i], next[j]] = [next[j], next[i]];
-    beforeMoves.current ??= rows;
+  /** Puts a row at `to` (a drag), at once; the order is sent once the moves stop. */
+  function moveTo(id: string, to: number) {
+    const current = latest.current;
+    const i = current.findIndex((r) => r.id === id);
+    if (i < 0 || to < 0 || to >= current.length || i === to) return;
+    const next = [...current];
+    next.splice(to, 0, ...next.splice(i, 1));
+    beforeMoves.current ??= current;
     pendingOrder.current = next.map((r) => r.id);
+    latest.current = next; // a drag's next event may come before the render
     setRows(next);
+    setReordering(true);
 
     window.clearTimeout(orderTimer.current);
     orderTimer.current = window.setTimeout(async () => {
@@ -94,6 +107,7 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
       const ids = next.map((r) => r.id);
       pendingOrder.current = null;
       const response = await send('PATCH', orderPath, { ids });
+      if (!pendingOrder.current) setReordering(false); // unless another move began meanwhile
       if (response?.ok) {
         showToast('Order saved');
         router.refresh();
@@ -103,6 +117,10 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
       }
     }, SETTLE_DELAY_MS);
   }
+
+  /** One step up or down (the arrows). */
+  const move = (id: string, by: -1 | 1) =>
+    moveTo(id, latest.current.findIndex((r) => r.id === id) + by);
 
   const show = (id: string, visible: boolean) => {
     if (!hasStatus(slug)) return;
@@ -148,7 +166,7 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
       row,
       from: earlier ? earlier.from : row.status.live,
       to: visible,
-      timer: window.setTimeout(() => void settle(row.id), SETTLE_DELAY_MS),
+      timer: window.setTimeout(() => void settle(row.id), TOGGLE_DELAY_MS),
     });
     show(row.id, visible);
   }
@@ -158,5 +176,5 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
     void deleteEntry(section, row.id, row.title, () => router.refresh());
   }
 
-  return { rows, move, toggle, remove };
+  return { rows, move, moveTo, toggle, remove };
 }

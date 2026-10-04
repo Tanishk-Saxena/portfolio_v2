@@ -11,8 +11,8 @@ const INTERVAL_MS = 7000; // spec §5.3
  * All quotes share one grid cell, so the box is always as tall as the tallest quote and
  * nothing below it shifts. Auto-advance pauses while hovered or focused and while the tab is
  * hidden; under reduced motion it doesn't auto-advance at all. The change travels (owner,
- * spec §10): the old quote slides off to the left as it fades, then the new one arrives from
- * the right.
+ * spec §10): the old quote moves off to the left as the next one moves in from the right
+ * behind it, like one strip of quotes sliding along.
  */
 export function QuoteRotator({ quotes }: { quotes: Quote[] }) {
   const reducedMotion = useReducedMotion();

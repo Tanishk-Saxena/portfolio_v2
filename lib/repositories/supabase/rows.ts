@@ -5,6 +5,7 @@ import type {
   Image,
   MenuLayout,
   NavPosition,
+  PressFeedback,
   Profile,
   Project,
   ProjectKind,
@@ -43,6 +44,7 @@ export interface SettingsRow {
   grain: number;
   nav_position: NavPosition;
   menu_layout: MenuLayout;
+  press_feedback: PressFeedback;
 }
 
 export interface ExperienceRow {
@@ -127,6 +129,7 @@ export const toSettings = (r: SettingsRow): Settings => ({
   grain: Number(r.grain), // numeric arrives as a number or a string, depending on the driver
   navPosition: r.nav_position,
   menuLayout: r.menu_layout,
+  pressFeedback: r.press_feedback,
 });
 
 export const toExperience = (r: ExperienceRow): Experience => ({
@@ -212,6 +215,7 @@ export const fromSettings = (s: Settings): SettingsRow => ({
   grain: s.grain,
   nav_position: s.navPosition,
   menu_layout: s.menuLayout,
+  press_feedback: s.pressFeedback,
 });
 
 export const fromExperience = (e: Experience): ExperienceRow => ({

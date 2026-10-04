@@ -5,11 +5,10 @@ import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
 import { useSectionHash } from '@/lib/hooks/use-section-hash';
 import { useSectionSpy } from '@/lib/hooks/use-section-spy';
 import { jumpTo } from '@/lib/anchor-jump';
-import { afterRipple } from '@/lib/ripple';
 import type { MenuLayout, NavPosition } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
-import { closeDuration, lastItemDelay, PICKED_FILL, spiral, WHEEL_DOCK } from './nav-motion';
+import { closeDuration, dockHomeDelay, spiral, WHEEL_DOCK } from './nav-motion';
 import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
@@ -87,10 +86,8 @@ export function FloatingNav({
   function go(e: MouseEvent<HTMLAnchorElement>, id: string) {
     e.preventDefault();
     setPicked(id);
-    afterRipple(e, () => {
-      setOpen(false);
-      jumpTo(id);
-    });
+    setOpen(false);
+    jumpTo(id);
   }
 
   return (
@@ -113,12 +110,12 @@ export function FloatingNav({
         <div
           className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
           // The wheel opens round the screen's centre: the dock slides there (spec §5.3), and
-          // travels home only as the last item hides (owner, spec §10).
+          // travels home only as the last item hides behind it (owner, spec §10).
           style={
             wheel
               ? open
                 ? { transform: WHEEL_DOCK[position] }
-                : { transitionDelay: `${reducedMotion ? 0 : lastItemDelay(sections.length)}s` }
+                : { transitionDelay: `${reducedMotion ? 0 : dockHomeDelay(sections.length)}s` }
               : undefined
           }
           onKeyDown={trapTab}
@@ -135,9 +132,6 @@ export function FloatingNav({
             <ul>
               {sections.map((section, i) => {
                 const on = section.id === current.id;
-                // Just picked: its fill snaps in underneath once the ripple covers nearly all
-                // of it, so the ripple then fades over the same colour (no flicker).
-                const justPicked = on && section.id === picked;
                 return (
                   <li
                     key={section.id}
@@ -149,8 +143,7 @@ export function FloatingNav({
                       aria-current={on ? 'true' : undefined}
                       onClick={(e) => go(e, section.id)}
                       data-ripple={on ? 'paper' : 'accent-fill'}
-                      style={justPicked ? PICKED_FILL : undefined}
-                      className={`relative grid size-11 place-items-center rounded-full border shadow-float transition-[background-color,color,border-color] duration-250 ${on ? 'border-accent-fill bg-accent-fill text-on-accent hover:text-on-accent' : 'border-border-navdot bg-paper text-ink hover:border-accent active:text-on-accent'}`}
+                      className={`relative grid size-11 place-items-center rounded-full border shadow-float transition-[background-color,color,border-color] duration-250 ${on ? 'border-accent-fill bg-accent-fill text-on-accent hover:text-on-accent' : 'border-border-navdot bg-paper text-ink hover:border-accent'}`}
                     >
                       <SectionGlyph d={section.icon} />
                       <span
@@ -179,7 +172,7 @@ export function FloatingNav({
               setOpen((o) => !o);
             }}
             data-ripple="paper"
-            className={`absolute inset-0 grid cursor-pointer place-items-center rounded-full bg-ink text-paper shadow-fab [transition:background-color_.4s_ease,color_.4s_ease,opacity_.35s_ease,scale_.4s_var(--ease-out-soft),visibility_0s_linear_var(--vis-delay)] hover:opacity-92 active:text-ink ${shown ? '[--vis-delay:0s]' : 'invisible opacity-0 [--vis-delay:.4s] motion-safe:scale-70'}`}
+            className={`absolute inset-0 grid cursor-pointer place-items-center rounded-full bg-ink text-paper shadow-fab [transition:background-color_.4s_ease,color_.4s_ease,opacity_.35s_ease,scale_.4s_var(--ease-out-soft),visibility_0s_linear_var(--vis-delay)] hover:opacity-92 ${shown ? '[--vis-delay:0s]' : 'invisible opacity-0 [--vis-delay:.4s] motion-safe:scale-70'}`}
           >
             {/* The glyph swaps to × and turns a quarter (spec §5.3 FAB icon). */}
             <span

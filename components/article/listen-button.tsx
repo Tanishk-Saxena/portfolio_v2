@@ -43,7 +43,7 @@ export function ListenButton({ targetId }: { targetId: string }) {
       aria-pressed={speaking}
       onClick={toggle}
       data-ripple="accent-fill"
-      className={`hit-44 relative ml-auto inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-2.25 rounded-pill border px-4 text-small transition-colors duration-250 ${speaking ? 'border-accent-fill bg-accent-fill text-on-accent' : 'border-border-listen text-ink hover:border-accent'} active:border-accent-fill active:text-on-accent`}
+      className={`hit-44 relative ml-auto inline-flex h-10 min-w-24 cursor-pointer items-center justify-center gap-2.25 rounded-pill border px-4 text-small transition-colors duration-250 ${speaking ? 'border-accent-fill bg-accent-fill text-on-accent' : 'border-border-listen text-ink hover:border-accent'}`}
     >
       {/* Icon slot keeps one size, so Listen ↔ Stop never changes the button's width. */}
       <svg

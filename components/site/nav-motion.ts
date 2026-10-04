@@ -1,16 +1,9 @@
 import type { CSSProperties } from 'react';
 import type { NavPosition } from '@/lib/domain/types';
-import { RIPPLE_MS } from '@/lib/ripple';
 
 /*
  * The floating nav's motion values (spec §5.3), kept beside the component that uses them.
  */
-
-/** A just-picked item's fill snaps in once the ripple has nearly covered it (no flicker). */
-export const PICKED_FILL: CSSProperties = {
-  transitionDelay: `${Math.round(RIPPLE_MS * 0.63)}ms`,
-  transitionDuration: '1ms', // with 0s the browser skips the delay and fills at once
-};
 
 /** From the dock's resting place to the viewport's centre (29px = half the 58px button). */
 export const WHEEL_DOCK: Record<NavPosition, string> = {
@@ -23,11 +16,14 @@ export const WHEEL_DOCK: Record<NavPosition, string> = {
 const CLOSE_TRAVEL = 0.42;
 const CLOSE_STAGGER = 0.11;
 
-/** When the last item (the first in the list) sets off on close. */
-export const lastItemDelay = (count: number) => (count - 1) * CLOSE_STAGGER;
-
 /** How long the whole close takes (the menu hides after it). */
-export const closeDuration = (count: number) => CLOSE_TRAVEL + lastItemDelay(count);
+export const closeDuration = (count: number) => CLOSE_TRAVEL + (count - 1) * CLOSE_STAGGER;
+
+/**
+ * The wheel: when the button sets off for home, just as the last item slips behind it.
+ * Earlier, the items still out would ride along with it.
+ */
+export const dockHomeDelay = (count: number) => closeDuration(count) - 0.1;
 
 /**
  * The spiral (spec §5.3): each item rides a rotating arm from the button to its place:

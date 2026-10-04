@@ -1,13 +1,14 @@
 import Link from 'next/link';
+import type { HTMLAttributes } from 'react';
 import { hasStatus, type ListRow, toggleLabel } from '@/lib/admin/rows';
 import { adminHref, type CollectionSection } from '@/lib/admin/sections';
-import { ChevronRightIcon, TrashIcon } from './admin-icons';
+import { ChevronRightIcon, GripIcon, TrashIcon } from './admin-icons';
 
 const ARROW =
   'grid h-7.5 w-10 cursor-pointer place-items-center text-muted hover:text-accent disabled:cursor-default disabled:opacity-30 disabled:hover:text-muted @wide:h-7 @wide:w-8';
 
 /**
- * One list row (ADMIN-DESIGN-SPEC §4.1–4.2): ↑/↓ on ordered lists, then the link (title with
+ * One list row (ADMIN-DESIGN-SPEC §4.1–4.2): a drag handle and ↑/↓ on ordered lists, then the link (title with
  * a 2-line clamp, sub, meta; wide puts the meta and a chevron on the right, phones put the
  * meta under the title), then the status pill, which is the quick toggle, then Delete.
  */
@@ -21,12 +22,33 @@ export function ListRowItem({
   section: CollectionSection;
   row: ListRow;
   /** Present while the list can be reordered; false = that way is the end. */
-  move?: { up: false | (() => void); down: false | (() => void) };
+  move?: {
+    up: false | (() => void);
+    down: false | (() => void);
+    /** Pointer handlers for the drag handle, and whether this row is the one held. */
+    grip: HTMLAttributes<HTMLElement>;
+    dragging: boolean;
+  };
   onToggle: () => void;
   onDelete: () => void;
 }) {
   return (
-    <div className="flex items-stretch border-b border-line">
+    <div
+      data-sort-id={row.id}
+      // In hand: lifted off the page, above its neighbours.
+      className={`flex items-stretch border-b border-line ${move?.dragging ? 'relative z-10 rounded-row border-transparent bg-surface shadow-float' : ''}`}
+    >
+      {move && (
+        // Pointer only: keyboards and screen readers reorder with the arrows beside it.
+        <span
+          {...move.grip}
+          aria-hidden="true"
+          title="Drag to reorder"
+          className={`flex w-7 flex-none touch-none items-center justify-center text-muted select-none hover:text-accent ${move.dragging ? 'cursor-grabbing text-accent' : 'cursor-grab'}`}
+        >
+          <GripIcon />
+        </span>
+      )}
       {move && (
         <div className="flex flex-none flex-col justify-center pr-1">
           <button

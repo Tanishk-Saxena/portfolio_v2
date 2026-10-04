@@ -11,7 +11,7 @@ export function BackLink() {
     <HomeLink
       href="/#writing"
       restore
-      className="hit-44 relative mb-article-back inline-flex items-center gap-2 text-label tracking-label text-muted uppercase transition-colors duration-200 hover:text-accent active:text-ink"
+      className="hit-44 relative mb-article-back inline-flex items-center gap-2 text-label tracking-label text-muted uppercase transition-colors duration-200 hover:text-accent"
     >
       <ArrowLeftIcon />
       Writing

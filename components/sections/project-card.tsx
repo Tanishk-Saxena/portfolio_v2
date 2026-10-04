@@ -114,7 +114,7 @@ function CardLink({ href, label, children }: { href: string; label: string; chil
       rel="noreferrer"
       aria-label={`${label} (opens in a new tab)`}
       data-ripple="accent-fill"
-      className="hit-44 relative grid size-9.5 place-items-center rounded-full bg-card-icon-bg text-card-ink hover:bg-on-accent hover:text-card-ink active:text-on-accent"
+      className="hit-44 relative grid size-9.5 place-items-center rounded-full bg-card-icon-bg text-card-ink hover:bg-on-accent hover:text-card-ink"
     >
       {children}
     </a>
