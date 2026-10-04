@@ -163,6 +163,7 @@ export const DEFAULT_SETTINGS: Settings = {
   siteTitle: 'Tanishk Saxena — Software Engineer',
   siteDescription:
     'Tanishk Saxena is a frontend engineer in Delhi building quiet, careful software for the web.',
+  githubUsername: '',
 };
 
 /** What a press looks like, on the site and the admin (spec §10). */
@@ -181,4 +182,20 @@ export interface Settings {
   siteTitle: string;
   /** The description search engines and share previews show for the site. */
   siteDescription: string;
+  /** Whose GitHub contributions the heat map under Skills shows; empty hides it. */
+  githubUsername: string;
+}
+
+/** One day of the contribution heat map. `level` is GitHub's own quartile, 0 for none. */
+export interface ContributionDay {
+  /** `YYYY-MM-DD`. */
+  date: string;
+  count: number;
+  level: 0 | 1 | 2 | 3 | 4;
+}
+
+/** A year of contributions: weeks oldest first, each Sunday first; the ends may be partial. */
+export interface ContributionCalendar {
+  total: number;
+  weeks: ContributionDay[][];
 }

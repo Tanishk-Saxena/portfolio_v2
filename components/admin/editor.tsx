@@ -43,13 +43,15 @@ export function Editor({
     main.current?.querySelector<HTMLElement>('input, textarea')?.focus();
   }, [isNew]);
 
-  // Reset to defaults puts back the shipped look; the site's title and description stay.
+  // Reset to defaults puts back the shipped look; the site's title, description and GitHub
+  // username are content, and stay.
   const defaults =
     slug === 'settings'
       ? {
           ...settingsDraft(DEFAULT_SETTINGS),
           siteTitle: draft.siteTitle,
           siteDescription: draft.siteDescription,
+          githubUsername: draft.githubUsername,
         }
       : null;
   const atDefaults = JSON.stringify(defaults) === JSON.stringify(draft);

@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { createGithubContributions } from '../github/github-contributions';
 import type { Repositories } from '@/lib/domain/repositories';
 import { toArticle, toSummary } from '../article-record';
 import {
@@ -30,7 +31,7 @@ export const COLUMNS = {
   profile:
     'name, eyebrow, headline, headline_highlight, standfirst, cta_label, about_lead, about_paragraphs, portrait, resume_url, email, contact_statement, location, footer_note',
   settings:
-    'accent, grain, nav_position, menu_layout, press_feedback, media_auto_rotate, site_title, site_description',
+    'accent, grain, nav_position, menu_layout, press_feedback, media_auto_rotate, site_title, site_description, github_username',
   experience: 'id, role, org, start_date, end_date, summary, sort_order',
   project:
     'id, title, kind, year, description, tags, image, media, repo_url, live_url, published, sort_order',
@@ -129,5 +130,8 @@ export function createSupabaseRepositories(db: SupabaseClient): Repositories {
       get: async () =>
         toSettings(rows<SettingsRow>(await db.from('settings').select(COLUMNS.settings).single())),
     },
+
+    // Not Supabase's: the calendar comes from GitHub (`../github/github-contributions.ts`).
+    contributions: createGithubContributions(),
   };
 }

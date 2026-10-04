@@ -91,6 +91,7 @@ const EMAIL_RE = /^\S+@\S+\.\S+$/;
 const YEAR_RE = /^\d{4}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const SLUG_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
+const GITHUB_USER_RE = /^[A-Za-z0-9]+(-[A-Za-z0-9]+)*$/;
 
 /** What validation needs beyond the draft: other articles' slugs (uniqueness). */
 export interface ValidationContext {
@@ -187,6 +188,13 @@ export function validate(
     if (error) errors[field.key] = error;
   }
 
+  if (slug === 'settings' && !errors.githubUsername) {
+    // GitHub's own rule: letters, digits and single hyphens, never at either end.
+    const name = String(draft.githubUsername ?? '').trim();
+    if (name && !GITHUB_USER_RE.test(name)) {
+      errors.githubUsername = 'Enter the username only: letters, numbers and hyphens.';
+    }
+  }
   if (slug === 'hero') {
     const word = String(draft.headlineHighlight).trim();
     if (word && !String(draft.headline).includes(word) && !errors.headline) {

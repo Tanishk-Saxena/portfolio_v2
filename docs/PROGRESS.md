@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done · next: item 29e (the GitHub heat map), from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done · next: the comparison page for items 25 and 28a (the owner picks), from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32 done |
+| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e done |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 30, 31, 32 | 25 (owner picks), 29e, then 28a + 29c last |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32 | 25 (owner picks), then 28a + 29c last |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -636,7 +636,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       after everything else; its Settings switch may land earlier (e.g. with item 24),
       inert until the intro exists.
 - 29d. Draft preview on the site: **skipped**; the editor's Preview is enough.
-- [ ] 29e. **GitHub contribution heat map: build it.** Claude proposes where it sits; data
+- [x] 29e. **GitHub contribution heat map: build it.** Claude proposes where it sits; data
       from GitHub's API at build time (revalidated), never in the browser.
 - [x] 30. **Experience descriptions in Markdown**, simple formatting: paragraphs, `- `
       lists, **bold**, *italic* and underline. Same renderer as articles, limited to these.
@@ -657,11 +657,10 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
 Groups A–G (items 1–24) are built and merged. What is left to **build** is group H (9.5),
-the enhancements below, in this order (done so far: 30, 31, 32):
+the enhancements below, in this order (done so far: 30, 31, 32, 29e):
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
-| 29e | **GitHub contribution heat map** | Data from GitHub's API at build time (revalidated), never in the browser. Claude proposes where it sits | placement: Claude proposes, owner confirms |
 | 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
 | 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
 | 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
@@ -717,6 +716,10 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
       and save, then look in Storage → `media` → `images/`: the old file is gone. Same for the
       portrait, the résumé and a removed modal media item. Delete a project: its files stay
       (Undo), and go on the next save made ten minutes or more later.
+- [ ] **GitHub heat map** (item 29e): create a read-only GitHub token, put it in `.env.local`
+      and in Vercel (Production and Preview) as `GITHUB_TOKEN`; enter your username in
+      Settings → GitHub username. Check the map under Skills on a phone (half a year) and on
+      a wide screen (the year), in both accents and both modes. Clear the username: it goes.
 - [ ] Then remove the **sample media** from the first two projects in dev and prod
       (`docs/SUPABASE.md`) when real media goes in.
 
@@ -754,6 +757,18 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   lands and a stranger's does not), live 10 (+1: a planted file removed by the signed-in
   admin). Dev's bucket still holds files orphaned before this (five images, two PDFs
   from the owner's testing): not swept.
+- Item 29e: a `contributions` repository on the public `Repositories`
+  (`get(username)` → a calendar or null). Fixtures return a made-up year
+  (`fixtures/data/contributions.ts`); over Supabase it is
+  `lib/repositories/github/github-contributions.ts` (GraphQL, `GITHUB_TOKEN`,
+  `next: { revalidate }` of a day, null on any failure). `components/sections/contributions.tsx`
+  renders it inside `Skills`. Settings gains `githubUsername` (migration
+  `20261010000000_settings_github_username.sql`, additive, default empty; **pushed to dev;
+  prod before the merge**, since the site's settings read names the column). The fixtures'
+  settings carry the owner's username so fixture builds show the map; `DEFAULT_SETTINGS`
+  leaves it empty. Tests: unit 52 (+2, the GitHub mapping and its failure paths; the
+  contract checks the calendar's shape); smoke 8 and site axe 12 green on a fixtures build
+  with the map on the page. Not yet tried against GitHub itself: no token exists yet.
 - E2E server pinned to fixtures (found while testing item 31): `playwright.config.ts` now
   starts `next start` with `DATA_SOURCE=fixtures`. Before, a local run took the run-time
   value from `.env.local` (`supabase` on the owner's machine): the build was fixtures, but

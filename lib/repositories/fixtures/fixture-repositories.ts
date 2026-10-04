@@ -1,5 +1,6 @@
 import type {
   ArticleRepository,
+  ContributionRepository,
   ExperienceRepository,
   ProfileRepository,
   ProjectRepository,
@@ -10,6 +11,7 @@ import type {
   SocialLinkRepository,
 } from '@/lib/domain/repositories';
 import { type ArticleRecord, toArticle, toSummary } from '../article-record';
+import { contributions as sampleContributions } from './data/contributions';
 import type { FixtureDataset } from './dataset';
 
 /*
@@ -62,5 +64,20 @@ export function createFixtureRepositories(data: FixtureDataset): Repositories {
     get: async () => copy(data.settings),
   };
 
-  return { profile, experience, projects, articles, skills, quotes, socialLinks, settings };
+  // A made-up year (`data/contributions.ts`), shown for any username: fixtures never call GitHub.
+  const contributions: ContributionRepository = {
+    get: async (username) => (username.trim() ? copy(sampleContributions) : null),
+  };
+
+  return {
+    profile,
+    experience,
+    projects,
+    articles,
+    skills,
+    quotes,
+    socialLinks,
+    settings,
+    contributions,
+  };
 }

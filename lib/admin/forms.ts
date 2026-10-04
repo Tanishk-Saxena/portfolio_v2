@@ -123,6 +123,7 @@ export const socialLinks = (d: Draft): LinkValue[] =>
 export const settingsDraft = (s: Settings): Draft => ({
   siteTitle: s.siteTitle,
   siteDescription: s.siteDescription,
+  githubUsername: s.githubUsername,
   accent: s.accent,
   grain: String(s.grain),
   navPosition: s.navPosition,
@@ -134,6 +135,7 @@ export const settingsDraft = (s: Settings): Draft => ({
 export const settingsValues = (d: Draft): Settings => ({
   siteTitle: str(d, 'siteTitle'),
   siteDescription: str(d, 'siteDescription'),
+  githubUsername: str(d, 'githubUsername'),
   accent: d.accent as Settings['accent'],
   grain: Number(str(d, 'grain')),
   navPosition: d.navPosition as Settings['navPosition'],

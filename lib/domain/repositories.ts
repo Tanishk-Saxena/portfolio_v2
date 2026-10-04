@@ -4,6 +4,7 @@ import type {
   ArticleStatus,
   ArticleValues,
   ArticleSummary,
+  ContributionCalendar,
   Experience,
   Profile,
   Project,
@@ -63,6 +64,11 @@ export interface SettingsRepository {
   get(): Promise<Settings>;
 }
 
+/** The GitHub contribution calendar. `null` when there is none to show (no username, no data). */
+export interface ContributionRepository {
+  get(username: string): Promise<ContributionCalendar | null>;
+}
+
 export interface Repositories {
   profile: ProfileRepository;
   experience: ExperienceRepository;
@@ -72,6 +78,7 @@ export interface Repositories {
   quotes: QuoteRepository;
   socialLinks: SocialLinkRepository;
   settings: SettingsRepository;
+  contributions: ContributionRepository;
 }
 
 /**
