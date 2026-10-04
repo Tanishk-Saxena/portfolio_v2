@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { AdminCollection, AdminRepositories } from '@/lib/domain/repositories';
+import { profileFiles, projectFiles, storagePath, UNDO_WINDOW_MS } from '@/lib/admin/storage';
 import type { ArticleValues, Stamped } from '@/lib/domain/types';
 import { toSummary } from '../article-record';
 import {
@@ -11,6 +12,7 @@ import {
   fromQuote,
   fromSkillGroup,
   type ProfileRow,
+  type ProjectRow,
   type SettingsRow,
   type SocialLinkRow,
   toArticleRecord,
@@ -249,6 +251,33 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
               .in('id', removed),
           );
         }
+      },
+    },
+    files: {
+      references: async () => {
+        const [profile, projects] = await Promise.all([
+          db.from('profile').select('portrait, resume_url').single(),
+          // Deleted projects too: Undo restores them, files and all, for a while.
+          db.from('project').select('image, media, deleted_at'),
+        ]);
+        const p = rows<Pick<ProfileRow, 'portrait' | 'resume_url'>>(profile);
+        const kept = profileFiles({ portrait: p.portrait, resumeUrl: p.resume_url });
+        const expired: string[] = [];
+        const cutoff = Date.now() - UNDO_WINDOW_MS;
+        type FileRow = Pick<ProjectRow, 'image' | 'media'> & { deleted_at: string | null };
+        for (const row of rows<FileRow[]>(projects)) {
+          const restorable = !row.deleted_at || Date.parse(row.deleted_at) > cutoff;
+          (restorable ? kept : expired).push(...projectFiles(row));
+        }
+        return { kept, expired };
+      },
+      remove: async (urls) => {
+        const bucket = db.storage.from('media');
+        const base = bucket.getPublicUrl('').data.publicUrl;
+        const paths = urls.flatMap((url) => storagePath(url, base) ?? []);
+        if (!paths.length) return;
+        const { error } = await bucket.remove(paths);
+        if (error) throw new Error(`Supabase storage remove failed: ${error.message}`);
       },
     },
     experience: collection('experience', COLUMNS.experience, toExperience, fromExperience),

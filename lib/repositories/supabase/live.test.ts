@@ -161,6 +161,22 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
       await checkAdminWrites(createSupabaseAdminRepositories(await signedIn(accounts.admin)), tag);
     }, 30_000); // ~20 round trips
 
+    it('storage cleanup: the admin removes an uploaded file, and only an upload', async () => {
+      const bucket = service.storage.from('media');
+      const path = `images/${randomUUID()}.png`;
+      const planted = await bucket.upload(path, new Blob(['x'], { type: 'image/png' }));
+      expect(planted.error).toBeNull();
+      const stored = async () => (await bucket.list('images', { search: path.slice(7) })).data;
+      expect(await stored()).toHaveLength(1);
+
+      const admin = createSupabaseAdminRepositories(await signedIn(accounts.admin));
+      // The live project's files are all accounted for, so none of them is up for removal.
+      const { kept } = await admin.files.references();
+      expect(kept).not.toContain(bucket.getPublicUrl(path).data.publicUrl);
+      await admin.files.remove(['/resume.pdf', bucket.getPublicUrl(path).data.publicUrl]);
+      expect(await stored()).toHaveLength(0);
+    });
+
     it('auth: only the allowlisted account can write; a signed-in stranger cannot', async () => {
       const admin = await signedIn(accounts.admin);
       expect((await admin.rpc('is_admin')).data).toBe(true);
