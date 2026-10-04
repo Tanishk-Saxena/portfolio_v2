@@ -28,6 +28,7 @@ export function SignInForm() {
           name="email"
           type="email"
           autoComplete="username"
+          autoFocus
           defaultValue={state.email}
           aria-describedby={described}
           className={INPUT}

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { hasStatus, type ListRow, toggleLabel } from '@/lib/admin/rows';
 import { adminHref, type CollectionSection } from '@/lib/admin/sections';
-import { ChevronRightIcon } from './admin-icons';
+import { ChevronRightIcon, TrashIcon } from './admin-icons';
 
 const ARROW =
   'grid h-7.5 w-10 cursor-pointer place-items-center text-muted hover:text-accent disabled:cursor-default disabled:opacity-30 disabled:hover:text-muted @wide:h-7 @wide:w-8';
@@ -9,19 +9,21 @@ const ARROW =
 /**
  * One list row (ADMIN-DESIGN-SPEC §4.1–4.2): ↑/↓ on ordered lists, then the link (title with
  * a 2-line clamp, sub, meta; wide puts the meta and a chevron on the right, phones put the
- * meta under the title), then the status pill, which is the quick toggle.
+ * meta under the title), then the status pill, which is the quick toggle, then Delete.
  */
 export function ListRowItem({
   section,
   row,
   move,
   onToggle,
+  onDelete,
 }: {
   section: CollectionSection;
   row: ListRow;
   /** Present while the list can be reordered; false = that way is the end. */
   move?: { up: false | (() => void); down: false | (() => void) };
   onToggle: () => void;
+  onDelete: () => void;
 }) {
   return (
     <div className="flex items-stretch border-b border-line">
@@ -95,6 +97,17 @@ export function ListRowItem({
           </button>
         </div>
       )}
+      <div className="flex flex-none items-center pl-1">
+        <button
+          type="button"
+          onClick={onDelete}
+          aria-label={`Delete ${section.singular}: ${row.title}`}
+          title={`Delete ${section.singular}`}
+          className="hit-44 relative grid size-9 cursor-pointer place-items-center rounded-full text-muted transition-colors duration-150 hover:text-accent"
+        >
+          <TrashIcon />
+        </button>
+      </div>
     </div>
   );
 }

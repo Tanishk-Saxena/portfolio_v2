@@ -37,9 +37,9 @@ export function BottomBar({ state }: { state: EditorState }) {
       <button
         type="button"
         onClick={state.onSave}
-        disabled={state.status === 'saving'}
+        disabled={!state.canSave}
         data-ripple="paper"
-        className="h-12.5 flex-1 cursor-pointer rounded-full bg-accent-fill text-body-sm font-medium whitespace-nowrap text-on-accent disabled:cursor-default"
+        className="h-12.5 flex-1 cursor-pointer rounded-full bg-accent-fill text-body-sm font-medium whitespace-nowrap text-on-accent transition-opacity duration-200 disabled:cursor-default disabled:opacity-45"
       >
         {state.saveLabel}
       </button>

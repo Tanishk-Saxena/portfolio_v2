@@ -1,6 +1,8 @@
 'use client';
 
-import { entryTitle, type EntrySlug, type LoadedForm } from '@/lib/admin/forms';
+import { useEffect, useRef } from 'react';
+import { DEFAULT_SETTINGS } from '@/lib/domain/types';
+import { entryTitle, type EntrySlug, type LoadedForm, settingsDraft } from '@/lib/admin/forms';
 import { FIELDS, type FormSlug, isShown } from '@/lib/admin/schema';
 import type { Section } from '@/lib/admin/sections';
 import { BottomBar } from './bottom-bar';
@@ -33,6 +35,17 @@ export function Editor({
   const editor = useEditor({ slug, section, entryId, initial, takenSlugs });
   const { draft, errors, summaryCount } = editor;
 
+  // A new entry opens with its first field focused, where a keyboard is at hand (owner, §14).
+  const main = useRef<HTMLDivElement>(null);
+  const isNew = editor.isNew;
+  useEffect(() => {
+    if (!isNew || !window.matchMedia('(pointer: fine)').matches) return;
+    main.current?.querySelector<HTMLElement>('input, textarea')?.focus();
+  }, [isNew]);
+
+  const defaults = slug === 'settings' ? settingsDraft(DEFAULT_SETTINGS) : null;
+  const atDefaults = JSON.stringify(defaults) === JSON.stringify(draft);
+
   const title =
     section.kind === 'collection'
       ? entryTitle(slug as EntrySlug, draft) || `New ${section.singular}`
@@ -52,7 +65,7 @@ export function Editor({
     <>
       <EditorBar section={section} title={title} state={editor.state} />
       <div className="flex max-w-admin-editor flex-wrap items-start gap-admin-gap px-admin-x pt-admin-editor-top pb-30">
-        <div className="flex max-w-admin-main min-w-0 flex-[1_1_440px] flex-col gap-6.5">
+        <div ref={main} className="flex max-w-admin-main min-w-0 flex-[1_1_440px] flex-col gap-6.5">
           <h1 className="font-serif text-admin-editor-title text-pretty">{title}</h1>
           {summaryCount > 0 && (
             <div role="alert" className="rounded-row bg-wash-error px-3.5 py-3 text-meta">
@@ -70,6 +83,7 @@ export function Editor({
           fields={shown.filter((f) => f.side).map(field)}
           onDuplicate={full ? undefined : editor.duplicate}
           onDelete={() => editor.remove(title)}
+          onReset={defaults ? !atDefaults && (() => editor.replace(defaults)) : undefined}
         />
       </div>
       <BottomBar state={editor.state} />

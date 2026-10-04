@@ -20,7 +20,8 @@ const useHydrated = () =>
 
 /**
  * The editor's side panel (ADMIN-DESIGN-SPEC §4.1): the side fields in a box, then View on
- * site, Duplicate and Delete (saved collection entries), and when it was last saved.
+ * site, Duplicate and Delete (saved collection entries) or Reset to defaults (Settings), and
+ * when it was last saved.
  */
 export function SidePanel({
   section,
@@ -29,6 +30,7 @@ export function SidePanel({
   fields,
   onDuplicate,
   onDelete,
+  onReset,
 }: {
   section: Section;
   updatedAt: string | null;
@@ -37,6 +39,8 @@ export function SidePanel({
   /** Absent when the list is full: a copy would be one too many (§7.1). */
   onDuplicate?: () => void;
   onDelete: () => void;
+  /** Settings only: puts the shipped look back in the form; absent when it is there already. */
+  onReset?: (() => void) | false;
 }) {
   const entry = section.kind === 'collection' && !isNew;
   const hydrated = useHydrated();
@@ -60,6 +64,16 @@ export function SidePanel({
         >
           View on site ↗
         </a>
+        {onReset !== undefined && (
+          <button
+            type="button"
+            onClick={onReset || undefined}
+            disabled={!onReset}
+            className="flex h-10 cursor-pointer items-center self-start px-1 text-left hover:text-accent disabled:cursor-default disabled:text-muted disabled:hover:text-muted"
+          >
+            Reset to defaults
+          </button>
+        )}
         {entry && (
           <>
             {onDuplicate && (

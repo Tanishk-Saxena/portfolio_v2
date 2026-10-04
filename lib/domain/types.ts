@@ -146,6 +146,14 @@ export type NavPosition = 'right' | 'centre';
 export type MenuLayout = 'arc' | 'wheel';
 
 /** Site-wide style settings (ADMIN-DESIGN-SPEC §8.9). The defaults are the shipped look. */
+/** The shipped look: what a new database holds and what Reset to defaults returns to. */
+export const DEFAULT_SETTINGS: Settings = {
+  accent: 'terracotta',
+  grain: 6, // --grain-opacity: 0.06 (Q5)
+  navPosition: 'right',
+  menuLayout: 'arc',
+};
+
 export interface Settings {
   accent: Accent;
   /** Paper grain opacity, in percent (0–24, step 0.5). */

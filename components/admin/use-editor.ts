@@ -2,18 +2,19 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { type LoadedForm, liveText, slugify } from '@/lib/admin/forms';
+import { type EntrySlug, entryDraft, type LoadedForm, liveText, slugify } from '@/lib/admin/forms';
 import {
   type Draft,
   type DraftValue,
   type FieldErrors,
+  FIELDS,
   type FormSlug,
   RECHECKS,
   validate as validateDraft,
 } from '@/lib/admin/schema';
 import { adminHref, fullMessage, type Section } from '@/lib/admin/sections';
 import type { EditorState } from './editor-bar';
-import { askConfirm } from './confirm-dialog';
+import { deleteEntry } from './delete-entry';
 import { leaveGuarded, setUnsaved } from './guarded-link';
 import { showToast } from './toast';
 
@@ -24,7 +25,8 @@ const needAttention = (n: number) =>
  * The editor's behaviour (ADMIN-DESIGN-SPEC §7.2–7.3): the draft against the saved record
  * (dirty = any difference), Discard, Save (validate first; nothing is sent while a field is
  * invalid), ⌘S / Ctrl+S, and the unsaved-changes guard. "Saved" means the database has it.
- * A field shows its error as soon as it is edited (§11); Save shows every field's.
+ * A field shows its error as soon as it is edited (§11); Save shows every field's. Save is
+ * off while there is nothing to save, and one save runs at a time.
  */
 export function useEditor({
   slug,
@@ -42,18 +44,26 @@ export function useEditor({
   takenSlugs?: string[];
 }) {
   const router = useRouter();
+  const isNew = section.kind === 'collection' && entryId === null;
   const [draft, setDraft] = useState<Draft>(initial.draft);
-  const [saved, setSaved] = useState<Draft>(initial.draft);
+  // A new entry is measured against a blank one, so a Duplicate's copy counts as unsaved.
+  const [saved, setSaved] = useState<Draft>(() =>
+    isNew ? entryDraft(slug as EntrySlug) : initial.draft,
+  );
   const [updatedAt, setUpdatedAt] = useState(initial.updatedAt);
   const [showErrors, setShowErrors] = useState(false);
   const [touched, setTouched] = useState<ReadonlySet<string>>(new Set());
   const [serverErrors, setServerErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
+  const inFlight = useRef(false); // the lock: state lags a second press in the same frame
   // §7.2: a new article's slug follows its title until the slug is edited by hand.
   const [slugTouched, setSlugTouched] = useState(slug !== 'writing' || initial.draft.slug !== '');
 
-  const isNew = section.kind === 'collection' && entryId === null;
-  const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
+  const changed = FIELDS[slug]
+    .filter((f) => JSON.stringify(draft[f.key]) !== JSON.stringify(saved[f.key]))
+    .map((f) => f.label);
+  const changedKey = changed.join('\n');
+  const dirty = changed.length > 0;
   const validate = (d: Draft) => validateDraft(slug, d, { takenSlugs });
   const found = { ...serverErrors, ...validate(draft) };
   const errors = showErrors
@@ -79,13 +89,14 @@ export function useEditor({
   }
 
   async function save() {
-    if (saving) return;
+    if (inFlight.current || !dirty) return;
     const found = Object.keys(validate(draft)).length;
     if (found) {
       setShowErrors(true);
       showToast(needAttention(found));
       return;
     }
+    inFlight.current = true;
     setSaving(true);
     const path =
       entryId === null ? `/api/admin/${slug}` : `/api/admin/${slug}/${encodeURIComponent(entryId)}`;
@@ -95,6 +106,7 @@ export function useEditor({
       // The stamp it started from: a save over someone else's newer one is refused (409).
       body: JSON.stringify({ ...draft, updatedAt }),
     }).catch(() => null);
+    inFlight.current = false;
     setSaving(false);
 
     if (response?.status === 422) {
@@ -151,41 +163,22 @@ export function useEditor({
     );
   }
 
+  /** Sets every field at once (Settings' Reset to defaults); Save still has to follow. */
+  function replace(next: Draft) {
+    setDraft(next);
+    setTouched(new Set(Object.keys(next)));
+  }
+
   /** Confirm, soft delete, back to the list; the toast offers Undo (§7.2–7.3). */
   async function remove(title: string) {
     if (entryId === null || section.kind !== 'collection') return;
-    const sure = await askConfirm({
-      title: `Delete this ${section.singular}?`,
-      body: `“${title}” will be removed from the site. You can undo straight after.`,
-      ok: 'Delete',
-      cancel: 'Cancel',
-    });
-    if (!sure) return;
-    const path = `/api/admin/${section.slug}/${encodeURIComponent(entryId)}`;
-    const response = await fetch(path, { method: 'DELETE' }).catch(() => null);
-    if (!response?.ok) {
-      showToast('Could not delete. Try again.');
-      return;
-    }
+    if (!(await deleteEntry(section, entryId, title, () => router.refresh()))) return;
     setUnsaved(false);
     router.push(adminHref(section.slug));
-    router.refresh();
-    showToast('Deleted, removed from the site', {
-      undo: async () => {
-        const restored = await fetch('/api/admin/restore', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ section: section.slug, id: entryId }),
-        }).catch(() => null);
-        const full = restored?.status === 409 && section.kind === 'collection';
-        showToast(restored?.ok ? 'Restored' : full ? fullMessage(section) : 'Could not undo.');
-        router.refresh();
-      },
-    });
   }
 
   // The guard follows the draft; leaving the editor clears it.
-  useEffect(() => setUnsaved(dirty), [dirty]);
+  useEffect(() => setUnsaved(changedKey ? changedKey.split('\n') : false), [changedKey]);
   useEffect(() => () => setUnsaved(false), []);
 
   useEffect(() => {
@@ -214,6 +207,7 @@ export function useEditor({
   const state: EditorState = {
     status: saving ? 'saving' : isNew ? 'new' : dirty ? 'dirty' : 'saved',
     dirty,
+    canSave: dirty && !saving,
     saveLabel: saving ? 'Saving…' : isNew ? 'Create' : publishing ? 'Publish' : 'Save',
     onDiscard: discard,
     onSave: () => void save(),
@@ -222,6 +216,7 @@ export function useEditor({
   return {
     draft,
     setField,
+    replace,
     errors,
     /** The summary above the fields counts only after a Save that found errors (§7.2). */
     summaryCount: showErrors ? Object.keys(errors).length : 0,

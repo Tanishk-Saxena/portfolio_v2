@@ -9,7 +9,7 @@ import { useListActions } from './use-list-actions';
 
 /**
  * Search, filters and rows of a collection (ADMIN-DESIGN-SPEC §4.1, §7.1), with the quick
- * status toggle and, on ordered lists, ↑/↓ while no search or filter narrows them.
+ * status toggle, Delete and, on ordered lists, ↑/↓ while no search or filter narrows them.
  */
 export function AdminList({
   section,
@@ -20,7 +20,7 @@ export function AdminList({
 }) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ListFilter>('All');
-  const { rows, move, toggle } = useListActions(section, serverRows);
+  const { rows, move, toggle, remove } = useListActions(section, serverRows);
   const shown = filterRows(rows, query, filter);
   const narrowed = query.trim() !== '' || filter !== 'All';
   const reorder = section.ordered && !narrowed;
@@ -69,7 +69,8 @@ export function AdminList({
             key={row.id}
             section={section}
             row={row}
-            onToggle={() => void toggle(row)}
+            onToggle={() => toggle(row)}
+            onDelete={() => remove(row)}
             move={
               reorder
                 ? {
