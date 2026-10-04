@@ -219,7 +219,9 @@ From [AN], with the mockup's exact copy.
   **Drag** (owner, §14): a six-dot handle starts every row beside the arrows. Holding it
   (mouse or finger) lifts the row (surface fill, shadow) and it follows the pointer up and
   down; passing another row's middle trades places and the others glide over (180ms); on
-  release it settles into its place. **Nothing is sent while a row is held**: the order is
+  release it settles into its place. The drag goes on until the pointer is let go, whatever
+  it passes over (it listens on the window, not the handle). **Nothing is sent while a row
+  is held**: the order is
   saved once, on the drop, and a row dropped back where it began sends nothing. The handle is
   pointer-only (hidden from assistive tech): keyboards and screen readers use the arrows.
 - **Quick toggle**: the status pill is a button. Articles Published ↔ Draft, projects
