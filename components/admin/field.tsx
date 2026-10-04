@@ -55,7 +55,7 @@ export function Field({
   if (field.type === 'tags' && Array.isArray(value) && (value.length || field.maxItems)) {
     aside = field.maxItems ? `${value.length} / ${field.maxItems}` : String(value.length);
   }
-  if (field.type === 'markdown' && typeof value === 'string') {
+  if (field.type === 'markdown' && !field.simple && typeof value === 'string') {
     aside = `${countWords(value)} words · ${estimateReadMinutes(value)} min`;
   }
   if (field.type === 'range') aside = `${String(value)}${field.unit ?? ''}`; // not a length
@@ -121,6 +121,7 @@ export function Field({
           {...control}
           value={String(value ?? '')}
           placeholder={field.placeholder}
+          simple={field.simple}
           onChange={onChange}
         />
       )}
