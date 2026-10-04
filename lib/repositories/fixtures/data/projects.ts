@@ -1,4 +1,4 @@
-import type { Project, ProjectKind } from '@/lib/domain/types';
+import type { Project, ProjectKind, ProjectMedia } from '@/lib/domain/types';
 
 // PLACEHOLDER — the mockup's seven projects, verbatim (Portfolio.dc.html PROJECTS).
 // Images are null (the "No preview to show" frame); links point at example.com.
@@ -71,6 +71,21 @@ const ROWS: Row[] = [
   ],
 ];
 
+// SAMPLE modal media for testing (public/samples): the first project has one of each kind,
+// the second two photos, the rest none (their modals show the cover frame).
+const SAMPLE_MEDIA: ProjectMedia[][] = [
+  [
+    { kind: 'image', src: '/samples/photo-1.jpg' },
+    { kind: 'image', src: '/samples/loop.gif' },
+    { kind: 'video', src: '/samples/clip.mp4' },
+    { kind: 'image', src: '/samples/photo-2.jpg' },
+  ],
+  [
+    { kind: 'image', src: '/samples/photo-2.jpg' },
+    { kind: 'image', src: '/samples/photo-1.jpg' },
+  ],
+];
+
 export const projects: Project[] = ROWS.map(([id, title, kind, year, description, tags], i) => ({
   id,
   title,
@@ -79,6 +94,7 @@ export const projects: Project[] = ROWS.map(([id, title, kind, year, description
   description,
   tags,
   image: null,
+  media: SAMPLE_MEDIA[i] ?? [],
   repoUrl: `https://example.com/source/${id}`,
   liveUrl: `https://example.com/${id}`,
   published: true,

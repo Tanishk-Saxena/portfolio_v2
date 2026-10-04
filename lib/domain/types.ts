@@ -56,6 +56,12 @@ export interface SkillGroup {
 
 export type ProjectKind = 'open-source' | 'side-project' | 'client-work';
 
+/** One item of a project's modal media: an image (GIFs included) or a video. */
+export interface ProjectMedia {
+  kind: 'image' | 'video';
+  src: string;
+}
+
 export interface Project {
   id: string;
   title: string;
@@ -65,6 +71,8 @@ export interface Project {
   description: string;
   tags: string[];
   image: Image | null;
+  /** Shown in the modal in place of the cover, in this order; empty = the cover. */
+  media: ProjectMedia[];
   repoUrl: string | null;
   liveUrl: string | null;
   /** Hidden projects never reach the site. */
@@ -151,6 +159,7 @@ export const DEFAULT_SETTINGS: Settings = {
   navPosition: 'right',
   menuLayout: 'arc',
   pressFeedback: 'ripple',
+  mediaAutoRotate: false,
 };
 
 /** What a press looks like, on the site and the admin (spec §10). */
@@ -163,4 +172,6 @@ export interface Settings {
   navPosition: NavPosition;
   menuLayout: MenuLayout;
   pressFeedback: PressFeedback;
+  /** A project's modal media moves on by itself (5s an image; a video when it ends). */
+  mediaAutoRotate: boolean;
 }

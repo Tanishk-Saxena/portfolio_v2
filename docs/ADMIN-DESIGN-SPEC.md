@@ -166,7 +166,8 @@ error line, **Sign in** (48px filled pill), "← Back to the site" (13px muted, 
 | Select → **pills** | `role="radiogroup"`, pills `role="radio"` 38px, padding 0 16px, 13.5px; active = ink fill, paper text |
 | Toggle | `role="switch"` button, min 44px high: 40×24 track (accent when on, `--line-input` when off), 18px cream knob, `translateX(16px)`, `.2s cubic-bezier(.3,.8,.3,1)`; text = the schema's on/off label |
 | Tags | Wrapping box, min 44px, padding 6: chips 30px (accent 92% wash, 13.5px) with a 24px remove ×; inline input (16px, min 120px). Enter, comma or blur adds; Backspace on empty removes the last; duplicates ignored. Chips **drag** to a new place by their text (owner, §14): the held chip lifts and follows the pointer, the others glide; saved with the form |
-| File | Empty: drop zone, min 96px, dashed `--line-input`, "Drop a file or **browse**" + accepted types (`JPG, PNG or WebP` / `PDF`). Filled: row with a 56px thumbnail (image) or extension tile (PDF), name (ellipsis), **Replace** (36px outline pill) and remove × (36px) |
+| File | Empty: drop zone, min 96px, dashed `--line-input`, "Drop, paste or **browse**" (the mockup: "Drop a file or browse") + accepted types (`JPG, PNG or WebP` / `PDF`). Filled: row with a 56px thumbnail (image) or extension tile (PDF), name (ellipsis), **Replace** (36px outline pill) and remove × (36px). **Paste** (owner, §14): an image on the clipboard goes up like a dropped file while the focus is inside the field |
+| Media list (owner, §14) | A project's modal media: rows with a drag handle, a 48px thumbnail (image or video frame), the file name, its kind and a remove ×; under them the same drop zone (several files at once; "Drop, paste or **browse**", "JPG, PNG, WebP, GIF, MP4 or WebM, up to 10 MB each"). Rows drag to reorder. Aside `n / 6`; at six the zone goes |
 | Range | Native, 32px high, `accent-color` |
 | Readonly | 44px, ink 95% transparent fill, muted 14.5px |
 | Theme toggle | The site's half-filled dial; turns 180° over `.45s cubic-bezier(.3,.8,.3,1)`; label names the mode it switches to ("Switch to dark mode") |
@@ -373,6 +374,7 @@ showed it but the modal, as a fallback. The migration copies it into an empty De
 | Visibility (toggle, side) | **`published`** | "Published" / "Hidden from the site". Site shows only published |
 | Year (side) | `year` | 4-digit year |
 | Cover image (side) | `image` | 4:3, ≥ 1200px wide; `alt` stays `""` (the card image is decorative today) |
+| Modal media | **`media[]`** `{ kind: image \| video, src }` | optional, up to **6**; shown in the modal in this order in place of the cover (owner, §14; DESIGN-SPEC §10). Hint: "Optional. Shown in the modal in this order, in place of the cover: images, GIFs or short videos. The card keeps the cover." |
 
 ### 8.6 Writing → `article` (by date, newest first)
 
@@ -417,6 +419,7 @@ today, so the site looks unchanged until a setting moves.
 | Navigation button | Bottom right · Bottom centre | FAB position; the arc spans `−177°…−93°` (right) or `−158°…−22°` (centre) (DESIGN-SPEC §5.3) |
 | Menu layout | Arc · Centre wheel | Wheel: θ = `−90° + 360° × i / 6`, R = 150px at every width, the dock slides to the viewport centre (`.72s ease-spiral-out`) (DESIGN-SPEC §5.3) |
 | Press feedback | Ripple · Ring · Press-in | sets `data-press` on `<html>`: what a press looks like on the site and in the admin (owner, §14; DESIGN-SPEC §10). Hint: "What a press looks like, on the site and here." |
+| Project media (toggle) | Stays until swiped or clicked · Moves on by itself: 5 seconds an image, a video when it ends | whether a project's modal media rotates (owner, §14; DESIGN-SPEC §10) |
 | Signature intro | not offered | shelved (DESIGN-SPEC §10); returns as a setting only if it is revived |
 | Signature tilt | dropped | owner, §14 |
 
@@ -474,7 +477,9 @@ published / active.
 Portrait, project covers and the résumé go to Supabase Storage through a **signed upload
 URL** requested from the server; the record stores the public URL [AH]. Images: the client
 reads `naturalWidth` / `naturalHeight` before upload and sends them with the URL, so the
-domain `Image` is complete (needed for CLS). Accept: images `JPG, PNG or WebP`; résumé `PDF`.
+domain `Image` is complete (needed for CLS). Accept: images `JPG, PNG or WebP`; résumé `PDF`;
+a project's modal media `JPG, PNG, WebP, GIF, MP4 or WebM`, 10 MB each (owner, §14; kind
+`media`, folder `media/media/…`; the bucket's allowed types were widened to match).
 **[ASSUMED]** Limits 5 MB image / 10 MB PDF; files replaced or removed stay in storage until a
 later cleanup (Q-A17).
 
@@ -499,6 +504,7 @@ every route handler (the server repeats every client rule).
 | Duplicate article slug | "Another article already uses this slug." |
 | End year missing on a past role | "Add an end year or mark this as the current role." |
 | More than 4 skill groups | server: 409 (`{ full: true }`) on create and restore; client: New group disabled, no Duplicate; toast "The skills grid holds 4 columns. Delete one to add another." |
+| More than 6 modal media items · the same file twice · an address that isn't a file | "6 items at most." · "The same file is listed twice." · "Upload the file again." |
 | Fewer than 4 or more than 6 items in a skill group | "Add 4 to 6 items: there are `n`." |
 | An article with a body and an External URL | "An article has a body or an External URL, not both. Clear one." (on External URL) |
 | Publishing an article with nothing to show | "Add a body before publishing" (quick toggle); on Save, the same rule on the Status field **[ASSUMED]** |
@@ -570,4 +576,4 @@ Record admin changes the owner settles here, as DESIGN-SPEC §10 does for the si
 | Contrast | Where a design value misses a threshold and isn't shipped yet, tweak the shade slightly until it passes, in the admin and on the site. **Never change what's already shipped.** Applied so far: slate's dark mix 32% (§2), `--line-input` for control boundaries (§2); and, a shipped value changed with the owner's OK (2026-10-04), the accent wash at 8% (A-1, §2) | Keeping mocked values and flagging them |
 | Saved = live | The toast confirms the database write; nothing reloads, in the admin or on the site. The owner reloads when they want to look | Toast after "saved and revalidated" |
 | Accent in images | Share cards and app icons (favicon included) follow the saved accent from the next deploy on; picking it up sooner is fine but not required | Images always terracotta |
-| Phase 9 decisions (2026-10-04) | From the owner's admin test; built in Phase 9 (ledger: the **Phase 9 roadmap**, item numbers in brackets). **Caps enforced on the server**: four skill groups, 4–6 items per group (4, 5). **External URL or body, never both** (6; Q-A12 settled: the field stays). **Name/Location on Hero, Footer note on Contact stay** (27; Q-A8 settled). Early validation everywhere (7). Save disabled when clean (8). A plain "Markdown supported" hint (9). Stacked, themed toasts (10). Autofocus in dialogs (11). Reset to defaults on Settings (12). Debounce or in-flight lock on every action (13). Delete from the list (14). The leave dialog lists what changed (15). **Drag to reorder** lists and skill pills, arrows kept (22; settles §13's "revisit drag-to-reorder"). Paste images; project **modal media** as a rotating list (23). **Card line removed**, and any other field nothing on the site reads (21). Settings gain site title and description (24) and the signature-intro switch (29c). Experience **Description in Markdown** (30). **Contact links as an editable list** (31). Replaced uploads deleted from storage (32). One dev test admin for CI's signed-in tests, a blocking admin journey and axe (1, 2, 2b); no roles. | §8.3–§8.9 fields as listed; §13 "arrows only" |
+| Phase 9 decisions (2026-10-04) | From the owner's admin test; built in Phase 9 (ledger: the **Phase 9 roadmap**, item numbers in brackets). **Caps enforced on the server**: four skill groups, 4–6 items per group (4, 5). **External URL or body, never both** (6; Q-A12 settled: the field stays). **Name/Location on Hero, Footer note on Contact stay** (27; Q-A8 settled). Early validation everywhere (7). Save disabled when clean (8). A plain "Markdown supported" hint (9). Stacked, themed toasts (10). Autofocus in dialogs (11). Reset to defaults on Settings (12). Debounce or in-flight lock on every action (13). Delete from the list (14). The leave dialog lists what changed (15). **Drag to reorder** lists and skill pills, arrows kept (22; settles §13's "revisit drag-to-reorder"). Paste images; project **modal media** as a list, rotating only if Settings says so (23). **Card line removed**, and any other field nothing on the site reads (21). Settings gain site title and description (24) and the signature-intro switch (29c). Experience **Description in Markdown** (30). **Contact links as an editable list** (31). Replaced uploads deleted from storage (32). One dev test admin for CI's signed-in tests, a blocking admin journey and axe (1, 2, 2b); no roles. | §8.3–§8.9 fields as listed; §13 "arrows only" |

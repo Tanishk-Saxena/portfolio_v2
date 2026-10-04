@@ -21,8 +21,12 @@ type Value = string | number | boolean | null | string[] | object;
 
 const text = (s: string) => `'${s.replaceAll("'", "''")}'`;
 
-function literal(value: Value): string {
+/** Columns that hold JSON even when the value is an array (a project's modal media). */
+const JSON_COLUMNS = new Set(['media']);
+
+function literal(value: Value, column = ''): string {
   if (value === null) return 'null';
+  if (JSON_COLUMNS.has(column)) return `${text(JSON.stringify(value))}::jsonb`;
   if (typeof value === 'string') return text(value);
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (Array.isArray(value)) {
@@ -37,7 +41,7 @@ function insert(table: string, rows: object[]): string {
   const values = rows
     .map((row) => {
       const record = row as Record<string, Value>;
-      return `  (${columns.map((c) => literal(record[c])).join(', ')})`;
+      return `  (${columns.map((c) => literal(record[c], c)).join(', ')})`;
     })
     .join(',\n');
   return `insert into public.${table} (${columns.join(', ')}) values\n${values};\n`;

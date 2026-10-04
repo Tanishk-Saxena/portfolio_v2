@@ -20,6 +20,7 @@ export type FieldType =
   | 'markdown'
   | 'image'
   | 'pdf'
+  | 'media'
   | 'range';
 
 export interface FieldDef {
@@ -38,7 +39,7 @@ export interface FieldDef {
   off?: string;
   /** Pills for `select`. */
   options?: { value: string; label: string }[];
-  /** `tags`: how many the list holds, a hard limit (owner, ADMIN-DESIGN-SPEC §14). */
+  /** `tags` and `media`: how many the list holds, a hard limit (owner, ADMIN-DESIGN-SPEC §14). */
   minItems?: number;
   maxItems?: number;
   /** `range`: bounds, step and the unit shown beside the value. */
@@ -56,7 +57,13 @@ export interface ImageValue {
   height: number;
 }
 
-export type DraftValue = string | boolean | string[] | ImageValue | null;
+/** One item of a project's modal media, as the form holds it. */
+export interface MediaValue {
+  kind: 'image' | 'video';
+  src: string;
+}
+
+export type DraftValue = string | boolean | string[] | ImageValue | MediaValue[] | null;
 export type Draft = Record<string, DraftValue>;
 export type FieldErrors = Record<string, string>;
 
@@ -198,6 +205,13 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       side: true,
       hint: '4:3, at least 1200 px wide.',
     },
+    {
+      key: 'media',
+      label: 'Modal media',
+      type: 'media',
+      maxItems: 6,
+      hint: 'Optional. Shown in the modal in this order, in place of the cover: images, GIFs or short videos. The card keeps the cover.',
+    },
   ],
   writing: [
     { key: 'title', label: 'Title', type: 'text', req: true },
@@ -313,6 +327,13 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
         { value: 'press', label: 'Press-in' },
       ],
       hint: 'What a press looks like, on the site and here.',
+    },
+    {
+      key: 'mediaAutoRotate',
+      label: 'Project media',
+      type: 'toggle',
+      on: 'Moves on by itself: 5 seconds an image, a video when it ends',
+      off: 'Stays until swiped or clicked',
     },
   ],
 };

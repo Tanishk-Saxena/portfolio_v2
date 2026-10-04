@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3) under way, its bugs (roadmap B), admin UI/UX (roadmap C) and site UI/UX (roadmap D) and drag to reorder (roadmap E) done, media (roadmap F) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3) done (roadmap B–F), site title and description (9.2) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
 
 ---
 
@@ -231,7 +231,7 @@ arrive with Milestone B (Phase 6.1).
 | `profile` | name, eyebrow, headline, headline_highlight, standfirst, **cta_label**, about_lead, about_paragraphs[], portrait (image, nullable), resume_url, email, contact_statement, location, footer_note |
 | `experience` | role, org, start_date, end_date (null = current), summary, sort_order (**now the display order**) |
 | `skill_group` | title, items[], sort_order (at most 4 groups) |
-| `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, description (≤320; the ≤110 `summary` card line was dropped in Phase 9, item 21), tags[], image (nullable), repo_url, live_url (nullable), **published**, sort_order |
+| `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, description (≤320; the ≤110 `summary` card line was dropped in Phase 9, item 21), tags[], image (nullable), media[] (modal media: `{ kind, src }`, up to 6; Phase 9, item 23), repo_url, live_url (nullable), **published**, sort_order |
 | `article` | slug, title, excerpt, published_at, read_minutes (**nullable = estimated**), body (Markdown, nullable), external_url (nullable), **status** (`draft` \| `published`), **listen** |
 | `quote` | text (≤140), author, **active**, sort_order |
 | `social_link` | label, url, sort_order (edited as four fixed links; empty = hidden) |

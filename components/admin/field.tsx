@@ -1,10 +1,11 @@
 'use client';
 
 import { useId } from 'react';
-import type { DraftValue, FieldDef, ImageValue } from '@/lib/admin/schema';
+import type { DraftValue, FieldDef, ImageValue, MediaValue } from '@/lib/admin/schema';
 import { countWords, estimateReadMinutes } from '@/lib/utils/read-time';
 import { FileField } from './file-field';
 import { MarkdownField } from './markdown-field';
+import { MediaField } from './media-field';
 import { SelectPills } from './select-pills';
 import { TagsInput } from './tags-input';
 import { ToggleSwitch } from './toggle-switch';
@@ -50,6 +51,7 @@ export function Field({
 
   let aside = '';
   if (field.max && typeof value === 'string') aside = `${value.length} / ${field.max}`;
+  if (field.type === 'media' && Array.isArray(value)) aside = `${value.length} / ${field.maxItems}`;
   if (field.type === 'tags' && Array.isArray(value) && (value.length || field.maxItems)) {
     aside = field.maxItems ? `${value.length} / ${field.maxItems}` : String(value.length);
   }
@@ -131,6 +133,15 @@ export function Field({
           onChange={onChange}
         />
       )}
+      {field.type === 'media' && (
+        <MediaField
+          id={id}
+          aria-describedby={describedBy}
+          value={Array.isArray(value) ? (value as MediaValue[]) : []}
+          max={field.maxItems}
+          onChange={onChange}
+        />
+      )}
       {field.type === 'range' && (
         <input
           {...control}
@@ -147,7 +158,7 @@ export function Field({
       {field.type === 'tags' && (
         <TagsInput
           {...control}
-          tags={Array.isArray(value) ? value : []}
+          tags={Array.isArray(value) ? (value as string[]) : []}
           max={field.maxItems}
           placeholder={field.placeholder}
           onChange={onChange}

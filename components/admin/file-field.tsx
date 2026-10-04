@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { type ClipboardEvent, useRef, useState } from 'react';
 import type { ImageValue } from '@/lib/admin/schema';
 import { checkUpload, UPLOADS, type UploadKind } from '@/lib/admin/uploads';
 import { SmallCloseIcon } from './admin-icons';
@@ -15,7 +15,7 @@ async function measure(file: File): Promise<{ width: number; height: number }> {
 }
 
 /** Signed URL from the server, then straight to Storage (ADMIN-DESIGN-SPEC §10). */
-async function upload(kind: UploadKind, file: File): Promise<string | null> {
+export async function upload(kind: UploadKind, file: File): Promise<string | null> {
   const signed = await fetch('/api/admin/upload', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -36,7 +36,8 @@ async function upload(kind: UploadKind, file: File): Promise<string | null> {
 const fileName = (src: string) => decodeURIComponent(src.split('/').pop() ?? src);
 
 /**
- * The schema's file field (ADMIN-DESIGN-SPEC §5): a drop zone when empty, else a row with a
+ * The schema's file field (ADMIN-DESIGN-SPEC §5): a drop zone when empty (drop, paste or
+ * browse; a paste lands while the focus is inside the field), else a row with a
  * thumbnail (image) or extension tile (PDF), the name, Replace and remove. Image values carry
  * their size; PDF values are the URL.
  */
@@ -90,9 +91,20 @@ export function FileField({
     />
   );
 
+  // Paste (owner, §14): an image copied to the clipboard goes up like a dropped file.
+  const onPaste = (e: ClipboardEvent<HTMLElement>) => {
+    const file = e.clipboardData.files[0];
+    if (!file) return;
+    e.preventDefault();
+    void take(file);
+  };
+
   if (src) {
     return (
-      <div className="flex items-center gap-3 rounded-row border border-line-input bg-field p-2.5">
+      <div
+        onPaste={onPaste}
+        className="flex items-center gap-3 rounded-row border border-line-input bg-field p-2.5"
+      >
         {kind === 'image' ? (
           // eslint-disable-next-line @next/next/no-img-element -- a 56px admin thumbnail
           <img src={src} alt="" className="size-14 flex-none rounded-sm object-cover" />
@@ -122,6 +134,7 @@ export function FileField({
 
   return (
     <label
+      onPaste={onPaste}
       onDragOver={(e) => {
         e.preventDefault();
         setDragging(true);
@@ -139,7 +152,7 @@ export function FileField({
           'Uploading…'
         ) : (
           <>
-            Drop a file or <span className="text-accent">browse</span>
+            Drop, paste or <span className="text-accent">browse</span>
           </>
         )}
       </span>

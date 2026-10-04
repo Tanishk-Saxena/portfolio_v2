@@ -7,7 +7,7 @@ The database behind the site and the admin (brief §6, Phase 6.2). Two projects:
 
 | Path | What |
 |---|---|
-| `supabase/migrations/*.sql` | The schema: tables, constraints, `updated_at` triggers, RLS, the `admin_user` allowlist, the `media` bucket (the admin's uploads: `images/`, `files/`; replaced files are not cleaned up yet). Applied in filename order |
+| `supabase/migrations/*.sql` | The schema: tables, constraints, `updated_at` triggers, RLS, the `admin_user` allowlist, the `media` bucket (the admin's uploads: `images/`, `files/`, and `media/` for projects' modal media, GIFs and short videos included; replaced files are not cleaned up yet). Applied in filename order |
 | `supabase/seed.sql` | The shipped placeholder content. **Generated** from the fixtures by `lib/repositories/supabase/seed.ts`; regenerate with `npx vitest run seed -u` |
 | `lib/repositories/supabase/` | Row mappers, the public repositories, the admin's reads (run as the signed-in admin), the client |
 
@@ -104,6 +104,10 @@ account.
   `20261006000000_settings_press_feedback.sql`), `db push` applies them together, so push
   right before merging: pages are prerendered, so visitors see nothing in the minutes until
   the deploy, and only the admin's Projects list would fail in between.
+- Sample modal media (owner, 2026-10-04, for testing): the first two live projects in dev
+  and prod point at the files in `public/samples/` (two photos, a GIF, an MP4), as the
+  fixtures' first two do. Remove them from the admin (Projects → Modal media) when real
+  media goes in.
 - Pages are prerendered at build. A save in the admin marks them stale
   (`revalidatePath('/', 'layout')`), so the site shows it on the next visit. An edit made
   directly in the Supabase dashboard skips that, and shows after the next deploy or the next

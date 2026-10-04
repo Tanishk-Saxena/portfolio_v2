@@ -6,6 +6,7 @@ import {
   FIELDS,
   type FormSlug,
   type ImageValue,
+  type MediaValue,
 } from './fields';
 
 /*
@@ -27,6 +28,12 @@ const isImage = (v: unknown): v is ImageValue =>
   typeof (v as ImageValue).src === 'string' &&
   [(v as ImageValue).width, (v as ImageValue).height].every((n) => Number.isInteger(n) && n > 0);
 
+const isMedia = (v: unknown): v is MediaValue =>
+  typeof v === 'object' &&
+  v !== null &&
+  ['image', 'video'].includes((v as MediaValue).kind) &&
+  typeof (v as MediaValue).src === 'string';
+
 function parseValue(field: FieldDef, value: unknown): DraftValue | undefined {
   switch (field.type) {
     case 'toggle':
@@ -35,6 +42,10 @@ function parseValue(field: FieldDef, value: unknown): DraftValue | undefined {
       return Array.isArray(value) && value.every((v) => typeof v === 'string') ? value : undefined;
     case 'image':
       return value === null || isImage(value) ? value : undefined;
+    case 'media':
+      return Array.isArray(value) && value.every(isMedia)
+        ? value.map(({ kind, src }) => ({ kind, src }))
+        : undefined;
     case 'select':
       return field.options?.some((o) => o.value === value) ? (value as string) : undefined;
     default:
@@ -80,6 +91,16 @@ function fieldError(field: FieldDef, value: DraftValue): string | undefined {
     if (value.length < min || value.length > max) {
       return `Add ${min} to ${max} items: there ${value.length === 1 ? 'is' : 'are'} ${value.length}.`;
     }
+  }
+  if (field.type === 'media' && Array.isArray(value)) {
+    const items = value as MediaValue[];
+    if (items.length > (field.maxItems ?? Infinity)) return `${field.maxItems} items at most.`;
+    if (new Set(items.map((m) => m.src)).size !== items.length) {
+      return 'The same file is listed twice.';
+    }
+    return items.every((m) => URL_RE.test(m.src) || m.src.startsWith('/'))
+      ? undefined
+      : 'Upload the file again.';
   }
   if (!text && field.type !== 'image') return undefined;
   switch (field.type) {
