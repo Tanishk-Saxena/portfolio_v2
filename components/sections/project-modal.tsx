@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import type { Project } from '@/lib/domain/types';
 import { formatProjectKind } from '@/lib/utils/format';
 import { CloseIcon, GitHubIcon, GlobeIcon } from '@/components/ui/icons';
+import { ProjectMedia } from './project-media';
 
 const CLOSE_MS = 320; // spec §5.3: unmount after the reverse animation
 
@@ -43,10 +44,13 @@ export function originFrom(card: HTMLElement): ModalOrigin {
 export function ProjectModal({
   project,
   origin,
+  autoRotate,
   onClose,
 }: {
   project: Project | null;
   origin: ModalOrigin;
+  /** Settings: the modal media moves on by itself. */
+  autoRotate: boolean;
   onClose: () => void;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -110,7 +114,10 @@ export function ProjectModal({
           </button>
 
           <div className="relative grid aspect-video w-full flex-none place-items-center border-b border-border-divider bg-surface @wide/page:aspect-auto @wide/page:w-98 @wide/page:self-stretch @wide/page:border-r @wide/page:border-b-0">
-            {project.image ? (
+            {project.media.length > 0 ? (
+              // Keyed by project, so each opens on its first item.
+              <ProjectMedia key={project.id} items={project.media} autoRotate={autoRotate} />
+            ) : project.image ? (
               <Image
                 src={project.image.src}
                 alt={project.image.alt}

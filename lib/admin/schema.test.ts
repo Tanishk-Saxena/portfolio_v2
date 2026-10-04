@@ -169,6 +169,24 @@ describe('admin schema', () => {
     expect(checkUpload('image', 'image/png', 6 * 1024 * 1024)).toMatch(/5 MB/);
     expect(checkUpload('pdf', 'application/pdf', 9 * 1024 * 1024)).toBeNull();
     expect(checkUpload('pdf', 'image/png', 1000)).toMatch(/PDF/);
+
+    // A project's modal media: six at most, no file twice, and the same rules on the server
+    // (the route handlers run this validate() and parseDraft()).
+    expect(checkUpload('media', 'image/gif', 9 * 1024 * 1024)).toBeNull();
+    expect(checkUpload('media', 'video/mp4', 11 * 1024 * 1024)).toMatch(/10 MB/);
+    expect(checkUpload('media', 'video/quicktime', 1000)).toMatch(/MP4 or WebM/);
+    const bare = { ...entryDraft('projects'), title: 'P' };
+    const media = (n: number) =>
+      Array.from({ length: n }, (_, i) => ({ kind: 'image' as const, src: `/samples/${i}.jpg` }));
+    expect(validate('projects', { ...bare, media: media(6) })).toEqual({});
+    expect(validate('projects', { ...bare, media: media(7) }).media).toBe('6 items at most.');
+    expect(validate('projects', { ...bare, media: [...media(1), ...media(1)] }).media).toBe(
+      'The same file is listed twice.',
+    );
+    expect(parseDraft('projects', { ...bare, media: [{ kind: 'audio', src: 'x' }] })).toBeNull();
+    expect(entryValues('projects', { ...bare, media: media(2) })).toMatchObject({
+      media: media(2),
+    });
   });
 
   it('settings: the shipped look round-trips; the grain stays on its 0.5 steps', () => {

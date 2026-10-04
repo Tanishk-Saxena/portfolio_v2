@@ -63,6 +63,11 @@ export const stressDataset: FixtureDataset = {
     tags:
       i === 3 ? ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'] : i === 4 ? [] : ['Tag'],
     image: null,
+    // The first project carries modal media: three stills.
+    media:
+      i === 0
+        ? [1, 2, 3].map((n) => ({ kind: 'image' as const, src: `/placeholder/media-${n}.svg` }))
+        : [],
     repoUrl: i === 5 ? null : 'https://github.com/Tanishk-Saxena',
     liveUrl: i % 2 === 0 ? 'https://example.com' : null,
     published: i !== 7, // the last one is hidden

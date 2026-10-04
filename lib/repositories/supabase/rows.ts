@@ -6,6 +6,7 @@ import type {
   MenuLayout,
   NavPosition,
   PressFeedback,
+  ProjectMedia,
   Profile,
   Project,
   ProjectKind,
@@ -45,6 +46,7 @@ export interface SettingsRow {
   nav_position: NavPosition;
   menu_layout: MenuLayout;
   press_feedback: PressFeedback;
+  media_auto_rotate: boolean;
 }
 
 export interface ExperienceRow {
@@ -65,6 +67,7 @@ export interface ProjectRow {
   description: string;
   tags: string[];
   image: Image | null;
+  media: ProjectMedia[];
   repo_url: string | null;
   live_url: string | null;
   published: boolean;
@@ -130,6 +133,7 @@ export const toSettings = (r: SettingsRow): Settings => ({
   navPosition: r.nav_position,
   menuLayout: r.menu_layout,
   pressFeedback: r.press_feedback,
+  mediaAutoRotate: r.media_auto_rotate,
 });
 
 export const toExperience = (r: ExperienceRow): Experience => ({
@@ -150,6 +154,7 @@ export const toProject = (r: ProjectRow): Project => ({
   description: r.description,
   tags: r.tags,
   image: r.image,
+  media: r.media ?? [],
   repoUrl: r.repo_url,
   liveUrl: r.live_url,
   published: r.published,
@@ -216,6 +221,7 @@ export const fromSettings = (s: Settings): SettingsRow => ({
   nav_position: s.navPosition,
   menu_layout: s.menuLayout,
   press_feedback: s.pressFeedback,
+  media_auto_rotate: s.mediaAutoRotate,
 });
 
 export const fromExperience = (e: Experience): ExperienceRow => ({
@@ -236,6 +242,7 @@ export const fromProject = (p: Project): ProjectRow => ({
   description: p.description,
   tags: p.tags,
   image: p.image,
+  media: p.media,
   repo_url: p.repoUrl,
   live_url: p.liveUrl,
   published: p.published,

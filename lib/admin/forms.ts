@@ -11,7 +11,7 @@ import type {
   SkillGroup,
   SocialLink,
 } from '@/lib/domain/types';
-import type { Draft, FormSlug, ImageValue } from './schema';
+import type { Draft, FormSlug, ImageValue, MediaValue } from './schema';
 
 /*
  * Domain records ↔ editor drafts (ADMIN-DESIGN-SPEC §8). Drafts hold exactly what the form
@@ -126,6 +126,7 @@ export const settingsDraft = (s: Settings): Draft => ({
   navPosition: s.navPosition,
   menuLayout: s.menuLayout,
   pressFeedback: s.pressFeedback,
+  mediaAutoRotate: s.mediaAutoRotate,
 });
 
 export const settingsValues = (d: Draft): Settings => ({
@@ -134,6 +135,7 @@ export const settingsValues = (d: Draft): Settings => ({
   navPosition: d.navPosition as Settings['navPosition'],
   menuLayout: d.menuLayout as Settings['menuLayout'],
   pressFeedback: d.pressFeedback as Settings['pressFeedback'],
+  mediaAutoRotate: d.mediaAutoRotate === true,
 });
 
 // ── Collections ───────────────────────────────────────────────────────────────────────────
@@ -178,6 +180,7 @@ export function entryDraft<S extends EntrySlug>(slug: S, entry?: EntryTypes[S]):
         published: p?.published ?? false,
         year: String(p?.year ?? new Date().getFullYear()),
         image: toImageValue(p?.image ?? null),
+        media: (p?.media ?? []).map(({ kind, src }) => ({ kind, src })),
       };
     }
     case 'writing': {
@@ -237,6 +240,7 @@ function values(slug: EntrySlug, d: Draft, original?: EntryTypes[EntrySlug]): ob
         year: Number(str(d, 'year')),
         // §8.5: the card image is decorative today, so its alt stays empty.
         image: fromImageValue(d.image, '', p?.image ?? null),
+        media: (d.media as MediaValue[] | undefined) ?? [],
       } satisfies EntryValues<Project>;
     }
     case 'writing': {

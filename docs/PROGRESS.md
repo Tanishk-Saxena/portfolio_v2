@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21) and E (drag to reorder) done · next: 9.3's roadmap F (media), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete** · next: 9.2 (site title and description), then 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -509,8 +509,8 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
-| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), then F | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D ✅ · E ✅ · F next |
-| 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
+| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
+| 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | next |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
@@ -534,7 +534,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | C. Admin UI/UX (9.3) | 8–15 | 8, 9, 10, 11, 12, 13, 14, 15 | — |
 | D. Site UI/UX (9.3) | 16–21 | 16, 17, 18, 19, 20, 21 | — |
 | E. Drag to reorder (9.3) | 22 | 22 | — |
-| F. Media (9.3) | 23 | — | 23 |
+| F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | — | 24 |
 | H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | — | 25 (owner picks), 29e, 30, 31, 32, then 28a + 29c last |
 | I. Carried checks | 33 | — | 33 (owner, prod on a phone) |
@@ -601,10 +601,12 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       keyboards). Settles ADMIN-DESIGN-SPEC §13's "revisit drag-to-reorder after real use".
 
 **F. Media (9.3 #1)**
-- [ ] 23. Paste images into image fields, alongside upload. Optional **modal media** for a
+- [x] 23. Paste images into image fields, alongside upload. Optional **modal media** for a
       project: a **list** of items (GIF, video or image) that rotates automatically like a
       carousel while the modal is open (owner, 2026-10-04); the card keeps its cover image,
-      and the modal shows the cover when the list is empty.
+      and the modal shows the cover when the list is empty. **As built** (the owner's later
+      call, same day): swipe or click through, dots, no rotation unless the new Settings
+      switch is on (F notes below).
 
 **G. Site title and description (9.2)**
 - [ ] 24. Settings fields for the site title and description (root metadata, Open Graph);
@@ -841,6 +843,39 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
   a list row dragged up two places and saved; put back with the arrows; a chip dragged past
   its neighbour. Not tried with a real finger: the owner's phone decides. Tests: unit 47,
   unchanged; e2e 24 passed (admin axe included: the handle adds no violation).
+
+**9.3 notes, roadmap F (item 23; branch `feat/phase-9-media`).**
+- Paste: the single-file field (`file-field.tsx`) and the new media list take a pasted image
+  while the focus is inside the field; both zones read "Drop, paste or browse".
+- Modal media: `Project.media` (`{ kind: 'image' | 'video', src }[]`, GIFs are images), up
+  to six; `project.media jsonb`. Admin: a **Modal media** list on Projects
+  (`media-field.tsx`): several files at once, drag to reorder, × to remove. Upload kind
+  `media` (JPG, PNG, WebP, GIF, MP4, WebM, 10 MB); the bucket's allowed types widened.
+- The modal (`project-media.tsx`), per the owner's call (2026-10-04) in place of an
+  always-on carousel: a native scroll-snap strip (swipe on phones; ‹ › on hover or focus on
+  wide screens; ← → with the strip focused), dots when there is more than one, videos muted
+  and looping, only the item in view playing. **No auto-rotation by default**; a new setting,
+  **Project media** (`settings.media_auto_rotate`), turns it on: 5s an image, a video until
+  it ends, paused on hover or focus. Reduced motion: no rotation, no autoplay.
+- Migration `20261007000000_project_media.sql` (additive: both columns and the bucket's
+  types), pushed to dev and prod.
+- Sample media for testing (owner): `public/samples/` (two photos, a GIF, an MP4, drawn and
+  recorded in headless Chrome, about 265 KB). The first fixture project has one of each
+  kind, the second two photos; the first two live projects in **dev and prod** were given
+  the same (only where they had none).
+- Limits, on both sides (owner: "is the limit respected?"): six items at most and no file
+  twice, in the shared `validate()` the editor and every route handler run (a seventh is a
+  422 even if the form is bypassed); the list also hides its add zone at six and drops what
+  doesn't fit. File type and the 10 MB size are checked in the browser, by the upload route
+  and by the bucket. Unit-tested (`schema.test.ts`).
+- Coverage (owner): both fixture sets keep projects with several media items and projects
+  with none at all (no media, no cover), asserted in `fixture-repositories.test.ts`; dev and
+  prod likewise (their third project onward has none).
+- Axe caught the strip as a scrolling region the keyboard couldn't reach; it is focusable
+  when it holds more than one item.
+- Checked in a browser, desktop and phone: next / swipe, the dots' count, no movement with
+  the setting off, rotation with it on, the video playing in view, the admin list (remove,
+  count). Tests: unit 47, unchanged (seed snapshot regenerated); e2e 24 passed, the axe specs included.
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",

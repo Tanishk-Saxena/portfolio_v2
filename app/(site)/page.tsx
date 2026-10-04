@@ -56,7 +56,7 @@ export default async function HomePage() {
           <Hero profile={profile} />
           <About profile={profile} />
           <Experience items={experience} />
-          <Projects projects={projects} />
+          <Projects projects={projects} mediaAutoRotate={settings.mediaAutoRotate} />
           <Writing articles={articles} />
           <Skills groups={skillGroups} />
           <Quotes quotes={quotes} />

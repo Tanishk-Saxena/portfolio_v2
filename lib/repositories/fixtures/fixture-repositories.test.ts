@@ -25,6 +25,16 @@ describe('stress dataset', () => {
     expect(s.projects.some((p) => p.tags.length === 0)).toBe(true);
     expect(s.projects.some((p) => p.tags.length > 3)).toBe(true);
     expect(s.articles.some((a) => a.body === null && a.externalUrl)).toBe(true);
+    // Modal media, in both datasets: projects with several items and projects with none at
+    // all (owner: every case stays covered); the shipped set has each kind once.
+    for (const set of [s, defaultDataset]) {
+      expect(set.projects.some((p) => p.media.length > 1)).toBe(true);
+      expect(set.projects.some((p) => p.media.length === 0 && p.image === null)).toBe(true);
+    }
+    const kinds = defaultDataset.projects.flatMap((p) =>
+      p.media.map((m) => m.src.split('.').pop()),
+    );
+    expect(kinds).toEqual(expect.arrayContaining(['jpg', 'gif', 'mp4']));
     expect(s.profile.headlineHighlight).toBeNull();
   });
 

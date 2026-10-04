@@ -8,7 +8,13 @@ import { ProjectCard } from './project-card';
 import { originFrom, ProjectModal, type ModalOrigin } from './project-modal';
 
 /** Cards in a centred wrap, three at a time; one modal shared by all cards. */
-export function ProjectsGallery({ projects }: { projects: Project[] }) {
+export function ProjectsGallery({
+  projects,
+  mediaAutoRotate,
+}: {
+  projects: Project[];
+  mediaAutoRotate: boolean;
+}) {
   const { visible, hasMore, canCollapse, showMore, showLess, containerRef } = usePagedList(
     'projects',
     projects.length,
@@ -49,6 +55,7 @@ export function ProjectsGallery({ projects }: { projects: Project[] }) {
       <ProjectModal
         project={selected}
         origin={origin}
+        autoRotate={mediaAutoRotate}
         onClose={() => {
           setSelected(null);
           trigger.current?.focus({ preventScroll: true });
