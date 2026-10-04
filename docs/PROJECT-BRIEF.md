@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3) under way, its bugs (roadmap B) done, admin UI/UX (roadmap C) next; then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
 
 ---
 
