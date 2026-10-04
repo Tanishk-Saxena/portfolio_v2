@@ -9,9 +9,11 @@ import { Section } from './section';
 export function Skills({
   groups,
   contributions,
+  githubUsername,
 }: {
   groups: SkillGroup[];
   contributions: ContributionCalendar | null;
+  githubUsername: string;
 }) {
   if (groups.length === 0) return null;
 
@@ -33,7 +35,7 @@ export function Skills({
           </div>
         ))}
       </div>
-      {contributions && <Contributions calendar={contributions} />}
+      {contributions && <Contributions calendar={contributions} username={githubUsername} />}
     </Section>
   );
 }
