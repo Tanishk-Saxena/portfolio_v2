@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done · next: 9.3's roadmap D (site UI/UX, items 16–21), then E–F, then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX) done except item 20 (press feedback: the owner picks from the options in the D notes) · next: item 20 once picked, 9.3's roadmap E (drag to reorder) and F (media), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -509,7 +509,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
-| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), then one per group | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D next |
+| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D), then one per group | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D ✅ but 20 (owner picks) · E next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 
@@ -532,7 +532,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | A. Test infrastructure (9.4) | 1, 2, 2b, 3 | 1, 2, 2b, 3 | — |
 | B. Bugs (9.3) | 4–7 | 4, 5, 6, 7 | — |
 | C. Admin UI/UX (9.3) | 8–15 | 8, 9, 10, 11, 12, 13, 14, 15 | — |
-| D. Site UI/UX (9.3) | 16–21 | — | 16, 17, 18, 19, 20 (owner picks), 21 |
+| D. Site UI/UX (9.3) | 16–21 | 16, 17, 18, 19, 21 | 20 (owner picks from the options in the D notes) |
 | E. Drag to reorder (9.3) | 22 | — | 22 |
 | F. Media (9.3) | 23 | — | 23 |
 | G. Site title and description (9.2) | 24 | — | 24 |
@@ -581,14 +581,14 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 - [x] 15. #17 The leave dialog lists what changed.
 
 **D. Site UI/UX (9.3)**
-- [ ] 16. #2 The no-image placeholder reads like "No preview to show".
-- [ ] 17. #3 The modal's date moves below the project name (the close button overlapped it).
-- [ ] 18. #14 A calmer quote rotation.
-- [ ] 19. #15 Menus close in reverse (items hide one by one, reverse order, behind the centre
+- [x] 16. #2 The no-image placeholder reads like "No preview to show".
+- [x] 17. #3 The modal's date moves below the project name (the close button overlapped it).
+- [x] 18. #14 A calmer quote rotation.
+- [x] 19. #15 Menus close in reverse (items hide one by one, reverse order, behind the centre
       button); the button travels home only as the last one hides.
 - [ ] 20. #7 Press feedback rethought, site and admin alike: Claude presents two or three
       alternatives to the ripple (no artificial delays; reads at any speed), the owner picks.
-- [ ] 21. **Card line: dropped** (owner: a single line says too little on a card and could
+- [x] 21. **Card line: dropped** (owner: a single line says too little on a card and could
       discourage opening it). Remove the field from the admin, the domain and the database;
       the modal uses Description. Nothing else needs it (projects have no pages); the
       migration drops the column after copying any summary into an empty description.
@@ -734,6 +734,39 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 - Checked in a browser on a fixtures build, desktop and phone, light and dark (a one-off
   spec, removed): each item above. Tests: unit 47, unchanged; the smoke journey now deletes
   its quote from the list (item 14) and presses the newest toast's Undo; e2e 24 passed.
+
+**9.3 notes, roadmap D (items 16–21; branch `feat/phase-9-site-ux`).**
+- 16: a project without an image reads "No preview to show", on the card and in the modal.
+- 17: the modal's year sits under the project name; the type keeps its line. The modal now
+  grows with its copy up to 88svh instead of scrolling inside a fixed height (owner,
+  2026-10-04: the first two projects scrolled); past 88svh the body scrolls with a thin
+  accent bar. On the stress fixtures a 3× long description fits on desktop without a scroll.
+- 18: the quote change travels (owner, 2026-10-04, after a plain cross-fade was tried): the
+  old quote slides left as it fades, then the new one arrives from the right; keyframes
+  `quote-out` / `quote-in` in `styles/tokens.css`. Not watched in motion here: the owner
+  judges it on the preview.
+- 19: on close the nav's items go back one at a time in reverse order, each solid until it
+  is behind the button (`components/site/nav-motion.ts`); the curtain lifts over the whole
+  close; in the wheel layout the button travels home as the last item sets off. The nav's
+  URL-hash effects moved to `lib/hooks/use-section-hash.ts` (the component's 200-line limit).
+- 21: the Card line is gone from the admin form, the domain (`Project.summary`), the
+  fixtures, the row mappers and the seed. Migration
+  `20261005000000_drop_project_summary.sql` copies a summary into an empty description, then
+  drops the column. **Not additive**: push it to dev and prod **after** this PR is merged and
+  deployed (`docs/SUPABASE.md`, Day to day). Audit of every admin field and domain property
+  against what the site reads: nothing else is unused (Location feeds the JSON-LD address,
+  the unedited `excerpt` feeds article descriptions, Footer note the footer).
+- 20, press feedback: **open, the owner picks.** Options put to the owner (2026-10-04):
+  (a) *press-in*: the control scales to about 97% and darkens a step while held, releasing on
+  a short ease, no ripple; (b) *ink wash*: the control's background fades to its pressed
+  colour at once on pointer-down and fades back on release, no travelling circle;
+  (c) *ring pulse*: one accent ring expands from the control's edge and fades on press.
+  All three start on pointer-down and need no artificial delay before the action runs.
+  The owner asked to compare them by pressing: a rough page with today's ripple and the three
+  options on the site's own controls is published as a private Claude artifact ("Press
+  Feedback Options"); the owner picks from it.
+- Checked in a browser, desktop and phone (a one-off spec, removed). Tests: unit 47,
+  unchanged (the seed snapshot regenerated); e2e 24 passed.
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",

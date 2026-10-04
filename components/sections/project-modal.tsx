@@ -34,8 +34,9 @@ export function originFrom(card: HTMLElement): ModalOrigin {
  * Project modal (spec §6 ProjectModal, Q16). Native <dialog> + showModal(): focus trap,
  * Escape, inert background and focus return to the trigger come from the platform.
  * Scales out of the clicked card and back into it on close (spec §5 "Signature moments" 3).
- * Fixed size (880×420 wide, 420×600 narrow, both capped at 88svh). The body can scroll
- * as a last resort so over-long copy never gets cut off.
+ * It starts at 880×420 wide / 420×600 narrow and grows with its copy up to 88svh (owner, spec
+ * §10), so a full description never scrolls; past that the body scrolls, with a thin bar in
+ * the theme's colours, so over-long copy is never cut off.
  */
 export function ProjectModal({
   project,
@@ -92,10 +93,10 @@ export function ProjectModal({
       onClick={(e) => {
         if (e.target === e.currentTarget) close(); // backdrop click
       }}
-      className="project-modal m-auto h-[min(600px,88svh)] max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal @wide/page:h-[min(420px,88svh)] @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
+      className="project-modal m-auto max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
     >
       {project && (
-        <div className="flex h-full flex-col @wide/page:flex-row">
+        <div className="flex max-h-[88svh] min-h-[min(600px,88svh)] flex-col @wide/page:min-h-[min(420px,88svh)] @wide/page:flex-row">
           <button
             type="button"
             aria-label="Close"
@@ -117,26 +118,29 @@ export function ProjectModal({
                 style={{ objectPosition: project.image.focalPoint }}
               />
             ) : (
-              <span className="text-micro tracking-label text-muted uppercase">Project image</span>
+              <span className="text-micro tracking-label text-muted uppercase">
+                No preview to show
+              </span>
             )}
           </div>
 
-          <div className="flex min-h-0 min-w-0 flex-auto flex-col justify-start gap-3 overflow-y-auto p-5 @wide/page:justify-center @wide/page:gap-3.5 @wide/page:p-8">
-            <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1.5">
-              <span className="text-micro tracking-label text-accent uppercase">
-                {formatProjectKind(project.kind)}
-              </span>
-              <span className="ml-auto text-label text-muted tabular-nums">{project.year}</span>
+          <div className="themed-scroll flex min-h-0 min-w-0 flex-auto flex-col justify-start gap-3 overflow-y-auto p-5 @wide/page:justify-center @wide/page:gap-3.5 @wide/page:p-8">
+            <span className="text-micro tracking-label text-accent uppercase">
+              {formatProjectKind(project.kind)}
+            </span>
+            {/* The year sits under the name: beside the type it ran under the close button. */}
+            <div className="flex flex-col gap-1">
+              <h3
+                id={titleId}
+                className="font-serif text-modal-title @wide/page:text-modal-title-wide"
+              >
+                {project.title}
+              </h3>
+              <span className="text-label text-muted tabular-nums">{project.year}</span>
             </div>
-            <h3
-              id={titleId}
-              className="font-serif text-modal-title @wide/page:text-modal-title-wide"
-            >
-              {project.title}
-            </h3>
-            <p className="text-body-sm text-muted @wide/page:text-body">
-              {project.description || project.summary}
-            </p>
+            {project.description && (
+              <p className="text-body-sm text-muted @wide/page:text-body">{project.description}</p>
+            )}
             {project.tags.length > 0 && (
               <ul className="flex flex-wrap gap-2" aria-label="Built with">
                 {project.tags.slice(0, 3).map((tag) => (

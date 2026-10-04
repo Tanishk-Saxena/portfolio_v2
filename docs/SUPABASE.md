@@ -97,7 +97,9 @@ account.
   `.env.local` work directly: `npx supabase db push --db-url "$SUPABASE_DB_URL" --dry-run`,
   then without `--dry-run` (prod: `$SUPABASE_PROD_DB_URL`, once the PR is approved, before it
   merges, so the deployed code never meets an old schema). Keep migrations additive so the
-  live code runs on either side of the push.
+  live code runs on either side of the push. A migration that can't be additive (a dropped
+  column, like `20261005000000_drop_project_summary.sql`) goes the other way round: merge and
+  deploy the code that no longer reads the column first, then push the migration.
 - Pages are prerendered at build. A save in the admin marks them stale
   (`revalidatePath('/', 'layout')`), so the site shows it on the next visit. An edit made
   directly in the Supabase dashboard skips that, and shows after the next deploy or the next

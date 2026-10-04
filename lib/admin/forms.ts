@@ -169,7 +169,6 @@ export function entryDraft<S extends EntrySlug>(slug: S, entry?: EntryTypes[S]):
       return {
         title: p?.title ?? '',
         kind: p?.kind ?? 'side-project',
-        summary: p?.summary ?? '',
         description: p?.description ?? '',
         tags: [...(p?.tags ?? [])],
         liveUrl: p?.liveUrl ?? '',
@@ -228,7 +227,6 @@ function values(slug: EntrySlug, d: Draft, original?: EntryTypes[EntrySlug]): ob
       return {
         title: str(d, 'title'),
         kind: str(d, 'kind') as ProjectKind,
-        summary: str(d, 'summary'),
         description: str(d, 'description'),
         tags: list(d, 'tags'),
         liveUrl: orNull(str(d, 'liveUrl')),

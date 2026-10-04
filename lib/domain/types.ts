@@ -61,8 +61,6 @@ export interface Project {
   title: string;
   kind: ProjectKind;
   year: number;
-  /** Short line — card fallback copy. */
-  summary: string;
   /** Modal copy. */
   description: string;
   tags: string[];

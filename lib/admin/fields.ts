@@ -166,14 +166,6 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       ],
     },
     {
-      key: 'summary',
-      label: 'Card line',
-      type: 'textarea',
-      rows: 2,
-      max: 110,
-      hint: 'One sentence. Used in lists and link previews.',
-    },
-    {
       key: 'description',
       label: 'Description',
       type: 'textarea',

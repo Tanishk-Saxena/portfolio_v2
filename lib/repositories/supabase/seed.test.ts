@@ -31,7 +31,6 @@ describe('the shipped content fits the database constraints', () => {
   const d = defaultDataset;
   it('lengths, slugs, publishable articles and date ranges', () => {
     for (const p of d.projects) {
-      expect(p.summary.length).toBeLessThanOrEqual(110);
       expect(p.description.length).toBeLessThanOrEqual(320);
     }
     for (const q of d.quotes) expect(q.text.length).toBeLessThanOrEqual(140);

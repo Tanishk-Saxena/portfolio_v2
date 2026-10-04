@@ -350,11 +350,13 @@ so experience sorts by `sortOrder` like the others. The seeded order is identica
 
 ### 8.5 Projects → `project` (ordered)
 
+The mockup's **Card line** (`summary`, max 110) is gone (owner, §14): nothing on the site
+showed it but the modal, as a fallback. The migration copies it into an empty Description.
+
 | Admin | Domain | Rule |
 |---|---|---|
 | Name * | `title` | required |
 | Type | `kind` | pills: Open source / Side project / Client work ↔ `open-source` / `side-project` / `client-work` |
-| Card line | `summary` | max **110** |
 | Description | `description` | max **320** (the modal never scrolls) |
 | Stack | `tags[]` | hint "Up to four read best." |
 | Live URL / Repository URL | `liveUrl` / `repoUrl` | URL format; empty → `null` |
@@ -479,7 +481,7 @@ every route handler (the server repeats every client rule).
 | Rule | Message |
 |---|---|
 | Required | "{Label} is required." |
-| Max length (card line 110, description 320, quote 140) | "Too long: `n` of `max` characters." |
+| Max length (description 320, quote 140) | "Too long: `n` of `max` characters." |
 | URL | "Enter a full address starting with https://" |
 | Email | "Enter a valid email address." |
 | Highlighted word not in the headline | "“{word}” does not appear in the headline." |

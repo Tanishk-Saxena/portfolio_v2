@@ -32,7 +32,7 @@ export const COLUMNS = {
   settings: 'accent, grain, nav_position, menu_layout',
   experience: 'id, role, org, start_date, end_date, summary, sort_order',
   project:
-    'id, title, kind, year, summary, description, tags, image, repo_url, live_url, published, sort_order',
+    'id, title, kind, year, description, tags, image, repo_url, live_url, published, sort_order',
   article: 'slug, title, excerpt, published_at, read_minutes, body, external_url, status, listen',
   skillGroup: 'id, title, items, sort_order',
   quote: 'id, text, author, active, sort_order',

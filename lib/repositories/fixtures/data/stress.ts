@@ -59,8 +59,7 @@ export const stressDataset: FixtureDataset = {
       i === 0 ? 'An Exceptionally Long Project Name That Wraps Onto Two Lines At Least' : `P${i}`,
     kind: (['open-source', 'side-project', 'client-work'] as const)[i % 3],
     year: 2026 - i,
-    summary: i === 1 ? '' : 'Summary.',
-    description: i === 2 ? `${LONG} ${LONG} ${LONG}` : 'Short description.',
+    description: i === 1 ? '' : i === 2 ? `${LONG} ${LONG} ${LONG}` : 'Short description.',
     tags:
       i === 3 ? ['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'] : i === 4 ? [] : ['Tag'],
     image: null,

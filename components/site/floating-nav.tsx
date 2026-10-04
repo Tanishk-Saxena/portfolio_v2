@@ -2,13 +2,14 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
+import { useSectionHash } from '@/lib/hooks/use-section-hash';
 import { useSectionSpy } from '@/lib/hooks/use-section-spy';
 import { jumpTo } from '@/lib/anchor-jump';
 import { afterRipple } from '@/lib/ripple';
 import type { MenuLayout, NavPosition } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
-import { closeDuration, PICKED_FILL, spiral, WHEEL_DOCK } from './nav-motion';
+import { closeDuration, lastItemDelay, PICKED_FILL, spiral, WHEEL_DOCK } from './nav-motion';
 import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
@@ -32,23 +33,7 @@ export function FloatingNav({
 }) {
   const { active, pastHero } = useSectionSpy(sections.map((s) => s.id));
 
-  // The URL follows the section being read, so a reload returns there (owner revision).
-  useEffect(() => {
-    const hash = pastHero && active ? `#${active}` : ''; // at the top: no hash
-    if (location.hash === hash) return;
-    history.replaceState(history.state, '', location.pathname + location.search + hash);
-  }, [active, pastHero]);
-
-  // Native #hero links (the signature) would leave #hero behind: the top has no hash.
-  useEffect(() => {
-    const strip = () => {
-      if (location.hash === '#hero') {
-        history.replaceState(history.state, '', location.pathname + location.search);
-      }
-    };
-    window.addEventListener('hashchange', strip);
-    return () => window.removeEventListener('hashchange', strip);
-  }, []);
+  useSectionHash(active, pastHero);
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const fabRef = useRef<HTMLButtonElement>(null);
@@ -63,7 +48,8 @@ export function FloatingNav({
   const current = sections.find((s) => s.id === (picked ?? active)) ?? sections[0];
   const shown = pastHero || open;
   const reducedMotion = useReducedMotion();
-  const closeTotal = closeDuration(sections.length);
+  // Reduced motion: the items only fade (.3s), so the close is over by then.
+  const closeTotal = reducedMotion ? 0.3 : closeDuration(sections.length);
 
   // Escape closes; focus returns to the button that opened the menu.
   useEffect(() => {
@@ -112,7 +98,13 @@ export function FloatingNav({
       <div
         aria-hidden="true"
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 z-55 bg-scrim-nav backdrop-blur-[14px] [transition:opacity_.5s_ease,visibility_0s_linear_var(--vis-delay)] ${open ? '[--vis-delay:0s]' : 'pointer-events-none invisible opacity-0 [--vis-delay:.5s]'}`}
+        // The curtain lifts over the whole close, so the last item never hides in the open.
+        style={{
+          transition: open
+            ? 'opacity .5s ease, visibility 0s'
+            : `opacity ${closeTotal}s ease, visibility 0s linear ${closeTotal}s`,
+        }}
+        className={`fixed inset-0 z-55 bg-scrim-nav backdrop-blur-[14px] ${open ? '' : 'pointer-events-none invisible opacity-0'}`}
       />
 
       <div
@@ -120,8 +112,15 @@ export function FloatingNav({
       >
         <div
           className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
-          // The wheel opens round the screen's centre: the dock slides there (spec §5.3).
-          style={wheel && open ? { transform: WHEEL_DOCK[position] } : undefined}
+          // The wheel opens round the screen's centre: the dock slides there (spec §5.3), and
+          // travels home only as the last item hides (owner, spec §10).
+          style={
+            wheel
+              ? open
+                ? { transform: WHEEL_DOCK[position] }
+                : { transitionDelay: `${reducedMotion ? 0 : lastItemDelay(sections.length)}s` }
+              : undefined
+          }
           onKeyDown={trapTab}
         >
           <nav
