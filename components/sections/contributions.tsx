@@ -18,15 +18,21 @@ const tooltip = (day: ContributionDay) =>
 /**
  * The GitHub contribution heat map (spec §10 "Contributions"): a year of days as a grid of
  * weeks, tinted with the site's accent, never GitHub's green. It sits under the skills grid
- * as part of that section. One image to assistive tech (the total is its name); the cells'
- * tooltips are a pointer nicety. Static: no motion, no script.
+ * as part of that section. The whole map is one link to the GitHub profile, named by the
+ * total; the cells' tooltips are a pointer nicety. Static: no motion, no script.
  *
  * Wide screens fit the year across the measure. On phones a year of columns would be too thin
  * to read, so the columns keep a fixed width (about half a year fits) and the map scrolls
  * sideways in its own box. The box lays out right to left, so it opens on the latest weeks
  * and the older ones are a swipe away, with no script to set the scroll position.
  */
-export function Contributions({ calendar }: { calendar: ContributionCalendar }) {
+export function Contributions({
+  calendar,
+  username,
+}: {
+  calendar: ContributionCalendar;
+  username: string;
+}) {
   const { weeks, total } = calendar;
   const summary = `${number.format(total)} contribution${total === 1 ? '' : 's'} on GitHub in the last year`;
 
@@ -40,14 +46,15 @@ export function Contributions({ calendar }: { calendar: ContributionCalendar }) 
           {number.format(total)} in the last year
         </p>
       </div>
-      <div
-        role="img"
-        aria-label={summary}
-        // Focusable so a keyboard can scroll it on narrow screens (arrow keys).
-        tabIndex={0}
-        className="flex flex-row-reverse overflow-x-auto rounded-xs pb-2 @wide/page:overflow-visible @wide/page:pb-0"
-      >
-        <div className="flex flex-none gap-0.75 @wide/page:min-w-0 @wide/page:flex-1">
+      <div className="flex flex-row-reverse overflow-x-auto pb-2 @wide/page:overflow-visible @wide/page:pb-0">
+        {/* The link is the box's one tab stop, so a keyboard can reach (and scroll) it. */}
+        <a
+          href={`https://github.com/${encodeURIComponent(username)}`}
+          target="_blank"
+          rel="noreferrer"
+          aria-label={`${summary} (opens in a new tab)`}
+          className="flex flex-none gap-0.75 rounded-xs @wide/page:min-w-0 @wide/page:flex-1"
+        >
           {weeks.map((week, i) => {
             // A month is named above the week it begins in; not on the last weeks, where the
             // name would run past the edge.
@@ -79,7 +86,7 @@ export function Contributions({ calendar }: { calendar: ContributionCalendar }) 
               </div>
             );
           })}
-        </div>
+        </a>
       </div>
     </div>
   );

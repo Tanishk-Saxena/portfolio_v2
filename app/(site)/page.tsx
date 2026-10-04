@@ -60,7 +60,11 @@ export default async function HomePage() {
           <Experience items={experience} />
           <Projects projects={projects} mediaAutoRotate={settings.mediaAutoRotate} />
           <Writing articles={articles} />
-          <Skills groups={skillGroups} contributions={contributions} />
+          <Skills
+            groups={skillGroups}
+            contributions={contributions}
+            githubUsername={settings.githubUsername}
+          />
           <Quotes quotes={quotes} />
           <Contact profile={profile} links={socialLinks} />
         </main>
