@@ -44,6 +44,7 @@ export function ScrollCue() {
   return (
     <div
       aria-hidden="true"
+      data-cue={state} // waiting → shown → gone (the axe spec waits for the last)
       // Third loop begun (second iteration event): fade out the moment its dot is gone,
       // not after the loop's idle tail.
       onAnimationIteration={() => {

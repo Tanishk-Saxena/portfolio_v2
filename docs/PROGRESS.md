@@ -821,6 +821,10 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
   until the pointer is let go (checked: a row dragged the length of the list with the
   pointer far from the handle, both ways).
 - Process (owner): no auto-merge; a PR merges only when the owner says the work is done.
+- Axe flake fixed: "home passes axe" intermittently reported the hero scroll cue's contrast
+  (about 1 run in 6). The spec waited for the cue's opacity to be 0, which is also true
+  before it first shows, so the fade-out could land mid-audit. The cue now carries its state
+  (`data-cue`: waiting, shown, gone) and the spec waits for `gone`; 16 runs in a row pass.
 - Tests: unit 47, unchanged; e2e 24 passed.
 
 **9.3 notes, roadmap E (item 22; first on `feat/phase-9-drag-reorder`, then joined D's branch).**
