@@ -654,8 +654,31 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
-Everything in groups A–G is built and merged. What remains is group H (9.5) and the owner's
-own check. In the order to build them:
+Everything in groups A–G (items 1–24) is built and merged. Two buckets remain (owner,
+2026-10-04): what only the owner can test, and the enhancements that continue Phase 9 (9.5).
+
+**Bucket 1: the owner's own testing.** Built and measured where possible; only the owner's
+eye, phone and real files settle these. Anything flagged comes before bucket 2.
+
+- [ ] 33. The smoke test of every admin feature on **prod, on a phone**, and a save showing
+      on the deployed site.
+- [ ] The **quote change** (one strip moving left): does it read as moving along a collection?
+- [ ] The **nav close** (the opening's motion in reverse, softened), in the arc and the wheel.
+- [ ] **Press feedback**: the ripple on primary buttons; Ring and Press-in from Settings, to
+      settle on one over time.
+- [ ] **Drag to reorder with a real finger**: list rows and skill chips.
+- [ ] **Project modal on a real phone**: the fixed size (60% of the screen), the scroll when
+      copy is long.
+- [ ] **Modal media by hand**: swipe on a phone; ‹ › and the dots on desktop; the sample
+      video and GIF playing; Settings → Project media (rotation on and off).
+- [ ] **Uploads against live storage**: a pasted clipboard image into an image field; a real
+      image, GIF and video through Projects → Modal media (the six-item limit included).
+- [ ] **Site title and description**: edit them in Settings, and the Name in Hero; check the
+      tab title and a share preview on the deployed site.
+- [ ] Then remove the **sample media** from the first two projects in dev and prod
+      (`docs/SUPABASE.md`) when real media goes in.
+
+**Bucket 2: enhancements, continuing Phase 9 (9.5, group H).** In the order to build them:
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
@@ -666,17 +689,8 @@ own check. In the order to build them:
 | 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
 | 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
 | 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
-| 33 | **Owner's smoke test on prod, on a phone** | Every admin feature, and a save showing on the deployed site | the owner's own |
 
-Also open, small, from this session:
-- The quote change, the nav's close curve, the ring and press-in styles, drag with a real
-  finger, a real clipboard paste and a real media upload were built to the owner's word and
-  measured where possible, but only the owner's eye and phone settle them. Anything the owner
-  flags from that testing comes before group H.
-- Sample modal media sits on the first two projects in dev and prod (`docs/SUPABASE.md`):
-  remove it from the admin when real media goes in.
-
-After group H: **Phase 10**, the final audit (P-1 LCP, the full Lighthouse audit, the a11y
+After bucket 2: **Phase 10**, the final audit (P-1 LCP, the full Lighthouse audit, the a11y
 and performance sweep on real devices).
 
 **9.4 notes (roadmap A).**
