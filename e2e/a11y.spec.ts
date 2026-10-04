@@ -24,10 +24,15 @@ async function audit(page: Page, label?: string) {
 async function open(page: Page, url: string, theme: 'light' | 'dark') {
   await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
   await page.goto(url);
-  // The hero's scroll cue fades itself out ~5 s after load. Wait for it to finish, or a
-  // slow runner audits it mid-fade and reports its half-opacity text as low contrast.
-  const cue = page.getByText('Scroll', { exact: true }).locator('..');
-  if (await cue.count()) await expect(cue).toHaveCSS('opacity', '0', { timeout: 15_000 });
+  // The hero's scroll cue fades in, then out ~5 s after load. Wait until it has gone, or
+  // the audit catches it mid-fade and reports its half-opacity text as low contrast. Its
+  // state, not just its opacity: it is also at 0 before it first shows, and passing on that
+  // let the fade-out land in the middle of the audit (an intermittent failure).
+  const cue = page.locator('[data-cue]');
+  if (await cue.count()) {
+    await expect(cue).toHaveAttribute('data-cue', 'gone', { timeout: 15_000 });
+    await expect(cue).toHaveCSS('opacity', '0');
+  }
 }
 
 for (const theme of ['light', 'dark'] as const) {
