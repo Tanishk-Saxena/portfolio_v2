@@ -127,13 +127,10 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
         const trashed = Object.entries(books.trash)
           .filter(([key]) => key.startsWith('projects:'))
           .map(([, project]) => project as Project);
-        return {
-          kept: [
-            ...profileFiles(data.profile),
-            ...[...data.projects, ...trashed].flatMap(projectFiles),
-          ],
-          expired: [],
-        };
+        return [
+          ...profileFiles(data.profile),
+          ...[...data.projects, ...trashed].flatMap(projectFiles),
+        ];
       },
       remove: async () => {},
     },

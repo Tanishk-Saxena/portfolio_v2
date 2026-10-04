@@ -108,6 +108,21 @@ account.
   `20261006000000_settings_press_feedback.sql`), `db push` applies them together, so push
   right before merging: pages are prerendered, so visitors see nothing in the minutes until
   the deploy, and only the admin's Projects list would fail in between.
+- The storage cleanup job (owner, 2026-10-04): pg_cron runs `public.clean_media()` every
+  day at 21:30 UTC (job `clean-media`). It removes, through the Storage API (pg_net), every
+  upload in `media` that is a day old or more and that no record points at; a deleted
+  project's files count as pointed at for ten minutes. It needs two **Vault secrets**, set
+  once per project in the SQL Editor (dev has them; **prod needs them**, and until then the
+  job does nothing):
+
+  ```sql
+  select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');
+  select vault.create_secret('<that project''s secret key>', 'service_role_key');
+  ```
+
+  To see what the next run would remove: `select public.media_orphans();`. To run it now:
+  `select public.clean_media();` (the count it returns is how many deletes it asked for;
+  `net._http_response` holds the answers). To stop it: `select cron.unschedule('clean-media');`.
 - Sample modal media (owner, 2026-10-04, for testing): the first two live projects in dev
   and prod point at the files in `public/samples/` (two photos, a GIF, an MP4), as the
   fixtures' first two do. Remove them from the admin (Projects → Modal media) when real
