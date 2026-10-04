@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · next: 9.5 (re-evaluation outcomes and chosen features), **starting a new session at "What's left of Phase 9" below**; alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · next: 9.5 (re-evaluation outcomes and chosen features), **starting a new session at "What's left of Phase 9" below**; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -522,7 +522,9 @@ is the very last item of Phase 9.
 Everything Phase 9 will do, with the owner's answers to every open question. A new session
 picks up from the first unchecked item. Owner decisions are final (brief §0.1); record each
 design change in DESIGN-SPEC §10 (site) or ADMIN-DESIGN-SPEC §14 (admin) as it lands. Item
-numbers are stable: refer to them in PRs.
+numbers are stable: refer to them in PRs. Each item ticked off also adds a line to **the
+owner's test list** (below "What's left of Phase 9"), in the same PR: what the owner should
+try by hand to verify it.
 
 **Checklist** (kept current with every PR; the items below hold the detail). 33 numbered
 items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
@@ -537,7 +539,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
 | H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | — | 25 (owner picks), 29e, 30, 31, 32, then 28a + 29c last |
-| I. Carried checks | 33 | — | 33 (owner, prod on a phone) |
+| I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
 - [x] 1. **One test admin.** CI signs in to the admin with **one** account (owner,
@@ -654,14 +656,48 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
-Everything in groups A–G (items 1–24) is built and merged. Two buckets remain (owner,
-2026-10-04): what only the owner can test, and the enhancements that continue Phase 9 (9.5).
+Groups A–G (items 1–24) are built and merged. What is left to **build** is group H (9.5),
+the enhancements below, in this order:
 
-**Bucket 1: the owner's own testing.** Built and measured where possible; only the owner's
-eye, phone and real files settle these. Anything flagged comes before bucket 2.
+| # | Item | What it needs | Owner input first? |
+|---|---|---|---|
+| 30 | **Experience descriptions in Markdown** | Paragraphs, `- ` lists, bold, italic, underline; the articles' renderer limited to these; underline (`<u>`) allowed for articles too. Admin: the Description becomes a Markdown field | no |
+| 31 | **Contact links as an editable list** | Label, URL, order, in place of the four fixed slots (`social_link` already holds rows; the admin's Contact form and `setUrls` change). Drag to reorder with `use-drag-sort` | no |
+| 32 | **Keep storage clean** | Deleting or replacing an image, résumé or modal media item removes the old file from the `media` bucket (today they stay: Q-A17) | no |
+| 29e | **GitHub contribution heat map** | Data from GitHub's API at build time (revalidated), never in the browser. Claude proposes where it sits | placement: Claude proposes, owner confirms |
+| 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
+| 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
+| 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
 
-- [ ] 33. The smoke test of every admin feature on **prod, on a phone**, and a save showing
-      on the deployed site.
+After these: **Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
+words, the one-time fixes the first audit highlights, and setting up the audit pipeline. It
+closes the implementation and is never rerun as a gate.
+- 10.1: a **standing audit** workflow, run by hand or weekly: Lighthouse on prod's public
+  pages and on the dev admin signed in as the test admin (a list, an entry editor, a single
+  form, Settings); warnings only. The signed-in admin's Lighthouse stays in this audit and
+  off the per-PR step (axe and the journey already read the admin on every PR; brief §6).
+- 10.2: the **one-time fixes** from its first run, P-1 (phone LCP) first; scores recorded.
+
+Then the owner's end-to-end test round (the test list below, and everything else) runs on the tuned
+site. Whatever it turns up, and every later request, is an ordinary PR: CI's per-PR
+Lighthouse and axe steps read it, and Phase 10 stays closed.
+
+What each check covers today, for reference (`.github/workflows/ci.yml`, `lighthouserc.cjs`):
+smoke (blocking) and axe (a warning) cover the **site and the signed-in admin**, every admin
+screen included; the per-PR **Lighthouse** covers home, an article and the admin's
+**sign-in page only**, on a CI build with fixtures. The signed-in admin's Lighthouse scores
+and anything about the deployment are what 10.1 adds.
+
+### The owner's test list (a running list, not part of what's left to build)
+
+This is **not** remaining Phase 9 work (owner, 2026-10-04). It is the list of things already
+built that the owner will test and verify by hand, on a real phone and with real files,
+later on, once the major functionality is done. **The rule:** every item ticked off in
+Phase 9 from here on gets a line added here, in the PR that builds it, saying what to try.
+Nothing on it blocks the build; whatever the owner flags from it becomes an ordinary fix.
+
+- [ ] The smoke test of every admin feature on **prod, on a phone**, and a save showing on
+      the deployed site (roadmap item 33).
 - [ ] The **quote change** (one strip moving left): does it read as moving along a collection?
 - [ ] The **nav close** (the opening's motion in reverse, softened), in the arc and the wheel.
 - [ ] **Press feedback**: the ripple on primary buttons; Ring and Press-in from Settings, to
@@ -677,37 +713,6 @@ eye, phone and real files settle these. Anything flagged comes before bucket 2.
       tab title and a share preview on the deployed site.
 - [ ] Then remove the **sample media** from the first two projects in dev and prod
       (`docs/SUPABASE.md`) when real media goes in.
-
-**Bucket 2: enhancements, continuing Phase 9 (9.5, group H).** In the order to build them:
-
-| # | Item | What it needs | Owner input first? |
-|---|---|---|---|
-| 30 | **Experience descriptions in Markdown** | Paragraphs, `- ` lists, bold, italic, underline; the articles' renderer limited to these; underline (`<u>`) allowed for articles too. Admin: the Description becomes a Markdown field | no |
-| 31 | **Contact links as an editable list** | Label, URL, order, in place of the four fixed slots (`social_link` already holds rows; the admin's Contact form and `setUrls` change). Drag to reorder with `use-drag-sort` | no |
-| 32 | **Keep storage clean** | Deleting or replacing an image, résumé or modal media item removes the old file from the `media` bucket (today they stay: Q-A17) | no |
-| 29e | **GitHub contribution heat map** | Data from GitHub's API at build time (revalidated), never in the browser. Claude proposes where it sits | placement: Claude proposes, owner confirms |
-| 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
-| 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
-| 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
-
-After bucket 2: **Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
-words, the one-time fixes the first audit highlights, and setting up the audit pipeline. It
-closes the implementation and is never rerun as a gate.
-- 10.1: a **standing audit** workflow, run by hand or weekly: Lighthouse on prod's public
-  pages and on the dev admin signed in as the test admin (a list, an entry editor, a single
-  form, Settings); warnings only. The signed-in admin's Lighthouse stays in this audit and
-  off the per-PR step (axe and the journey already read the admin on every PR; brief §6).
-- 10.2: the **one-time fixes** from its first run, P-1 (phone LCP) first; scores recorded.
-
-Then the owner's end-to-end test round (bucket 1 and everything else) runs on the tuned
-site. Whatever it turns up, and every later request, is an ordinary PR: CI's per-PR
-Lighthouse and axe steps read it, and Phase 10 stays closed.
-
-What each check covers today, for reference (`.github/workflows/ci.yml`, `lighthouserc.cjs`):
-smoke (blocking) and axe (a warning) cover the **site and the signed-in admin**, every admin
-screen included; the per-PR **Lighthouse** covers home, an article and the admin's
-**sign-in page only**, on a CI build with fixtures. The signed-in admin's Lighthouse scores
-and anything about the deployment are what 10.1 adds.
 
 **9.4 notes (roadmap A).**
 - Roles, built then dropped (owner, 2026-10-04): a migration gave `admin_user` an
