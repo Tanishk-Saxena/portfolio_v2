@@ -201,6 +201,17 @@ describe('admin schema', () => {
       expect(validate('settings', { ...draft, grain }).grain).toBe('Choose a value from 0 to 24.');
     }
     expect(parseDraft('settings', { ...draft, accent: 'teal' })).toBeNull();
+    // The site's title (required, 70) and description (200), saved as typed.
+    expect(validate('settings', { ...draft, siteTitle: ' ' }).siteTitle).toBe(
+      'Site title is required.',
+    );
+    expect(validate('settings', { ...draft, siteTitle: 'x'.repeat(71) }).siteTitle).toMatch(/70/);
+    expect(
+      validate('settings', { ...draft, siteDescription: 'x'.repeat(201) }).siteDescription,
+    ).toMatch(/200/);
+    expect(
+      settingsValues({ ...draft, siteTitle: ' Ada — Engineer ', siteDescription: '' }),
+    ).toMatchObject({ siteTitle: 'Ada — Engineer', siteDescription: '' });
     expect(settingsValues({ ...draft, accent: 'slate', grain: '12.5' })).toMatchObject({
       accent: 'slate',
       grain: 12.5,

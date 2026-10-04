@@ -414,6 +414,7 @@ today, so the site looks unchanged until a setting moves.
 
 | Admin field | Options (default first) | Site effect |
 |---|---|---|
+| Site title * (max 70) · Site description (max 200) | the shipped title and description | the root metadata: the home page's `<title>`, `description`, and the Open Graph title and description (owner, §14; Phase 9 item 24). Not part of **Reset to defaults**, which puts back the look only |
 | Accent | Terracotta · Slate blue | sets `--accent-base` and `--accent-dark-mix` (§2). Hint: "The dark-mode accent is derived from this." |
 | Grain (0–24%, step 0.5) | 6% | sets `--grain-opacity` (today fixed at `.06`, Q5) |
 | Navigation button | Bottom right · Bottom centre | FAB position; the arc spans `−177°…−93°` (right) or `−158°…−22°` (centre) (DESIGN-SPEC §5.3) |
@@ -431,6 +432,13 @@ and `--grain-opacity` on `<html>`, so the site, the admin and the 404 all follow
 accent is `--accent-base` + `--accent-dark-mix` per accent (`styles/tokens.css`). The home
 page passes the nav button position and menu layout to the floating nav. A save marks the
 site stale like any other (Q-A15). See Q-A26 for what the mockup left open.
+
+As built (9.2): the root layout's `generateMetadata` reads the settings and the profile. The
+profile's **Name** (Hero) is the author, the Open Graph site name, the suffix of every other
+page's title ("Article — Name"), the share cards' alt text, and the admin's wordmark (sidebar,
+phone header, sign-in). The share cards are route handlers (`/og`, `/articles/[slug]/og`)
+named in the pages' metadata, because the `opengraph-image` file convention only takes a
+constant alt text.
 
 ### 8.10 Every record
 

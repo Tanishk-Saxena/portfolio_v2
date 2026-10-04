@@ -121,6 +121,8 @@ export const socialUrls = (d: Draft) =>
 
 /** Settings (§8.9): the range edits the grain as text, the store keeps a number. */
 export const settingsDraft = (s: Settings): Draft => ({
+  siteTitle: s.siteTitle,
+  siteDescription: s.siteDescription,
   accent: s.accent,
   grain: String(s.grain),
   navPosition: s.navPosition,
@@ -130,6 +132,8 @@ export const settingsDraft = (s: Settings): Draft => ({
 });
 
 export const settingsValues = (d: Draft): Settings => ({
+  siteTitle: str(d, 'siteTitle'),
+  siteDescription: str(d, 'siteDescription'),
   accent: d.accent as Settings['accent'],
   grain: Number(str(d, 'grain')),
   navPosition: d.navPosition as Settings['navPosition'],

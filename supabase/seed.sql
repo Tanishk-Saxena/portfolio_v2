@@ -3,8 +3,8 @@
 insert into public.profile (name, eyebrow, headline, headline_highlight, standfirst, cta_label, about_lead, about_paragraphs, portrait, resume_url, email, contact_statement, location, footer_note) values
   ('Tanishk Saxena', 'Tanishk Saxena — SDE, Delhi', 'I build quiet, careful software for the web.', 'web', 'Six years turning tangled requirements into interfaces people can actually use. Currently working on developer tooling and design systems.', 'Get in touch', 'I care about the unglamorous parts: the empty state, the error copy, the second render.', array['I started out writing Django views for a logistics company and stayed because I liked watching people use the thing I made. Since then I have worked mostly at the seam between design and engineering — building component libraries, arguing about spacing scales, and shipping the boring infrastructure that makes a product feel fast.', 'Away from the editor I read a lot of non-fiction, run slowly, and keep a notebook of interfaces I wish existed. If you are building something thoughtful, I would like to hear about it.'], null, '/placeholder/resume.pdf', 'hello@example.com', 'Tell me what you are building.', 'Delhi', 'Designed and built in Delhi');
 
-insert into public.settings (accent, grain, nav_position, menu_layout, press_feedback, media_auto_rotate) values
-  ('terracotta', 6, 'right', 'arc', 'ripple', false);
+insert into public.settings (accent, grain, nav_position, menu_layout, press_feedback, media_auto_rotate, site_title, site_description) values
+  ('terracotta', 6, 'right', 'arc', 'ripple', false, 'Tanishk Saxena — Software Engineer', 'Tanishk Saxena is a frontend engineer in Delhi building quiet, careful software for the web.');
 
 insert into public.experience (id, role, org, start_date, end_date, summary, sort_order) values
   ('northwind-labs', 'Senior Frontend Engineer', 'Northwind Labs', '2023-01', null, 'Own the design system and the editor surface. Cut first-paint by half and made the component API something designers can read.', 1),

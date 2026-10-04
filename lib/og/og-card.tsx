@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
+import { OG_SIZE } from './size';
 import { SIGNATURE_PATH } from '@/components/site/signature-mark';
 import { siteUrl } from '@/lib/site';
 import { splitHighlight } from '@/lib/utils/split-highlight';
@@ -11,7 +12,7 @@ import { splitHighlight } from '@/lib/utils/split-highlight';
  * Static TTFs live in assets/og-fonts (OFL); they are never sent to visitors.
  */
 
-export const OG_SIZE = { width: 1200, height: 630 };
+export { OG_SIZE };
 
 // Light-mode token values (styles/tokens.css); CSS variables don't exist inside next/og.
 const C = {

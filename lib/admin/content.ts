@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { getAdminRepositories } from '@/lib/container';
+import { getAdminRepositories, getRepositories } from '@/lib/container';
 import type { AdminContent } from './rows';
 import type { SectionCounts } from './sections';
 
@@ -18,6 +18,9 @@ export const loadAdminContent = cache(async (): Promise<AdminContent> => {
   ]);
   return { experience, projects, writing, skills, quotes };
 });
+
+/** The wordmark in the admin's shell and on sign-in: the profile's Name, as the site shows it. */
+export const siteName = cache(async () => (await getRepositories().profile.get()).name);
 
 export const countsOf = (c: AdminContent): SectionCounts => ({
   experience: c.experience.length,
