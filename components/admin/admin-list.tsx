@@ -22,11 +22,11 @@ export function AdminList({
 }) {
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<ListFilter>('All');
-  const { rows, move, moveTo, toggle, remove } = useListActions(section, serverRows);
+  const { rows, move, drag, toggle, remove } = useListActions(section, serverRows);
   const sort = useDragSort(
     rows.map((r) => r.id),
-    moveTo,
-    'y',
+    drag.over,
+    { axis: 'y', onDrop: drag.drop },
   );
   const shown = filterRows(rows, query, filter);
   const narrowed = query.trim() !== '' || filter !== 'All';

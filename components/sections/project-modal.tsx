@@ -34,10 +34,9 @@ export function originFrom(card: HTMLElement): ModalOrigin {
  * Project modal (spec §6 ProjectModal, Q16). Native <dialog> + showModal(): focus trap,
  * Escape, inert background and focus return to the trigger come from the platform.
  * Scales out of the clicked card and back into it on close (spec §5 "Signature moments" 3).
- * It starts at 880×420 wide / 420×600 narrow and grows with its copy until it fills the screen
- * bar the stage padding (owner, spec §10), so a full description never scrolls, on a phone
- * either. Copy longer than the screen scrolls the body, with a thin bar in the theme's
- * colours, so it is never cut off.
+ * One fixed size (owner, spec §10): 880×420 wide, 420×600 narrow, never more than 60% of the
+ * screen's height, whatever the copy. Copy that doesn't fit scrolls the body, with a thin bar
+ * in the theme's colours.
  */
 export function ProjectModal({
   project,
@@ -97,7 +96,7 @@ export function ProjectModal({
       className="project-modal m-auto max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
     >
       {project && (
-        <div className="flex max-h-[calc(100svh-2*var(--spacing-stage))] min-h-[min(600px,88svh)] flex-col @wide/page:min-h-[min(420px,88svh)] @wide/page:flex-row">
+        <div className="flex h-[min(600px,60svh)] flex-col @wide/page:h-[min(420px,60svh)] @wide/page:flex-row">
           <button
             type="button"
             aria-label="Close"

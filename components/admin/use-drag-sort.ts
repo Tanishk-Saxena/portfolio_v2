@@ -33,14 +33,15 @@ function follow(held: Held, axis: 'y' | 'both') {
  * Drag to reorder (owner, ADMIN-DESIGN-SPEC §14), by pointer, so it works with a finger as
  * well as a mouse. Items carry `data-sort-id`; a handle takes `handle(id)`. The held item
  * lifts and follows the pointer; passing another item's middle trades places
- * (`onMove(id, toIndex)`), and the others glide to their new places. Transforms only, set
+ * (`onMove(id, toIndex)`), and the others glide to their new places; `onDrop` runs once
+ * when it is let go. Transforms only, set
  * straight on the elements, so a drag renders nothing until places change. Keyboards keep
  * the arrows.
  */
 export function useDragSort(
   ids: string[],
   onMove: (id: string, toIndex: number) => void,
-  axis: 'y' | 'both' = 'both',
+  { axis = 'both', onDrop }: { axis?: 'y' | 'both'; onDrop?: () => void } = {},
 ) {
   const [dragging, setDragging] = useState<string | null>(null);
   const held = useRef<Held | null>(null);
@@ -77,6 +78,7 @@ export function useDragSort(
     );
     h.el.style.transform = '';
     back.finished.catch(() => {});
+    onDrop?.(); // the drag is over: now, and only now, the new order may be saved
   }
 
   function handle(id: string) {

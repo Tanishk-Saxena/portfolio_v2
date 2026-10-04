@@ -792,8 +792,19 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 - 13: the status pills' window is 1200ms (was 700): Published → Draft → Published 600ms
   apart sends nothing (checked). The cost: a single toggle's toast comes 1.2s after the
   press; the pill itself flips at once.
-- Migrations to push right before this PR merges (dev, then prod): the Card line drop and
-  the press-feedback column (`docs/SUPABASE.md`, Day to day).
+- The owner's second review (2026-10-04), which replaces the lines above where they differ:
+  - 17: the modal is **one fixed size again**, capped at 60% of the screen's height; it no
+    longer grows. Copy that doesn't fit scrolls the body with the thin accent bar.
+  - 19: the close is **the opening rewound**, in the arc and the wheel: same spans, mirrored
+    curves, last item out first, the wheel's dock slide included (`nav-motion.ts`). The
+    one-at-a-time close is gone.
+  - 13: the pills' window is **300ms** (the owner: 200–400ms at most). Presses closer than
+    that count as one; a final state equal to the original sends nothing (checked at 200ms).
+  - 22: a drag sends **nothing while the row is held**; the order is saved once on the drop
+    (checked: held 1.5s, no request; one request on release). Arrows keep their 700ms.
+- Migrations: the Card line drop and the press-feedback column are on dev and **prod**
+  (owner's go-ahead, 2026-10-04). Prod's deployed code selects the dropped column until
+  this PR is merged and deployed, so the merge follows at once.
 - Tests: unit 47, unchanged (seed snapshot regenerated); e2e 24 passed.
 
 **9.3 notes, roadmap E (item 22; first on `feat/phase-9-drag-reorder`, then joined D's branch).**
