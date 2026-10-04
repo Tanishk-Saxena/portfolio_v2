@@ -793,6 +793,15 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   Muellerhoff, 3 Allura, 4 Sacramento, each written letter by letter (a rough form of the
   stroke animation) and shown at navbar size. Nothing is built in the repo until the owner
   picks; 29c follows 28a.
+- Round 2 (owner's notes, same day; same artifact, republished). **Skills:** A is too
+  restrictive and D too stylised; the owner likes B's closeness and C's feel, so the page
+  now offers blends: E (B's ruled rows with C's chips), F (the same without rules, tighter),
+  G (E with serif chips), B and C kept for reference. **Hero word:** stays as it is today
+  (the accent block); its face follows the signature's so the two match. **Signature:**
+  Sacramento dropped, Caveat (today's face) added for comparison; the owner leans to Allura
+  (it holds up small). The first animation showed strokes of later letters early; it is now
+  a soft, slanted edge crossing the name left to right, then the underline. Still waiting
+  on the picks: a skills letter and a signature number.
 - E2E server pinned to fixtures (found while testing item 31): `playwright.config.ts` now
   starts `next start` with `DATA_SOURCE=fixtures`. Before, a local run took the run-time
   value from `.env.local` (`supabase` on the owner's machine): the build was fixtures, but
