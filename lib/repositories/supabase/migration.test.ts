@@ -167,6 +167,10 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
           `insert into storage.objects (bucket_id, name) values ('media', 'cover.webp')`,
           ADMIN,
         );
+        // Storage cleanup: only the admin can see an object, so only the admin's delete lands.
+        const remove = `delete from storage.objects where name = 'cover.webp' returning name`;
+        expect(await as('authenticated', remove, STRANGER)).toEqual([]);
+        expect(await as('authenticated', remove, ADMIN)).toHaveLength(1);
       });
     });
   },

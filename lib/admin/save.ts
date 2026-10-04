@@ -1,7 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { getAdminRepositories } from '@/lib/container';
 import type { AdminCollection, AdminRepositories } from '@/lib/domain/repositories';
-import type { Stamped } from '@/lib/domain/types';
+import type { Project, Stamped } from '@/lib/domain/types';
 import {
   applySingle,
   type EntrySlug,
@@ -16,6 +16,7 @@ import {
 } from './forms';
 import type { Draft, FieldErrors } from './schema';
 import { type CollectionSection, type CollectionSlug, SECTIONS } from './sections';
+import { profileFiles, projectFiles, releaseFiles } from './storage';
 
 /*
  * Loading a form and saving it, on the server (ADMIN-DESIGN-SPEC §9). Pages load through
@@ -117,8 +118,10 @@ export async function saveSingle(
   }
   const current = await r.profile.get();
   assertUnchanged(current.updatedAt, expectedUpdatedAt);
-  const saved = await r.profile.update(applySingle(slug, current, draft));
+  const next = applySingle(slug, current, draft);
+  const saved = await r.profile.update(next);
   if (slug === 'contact') await r.socialLinks.replace(socialLinks(draft));
+  else await releaseFiles(r, profileFiles(current), profileFiles(next)); // a replaced portrait or résumé
   markSiteStale();
   return { draft, updatedAt: saved.updatedAt };
 }
@@ -152,8 +155,13 @@ export async function updateEntry(
   if (!original) return null;
   assertUnchanged(original.updatedAt, expectedUpdatedAt);
   await assertSlugFree(slug, draft, id);
-  const saved = await store.update(id, entryValues(slug, draft, original));
+  const values = entryValues(slug, draft, original);
+  const saved = await store.update(id, values);
   if (!saved) return null;
+  if (slug === 'projects') {
+    // A replaced cover, or media taken off the list.
+    await releaseFiles(r, projectFiles(original as Project), projectFiles(values as Project));
+  }
   markSiteStale();
   return { id, updatedAt: saved.updatedAt };
 }

@@ -2,6 +2,7 @@ import { revalidatePath } from 'next/cache';
 import { getAdminRepositories } from '@/lib/container';
 import type { AdminCollection, AdminRepositories } from '@/lib/domain/repositories';
 import type { CollectionSlug } from './sections';
+import { releaseFiles } from './storage';
 
 /*
  * The list actions on the server (ADMIN-DESIGN-SPEC §7.1, §7.3, §9): the quick status toggle,
@@ -45,6 +46,9 @@ export async function setDeleted(slug: CollectionSlug, id: string, deleted: bool
   const target = slug === 'writing' ? r.articles : ordered(r, slug);
   const done = deleted ? await target.remove(id) : await target.restore(id);
   if (done) markSiteStale();
+  // A deleted project keeps its files while Undo can restore it; this pass removes those of
+  // projects deleted before that (`lib/admin/storage.ts`).
+  if (done && deleted && slug === 'projects') await releaseFiles(r);
   return done;
 }
 

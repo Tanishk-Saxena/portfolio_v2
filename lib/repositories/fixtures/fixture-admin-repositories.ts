@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { AdminCollection, AdminRepositories } from '@/lib/domain/repositories';
-import type { Stamped } from '@/lib/domain/types';
+import { profileFiles, projectFiles } from '@/lib/admin/storage';
+import type { Project, Stamped } from '@/lib/domain/types';
 import { type ArticleRecord, toSummary } from '../article-record';
 import type { FixtureDataset } from './dataset';
 
@@ -119,6 +120,22 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
       replace: async (links) => {
         data.socialLinks = links.map((link, i) => ({ ...link, sortOrder: i + 1 }));
       },
+    },
+    // Fixtures have no bucket: their files are served by the site, so nothing is removed.
+    files: {
+      references: async () => {
+        const trashed = Object.entries(books.trash)
+          .filter(([key]) => key.startsWith('projects:'))
+          .map(([, project]) => project as Project);
+        return {
+          kept: [
+            ...profileFiles(data.profile),
+            ...[...data.projects, ...trashed].flatMap(projectFiles),
+          ],
+          expired: [],
+        };
+      },
+      remove: async () => {},
     },
     experience: collection('experience', () => data.experience),
     projects: collection('projects', () => data.projects),
