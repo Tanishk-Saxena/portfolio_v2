@@ -171,7 +171,7 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
 
       const admin = createSupabaseAdminRepositories(await signedIn(accounts.admin));
       // The live project's files are all accounted for, so none of them is up for removal.
-      const { kept } = await admin.files.references();
+      const kept = await admin.files.references();
       expect(kept).not.toContain(bucket.getPublicUrl(path).data.publicUrl);
       await admin.files.remove(['/resume.pdf', bucket.getPublicUrl(path).data.publicUrl]);
       expect(await stored()).toHaveLength(0);

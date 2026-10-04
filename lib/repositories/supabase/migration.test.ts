@@ -23,7 +23,9 @@ const SUPABASE_STUBS = `
     id text primary key, name text, public boolean,
     file_size_limit bigint, allowed_mime_types text[]
   );
-  create table storage.objects (id serial primary key, bucket_id text, name text);
+  create table storage.objects (
+    id serial primary key, bucket_id text, name text, created_at timestamptz default now()
+  );
   alter table storage.objects enable row level security;
   grant usage on schema public, auth, storage to anon, authenticated;
   grant all on storage.objects to anon, authenticated;
@@ -177,6 +179,48 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
 );
 
 describe('the server role', () => {
+  it('the cleanup job picks only old uploads that no record points at', async () => {
+    const db = new PGlite();
+    await db.exec(SUPABASE_STUBS);
+    for (const sql of migrations) await db.exec(sql);
+    await db.exec(read('seed.sql'));
+    const id = (n: number) => `00000000-0000-4000-8000-00000000000${n}`;
+    const url = (path: string) => `https://x.supabase.co/storage/v1/object/public/media/${path}`;
+    const image = (path: string) =>
+      JSON.stringify({ src: url(path), alt: '', width: 1, height: 1 });
+    await db.exec(`
+      update public.profile set resume_url = '${url(`files/${id(1)}.pdf`)}';
+      insert into public.project (id, title, kind, year, image, media, deleted_at) values
+        ('live', 'Live', 'side-project', 2026, '${image(`images/${id(2)}.jpg`)}',
+          '[{"kind":"video","src":"${url(`media/${id(3)}.mp4`)}"}]', null),
+        ('undo', 'Just deleted', 'side-project', 2026, '${image(`images/${id(4)}.jpg`)}', '[]', now() - interval '2 minutes'),
+        ('gone', 'Deleted long ago', 'side-project', 2026, '${image(`images/${id(5)}.jpg`)}', '[]', now() - interval '2 hours');
+      insert into storage.objects (bucket_id, name, created_at) values
+        ('media', 'files/${id(1)}.pdf', now() - interval '3 days'),
+        ('media', 'images/${id(2)}.jpg', now() - interval '3 days'),
+        ('media', 'media/${id(3)}.mp4', now() - interval '3 days'),
+        ('media', 'images/${id(4)}.jpg', now() - interval '3 days'),
+        ('media', 'images/${id(5)}.jpg', now() - interval '3 days'),
+        ('media', 'images/${id(6)}.png', now() - interval '3 days'),
+        ('media', 'images/${id(7)}.png', now() - interval '2 hours'),
+        ('media', 'samples/clip.mp4', now() - interval '3 days'),
+        ('other', 'images/${id(8)}.png', now() - interval '3 days');
+    `);
+    // Kept: the résumé, the live project's cover and media, the just-deleted project's cover
+    // (Undo), today's upload (its form may still be open), a file that is no upload, another
+    // bucket. Removed: the long-deleted project's cover and the old file nothing points at.
+    const { rows } = await db.query<{ name: string }>(
+      'select media_orphans as name from public.media_orphans() order by 1',
+    );
+    expect(rows.map((r) => r.name)).toEqual([`images/${id(5)}.jpg`, `images/${id(6)}.png`]);
+    // Signed-in users cannot run it, and without the Vault secrets it asks for nothing.
+    await db.exec('set role authenticated');
+    await expect(db.query('select public.media_orphans()')).rejects.toThrow();
+    await expect(db.query('select public.clean_media()')).rejects.toThrow();
+    await db.exec('reset role');
+    await db.close();
+  });
+
   it('reads and writes every table, hidden rows included', async () => {
     const db = new PGlite();
     await db.exec(SUPABASE_STUBS);

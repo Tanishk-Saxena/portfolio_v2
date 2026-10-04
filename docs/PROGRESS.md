@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e done |
+| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e), `feat/phase-9-storage-job` (32, the daily job) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e done |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -715,7 +715,9 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
 - [ ] **Storage cleanup** (item 32), with `DATA_SOURCE=supabase`: replace a project's cover
       and save, then look in Storage → `media` → `images/`: the old file is gone. Same for the
       portrait, the résumé and a removed modal media item. Delete a project: its files stay
-      (Undo), and go on the next save made ten minutes or more later.
+      (Undo), and the daily job removes them (run `select public.clean_media();` in the SQL
+      Editor to see it at once, for files a day old or more). **Prod:** add the two Vault
+      secrets first (`docs/SUPABASE.md`, "The storage cleanup job").
 - [ ] **GitHub heat map** (item 29e): create a read-only GitHub token, put it in `.env.local`
       and in Vercel (Production and Preview) as `GITHUB_TOKEN`; enter your username in
       Settings → GitHub username. Check the map under Skills on a phone (it opens on the latest weeks; swipe it sideways for
@@ -759,6 +761,18 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   lands and a stranger's does not), live 10 (+1: a planted file removed by the signed-in
   admin). Dev's bucket still holds files orphaned before this (five images, two PDFs
   from the owner's testing): not swept.
+- Item 32, revised by the owner (2026-10-04; branch `feat/phase-9-storage-job`): a deleted
+  project keeps its files for ten minutes and **no other action removes them**; a scheduled
+  job at the database level does the rest, old orphans included. So the app-side expiry is
+  gone (`files.references()` is a plain list again, deleted projects included, and a project
+  delete no longer triggers a pass), and `20261011000000_media_cleanup_job.sql` adds
+  `public.media_orphans()` (uploads a day old or more that no record points at),
+  `public.clean_media()` (asks the Storage API to delete each, via pg_net and two Vault
+  secrets) and the pg_cron job `clean-media` at 21:30 UTC. Server role only. **On dev:**
+  migration pushed, secrets set, one run made by hand: it removed the two orphans older
+  than a day (a PDF and an image from 2026-10-03), both answered 200. **Prod: push the
+  migration and add the two Vault secrets** (`docs/SUPABASE.md`). Tests: unit 53 (+1: the
+  job's selection in PGlite, and that a signed-in user cannot run it).
 - Item 29e: a `contributions` repository on the public `Repositories`
   (`get(username)` → a calendar or null). Fixtures return a made-up year
   (`fixtures/data/contributions.ts`); over Supabase it is

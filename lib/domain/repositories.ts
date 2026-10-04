@@ -137,13 +137,12 @@ export interface AdminRepositories {
     replace(links: Omit<SocialLink, 'sortOrder'>[]): Promise<void>;
   };
   /**
-   * Uploaded files (the storage bucket). `references` is every file URL a record points at:
-   * `kept` by live entries and by deleted ones Undo can still restore, `expired` by entries
-   * deleted longer ago than that. `remove` deletes the files it is given from storage and
-   * ignores any URL that is not one of the app's own uploads.
+   * Uploaded files (the storage bucket). `references` is every file URL a record points at,
+   * deleted entries included (Undo restores them, files and all). `remove` deletes the files
+   * it is given from storage and ignores any URL that is not one of the app's own uploads.
    */
   files: {
-    references(): Promise<{ kept: string[]; expired: string[] }>;
+    references(): Promise<string[]>;
     remove(urls: string[]): Promise<void>;
   };
   experience: AdminCollection<Experience>;

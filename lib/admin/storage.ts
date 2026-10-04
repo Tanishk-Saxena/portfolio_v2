@@ -6,10 +6,12 @@ import type { Profile, Project } from '@/lib/domain/types';
  * save no longer points at an uploaded file, the file is removed. A file is only removed
  * when no record points at it any more, so a duplicated project and its original can share
  * a cover. Cleanup runs after the save and never fails it.
+ *
+ * The app only removes what a save dropped. A deleted project keeps its files (its row still
+ * points at them, so Undo restores it whole); the database's daily job removes those, and
+ * any upload no record points at, later (`public.clean_media()`,
+ * `supabase/migrations/20261011000000_media_cleanup_job.sql`).
  */
-
-/** How long a deleted entry's files are kept: Undo must be able to bring them back. */
-export const UNDO_WINDOW_MS = 10 * 60 * 1000;
 
 const present = (urls: (string | null | undefined)[]) => urls.filter((u): u is string => !!u);
 
@@ -22,25 +24,22 @@ export const projectFiles = (p: Pick<Project, 'image' | 'media'>) =>
   present([p.image?.src, ...(p.media ?? []).map((m) => m.src)]);
 
 /**
- * The files to remove: those the save dropped (`before` minus `after`) and those of entries
- * deleted too long ago to restore, less anything a record still points at.
+ * The files to remove: those the save dropped (`before` minus `after`), less anything a
+ * record still points at.
  */
-export function releasable(
-  before: string[],
-  after: string[],
-  references: { kept: string[]; expired: string[] },
-): string[] {
-  const kept = new Set([...after, ...references.kept]);
-  return [...new Set([...before, ...references.expired])].filter((url) => !kept.has(url));
+export function releasable(before: string[], after: string[], references: string[]): string[] {
+  const kept = new Set([...after, ...references]);
+  return [...new Set(before)].filter((url) => !kept.has(url));
 }
 
 /** Call after the save has been written, so the references read are the new ones. */
 export async function releaseFiles(
   r: Pick<AdminRepositories, 'files'>,
-  before: string[] = [],
-  after: string[] = [],
+  before: string[],
+  after: string[],
 ): Promise<void> {
   try {
+    if (before.every((url) => after.includes(url))) return; // nothing dropped
     const gone = releasable(before, after, await r.files.references());
     if (gone.length) await r.files.remove(gone);
   } catch (error) {

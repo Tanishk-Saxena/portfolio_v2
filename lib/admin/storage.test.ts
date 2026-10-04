@@ -3,18 +3,21 @@ import { releasable, releaseFiles, storagePath } from './storage';
 
 const BUCKET = 'https://x.supabase.co/storage/v1/object/public/media/';
 const file = (name: string) => `${BUCKET}images/${name}.webp`;
-const [OLD, NEW, SHARED, EXPIRED] = ['old', 'new', 'shared', 'expired'].map(file);
+const [OLD, NEW, SHARED] = ['old', 'new', 'shared'].map(file);
 
 describe('storage cleanup', () => {
-  it('removes what a save dropped and what expired, never a file still pointed at', async () => {
+  it('removes what a save dropped, never a file still pointed at', async () => {
     // The save swapped OLD for NEW and dropped SHARED, which another project still uses.
-    const references = { kept: [NEW, SHARED], expired: [EXPIRED, SHARED] };
-    expect(releasable([OLD, SHARED], [NEW], references)).toEqual([OLD, EXPIRED]);
-    expect(releasable([OLD], [OLD], { kept: [OLD], expired: [] })).toEqual([]);
+    const references = [NEW, SHARED];
+    expect(releasable([OLD, SHARED], [NEW], references)).toEqual([OLD]);
+    expect(releasable([OLD], [OLD], [OLD])).toEqual([]);
 
     const remove = vi.fn(async () => {});
-    await releaseFiles({ files: { references: async () => references, remove } }, [OLD], [NEW]);
-    expect(remove).toHaveBeenCalledWith([OLD, EXPIRED]);
+    const files = { references: vi.fn(async () => references), remove };
+    await releaseFiles({ files }, [OLD], [OLD]); // nothing dropped: storage is not even asked
+    expect(files.references).not.toHaveBeenCalled();
+    await releaseFiles({ files }, [OLD, SHARED], [NEW]);
+    expect(remove).toHaveBeenCalledWith([OLD]);
 
     // A storage failure is logged and swallowed: the save already went through.
     const log = vi.spyOn(console, 'error').mockImplementation(() => {});
