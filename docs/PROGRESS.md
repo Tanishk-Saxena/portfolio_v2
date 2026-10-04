@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done · next: the comparison page for items 25 and 28a (the owner picks), from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done · **waiting on the owner's picks** for items 25 and 28a from the comparison page (the private Claude artifact "Phase 9 Options"); then 25, 28a and 29c are built, from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -769,6 +769,14 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   leaves it empty. Tests: unit 52 (+2, the GitHub mapping and its failure paths; the
   contract checks the calendar's shape); smoke 8 and site axe 12 green on a fixtures build
   with the map on the page. Not yet tried against GitHub itself: no token exists yet.
+- Items 25 and 28a, options presented (2026-10-04): a private Claude artifact, "Phase 9
+  Options", as press feedback's was. **Skills** A (today's columns), B (a ledger: one ruled
+  row per group), C (chips), D (an index paragraph). **Hero word** A (italic in the accent),
+  B (the accent block kept, serif italic), C (roman with the signature's pen stroke under
+  it), D (roman on a low accent wash). **Signature font** 1 Mrs Saint Delafield, 2 Herr Von
+  Muellerhoff, 3 Allura, 4 Sacramento, each written letter by letter (a rough form of the
+  stroke animation) and shown at navbar size. Nothing is built in the repo until the owner
+  picks; 29c follows 28a.
 - E2E server pinned to fixtures (found while testing item 31): `playwright.config.ts` now
   starts `next start` with `DATA_SOURCE=fixtures`. Before, a local run took the run-time
   value from `.env.local` (`supabase` on the owner's machine): the build was fixtures, but
