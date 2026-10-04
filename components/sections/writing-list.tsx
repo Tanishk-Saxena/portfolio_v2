@@ -115,11 +115,10 @@ export function WritingList({ articles }: { articles: ArticleSummary[] }) {
               }}
               onClick={(e) => {
                 rememberScroll();
-                // The ripple shows before the page turns (the transition would otherwise
-                // snapshot it half-drawn). Modified clicks keep the browser's behaviour.
+                // Modified clicks keep the browser's behaviour.
                 if (e.metaKey || e.ctrlKey || e.shiftKey) return;
                 e.preventDefault();
-                openArticle((h, o) => router.push(h, o), `/articles/${article.slug}`, e);
+                openArticle((h, o) => router.push(h, o), `/articles/${article.slug}`);
               }}
               {...shared}
             >

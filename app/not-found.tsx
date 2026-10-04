@@ -33,7 +33,7 @@ export default async function NotFound() {
         <HomeLink
           href="/#writing"
           data-ripple="paper"
-          className="mt-10 inline-flex h-12.5 items-center rounded-pill border border-accent-fill bg-accent-fill px-6 text-body-sm font-medium text-on-accent transition-[opacity,color] duration-250 hover:text-on-accent hover:opacity-92 active:text-accent"
+          className="mt-10 inline-flex h-12.5 items-center rounded-pill border border-accent-fill bg-accent-fill px-6 text-body-sm font-medium text-on-accent transition-[opacity,color] duration-250 hover:text-on-accent hover:opacity-92"
         >
           Back to writing
         </HomeLink>

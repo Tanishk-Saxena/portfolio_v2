@@ -150,7 +150,11 @@ export const DEFAULT_SETTINGS: Settings = {
   grain: 6, // --grain-opacity: 0.06 (Q5)
   navPosition: 'right',
   menuLayout: 'arc',
+  pressFeedback: 'ripple',
 };
+
+/** What a press looks like, on the site and the admin (spec §10). */
+export type PressFeedback = 'ripple' | 'ring' | 'press';
 
 export interface Settings {
   accent: Accent;
@@ -158,4 +162,5 @@ export interface Settings {
   grain: number;
   navPosition: NavPosition;
   menuLayout: MenuLayout;
+  pressFeedback: PressFeedback;
 }

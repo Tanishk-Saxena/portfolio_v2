@@ -29,7 +29,7 @@ import {
 export const COLUMNS = {
   profile:
     'name, eyebrow, headline, headline_highlight, standfirst, cta_label, about_lead, about_paragraphs, portrait, resume_url, email, contact_statement, location, footer_note',
-  settings: 'accent, grain, nav_position, menu_layout',
+  settings: 'accent, grain, nav_position, menu_layout, press_feedback',
   experience: 'id, role, org, start_date, end_date, summary, sort_order',
   project:
     'id, title, kind, year, description, tags, image, repo_url, live_url, published, sort_order',

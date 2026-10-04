@@ -71,3 +71,12 @@ export function TrashIcon(props: IconProps) {
     </svg>
   );
 }
+
+/** The drag handle: six dots (owner, ADMIN-DESIGN-SPEC §14; not in the mockup). */
+export function GripIcon(props: IconProps) {
+  return (
+    <svg {...base(10, 16)} {...props}>
+      <path d="M3 3h.01M7 3h.01M3 8h.01M7 8h.01M3 13h.01M7 13h.01" strokeWidth="2.2" {...stroke} />
+    </svg>
+  );
+}

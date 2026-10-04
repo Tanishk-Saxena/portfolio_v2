@@ -303,5 +303,16 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
         { value: 'wheel', label: 'Centre wheel' },
       ],
     },
+    {
+      key: 'pressFeedback',
+      label: 'Press feedback',
+      type: 'select',
+      options: [
+        { value: 'ripple', label: 'Ripple' },
+        { value: 'ring', label: 'Ring' },
+        { value: 'press', label: 'Press-in' },
+      ],
+      hint: 'What a press looks like, on the site and here.',
+    },
   ],
 };

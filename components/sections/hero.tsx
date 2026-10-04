@@ -54,7 +54,7 @@ export function Hero({ profile }: { profile: Profile }) {
             href={profile.resumeUrl}
             download
             data-ripple="paper"
-            className="inline-flex h-12.5 items-center gap-2.5 rounded-pill border border-accent-fill bg-accent-fill px-6 text-body-sm font-medium text-on-accent transition-[translate,opacity,background-color,color] duration-250 hover:text-on-accent hover:opacity-92 active:translate-y-0 active:text-accent active:duration-180 motion-safe:hover:-translate-y-0.5"
+            className="inline-flex h-12.5 items-center gap-2.5 rounded-pill border border-accent-fill bg-accent-fill px-6 text-body-sm font-medium text-on-accent transition-[translate,opacity,background-color,color] duration-250 hover:text-on-accent hover:opacity-92 active:translate-y-0 motion-safe:hover:-translate-y-0.5"
           >
             Download résumé
             <DownloadIcon />
@@ -64,7 +64,7 @@ export function Hero({ profile }: { profile: Profile }) {
           <a
             href="#contact"
             data-ripple="accent-fill"
-            className="inline-flex h-12.5 items-center rounded-pill border border-border-control px-6 text-body-sm transition-[border-color,background-color,color] duration-250 hover:border-accent active:border-accent-fill active:text-on-accent active:duration-180"
+            className="inline-flex h-12.5 items-center rounded-pill border border-border-control px-6 text-body-sm transition-[border-color,background-color,color] duration-250 hover:border-accent"
           >
             {profile.ctaLabel}
           </a>

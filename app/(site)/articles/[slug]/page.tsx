@@ -95,7 +95,7 @@ export default async function ArticlePage(props: PageProps<'/articles/[slug]'>) 
             <span className="text-muted">Written by {profile.name}</span>
             <HomeLink
               href="/#writing"
-              className="hit-44 relative inline-flex items-center text-accent transition-colors duration-200 active:text-ink"
+              className="hit-44 relative inline-flex items-center text-accent transition-colors duration-200"
             >
               More writing
             </HomeLink>

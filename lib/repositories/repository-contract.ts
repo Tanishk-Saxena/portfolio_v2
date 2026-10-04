@@ -51,6 +51,7 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       expect(['terracotta', 'slate']).toContain(s.accent);
       expect(['right', 'centre']).toContain(s.navPosition);
       expect(['arc', 'wheel']).toContain(s.menuLayout);
+      expect(['ripple', 'ring', 'press']).toContain(s.pressFeedback);
       expect(s.grain).toBeGreaterThanOrEqual(0);
       expect(s.grain).toBeLessThanOrEqual(24);
     });

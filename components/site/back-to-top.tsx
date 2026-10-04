@@ -16,7 +16,7 @@ export function BackToTop({ visible }: { visible: boolean }) {
       aria-label="Back to top"
       inert={!visible}
       data-ripple="ink"
-      className={`hit-44 absolute bottom-full left-1/2 mb-4 -ml-5.25 grid size-10.5 place-items-center rounded-full border border-border-quiet bg-paper text-ink shadow-float-top [transition:opacity_.3s_ease,translate_.4s_var(--ease-out-soft),scale_.4s_var(--ease-out-soft),visibility_0s_linear_var(--vis-delay),border-color_.2s_ease] hover:border-ink hover:text-ink data-pressed:border-ink! data-pressed:text-paper! ${visible ? '[--vis-delay:0s]' : 'invisible opacity-0 [--vis-delay:.4s] motion-safe:translate-y-2.5 motion-safe:scale-70'}`}
+      className={`hit-44 absolute bottom-full left-1/2 mb-4 -ml-5.25 grid size-10.5 place-items-center rounded-full border border-border-quiet bg-paper text-ink shadow-float-top [transition:opacity_.3s_ease,translate_.4s_var(--ease-out-soft),scale_.4s_var(--ease-out-soft),visibility_0s_linear_var(--vis-delay),border-color_.2s_ease] hover:border-ink hover:text-ink ${visible ? '[--vis-delay:0s]' : 'invisible opacity-0 [--vis-delay:.4s] motion-safe:translate-y-2.5 motion-safe:scale-70'}`}
     >
       <ArrowUpIcon />
     </a>

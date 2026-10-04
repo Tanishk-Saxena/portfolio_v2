@@ -165,7 +165,7 @@ error line, **Sign in** (48px filled pill), "← Back to the site" (13px muted, 
 | Markdown | Bordered well with a tab strip: **Write** / **Preview** (32px, active `--paper2` + 500) and a hint "Markdown supported" (owner, §14; the mockup's `## heading · > quote · blank line = paragraph` read as the whole syntax). Write: borderless textarea, min-height 420, 16/1.75. Preview: min-height 420, max 680px, `clamp(18px,3vw,32px)` padding; "Nothing to preview yet." when empty |
 | Select → **pills** | `role="radiogroup"`, pills `role="radio"` 38px, padding 0 16px, 13.5px; active = ink fill, paper text |
 | Toggle | `role="switch"` button, min 44px high: 40×24 track (accent when on, `--line-input` when off), 18px cream knob, `translateX(16px)`, `.2s cubic-bezier(.3,.8,.3,1)`; text = the schema's on/off label |
-| Tags | Wrapping box, min 44px, padding 6: chips 30px (accent 92% wash, 13.5px) with a 24px remove ×; inline input (16px, min 120px). Enter, comma or blur adds; Backspace on empty removes the last; duplicates ignored |
+| Tags | Wrapping box, min 44px, padding 6: chips 30px (accent 92% wash, 13.5px) with a 24px remove ×; inline input (16px, min 120px). Enter, comma or blur adds; Backspace on empty removes the last; duplicates ignored. Chips **drag** to a new place by their text (owner, §14): the held chip lifts and follows the pointer, the others glide; saved with the form |
 | File | Empty: drop zone, min 96px, dashed `--line-input`, "Drop a file or **browse**" + accepted types (`JPG, PNG or WebP` / `PDF`). Filled: row with a 56px thumbnail (image) or extension tile (PDF), name (ellipsis), **Replace** (36px outline pill) and remove × (36px) |
 | Range | Native, 32px high, `accent-color` |
 | Readonly | 44px, ink 95% transparent fill, muted 14.5px |
@@ -174,7 +174,7 @@ error line, **Sign in** (48px filled pill), "← Back to the site" (13px muted, 
 | Confirm dialog | `role="alertdialog"`, `min(420px,100%)`, radius 10, padding 26, gap 12: title, body, an optional "Changed" list, buttons right-aligned (42px outline cancel, 42px filled OK). Overlay click and Escape cancel. Opens with the focus on the filled button (owner, §14) |
 | Buttons | Filled: `--accent-fill`, `#FDF8F0`, 500, radius 999, hover opacity .9. Outline: `--line` border, hover border accent. One filled button per screen |
 
-**[ASSUMED]** Press feedback uses the site's ripple (`components/site/ripple-host.tsx`, DESIGN-SPEC
+**[ASSUMED]** Press feedback uses the site's (Ripple by default; Settings can switch it, §8.9) (`components/site/ripple-host.tsx`, DESIGN-SPEC
 §10) in place of the mockup's `:active` colour swap, so presses feel the same across the
 product. Focus uses the site's ring (Q3) on everything except inputs, which keep the
 mockup's border + halo (Q-A4).
@@ -216,10 +216,15 @@ From [AN], with the mockup's exact copy.
   with the note "Clear the search and filter to reorder." Moves apply at once; the order is
   sent **700ms after the last move** (one request for five taps); toast "Order saved"; on
   failure it rolls back with "Could not save the new order."
+  **Drag** (owner, §14): a six-dot handle starts every row beside the arrows. Holding it
+  (mouse or finger) lifts the row (surface fill, shadow) and it follows the pointer up and
+  down; passing another row's middle trades places and the others glide over (180ms); on
+  release it settles into its place. The order saves the same way, 700ms after the last move. The handle is
+  pointer-only (hidden from assistive tech): keyboards and screen readers use the arrows.
 - **Quick toggle**: the status pill is a button. Articles Published ↔ Draft, projects
   Published ↔ Hidden, quotes Shown ↔ Skipped. Labels: "Publish" / "Unpublish", "Publish" /
   "Hide from site", "Put in rotation" / "Take out of rotation". Optimistic, toast with **Undo**.
-  The request goes **700ms after the last press** on a pill (the reorder's delay) and carries only the final state;
+  The request goes **1200ms after the last press** on a pill and carries only the final state;
   presses that cancel out send nothing (owner, §14).
 - **Delete** (owner, §14): a bin button ends every row, in every collection. Same confirm,
   toast and Undo as the editor's Delete (§7.2).
@@ -248,8 +253,8 @@ From [AN], with the mockup's exact copy.
 - **Focus** (owner, §14): a new entry opens with its first field focused (fine pointers
   only, so a phone's keyboard doesn't open by itself); sign-in focuses Email; a dialog its
   filled button.
-- **One request per action** (owner, §14). Debounced, final state only: status pills and
-  reorder arrows (700ms after the last press). Locked while in flight: Save, Delete and its Undo (per entry),
+- **One request per action** (owner, §14). Debounced, final state only: status pills
+  (1200ms after the last press) and reorder moves (700ms). Locked while in flight: Save, Delete and its Undo (per entry),
   uploads, sign-in, sign-out. Search and filters send nothing; Duplicate only navigates.
 - **Settings** has **Reset to defaults** in the side panel: it puts the shipped look
   (`DEFAULT_SETTINGS`) in the form, Save applies it; disabled when the form already holds it.
@@ -406,14 +411,15 @@ today, so the site looks unchanged until a setting moves.
 | Grain (0–24%, step 0.5) | 6% | sets `--grain-opacity` (today fixed at `.06`, Q5) |
 | Navigation button | Bottom right · Bottom centre | FAB position; the arc spans `−177°…−93°` (right) or `−158°…−22°` (centre) (DESIGN-SPEC §5.3) |
 | Menu layout | Arc · Centre wheel | Wheel: θ = `−90° + 360° × i / 6`, R = 150px at every width, the dock slides to the viewport centre (`.72s ease-spiral-out`) (DESIGN-SPEC §5.3) |
+| Press feedback | Ripple · Ring · Press-in | sets `data-press` on `<html>`: what a press looks like on the site and in the admin (owner, §14; DESIGN-SPEC §10). Hint: "What a press looks like, on the site and here." |
 | Signature intro | not offered | shelved (DESIGN-SPEC §10); returns as a setting only if it is revived |
 | Signature tilt | dropped | owner, §14 |
 
 Every combination keeps the site's rules: reduced motion, focus handling in the menu (Q26),
 44px targets, and AA in both modes.
 
-As built (8.5): the root layout reads the settings and sets `data-accent` and
-`--grain-opacity` on `<html>`, so the site, the admin and the 404 all follow them; the
+As built (8.5): the root layout reads the settings and sets `data-accent`, `data-press`
+and `--grain-opacity` on `<html>`, so the site, the admin and the 404 all follow them; the
 accent is `--accent-base` + `--accent-dark-mix` per accent (`styles/tokens.css`). The home
 page passes the nav button position and menu layout to the floating nav. A save marks the
 site stale like any other (Q-A15). See Q-A26 for what the mockup left open.
@@ -547,7 +553,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 
 **Designer's open questions [ADS] §9, answered for v1:** keep the delete confirm (Q-A1); drafts
 preview only in the editor (out of scope [AH]); no revision history; arrows only, no
-drag-to-reorder (revisit after real use).
+drag-to-reorder (revisited after real use: drag added beside the arrows, §14, §7.1).
 
 ## 14. Owner revisions (final — override the admin mockup)
 

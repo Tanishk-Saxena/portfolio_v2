@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { SmallCloseIcon } from './admin-icons';
+import { useDragSort } from './use-drag-sort';
 
 /**
  * The schema's tag box (ADMIN-DESIGN-SPEC §5): chips with a remove ×, then an inline input.
  * Enter, comma or blur adds; Backspace on an empty input removes the last; duplicates are
- * ignored. At `max` the input stops taking more.
+ * ignored. At `max` the input stops taking more. Chips drag to a new place (owner, §14).
  */
 export function TagsInput({
   tags,
@@ -25,6 +26,12 @@ export function TagsInput({
 }) {
   const [text, setText] = useState('');
   const full = tags.length >= max;
+  // Tags are unique, so each is its own id.
+  const sort = useDragSort(tags, (tag, to) => {
+    const next = tags.filter((t) => t !== tag);
+    next.splice(to, 0, tag);
+    onChange(next);
+  });
 
   function add() {
     const tag = text.trim().replace(/,$/, '').trim();
@@ -37,9 +44,16 @@ export function TagsInput({
       {tags.map((tag, i) => (
         <span
           key={tag}
-          className="inline-flex h-7.5 items-center gap-0.5 rounded-full bg-wash-accent pr-1 pl-2.75 text-admin-pill"
+          data-sort-id={tag}
+          className={`inline-flex h-7.5 items-center gap-0.5 rounded-full pr-1 text-admin-pill ${sort.dragging === tag ? 'relative z-10 bg-surface shadow-float outline-1 outline-accent' : 'bg-wash-accent'}`}
         >
-          {tag}
+          <span
+            {...sort.handle(tag)}
+            title="Drag to reorder"
+            className={`flex h-full touch-none items-center pl-2.75 select-none ${sort.dragging === tag ? 'cursor-grabbing' : 'cursor-grab'}`}
+          >
+            {tag}
+          </span>
           <button
             type="button"
             aria-label={`Remove ${tag}`}

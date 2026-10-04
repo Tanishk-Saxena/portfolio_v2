@@ -34,9 +34,10 @@ export function originFrom(card: HTMLElement): ModalOrigin {
  * Project modal (spec §6 ProjectModal, Q16). Native <dialog> + showModal(): focus trap,
  * Escape, inert background and focus return to the trigger come from the platform.
  * Scales out of the clicked card and back into it on close (spec §5 "Signature moments" 3).
- * It starts at 880×420 wide / 420×600 narrow and grows with its copy up to 88svh (owner, spec
- * §10), so a full description never scrolls; past that the body scrolls, with a thin bar in
- * the theme's colours, so over-long copy is never cut off.
+ * It starts at 880×420 wide / 420×600 narrow and grows with its copy until it fills the screen
+ * bar the stage padding (owner, spec §10), so a full description never scrolls, on a phone
+ * either. Copy longer than the screen scrolls the body, with a thin bar in the theme's
+ * colours, so it is never cut off.
  */
 export function ProjectModal({
   project,
@@ -96,13 +97,13 @@ export function ProjectModal({
       className="project-modal m-auto max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
     >
       {project && (
-        <div className="flex max-h-[88svh] min-h-[min(600px,88svh)] flex-col @wide/page:min-h-[min(420px,88svh)] @wide/page:flex-row">
+        <div className="flex max-h-[calc(100svh-2*var(--spacing-stage))] min-h-[min(600px,88svh)] flex-col @wide/page:min-h-[min(420px,88svh)] @wide/page:flex-row">
           <button
             type="button"
             aria-label="Close"
             onClick={close}
             data-ripple="ink"
-            className="hit-44 absolute top-3 right-3 z-2 grid size-9.5 cursor-pointer place-items-center rounded-full border border-border-close bg-paper text-ink hover:border-accent active:text-paper"
+            className="hit-44 absolute top-3 right-3 z-2 grid size-9.5 cursor-pointer place-items-center rounded-full border border-border-close bg-paper text-ink hover:border-accent"
           >
             <CloseIcon />
           </button>
@@ -160,7 +161,7 @@ export function ProjectModal({
                   target="_blank"
                   rel="noreferrer"
                   data-ripple="paper"
-                  className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92 active:text-accent"
+                  className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92"
                 >
                   <GlobeIcon />
                   Live site<span className="sr-only"> (opens in a new tab)</span>
@@ -172,7 +173,7 @@ export function ProjectModal({
                   target="_blank"
                   rel="noreferrer"
                   data-ripple="ink"
-                  className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent active:text-paper"
+                  className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent"
                 >
                   <GitHubIcon />
                   Source<span className="sr-only"> (opens in a new tab)</span>

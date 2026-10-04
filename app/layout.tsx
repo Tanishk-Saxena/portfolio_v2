@@ -42,7 +42,7 @@ export const viewport: Viewport = {
 
 /**
  * The saved style settings (ADMIN-DESIGN-SPEC §8.9) that reach every page: the accent
- * (`data-accent`, styles/tokens.css) and the grain's opacity. Defaults are the shipped look.
+ * (`data-accent`, styles/tokens.css), the press feedback (`data-press`) and the grain's opacity. Defaults are the shipped look.
  */
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
   const settings = await getRepositories().settings.get();
@@ -51,6 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       lang="en"
       data-theme="light"
       data-accent={settings.accent}
+      data-press={settings.pressFeedback}
       style={{ '--grain-opacity': settings.grain / 100 } as CSSProperties}
       data-scroll-behavior="smooth"
       suppressHydrationWarning

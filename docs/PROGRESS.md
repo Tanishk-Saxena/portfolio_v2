@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX) done except item 20 (press feedback: the owner picks from the options in the D notes) · next: item 20 once picked, 9.3's roadmap E (drag to reorder) and F (media), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21) and E (drag to reorder) done · next: 9.3's roadmap F (media), then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -509,7 +509,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
-| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D), then one per group | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D ✅ but 20 (owner picks) · E next |
+| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), then F | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D ✅ · E ✅ · F next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 
@@ -532,8 +532,8 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | A. Test infrastructure (9.4) | 1, 2, 2b, 3 | 1, 2, 2b, 3 | — |
 | B. Bugs (9.3) | 4–7 | 4, 5, 6, 7 | — |
 | C. Admin UI/UX (9.3) | 8–15 | 8, 9, 10, 11, 12, 13, 14, 15 | — |
-| D. Site UI/UX (9.3) | 16–21 | 16, 17, 18, 19, 21 | 20 (owner picks from the options in the D notes) |
-| E. Drag to reorder (9.3) | 22 | — | 22 |
+| D. Site UI/UX (9.3) | 16–21 | 16, 17, 18, 19, 20, 21 | — |
+| E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | — | 23 |
 | G. Site title and description (9.2) | 24 | — | 24 |
 | H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | — | 25 (owner picks), 29e, 30, 31, 32, then 28a + 29c last |
@@ -586,7 +586,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 - [x] 18. #14 A calmer quote rotation.
 - [x] 19. #15 Menus close in reverse (items hide one by one, reverse order, behind the centre
       button); the button travels home only as the last one hides.
-- [ ] 20. #7 Press feedback rethought, site and admin alike: Claude presents two or three
+- [x] 20. #7 Press feedback rethought, site and admin alike: Claude presents two or three
       alternatives to the ripple (no artificial delays; reads at any speed), the owner picks.
 - [x] 21. **Card line: dropped** (owner: a single line says too little on a card and could
       discourage opening it). Remove the field from the admin, the domain and the database;
@@ -597,7 +597,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       them the same way (the PR lists what was found).
 
 **E. Drag to reorder (9.3 #12)**
-- [ ] 22. Drag to reorder the lists and the skill pills within a group (arrows stay for
+- [x] 22. Drag to reorder the lists and the skill pills within a group (arrows stay for
       keyboards). Settles ADMIN-DESIGN-SPEC §13's "revisit drag-to-reorder after real use".
 
 **F. Media (9.3 #1)**
@@ -767,6 +767,49 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
   Feedback Options"); the owner picks from it.
 - Checked in a browser, desktop and phone (a one-off spec, removed). Tests: unit 47,
   unchanged (the seed snapshot regenerated); e2e 24 passed.
+
+**9.3 notes, the owner's review of D and E (2026-10-04; same branch and PR).**
+- 20, decided: the owner compared the options on the artifact page and **kept the ripple**,
+  in the page's form: a wash of the control's own text colour that grows and fades at once.
+  What was wrong was the old ripple's colours on primary buttons (an opaque cream wave over
+  the accent fill, the text swapping colour under it) and the delays. So: the wash replaces
+  the per-control tones and every `active:` colour swap; it runs in 300ms (was 380 + a
+  300ms fade); the 100ms touch delay, the 180ms `afterRipple` lead (Show more, article rows,
+  nav items, in-page links) and the nav item's delayed fill are gone. A new setting,
+  **Press feedback** (Ripple · Ring · Press-in), switches the style on the site and the
+  admin (`data-press` on `<html>`; `settings.press_feedback`, migration
+  `20261006000000_settings_press_feedback.sql`, additive). Ink wash (option B) was dropped.
+- 17: the modal may now fill the screen bar the stage padding before it scrolls (it was
+  capped at 88svh, which a phone could reach).
+- 18: the quote change is one strip moving left: old out and next in together, 72px, .8s.
+  Verified that both keyframes run in the browser; the look is the owner's to judge.
+- 19: the wheel's button left when the last item *set off*, so the items still out rode
+  along with it. It now leaves once the last has hidden (measured: the dock holds until no
+  item shows, then travels).
+- 22: the drag was rebuilt: the held row or chip lifts and follows the pointer (transforms
+  set straight on the element, no render per move), the others glide to their places
+  (FLIP, 180ms), and it settles on release.
+- 13: the status pills' window is 1200ms (was 700): Published → Draft → Published 600ms
+  apart sends nothing (checked). The cost: a single toggle's toast comes 1.2s after the
+  press; the pill itself flips at once.
+- Migrations to push right before this PR merges (dev, then prod): the Card line drop and
+  the press-feedback column (`docs/SUPABASE.md`, Day to day).
+- Tests: unit 47, unchanged (seed snapshot regenerated); e2e 24 passed.
+
+**9.3 notes, roadmap E (item 22; first on `feat/phase-9-drag-reorder`, then joined D's branch).**
+- `components/admin/use-drag-sort.ts`: pointer events (mouse and touch), no library. Items
+  carry `data-sort-id`; while a handle is held, the item under the pointer trades places once
+  the pointer is past its middle (so items of unlike sizes don't swap back and forth).
+- Lists: a six-dot handle beside the arrows on ordered lists; `useListActions` gains
+  `moveTo`, which the arrows now go through too; the order is saved by the same debounced
+  request. Skill chips drag by their text inside the tag box and save with the form.
+- Fixed with it: an earlier save's refresh could overwrite a move made just after it (the
+  server's older rows replaced the optimistic ones). Server rows are now skipped while a
+  reorder is pending.
+- Checked in a browser, desktop and phone (a one-off spec with real pointer input, removed):
+  a list row dragged up two places and saved; put back with the arrows; a chip dragged past
+  its neighbour. Not tried with a real finger: the owner's phone decides. Tests: unit 47,
+  unchanged; e2e 24 passed (admin axe included: the handle adds no violation).
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",

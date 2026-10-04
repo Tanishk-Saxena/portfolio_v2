@@ -272,8 +272,9 @@
   }
 }
 
-/* The quote change (spec §10): the old one leaves to the left, the new one arrives from the
-   right once it has gone. */
+/* The quote change (spec §10): one strip moving left. The old quote travels off as the next
+   one travels in behind it, both fading at the edges, so it reads as moving along a row of
+   quotes, not as one replacing another in place. */
 @keyframes quote-out {
   from {
     opacity: 1;
@@ -281,13 +282,13 @@
   }
   to {
     opacity: 0;
-    transform: translateX(-36px);
+    transform: translateX(-72px);
   }
 }
 @keyframes quote-in {
   from {
     opacity: 0;
-    transform: translateX(36px);
+    transform: translateX(72px);
   }
   to {
     opacity: 1;
@@ -456,7 +457,7 @@ html[data-reveal] [data-reveal-group][data-revealed='in'] > :nth-child(n + 3) {
 }
 
 /*
- * Press ripple (owner revision, spec §10; RippleHost). The wave sits in a clipped layer
+ * Press feedback (owner revision, spec §10; RippleHost). The ripple's wave sits in a clipped layer
  * under the control's content: `isolation` makes the control its own stacking context, so
  * z-index -1 paints above the control's background but below its text and icons. The
  * layer inherits the control's radius; hit-area pseudo-elements (.hit-44) aren't clipped.
@@ -469,15 +470,6 @@ html[data-reveal] [data-reveal-group][data-revealed='in'] > :nth-child(n + 3) {
 html[data-anchoring] body {
   visibility: hidden;
 }
-/* While pressed, the control's own colour changes (text, border) ease in with the wave
-   instead of flipping at once, so the change reads as spreading from the touch point. */
-[data-ripple]:active {
-  /* background-color too: a fill that changes while pressed (a picked nav item) must still
-     honour its own timing instead of snapping. */
-  transition-property: color, border-color, background-color;
-  transition-duration: 0.4s;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
 .ripple-layer {
   position: absolute;
   inset: -1px; /* over the 1px border too, so no old-colour ring shows around the wave */
@@ -486,23 +478,37 @@ html[data-anchoring] body {
   border-radius: inherit;
   pointer-events: none;
 }
+/* The wash is the control's own text colour, thinned: cream on a filled button, ink on a
+   paper one, so it never flashes a colour the control doesn't have. */
 .ripple-wave {
   position: absolute;
   border-radius: 50%;
+  background: currentColor;
+  opacity: 0.2;
   transform: translate(-50%, -50%) scale(0);
 }
-.ripple-wave[data-tone='accent-fill'] {
-  background: var(--accent-fill);
+/* The ring (Settings: Ring): leaves the control's edge and fades. */
+.press-rings {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
 }
-.ripple-wave[data-tone='paper'] {
-  background: var(--paper);
+.press-ring {
+  position: absolute;
+  inset: 0;
+  border: 2px solid color-mix(in oklab, var(--accent), transparent 30%);
+  border-radius: inherit;
 }
-.ripple-wave[data-tone='ink'] {
-  background: var(--ink);
+
+/* Press-in (Settings: Press-in): the control sinks a little while held. */
+html[data-press='press'] [data-ripple] {
+  transition-property: scale, filter, color, background-color, border-color, opacity;
+  transition-duration: 0.26s;
+  transition-timing-function: var(--ease-out-soft);
 }
-.ripple-wave[data-tone='press-row'] {
-  background: color-mix(in oklab, var(--accent), transparent 88%);
-}
-.ripple-wave[data-tone='press-writing'] {
-  background: color-mix(in oklab, var(--accent), transparent 86%);
+html[data-press='press'] [data-ripple]:active {
+  scale: 0.965;
+  filter: brightness(0.9);
+  transition-duration: 0.06s;
 }

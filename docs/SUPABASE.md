@@ -99,7 +99,11 @@ account.
   merges, so the deployed code never meets an old schema). Keep migrations additive so the
   live code runs on either side of the push. A migration that can't be additive (a dropped
   column, like `20261005000000_drop_project_summary.sql`) goes the other way round: merge and
-  deploy the code that no longer reads the column first, then push the migration.
+  deploy the code that no longer reads the column first, then push the migration. When one
+  PR carries both kinds (Phase 9.3 D–E: the dropped column and the additive
+  `20261006000000_settings_press_feedback.sql`), `db push` applies them together, so push
+  right before merging: pages are prerendered, so visitors see nothing in the minutes until
+  the deploy, and only the admin's Projects list would fail in between.
 - Pages are prerendered at build. A save in the admin marks them stale
   (`revalidatePath('/', 'layout')`), so the site shows it on the next visit. An edit made
   directly in the Supabase dashboard skips that, and shows after the next deploy or the next
