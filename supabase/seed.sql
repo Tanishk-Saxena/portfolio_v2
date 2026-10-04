@@ -7,7 +7,10 @@ insert into public.settings (accent, grain, nav_position, menu_layout, press_fee
   ('terracotta', 6, 'right', 'arc', 'ripple', false, 'Tanishk Saxena — Software Engineer', 'Tanishk Saxena is a frontend engineer in Delhi building quiet, careful software for the web.');
 
 insert into public.experience (id, role, org, start_date, end_date, summary, sort_order) values
-  ('northwind-labs', 'Senior Frontend Engineer', 'Northwind Labs', '2023-01', null, 'Own the design system and the editor surface. Cut first-paint by half and made the component API something designers can read.', 1),
+  ('northwind-labs', 'Senior Frontend Engineer', 'Northwind Labs', '2023-01', null, 'Own the design system and the editor surface.
+
+- Cut first-paint **by half**.
+- Made the component API something designers can *read*.', 1),
   ('kettle', 'Product Engineer', 'Kettle', '2021-01', '2023-01', 'Second engineering hire. Built the billing flow, the onboarding, and most of the internal tooling that replaced it.', 2),
   ('gravel-logistics', 'Software Engineer', 'Gravel Logistics', '2019-01', '2021-01', 'Django and a lot of spreadsheets. Learned to ask what the operations team actually does before shipping anything.', 3);
 

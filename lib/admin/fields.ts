@@ -46,6 +46,8 @@ export interface FieldDef {
   min?: number;
   step?: number;
   unit?: string;
+  /** `markdown`: the simple set only (paragraphs, lists, bold, italic, underline; §14). */
+  simple?: boolean;
   /** Hidden (not disabled) while this toggle is on (§7.2). */
   hideIf?: string;
 }
@@ -131,9 +133,9 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
     {
       key: 'summary',
       label: 'Description',
-      type: 'textarea',
-      rows: 5,
-      hint: 'Shown when the row is expanded.',
+      type: 'markdown',
+      simple: true,
+      hint: 'Shown when the row is expanded. Paragraphs, “- ” lists, **bold**, *italic* and <u>underline</u>.',
     },
     {
       key: 'startYear',
