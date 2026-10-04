@@ -315,6 +315,14 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       hint: 'One or two sentences, shown under the title in search results and share previews.',
     },
     {
+      key: 'githubUsername',
+      label: 'GitHub username',
+      type: 'text',
+      max: 39,
+      placeholder: 'octocat',
+      hint: 'Shows your contributions as a heat map under Skills. Leave it empty to hide the map.',
+    },
+    {
       key: 'accent',
       label: 'Accent',
       type: 'select',

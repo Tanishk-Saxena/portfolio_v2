@@ -25,6 +25,12 @@
     var(--accent),
     transparent 92%
   ); /* live pills, chips (A-1: 8%, AA) */
+  /* The contribution heat map: empty days in ink, the four levels in the accent (§10). */
+  --color-heat-0: color-mix(in oklab, var(--ink), transparent 93%);
+  --color-heat-1: color-mix(in oklab, var(--accent), transparent 74%);
+  --color-heat-2: color-mix(in oklab, var(--accent), transparent 50%);
+  --color-heat-3: color-mix(in oklab, var(--accent), transparent 26%);
+  --color-heat-4: var(--accent);
   --color-hover-nav: color-mix(in oklab, var(--ink), transparent 94%);
   --color-hover-row: color-mix(in oklab, var(--ink), transparent 96%);
   --color-wash-error: color-mix(in oklab, var(--accent), transparent 88%); /* error summary */

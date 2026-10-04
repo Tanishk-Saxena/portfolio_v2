@@ -30,6 +30,7 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
         r.quotes.list(),
         r.socialLinks.list(),
         r.settings.get(),
+        r.contributions.get(''),
       ];
       for (const call of calls) expect(call).toBeInstanceOf(Promise);
       await Promise.all(calls);
@@ -54,6 +55,13 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       expect(['ripple', 'ring', 'press']).toContain(s.pressFeedback);
       expect(s.siteTitle.trim()).not.toBe('');
       expect(s.siteDescription.length).toBeLessThanOrEqual(200);
+      // No username, no heat map; with one, a calendar of weeks of at most seven days, or none.
+      expect(await r.contributions.get(' ')).toBeNull();
+      const calendar = await r.contributions.get(s.githubUsername || 'octocat');
+      for (const week of calendar?.weeks ?? []) {
+        expect(week.length).toBeGreaterThan(0);
+        expect(week.length).toBeLessThanOrEqual(7);
+      }
       expect(s.grain).toBeGreaterThanOrEqual(0);
       expect(s.grain).toBeLessThanOrEqual(24);
     });
