@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done · **waiting on the owner's picks** for items 25 and 28a from the comparison page (the private Claude artifact "Phase 9 Options"); then 25, 28a and 29c are built, from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done; the daily storage job (item 32's revision, PR #44; **prod needs its migration and two Vault secrets**) done · **the owner has picked** for items 25 and 28a (9.5 notes, "The owner's picks") · **next: build 25, 28a and 29c** (paused by the owner on 2026-10-04 as 25 began; see "Where to pick up" under "What's left of Phase 9" below); each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e done |
+| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e), `feat/phase-9-storage-job` (32, the daily job) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e done |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32 | 25 (owner picks), then 28a + 29c last |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32 (open PRs #40–#44, not merged yet) | 25 (picked, not built), then 28a + 29c last (picked, not built) |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -661,9 +661,34 @@ the enhancements below, in this order (done so far: 30, 31, 32, 29e):
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
-| 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
-| 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
+| 25 | **Skills layout** | **Picked:** option E on wide screens (ruled rows, the label in a column beside its chips), option C on phones (the label stacked over its chips, no rules). The heat map stays under it | no (picked 2026-10-04) |
+| 28a | **Signature and hero-word font** | **Picked:** the hero word stays as it is today (the accent block). A **Settings choice between Allura and Caveat**, applied to both the signature and the hero word, kept for some time. The signature is written left to right (a soft, slanted reveal, then the underline), never showing later letters early | no (picked 2026-10-04); the default font is Claude's call: Allura planned, the owner's favourite |
 | 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
+
+**Where to pick up (paused by the owner, 2026-10-04).**
+- **Open PRs, a stack, none merged:** #40 (30) → #41 (31) → #42 (32) → #43 (29e) → #44 (32's
+  daily job). Each is based on the one before. CI has not been checked on any of them.
+- **Next to build:** 25, then 28a and 29c together (they share one Settings migration: the
+  font choice and the intro switch). Branch `feat/phase-9-skills-layout` exists locally, cut
+  from `feat/phase-9-storage-job`, with **uncommitted, unverified work** for 25 in
+  `components/sections/skills.tsx` and `app/globals.css` (the edit was written just as the
+  session was stopped; it has not been built, looked at or tested: review it or redo it).
+- **Plan for 28a and 29c (Claude's, not yet reviewed by the owner):** a `scriptFont` setting
+  (`allura` | `caveat`) set as `data-script` on `<html>`, with the per-font size, weight and
+  padding of the hero word and signature in `styles/tokens.css` (Allura has one weight, so
+  the `font-semibold` on script text must go); a `signatureIntro` setting (on by default).
+  The intro animates **the navbar mark itself**, enlarged and centred over a paper overlay,
+  written with the reveal, then flown back to its own place with a FLIP transform, so
+  there is no second element to hand off to and no glyph data to ship (the two problems
+  that shelved it). A small inline script drives it, so it does not wait for hydration;
+  skipped under reduced motion, on arrival from an article, and on any input.
+- **The owner's steps before the merges** (wait until 28a/29c are built: they add one more
+  migration): push the migrations to prod (`20261009…`, `20261010…`, `20261011…` and the
+  one to come); add the two Vault secrets in prod (`docs/SUPABASE.md`); create a read-only
+  `GITHUB_TOKEN` for `.env.local` and Vercel.
+- **Then** (owner, 2026-10-04): a docs and memory pass before each merge; Claude merges the
+  PRs one by one, in order; the ledger and the owner's test list are brought up to date;
+  Phase 10 starts.
 
 After these: **Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
 words, the one-time fixes the first audit highlights, and setting up the audit pipeline. It
@@ -715,7 +740,9 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
 - [ ] **Storage cleanup** (item 32), with `DATA_SOURCE=supabase`: replace a project's cover
       and save, then look in Storage → `media` → `images/`: the old file is gone. Same for the
       portrait, the résumé and a removed modal media item. Delete a project: its files stay
-      (Undo), and go on the next save made ten minutes or more later.
+      (Undo), and the daily job removes them (run `select public.clean_media();` in the SQL
+      Editor to see it at once, for files a day old or more). **Prod:** add the two Vault
+      secrets first (`docs/SUPABASE.md`, "The storage cleanup job").
 - [ ] **GitHub heat map** (item 29e): create a read-only GitHub token, put it in `.env.local`
       and in Vercel (Production and Preview) as `GITHUB_TOKEN`; enter your username in
       Settings → GitHub username. Check the map under Skills on a phone (it opens on the latest weeks; swipe it sideways for
@@ -759,6 +786,18 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   lands and a stranger's does not), live 10 (+1: a planted file removed by the signed-in
   admin). Dev's bucket still holds files orphaned before this (five images, two PDFs
   from the owner's testing): not swept.
+- Item 32, revised by the owner (2026-10-04; branch `feat/phase-9-storage-job`): a deleted
+  project keeps its files for ten minutes and **no other action removes them**; a scheduled
+  job at the database level does the rest, old orphans included. So the app-side expiry is
+  gone (`files.references()` is a plain list again, deleted projects included, and a project
+  delete no longer triggers a pass), and `20261011000000_media_cleanup_job.sql` adds
+  `public.media_orphans()` (uploads a day old or more that no record points at),
+  `public.clean_media()` (asks the Storage API to delete each, via pg_net and two Vault
+  secrets) and the pg_cron job `clean-media` at 21:30 UTC. Server role only. **On dev:**
+  migration pushed, secrets set, one run made by hand: it removed the two orphans older
+  than a day (a PDF and an image from 2026-10-03), both answered 200. **Prod: push the
+  migration and add the two Vault secrets** (`docs/SUPABASE.md`). Tests: unit 53 (+1: the
+  job's selection in PGlite, and that a signed-in user cannot run it).
 - Item 29e: a `contributions` repository on the public `Repositories`
   (`get(username)` → a calendar or null). Fixtures return a made-up year
   (`fixtures/data/contributions.ts`); over Supabase it is
@@ -779,6 +818,23 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   Muellerhoff, 3 Allura, 4 Sacramento, each written letter by letter (a rough form of the
   stroke animation) and shown at navbar size. Nothing is built in the repo until the owner
   picks; 29c follows 28a.
+- Round 2 (owner's notes, same day; same artifact, republished). **Skills:** A is too
+  restrictive and D too stylised; the owner likes B's closeness and C's feel, so the page
+  now offers blends: E (B's ruled rows with C's chips), F (the same without rules, tighter),
+  G (E with serif chips), B and C kept for reference. **Hero word:** stays as it is today
+  (the accent block); its face follows the signature's so the two match. **Signature:**
+  Sacramento dropped, Caveat (today's face) added for comparison; the owner leans to Allura
+  (it holds up small). The first animation showed strokes of later letters early; it is now
+  a soft, slanted edge crossing the name left to right, then the underline.
+- **The owner's picks (2026-10-04, after round 2).** Skills: **E on wide screens, C on
+  phones**. Hero word: **as it is today**. Fonts: **keep a choice between Allura and Caveat
+  in Settings for some time**, for both the signature and the hero word. Then: build the
+  remaining three, the owner does the prod steps, and Claude merges every PR one by one
+  with a docs pass before each. Not built yet (see "Where to pick up").
+- Two of the owner's points on the heat map and cleanup, settled the same day: the heat map
+  scrolls sideways on phones and is one link to the GitHub profile (#43); a deleted
+  project's files are kept ten minutes and removed by the daily database job, never by
+  another action, and the job also clears old orphans (#44).
 - E2E server pinned to fixtures (found while testing item 31): `playwright.config.ts` now
   starts `next start` with `DATA_SOURCE=fixtures`. Before, a local run took the run-time
   value from `.env.local` (`supabase` on the owner's machine): the build was fixtures, but
