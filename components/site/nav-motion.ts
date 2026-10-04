@@ -13,42 +13,43 @@ export const WHEEL_DOCK: Record<NavPosition, string> = {
 };
 
 /*
- * The opening's timings (spec §5.3). The close is the opening rewound (owner, spec §10):
- * every part runs over the same span with its curve mirrored, ending where the opening
- * began, so the last thing to arrive is the first to leave.
+ * The opening's timings (spec §5.3). The close is the opening's motion in reverse (owner,
+ * spec §10): the same paths, the last thing to arrive the first to leave. It starts quick and
+ * settles slowly like the opening, on a gentler curve and a slightly longer span, so the
+ * start isn't abrupt.
  */
 const TRAVEL = 0.82;
 const STAGGER = 0.062;
 const FADE = 0.34;
 const DOCK = 0.72;
 const CURTAIN = 0.5;
-/** `--ease-spiral-out` and `ease`, played backwards. */
-const SPIRAL_REWOUND = 'cubic-bezier(0.76, 0, 0.84, 0.1)';
-const EASE_REWOUND = 'cubic-bezier(0.75, 0, 0.75, 0.9)';
+/** The close: a softer start than `--ease-spiral-out`, over a little longer. */
+const CLOSE_TRAVEL = 0.96;
+const CLOSE_EASE = 'cubic-bezier(0.32, 0.5, 0.3, 1)';
 
-/** How long the opening takes, and so the close (the menu hides after it). */
-export const closeDuration = (count: number) => TRAVEL + (count - 1) * STAGGER;
+/** How long the close takes (the menu hides after it). */
+export const closeDuration = (count: number) => CLOSE_TRAVEL + (count - 1) * STAGGER;
 
-/** The wheel's dock going home: the slide to the centre, rewound, ending with the close. */
+/** The wheel's dock going home: its slide to the centre in reverse, ending with the close. */
 export const dockRewind = (count: number): CSSProperties => ({
   transitionDelay: `${closeDuration(count) - DOCK}s`,
-  transitionTimingFunction: SPIRAL_REWOUND,
+  transitionTimingFunction: CLOSE_EASE,
 });
 
-/** The curtain, in and (rewound) out. */
+/** The curtain, in and out (it lifts over the close's last half second). */
 export const curtain = (open: boolean, total: number, reducedMotion: boolean) =>
   open
     ? `opacity ${CURTAIN}s ease, visibility 0s`
     : reducedMotion
       ? `opacity ${total}s ease, visibility 0s linear ${total}s`
-      : `opacity ${CURTAIN}s ${EASE_REWOUND} ${total - CURTAIN}s, visibility 0s linear ${total}s`;
+      : `opacity ${CURTAIN}s ease ${total - CURTAIN}s, visibility 0s linear ${total}s`;
 
 /**
  * The spiral (spec §5.3): each item rides a rotating arm from the button to its place:
  * rotate(θ + 200° → θ), arm length 0 → r, counter-rotated so the icon stays upright, scaling
  * .35 → 1. It opens on a soft overshoot-free curve with a 62ms stagger, each item fading in
- * as it sets off. The close is that, rewound: the last item out leaves first, each winds
- * back along its arm on the mirrored curve and fades as it reaches the button. Reduced
+ * as it sets off. The close reverses it: the last item out leaves first, each winds back
+ * along its arm, quick at first and settling, and fades as it reaches the button. Reduced
  * motion: items fade in place.
  */
 export function spiral(
@@ -69,6 +70,6 @@ export function spiral(
       ? 'opacity .3s ease'
       : open
         ? `transform ${TRAVEL}s var(--ease-spiral-out) ${out}s, opacity ${FADE}s ease ${out}s`
-        : `transform ${TRAVEL}s ${SPIRAL_REWOUND} ${back}s, opacity ${FADE}s ${EASE_REWOUND} ${back + TRAVEL - FADE}s`,
+        : `transform ${CLOSE_TRAVEL}s ${CLOSE_EASE} ${back}s, opacity ${FADE}s ease ${back + CLOSE_TRAVEL - FADE}s`,
   };
 }

@@ -66,71 +66,92 @@ export function useDragSort(
     }
   }, [order, axis]);
 
-  function release() {
-    const h = held.current;
-    held.current = null;
-    setDragging(null);
-    if (!h) return;
-    // Settle into its place, then leave no inline style behind.
-    const back = h.el.animate(
-      [{ transform: `translate(${h.dx}px, ${h.dy}px)` }, { transform: 'none' }],
-      SETTLE,
-    );
-    h.el.style.transform = '';
-    back.finished.catch(() => {});
-    onDrop?.(); // the drag is over: now, and only now, the new order may be saved
+  // The latest props, for the window listeners below (they outlive the render that began
+  // the drag).
+  const latest = useRef({ ids, onMove, onDrop });
+  useLayoutEffect(() => {
+    latest.current = { ids, onMove, onDrop };
+  });
+
+  function start(id: string, el: HTMLElement, e: PointerEvent<HTMLElement>) {
+    const rect = el.getBoundingClientRect();
+    const h: Held = {
+      id,
+      el,
+      grabX: e.clientX - rect.left,
+      grabY: e.clientY - rect.top,
+      x: e.clientX,
+      y: e.clientY,
+      dx: 0,
+      dy: 0,
+    };
+    held.current = h;
+    setDragging(id);
+    const selectable = document.body.style.userSelect;
+    document.body.style.userSelect = 'none'; // a drag is not a text selection
+
+    const move = (m: globalThis.PointerEvent) => {
+      if (m.pointerId !== e.pointerId) return;
+      [h.x, h.y] = [m.clientX, m.clientY];
+      follow(h, axis);
+
+      const { ids: now, onMove: trade } = latest.current;
+      const items = itemsOf(h.el);
+      const target = items.find((item) => {
+        if (item === h.el) return false;
+        const r = item.getBoundingClientRect();
+        const inY = h.y >= r.top && h.y <= r.bottom;
+        return axis === 'y' ? inY : inY && h.x >= r.left && h.x <= r.right;
+      });
+      const [from, to] = [now.indexOf(id), now.indexOf(target?.dataset.sortId ?? '')];
+      if (!target || to < 0 || to === from) return;
+      // Trade places only once the pointer is past the other item's middle, along the line
+      // the two sit on: items of unlike sizes would otherwise swap back and forth.
+      const t = target.getBoundingClientRect();
+      const own = h.el.getBoundingClientRect();
+      const stacked =
+        axis === 'y' || Math.abs(t.top - (own.top - h.dy)) > Math.abs(t.left - (own.left - h.dx));
+      const pointer = stacked ? h.y : h.x;
+      const middle = stacked ? t.top + t.height / 2 : t.left + t.width / 2;
+      if (to > from ? pointer < middle : pointer > middle) return;
+      before.current = new Map(
+        items.map((item) => [item.dataset.sortId ?? '', item.getBoundingClientRect()]),
+      );
+      trade(id, to);
+    };
+
+    const end = (u: globalThis.PointerEvent) => {
+      if (u.pointerId !== e.pointerId) return;
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', end);
+      window.removeEventListener('pointercancel', end);
+      document.body.style.userSelect = selectable;
+      held.current = null;
+      setDragging(null);
+      // Settle into its place, then leave no inline style behind.
+      const back = h.el.animate(
+        [{ transform: `translate(${h.dx}px, ${h.dy}px)` }, { transform: 'none' }],
+        SETTLE,
+      );
+      h.el.style.transform = '';
+      back.finished.catch(() => {});
+      latest.current.onDrop?.(); // the drag is over: now, and only now, the order may be saved
+    };
+
+    // On the window, not the handle: trading places moves the held element in the DOM, which
+    // drops any pointer capture, and the drag must go on until the pointer is let go,
+    // whatever it passes over.
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
   }
 
   function handle(id: string) {
     return {
       onPointerDown(e: PointerEvent<HTMLElement>) {
         const el = e.currentTarget.closest<HTMLElement>('[data-sort-id]');
-        if (e.button !== 0 || !el) return;
-        e.currentTarget.setPointerCapture(e.pointerId);
-        const rect = el.getBoundingClientRect();
-        held.current = {
-          id,
-          el,
-          grabX: e.clientX - rect.left,
-          grabY: e.clientY - rect.top,
-          x: e.clientX,
-          y: e.clientY,
-          dx: 0,
-          dy: 0,
-        };
-        setDragging(id);
+        if (e.button === 0 && el && !held.current) start(id, el, e);
       },
-      onPointerMove(e: PointerEvent<HTMLElement>) {
-        const h = held.current;
-        if (!h || h.id !== id) return;
-        [h.x, h.y] = [e.clientX, e.clientY];
-        follow(h, axis);
-
-        const items = itemsOf(h.el);
-        const target = items.find((el) => {
-          if (el === h.el) return false;
-          const r = el.getBoundingClientRect();
-          const inY = h.y >= r.top && h.y <= r.bottom;
-          return axis === 'y' ? inY : inY && h.x >= r.left && h.x <= r.right;
-        });
-        const [from, to] = [ids.indexOf(id), ids.indexOf(target?.dataset.sortId ?? '')];
-        if (!target || to < 0 || to === from) return;
-        // Trade places only once the pointer is past the other item's middle, along the line
-        // the two sit on: items of unlike sizes would otherwise swap back and forth.
-        const t = target.getBoundingClientRect();
-        const own = h.el.getBoundingClientRect();
-        const stacked =
-          axis === 'y' || Math.abs(t.top - (own.top - h.dy)) > Math.abs(t.left - (own.left - h.dx));
-        const pointer = stacked ? h.y : h.x;
-        const middle = stacked ? t.top + t.height / 2 : t.left + t.width / 2;
-        if (to > from ? pointer < middle : pointer > middle) return;
-        before.current = new Map(
-          items.map((el) => [el.dataset.sortId ?? '', el.getBoundingClientRect()]),
-        );
-        onMove(id, to);
-      },
-      onPointerUp: release,
-      onPointerCancel: release,
     };
   }
 

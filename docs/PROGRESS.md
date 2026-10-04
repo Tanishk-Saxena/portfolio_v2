@@ -807,6 +807,22 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
   this PR is merged and deployed, so the merge follows at once.
 - Tests: unit 47, unchanged (seed snapshot regenerated); e2e 24 passed.
 
+**9.3 notes, the owner's third review (2026-10-04; branch `fix/phase-9-review-3`).**
+- 19: the close keeps the reversed order and paths and starts quick, then settles (the
+  mirrored curve started slow and ended fast). The opening's own curve was tried and started
+  too abruptly, so the close has a gentler one (`cubic-bezier(.32,.5,.3,1)`) over .96s.
+- 17: a scrollbar showed on some modals with almost nothing to scroll. Measured on the dev
+  content: a five-line Description overflowed the 420px wide body by 1px (the projects with
+  images happened to have the longer copy). The wide modal is 460px, which fits a full
+  six-line Description; all three dev projects measure no scroll. On a phone the 60% cap
+  still scrolls long copy, as the owner allowed.
+- 22: a drag stopped as soon as the pointer left the handle. Trading places moves the held
+  element in the DOM, which drops its pointer capture. The drag now listens on the window
+  until the pointer is let go (checked: a row dragged the length of the list with the
+  pointer far from the handle, both ways).
+- Process (owner): no auto-merge; a PR merges only when the owner says the work is done.
+- Tests: unit 47, unchanged; e2e 24 passed.
+
 **9.3 notes, roadmap E (item 22; first on `feat/phase-9-drag-reorder`, then joined D's branch).**
 - `components/admin/use-drag-sort.ts`: pointer events (mouse and touch), no library. Items
   carry `data-sort-id`; while a handle is held, the item under the pointer trades places once
