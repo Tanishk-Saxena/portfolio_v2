@@ -690,10 +690,13 @@ eye, phone and real files settle these. Anything flagged comes before bucket 2.
 | 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
 | 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
 
-After bucket 2: **Phase 10**, revised by the owner (2026-10-04; brief §6): a one-time job
-that closes the implementation and is never rerun as a gate.
+After bucket 2: **Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
+words, the one-time fixes the first audit highlights, and setting up the audit pipeline. It
+closes the implementation and is never rerun as a gate.
 - 10.1: a **standing audit** workflow, run by hand or weekly: Lighthouse on prod's public
-  pages and on the dev admin signed in as the test admin; warnings only.
+  pages and on the dev admin signed in as the test admin (a list, an entry editor, a single
+  form, Settings); warnings only. The signed-in admin's Lighthouse stays in this audit and
+  off the per-PR step (axe and the journey already read the admin on every PR; brief §6).
 - 10.2: the **one-time fixes** from its first run, P-1 (phone LCP) first; scores recorded.
 
 Then the owner's end-to-end test round (bucket 1 and everything else) runs on the tuned
