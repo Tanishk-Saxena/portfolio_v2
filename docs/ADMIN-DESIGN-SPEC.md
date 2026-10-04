@@ -219,12 +219,14 @@ From [AN], with the mockup's exact copy.
   **Drag** (owner, §14): a six-dot handle starts every row beside the arrows. Holding it
   (mouse or finger) lifts the row (surface fill, shadow) and it follows the pointer up and
   down; passing another row's middle trades places and the others glide over (180ms); on
-  release it settles into its place. The order saves the same way, 700ms after the last move. The handle is
+  release it settles into its place. **Nothing is sent while a row is held**: the order is
+  saved once, on the drop, and a row dropped back where it began sends nothing. The handle is
   pointer-only (hidden from assistive tech): keyboards and screen readers use the arrows.
 - **Quick toggle**: the status pill is a button. Articles Published ↔ Draft, projects
   Published ↔ Hidden, quotes Shown ↔ Skipped. Labels: "Publish" / "Unpublish", "Publish" /
   "Hide from site", "Put in rotation" / "Take out of rotation". Optimistic, toast with **Undo**.
-  The request goes **1200ms after the last press** on a pill and carries only the final state;
+  The request goes **300ms after the last press** on a pill (presses closer than that count
+  as one) and carries only the final state;
   presses that cancel out send nothing (owner, §14).
 - **Delete** (owner, §14): a bin button ends every row, in every collection. Same confirm,
   toast and Undo as the editor's Delete (§7.2).
@@ -254,7 +256,8 @@ From [AN], with the mockup's exact copy.
   only, so a phone's keyboard doesn't open by itself); sign-in focuses Email; a dialog its
   filled button.
 - **One request per action** (owner, §14). Debounced, final state only: status pills
-  (1200ms after the last press) and reorder moves (700ms). Locked while in flight: Save, Delete and its Undo (per entry),
+  (300ms after the last press) and the reorder arrows (700ms). A drag sends its order once,
+  on the drop. Locked while in flight: Save, Delete and its Undo (per entry),
   uploads, sign-in, sign-out. Search and filters send nothing; Duplicate only navigates.
 - **Settings** has **Reset to defaults** in the side panel: it puts the shipped look
   (`DEFAULT_SETTINGS`) in the form, Save applies it; disabled when the form already holds it.

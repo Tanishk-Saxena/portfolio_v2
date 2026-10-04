@@ -7,14 +7,14 @@ import type { CollectionSection } from '@/lib/admin/sections';
 import { deleteEntry } from './delete-entry';
 import { showToast } from './toast';
 
-/** The order is sent this long after the last move (one request for five taps, §7.1). */
+/** The order is sent this long after the last ↑/↓ (one request for five taps, §7.1). */
 const SETTLE_DELAY_MS = 700;
 /**
- * A status is sent this long after the last press on its pill: only the final state goes,
- * and presses that cancel out send nothing. Longer than the order's, since a second thought
- * comes slower than a second tap (owner, §14).
+ * A status is sent this long after the last press on its pill (owner, §14): quicker presses
+ * count as one, only the final state goes, and a final state that is the original sends
+ * nothing.
  */
-const TOGGLE_DELAY_MS = 1200;
+const TOGGLE_DELAY_MS = 300;
 
 export async function send(method: string, path: string, body?: unknown, keepalive = false) {
   return fetch(path, {
@@ -87,8 +87,8 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
     };
   }, [orderPath, slug]);
 
-  /** Puts a row at `to` (a drag), at once; the order is sent once the moves stop. */
-  function moveTo(id: string, to: number) {
+  /** Puts a row at `to` on screen, at once. Nothing is sent: see `saveOrder`. */
+  function place(id: string, to: number) {
     const current = latest.current;
     const i = current.findIndex((r) => r.id === id);
     if (i < 0 || to < 0 || to >= current.length || i === to) return;
@@ -99,28 +99,47 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
     latest.current = next; // a drag's next event may come before the render
     setRows(next);
     setReordering(true);
+  }
 
+  /** Sends the order on screen after `delay`, once; an order back where it began sends nothing. */
+  function saveOrder(delay: number) {
     window.clearTimeout(orderTimer.current);
+    if (!pendingOrder.current) return;
     orderTimer.current = window.setTimeout(async () => {
       const before = beforeMoves.current;
+      const ids = pendingOrder.current;
       beforeMoves.current = null;
-      const ids = next.map((r) => r.id);
       pendingOrder.current = null;
+      if (!ids || !before || ids.join() === before.map((r) => r.id).join()) {
+        setReordering(false);
+        return;
+      }
       const response = await send('PATCH', orderPath, { ids });
       if (!pendingOrder.current) setReordering(false); // unless another move began meanwhile
       if (response?.ok) {
         showToast('Order saved');
         router.refresh();
       } else {
-        if (before) setRows(before);
+        setRows(before);
         showToast('Could not save the new order.');
       }
-    }, SETTLE_DELAY_MS);
+    }, delay);
   }
 
-  /** One step up or down (the arrows). */
-  const move = (id: string, by: -1 | 1) =>
-    moveTo(id, latest.current.findIndex((r) => r.id === id) + by);
+  /** One step up or down (the arrows): saved once the taps stop. */
+  function move(id: string, by: -1 | 1) {
+    place(id, latest.current.findIndex((r) => r.id === id) + by);
+    saveOrder(SETTLE_DELAY_MS);
+  }
+
+  /** A drag: rows trade places as it passes them, and the order is saved on the drop. */
+  const drag = {
+    over: (id: string, to: number) => {
+      window.clearTimeout(orderTimer.current); // arrows pressed just before: saved on the drop
+      place(id, to);
+    },
+    drop: () => saveOrder(0),
+  };
 
   const show = (id: string, visible: boolean) => {
     if (!hasStatus(slug)) return;
@@ -176,5 +195,5 @@ export function useListActions(section: CollectionSection, serverRows: ListRow[]
     void deleteEntry(section, row.id, row.title, () => router.refresh());
   }
 
-  return { rows, move, moveTo, toggle, remove };
+  return { rows, move, drag, toggle, remove };
 }

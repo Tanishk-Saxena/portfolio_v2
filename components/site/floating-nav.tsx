@@ -8,7 +8,7 @@ import { jumpTo } from '@/lib/anchor-jump';
 import type { MenuLayout, NavPosition } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
-import { closeDuration, dockHomeDelay, spiral, WHEEL_DOCK } from './nav-motion';
+import { closeDuration, curtain, dockRewind, spiral, WHEEL_DOCK } from './nav-motion';
 import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
@@ -95,12 +95,7 @@ export function FloatingNav({
       <div
         aria-hidden="true"
         onClick={() => setOpen(false)}
-        // The curtain lifts over the whole close, so the last item never hides in the open.
-        style={{
-          transition: open
-            ? 'opacity .5s ease, visibility 0s'
-            : `opacity ${closeTotal}s ease, visibility 0s linear ${closeTotal}s`,
-        }}
+        style={{ transition: curtain(open, closeTotal, reducedMotion) }}
         className={`fixed inset-0 z-55 bg-scrim-nav backdrop-blur-[14px] ${open ? '' : 'pointer-events-none invisible opacity-0'}`}
       />
 
@@ -110,12 +105,14 @@ export function FloatingNav({
         <div
           className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
           // The wheel opens round the screen's centre: the dock slides there (spec §5.3), and
-          // travels home only as the last item hides behind it (owner, spec §10).
+          // goes home as that slide rewound (owner, spec §10).
           style={
             wheel
               ? open
                 ? { transform: WHEEL_DOCK[position] }
-                : { transitionDelay: `${reducedMotion ? 0 : dockHomeDelay(sections.length)}s` }
+                : reducedMotion
+                  ? undefined
+                  : dockRewind(sections.length)
               : undefined
           }
           onKeyDown={trapTab}
