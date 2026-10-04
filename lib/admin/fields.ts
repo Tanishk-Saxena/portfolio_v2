@@ -21,6 +21,7 @@ export type FieldType =
   | 'image'
   | 'pdf'
   | 'media'
+  | 'links'
   | 'range';
 
 export interface FieldDef {
@@ -39,7 +40,7 @@ export interface FieldDef {
   off?: string;
   /** Pills for `select`. */
   options?: { value: string; label: string }[];
-  /** `tags` and `media`: how many the list holds, a hard limit (owner, ADMIN-DESIGN-SPEC §14). */
+  /** `tags`, `media` and `links`: how many the list holds, a hard limit (owner, ADMIN-DESIGN-SPEC §14). */
   minItems?: number;
   maxItems?: number;
   /** `range`: bounds, step and the unit shown beside the value. */
@@ -65,7 +66,15 @@ export interface MediaValue {
   src: string;
 }
 
-export type DraftValue = string | boolean | string[] | ImageValue | MediaValue[] | null;
+/** One contact link, as the form holds it. A new row's id is made in the browser. */
+export interface LinkValue {
+  id: string;
+  label: string;
+  url: string;
+}
+
+export type DraftValue =
+  string | boolean | string[] | ImageValue | MediaValue[] | LinkValue[] | null;
 export type Draft = Record<string, DraftValue>;
 export type FieldErrors = Record<string, string>;
 
@@ -115,15 +124,14 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
   contact: [
     { key: 'contactStatement', label: 'Heading', type: 'text', req: true },
     { key: 'email', label: 'Email', type: 'email', req: true },
-    { key: 'github', label: 'GitHub', type: 'url', placeholder: 'https://github.com/…' },
-    { key: 'linkedin', label: 'LinkedIn', type: 'url', placeholder: 'https://linkedin.com/in/…' },
-    { key: 'read-cv', label: 'Read.cv', type: 'url', placeholder: 'https://read.cv/…' },
     {
-      key: 'x',
-      label: 'X',
-      type: 'url',
-      placeholder: 'https://x.com/…',
-      hint: 'Links left empty are hidden on the site.',
+      // Owner, §14: any service, in any order, in place of the mockup's four fixed slots.
+      key: 'links',
+      label: 'Links',
+      type: 'links',
+      max: 40,
+      maxItems: 8,
+      hint: 'Shown in this order. A link with no URL is hidden on the site.',
     },
     { key: 'footerNote', label: 'Footer note', type: 'text' }, // [ASSUMED] Q-A8
   ],

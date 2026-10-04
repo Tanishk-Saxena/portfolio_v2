@@ -11,7 +11,7 @@ import type {
   SkillGroup,
   SocialLink,
 } from '@/lib/domain/types';
-import type { Draft, FormSlug, ImageValue, MediaValue } from './schema';
+import type { Draft, FormSlug, ImageValue, LinkValue, MediaValue } from './schema';
 
 /*
  * Domain records ↔ editor drafts (ADMIN-DESIGN-SPEC §8). Drafts hold exactly what the form
@@ -27,9 +27,6 @@ export interface LoadedForm {
   draft: Draft;
   updatedAt: string | null;
 }
-
-/** The fixed social links the Contact form edits, in order (Q-A10). */
-export const SOCIAL_IDS = ['github', 'linkedin', 'read-cv', 'x'] as const;
 
 const toImageValue = (image: Image | null): ImageValue | null =>
   image && { src: image.src, width: image.width, height: image.height };
@@ -68,15 +65,13 @@ export function singleDraft(
         aboutBody: p.aboutParagraphs.join('\n\n'),
         portrait: toImageValue(p.portrait),
       };
-    case 'contact': {
-      const url = (id: string) => links.find((l) => l.id === id)?.url ?? '';
+    case 'contact':
       return {
         contactStatement: p.contactStatement,
         email: p.email,
-        ...Object.fromEntries(SOCIAL_IDS.map((id) => [id, url(id)])),
+        links: links.map(({ id, label, url }) => ({ id, label, url })),
         footerNote: p.footerNote,
       };
-    }
   }
 }
 
@@ -116,8 +111,13 @@ export function applySingle(slug: 'hero' | 'about' | 'contact', p: Profile, d: D
   }
 }
 
-export const socialUrls = (d: Draft) =>
-  Object.fromEntries(SOCIAL_IDS.map((id) => [id, str(d, id)]));
+/** The contact links as stored: trimmed, in the form's order. */
+export const socialLinks = (d: Draft): LinkValue[] =>
+  ((d.links as LinkValue[] | undefined) ?? []).map(({ id, label, url }) => ({
+    id,
+    label: label.trim(),
+    url: url.trim(),
+  }));
 
 /** Settings (§8.9): the range edits the grain as text, the store keeps a number. */
 export const settingsDraft = (s: Settings): Draft => ({

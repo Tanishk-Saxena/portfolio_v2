@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): item 30 (experience descriptions in Markdown) done · next: item 31 (contact links as a list), from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown) and 31 (contact links as a list) done · next: item 32 (keep storage clean), from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | `feat/phase-9-experience-markdown` (30) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30 done |
+| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31 done |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 30 | 25 (owner picks), 29e, 31, 32, then 28a + 29c last |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 30, 31 | 25 (owner picks), 29e, 32, then 28a + 29c last |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -643,7 +643,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       Underline isn't part of standard Markdown, so the renderer gains it for **articles too**
       (owner: articles may use it); Claude picks the most standard syntax when building it
       (inline `<u>…</u>`, allowed through the sanitiser, unless something better fits).
-- [ ] 31. **Contact links as an editable list** (label, URL, order) instead of the four fixed
+- [x] 31. **Contact links as an editable list** (label, URL, order) instead of the four fixed
       slots, so any service (LeetCode…) can be added.
 - [ ] 32. **Keep storage clean**: deleting or replacing an image or résumé removes the old
       file from the `media` bucket.
@@ -657,11 +657,10 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
 Groups A–G (items 1–24) are built and merged. What is left to **build** is group H (9.5),
-the enhancements below, in this order (done so far: 30):
+the enhancements below, in this order (done so far: 30, 31):
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
-| 31 | **Contact links as an editable list** | Label, URL, order, in place of the four fixed slots (`social_link` already holds rows; the admin's Contact form and `setUrls` change). Drag to reorder with `use-drag-sort` | no |
 | 32 | **Keep storage clean** | Deleting or replacing an image, résumé or modal media item removes the old file from the `media` bucket (today they stay: Q-A17) | no |
 | 29e | **GitHub contribution heat map** | Data from GitHub's API at build time (revalidated), never in the browser. Claude proposes where it sits | placement: Claude proposes, owner confirms |
 | 25 | **Skills layout** | Two or three alternatives to the four columns on a rough comparison page (as press feedback was); the columns stay until the owner picks | **yes: owner picks** |
@@ -713,6 +712,8 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
 - [ ] **Experience descriptions in Markdown** (item 30): in the admin, write a description with
       a paragraph, a `- ` list, `**bold**`, `*italic*` and `<u>underline</u>`; check Preview,
       then the expanded row on the site. Try `<u>` in an article body too.
+- [ ] **Contact links** (item 31): in Contact, add a link (say LeetCode), drag it to the top,
+      remove another, save; check the order on the site. Clear a URL and see that link hide.
 - [ ] Then remove the **sample media** from the first two projects in dev and prod
       (`docs/SUPABASE.md`) when real media goes in.
 
@@ -731,6 +732,21 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   are plain text and read unchanged (a paragraph); no migration. The first fixture role now
   carries a list and emphasis (seed regenerated). Tests: unit 48 (+1: simple Markdown; the
   raw-HTML test also covers underline).
+
+- Item 31: a `links` field type (`components/admin/links-field.tsx`; `LinkValue` in
+  `lib/admin/fields.ts`), validated in the shared `validate()`. The admin repository's
+  `socialLinks.setUrls` (removed) became `replace(links)`: over Supabase an upsert by id, then
+  a soft delete of the live rows left out; no schema change (`social_link` always held
+  label, url and order). The contract test adds, moves and removes a link; `test:live` ran
+  green against dev (9). Unit tests stay 48 (the schema test's contact assertions changed).
+
+- E2E server pinned to fixtures (found while testing item 31): `playwright.config.ts` now
+  starts `next start` with `DATA_SOURCE=fixtures`. Before, a local run took the run-time
+  value from `.env.local` (`supabase` on the owner's machine): the build was fixtures, but
+  the admin journey saved to the **dev database**, and pages revalidated after a save
+  re-rendered from it (and stayed in `.next`, failing later runs until a rebuild). CI was
+  never affected (it has no `.env.local`). The ten "Smoke test quote" rows this session's
+  runs left in dev were deleted.
 
 **9.4 notes (roadmap A).**
 - Roles, built then dropped (owner, 2026-10-04): a migration gave `admin_user` an
@@ -763,7 +779,8 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   unchanged; e2e on one fixtures build: smoke 8 (the admin journey, stable over 6 repeats),
   site axe 12, admin axe 4.
 - Local note: `.env.local` has `DATA_SOURCE=supabase` (the owner's admin testing), so build
-  with `DATA_SOURCE=fixtures` before the e2e specs (`CLAUDE.md` commands).
+  with `DATA_SOURCE=fixtures` before the e2e specs (`CLAUDE.md` commands). The server the
+  specs start is pinned to fixtures at run time by `playwright.config.ts` (9.5 notes).
 
 **9.3 notes, roadmap B (items 4–7; branch `fix/phase-9-admin-rules`).**
 - B1: `isFull()` in `lib/admin/save.ts` counts the live entries of a capped list. Create

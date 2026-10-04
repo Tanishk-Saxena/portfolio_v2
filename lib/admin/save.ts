@@ -12,7 +12,7 @@ import {
   settingsDraft,
   settingsValues,
   singleDraft,
-  socialUrls,
+  socialLinks,
 } from './forms';
 import type { Draft, FieldErrors } from './schema';
 import { type CollectionSection, type CollectionSlug, SECTIONS } from './sections';
@@ -118,7 +118,7 @@ export async function saveSingle(
   const current = await r.profile.get();
   assertUnchanged(current.updatedAt, expectedUpdatedAt);
   const saved = await r.profile.update(applySingle(slug, current, draft));
-  if (slug === 'contact') await r.socialLinks.setUrls(socialUrls(draft));
+  if (slug === 'contact') await r.socialLinks.replace(socialLinks(draft));
   markSiteStale();
   return { draft, updatedAt: saved.updatedAt };
 }

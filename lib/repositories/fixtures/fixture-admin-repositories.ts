@@ -116,8 +116,8 @@ export function createFixtureAdminRepositories(data: FixtureDataset): AdminRepos
     },
     socialLinks: {
       list: async () => copy(data.socialLinks).sort(bySortOrder),
-      setUrls: async (urls) => {
-        for (const link of data.socialLinks) if (link.id in urls) link.url = urls[link.id];
+      replace: async (links) => {
+        data.socialLinks = links.map((link, i) => ({ ...link, sortOrder: i + 1 }));
       },
     },
     experience: collection('experience', () => data.experience),

@@ -6,6 +6,7 @@ import {
   FIELDS,
   type FormSlug,
   type ImageValue,
+  type LinkValue,
   type MediaValue,
 } from './fields';
 
@@ -34,6 +35,16 @@ const isMedia = (v: unknown): v is MediaValue =>
   ['image', 'video'].includes((v as MediaValue).kind) &&
   typeof (v as MediaValue).src === 'string';
 
+/** A link's id is a stored key or a browser-made UUID: letters, digits and hyphens. */
+const LINK_ID_RE = /^[A-Za-z0-9-]{1,64}$/;
+
+const isLink = (v: unknown): v is LinkValue =>
+  typeof v === 'object' &&
+  v !== null &&
+  LINK_ID_RE.test(String((v as LinkValue).id)) &&
+  typeof (v as LinkValue).label === 'string' &&
+  typeof (v as LinkValue).url === 'string';
+
 function parseValue(field: FieldDef, value: unknown): DraftValue | undefined {
   switch (field.type) {
     case 'toggle':
@@ -45,6 +56,12 @@ function parseValue(field: FieldDef, value: unknown): DraftValue | undefined {
     case 'media':
       return Array.isArray(value) && value.every(isMedia)
         ? value.map(({ kind, src }) => ({ kind, src }))
+        : undefined;
+    case 'links':
+      return Array.isArray(value) &&
+        value.every(isLink) &&
+        new Set(value.map((l) => l.id)).size === value.length
+        ? value.map(({ id, label, url }) => ({ id, label, url }))
         : undefined;
     case 'select':
       return field.options?.some((o) => o.value === value) ? (value as string) : undefined;
@@ -101,6 +118,21 @@ function fieldError(field: FieldDef, value: DraftValue): string | undefined {
     return items.every((m) => URL_RE.test(m.src) || m.src.startsWith('/'))
       ? undefined
       : 'Upload the file again.';
+  }
+  if (field.type === 'links' && Array.isArray(value)) {
+    const links = value as LinkValue[];
+    if (links.length > (field.maxItems ?? Infinity)) return `${field.maxItems} links at most.`;
+    for (const [i, link] of links.entries()) {
+      const [label, url] = [link.label.trim(), link.url.trim()];
+      if (!label) return `Link ${i + 1} needs a label.`;
+      if (field.max && label.length > field.max) {
+        return `“${label}” is too long: ${label.length} of ${field.max} characters.`;
+      }
+      if (url && !URL_RE.test(url)) {
+        return `${label}: enter a full address starting with https://`;
+      }
+    }
+    return undefined;
   }
   if (!text && field.type !== 'image') return undefined;
   switch (field.type) {
