@@ -718,7 +718,8 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
       (Undo), and go on the next save made ten minutes or more later.
 - [ ] **GitHub heat map** (item 29e): create a read-only GitHub token, put it in `.env.local`
       and in Vercel (Production and Preview) as `GITHUB_TOKEN`; enter your username in
-      Settings → GitHub username. Check the map under Skills on a phone (half a year) and on
+      Settings → GitHub username. Check the map under Skills on a phone (it opens on the latest weeks; swipe it sideways for
+      the older ones) and on
       a wide screen (the year), in both accents and both modes. Clear the username: it goes.
 - [ ] Then remove the **sample media** from the first two projects in dev and prod
       (`docs/SUPABASE.md`) when real media goes in.
