@@ -7,18 +7,23 @@ interface Props {
   role: string;
   org: string;
   years: string;
-  summary: string;
+  /** The summary as rendered HTML (simple Markdown); empty when there is none. */
+  summaryHtml: string;
 }
+
+// The summary's markup comes from Markdown, so it is styled with child variants.
+const SUMMARY =
+  'flex max-w-[62ch] flex-col gap-3 pb-6.5 text-body-sm text-muted [&_li]:pl-0.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_strong]:font-medium [&_strong]:text-ink [&_u]:underline-offset-3 [&_ul]:list-disc [&_ul]:pl-5';
 
 /**
  * One experience row (spec §6 ExperienceRow). Title, company and dates always visible; the
  * summary expands on click. The body uses a 0fr → 1fr grid row so Phase 4 can animate its
  * measured height; collapsed content is `inert` so it leaves the a11y tree and tab order.
  */
-export function ExperienceRow({ role, org, years, summary }: Props) {
+export function ExperienceRow({ role, org, years, summaryHtml }: Props) {
   const [open, setOpen] = useState(false);
   const bodyId = useId();
-  const expandable = summary.trim() !== '';
+  const expandable = summaryHtml !== '';
 
   /**
    * Dates and caret travel as one group, centred on each other, and the row aligns that
@@ -79,7 +84,8 @@ export function ExperienceRow({ role, org, years, summary }: Props) {
         className={`grid [transition:grid-template-rows_.5s_var(--ease-expand),opacity_.38s_ease] motion-reduce:[transition:opacity_.38s_ease] ${open ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}
       >
         <div className="min-h-0 overflow-hidden">
-          <p className="max-w-[62ch] pb-6.5 text-body-sm text-muted">{summary}</p>
+          {/* The renderer drops raw HTML, so only its own tags reach here. */}
+          <div className={SUMMARY} dangerouslySetInnerHTML={{ __html: summaryHtml }} />
         </div>
       </div>
     </div>

@@ -1,9 +1,14 @@
 import type { Experience as ExperienceItem } from '@/lib/domain/types';
 import { formatYearRange } from '@/lib/utils/format';
+import { renderSimpleMarkdown } from '@/lib/utils/markdown';
 import { ExperienceRow } from './experience-row';
 import { Section } from './section';
 
-/** Experience (spec §7): hairline rows, newest first, summary expands in place. */
+/**
+ * Experience (spec §7): hairline rows, newest first, summary expands in place. The summary is
+ * simple Markdown (§10, Phase 9 item 30), rendered here on the server so the row's client
+ * bundle carries no parser.
+ */
 export function Experience({ items }: { items: ExperienceItem[] }) {
   if (items.length === 0) return null;
 
@@ -16,7 +21,7 @@ export function Experience({ items }: { items: ExperienceItem[] }) {
             role={item.role}
             org={item.org}
             years={formatYearRange(item.startDate, item.endDate)}
-            summary={item.summary}
+            summaryHtml={item.summary.trim() ? renderSimpleMarkdown(item.summary) : ''}
           />
         ))}
       </div>

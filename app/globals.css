@@ -190,6 +190,7 @@
   --spacing-admin-confirm: 420px;
   --spacing-admin-sticky: 88px; /* side panel top offset under the bar */
   --spacing-admin-md: 420px; /* Markdown write/preview min height */
+  --spacing-admin-md-simple: 168px; /* the same, for short copy (simple Markdown) */
   --spacing-admin-md-measure: 680px; /* Markdown preview max width */
   --spacing-admin-md-pad: clamp(18px, 3vw, 32px);
 

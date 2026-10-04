@@ -10,7 +10,7 @@ export const experience: Experience[] = [
     startDate: '2023-01',
     endDate: null,
     summary:
-      'Own the design system and the editor surface. Cut first-paint by half and made the component API something designers can read.',
+      'Own the design system and the editor surface.\n\n- Cut first-paint **by half**.\n- Made the component API something designers can *read*.',
     sortOrder: 1,
   },
   {

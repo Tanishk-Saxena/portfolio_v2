@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { arcAngles, navAngles } from './arc';
 import { formatLongDate, formatMonthYear, formatProjectKind, formatYearRange } from './format';
-import { plainExcerpt, renderMarkdown } from './markdown';
+import { plainExcerpt, renderMarkdown, renderSimpleMarkdown } from './markdown';
 import { countWords, estimateReadMinutes } from './read-time';
 import { splitHighlight } from './split-highlight';
 
@@ -53,6 +53,24 @@ describe('utils', () => {
     const html = renderMarkdown('Hello\n\n<script>alert(1)</script>\n\n<b>bold</b> text');
     expect(html).not.toContain('<script');
     expect(html).not.toContain('<b>');
+    // Underline is the one tag let through, only as a bare, matched pair.
+    expect(renderMarkdown('An <u>underlined **word**</u>.')).toContain(
+      '<u>underlined <strong>word</strong></u>',
+    );
+    const stray = renderMarkdown('<u onclick="x()">a</u> and <u>open');
+    expect(stray).not.toContain('<u');
+    expect(stray).not.toContain('</u>');
+  });
+
+  it('simple markdown: paragraphs, lists, bold, italic, underline; the rest stays text', () => {
+    const html = renderSimpleMarkdown(
+      'One **b** *i* <u>u</u>.\n\n- first\n- second\n\n# Not a heading\n\n[link](https://a.b) `code`',
+    );
+    expect(html).toContain('<p>One <strong>b</strong> <em>i</em> <u>u</u>.</p>');
+    expect(html).toMatch(/<ul>\s*<li>first<\/li>\s*<li>second<\/li>\s*<\/ul>/);
+    expect(html).toContain('<p># Not a heading</p>');
+    expect(html).toContain('[link](https://a.b) `code`');
+    expect(html).not.toMatch(/<(h1|a|code|script)/);
   });
 
   it('read time: words not syntax, 220 wpm, never under a minute', () => {

@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · next: 9.5 (re-evaluation outcomes and chosen features), **starting a new session at "What's left of Phase 9" below**; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): item 30 (experience descriptions in Markdown) done · next: item 31 (contact links as a list), from "What's left of Phase 9" below; each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | next (new session) |
+| 9.5 | `feat/phase-9-experience-markdown` (30) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30 done |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | — | 25 (owner picks), 29e, 30, 31, 32, then 28a + 29c last |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 30 | 25 (owner picks), 29e, 31, 32, then 28a + 29c last |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -638,7 +638,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 - 29d. Draft preview on the site: **skipped**; the editor's Preview is enough.
 - [ ] 29e. **GitHub contribution heat map: build it.** Claude proposes where it sits; data
       from GitHub's API at build time (revalidated), never in the browser.
-- [ ] 30. **Experience descriptions in Markdown**, simple formatting: paragraphs, `- `
+- [x] 30. **Experience descriptions in Markdown**, simple formatting: paragraphs, `- `
       lists, **bold**, *italic* and underline. Same renderer as articles, limited to these.
       Underline isn't part of standard Markdown, so the renderer gains it for **articles too**
       (owner: articles may use it); Claude picks the most standard syntax when building it
@@ -657,11 +657,10 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
 Groups A–G (items 1–24) are built and merged. What is left to **build** is group H (9.5),
-the enhancements below, in this order:
+the enhancements below, in this order (done so far: 30):
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
-| 30 | **Experience descriptions in Markdown** | Paragraphs, `- ` lists, bold, italic, underline; the articles' renderer limited to these; underline (`<u>`) allowed for articles too. Admin: the Description becomes a Markdown field | no |
 | 31 | **Contact links as an editable list** | Label, URL, order, in place of the four fixed slots (`social_link` already holds rows; the admin's Contact form and `setUrls` change). Drag to reorder with `use-drag-sort` | no |
 | 32 | **Keep storage clean** | Deleting or replacing an image, résumé or modal media item removes the old file from the `media` bucket (today they stay: Q-A17) | no |
 | 29e | **GitHub contribution heat map** | Data from GitHub's API at build time (revalidated), never in the browser. Claude proposes where it sits | placement: Claude proposes, owner confirms |
@@ -711,8 +710,27 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
       image, GIF and video through Projects → Modal media (the six-item limit included).
 - [ ] **Site title and description**: edit them in Settings, and the Name in Hero; check the
       tab title and a share preview on the deployed site.
+- [ ] **Experience descriptions in Markdown** (item 30): in the admin, write a description with
+      a paragraph, a `- ` list, `**bold**`, `*italic*` and `<u>underline</u>`; check Preview,
+      then the expanded row on the site. Try `<u>` in an article body too.
 - [ ] Then remove the **sample media** from the first two projects in dev and prod
       (`docs/SUPABASE.md`) when real media goes in.
+
+**9.5 notes (roadmap H).**
+- Decisions taken at the start of the session (owner, 2026-10-04): the options-first items
+  (25, 28a) get a rough comparison page and then a pause for the owner's pick; the heat map
+  (29e) sits after Skills, in the site's accent (never GitHub's green), with no section of
+  its own ("Contributions" may serve as its heading), fed by GitHub's GraphQL API with a
+  read-only token; for this run each item is its own PR and commits do not wait for a diff
+  review (the owner reviews the PRs).
+- Item 30: `lib/utils/markdown.ts` gains an inline `underline` token (a bare, matched
+  `<u>…</u>`; balanced by construction, so a stray tag can never leak out of its block) used
+  by both renderers, and `renderSimpleMarkdown`, the same parser with every other construct's
+  tokenizer switched off. `Experience` renders each summary on the server and hands
+  `ExperienceRow` the HTML. Admin: `FieldDef.simple` on a `markdown` field. Stored summaries
+  are plain text and read unchanged (a paragraph); no migration. The first fixture role now
+  carries a list and emphasis (seed regenerated). Tests: unit 48 (+1: simple Markdown; the
+  raw-HTML test also covers underline).
 
 **9.4 notes (roadmap A).**
 - Roles, built then dropped (owner, 2026-10-04): a migration gave `admin_user` an
