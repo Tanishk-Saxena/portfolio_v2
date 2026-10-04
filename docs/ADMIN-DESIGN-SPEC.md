@@ -337,12 +337,12 @@ them. Reconciled field by field; **bold** = new to the domain.
 |---|---|---|
 | Heading * | `contactStatement` | required |
 | Email * | `email` | valid email |
-| GitHub / LinkedIn / Read.cv / X | `social_links` rows `github`, `linkedin`, `read-cv`, `x` | fixed labels and order; URL format; **empty → hidden on the site** |
+| Links (a list of label + URL rows) | `social_links` rows, in the list's order | §14 "Contact links": add, remove, reorder (drag or arrows); a label on every row (40 characters at most); URL format; eight at most; **an empty URL → hidden on the site** |
 | — | `footerNote` | **[ASSUMED]** added to Contact as "Footer note" (the footer sits under Contact) (Q-A8) |
 
-**[ASSUMED]** `social_links` stays a table (the domain and site already read it) but the admin
-edits it as these four fixed fields, as mocked. An empty URL means the site hides that link
-(Q-A10).
+`social_links` stays a table (the domain and site already read it). The mockup's four fixed
+fields (GitHub, LinkedIn, Read.cv, X) became an editable list at the owner's call (§14); an
+empty URL still means the site hides that link (Q-A10).
 
 ### 8.4 Experience → `experience` (ordered)
 
@@ -552,7 +552,7 @@ own dark mix (§2). Hairlines that don't mark a control stay `--line`.
 | Q-A7 | Admin theme key separate from the site's (`admin-theme`) | [AN] "remembered per device, separately" |
 | Q-A8 | Name + Location on Hero, Footer note on Contact | The domain needs them and the schema has no home for them; existing field types, no new UI |
 | Q-A9 | Portrait alt = "Portrait of {name}" | The mockup has no alt field; a portrait's alt is predictable |
-| Q-A10 | Socials stay a table, edited as four fixed fields; empty = hidden | Site unchanged; admin as mocked |
+| Q-A10 | Socials stay a table; an empty URL = hidden. (Edited as four fixed fields until §14 "Contact links" made them a list) | Site unchanged |
 | Q-A11 | Read time stored as a nullable override | "Blank uses the estimate" [AN] |
 | Q-A12 | Articles keep `externalUrl` (new side field); publish needs body or URL; `excerpt` not edited | The site already supports link-out articles; the excerpt already falls back |
 | Q-A13 | _Superseded by §14 (Settings)_ | |
@@ -585,4 +585,5 @@ Record admin changes the owner settles here, as DESIGN-SPEC §10 does for the si
 | Saved = live | The toast confirms the database write; nothing reloads, in the admin or on the site. The owner reloads when they want to look | Toast after "saved and revalidated" |
 | Accent in images | Share cards and app icons (favicon included) follow the saved accent from the next deploy on; picking it up sooner is fine but not required | Images always terracotta |
 | Experience description (2026-10-04, item 30) | The Description is a **Markdown field** in its `simple` form: the article body's well (Write / Preview) at a 168px minimum height, its corner label "Simple Markdown", previewed with the site's limited renderer (paragraphs, lists, bold, italic, `<u>underline</u>`; DESIGN-SPEC §10). The hint names the syntax. The article body's own preview shows underline too. | §8.4 Description as a textarea |
+| Contact links (2026-10-04, item 31) | Contact's four fixed URL fields are one **Links** field: rows of a label and a URL, so any service can be listed. **Add a link** appends an empty row (gone at eight, **[ASSUMED]** the cap); × removes; a row drags by its grip, and the arrows beside it move it for keyboards. On phones the label sits above the URL. Rules, client and server: every row needs a label (40 characters at most); a URL is a full address or empty (empty = hidden on the site). The first failing row is named in the field's error. Saving replaces the stored list with the form's: new rows are inserted under an id made in the browser, removed ones soft-deleted, the order renumbered. | §8.3's four fixed fields; Q-A10's "four fixed fields" |
 | Phase 9 decisions (2026-10-04) | From the owner's admin test; built in Phase 9 (ledger: the **Phase 9 roadmap**, item numbers in brackets). **Caps enforced on the server**: four skill groups, 4–6 items per group (4, 5). **External URL or body, never both** (6; Q-A12 settled: the field stays). **Name/Location on Hero, Footer note on Contact stay** (27; Q-A8 settled). Early validation everywhere (7). Save disabled when clean (8). A plain "Markdown supported" hint (9). Stacked, themed toasts (10). Autofocus in dialogs (11). Reset to defaults on Settings (12). Debounce or in-flight lock on every action (13). Delete from the list (14). The leave dialog lists what changed (15). **Drag to reorder** lists and skill pills, arrows kept (22; settles §13's "revisit drag-to-reorder"). Paste images; project **modal media** as a list, rotating only if Settings says so (23). **Card line removed**, and any other field nothing on the site reads (21). Settings gain site title and description (24) and the signature-intro switch (29c). Experience **Description in Markdown** (30). **Contact links as an editable list** (31). Replaced uploads deleted from storage (32). One dev test admin for CI's signed-in tests, a blocking admin journey and axe (1, 2, 2b); no roles. | §8.3–§8.9 fields as listed; §13 "arrows only" |

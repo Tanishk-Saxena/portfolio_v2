@@ -1,7 +1,7 @@
 import type { SocialLink } from '@/lib/domain/types';
 
 // PLACEHOLDER — the mockup's four links; URLs point at each service's home page until real
-// profile URLs are entered through the admin portal.
+// ones are entered through the admin portal, where the list can grow, shrink and reorder.
 export const socialLinks: SocialLink[] = [
   { id: 'github', label: 'GitHub', url: 'https://github.com/', sortOrder: 1 },
   { id: 'linkedin', label: 'LinkedIn', url: 'https://www.linkedin.com/', sortOrder: 2 },

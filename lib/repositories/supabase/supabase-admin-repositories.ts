@@ -20,6 +20,7 @@ import {
   toProject,
   toQuote,
   toSkillGroup,
+  fromSocialLink,
   toSocialLink,
 } from './rows';
 import { COLUMNS, rows } from './supabase-repositories';
@@ -224,13 +225,30 @@ export function createSupabaseAdminRepositories(db: SupabaseClient): AdminReposi
             .is('deleted_at', null)
             .order('sort_order'),
         ).map(toSocialLink),
-      setUrls: async (urls) => {
-        const results = await Promise.all(
-          Object.entries(urls).map(([id, url]) =>
-            db.from('social_link').update({ url }).eq('id', id).is('deleted_at', null),
-          ),
+      replace: async (links) => {
+        const live = rows<{ id: string }[]>(
+          await db.from('social_link').select('id').is('deleted_at', null),
         );
-        for (const result of results) written(result);
+        const kept = new Set(links.map((l) => l.id));
+        const removed = live.map((l) => l.id).filter((id) => !kept.has(id));
+        if (links.length) {
+          written(
+            await db.from('social_link').upsert(
+              links.map((link, i) => ({
+                ...fromSocialLink({ ...link, sortOrder: i + 1 }),
+                deleted_at: null,
+              })),
+            ),
+          );
+        }
+        if (removed.length) {
+          written(
+            await db
+              .from('social_link')
+              .update({ deleted_at: new Date().toISOString() })
+              .in('id', removed),
+          );
+        }
       },
     },
     experience: collection('experience', COLUMNS.experience, toExperience, fromExperience),

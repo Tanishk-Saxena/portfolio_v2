@@ -234,7 +234,7 @@ arrive with Milestone B (Phase 6.1).
 | `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, description (≤320; the ≤110 `summary` card line was dropped in Phase 9, item 21), tags[], image (nullable), media[] (modal media: `{ kind, src }`, up to 6; Phase 9, item 23), repo_url, live_url (nullable), **published**, sort_order |
 | `article` | slug, title, excerpt, published_at, read_minutes (**nullable = estimated**), body (Markdown, nullable), external_url (nullable), **status** (`draft` \| `published`), **listen** |
 | `quote` | text (≤140), author, **active**, sort_order |
-| `social_link` | label, url, sort_order (edited as four fixed links; empty = hidden) |
+| `social_link` | label, url, sort_order (edited as a list: add, remove, reorder; an empty URL = hidden) |
 | **`settings`** | accent (`terracotta` / `slate`), grain, nav_position (`right` / `centre`), menu_layout (`arc` / `wheel`), press_feedback (`ripple` / `ring` / `press`), media_auto_rotate, site_title (≤70), site_description (≤200) (single record; the last five added in Phase 9) |
 
 `education` is dropped (not in the mockup). `image` = `{ src, alt, width, height }`.

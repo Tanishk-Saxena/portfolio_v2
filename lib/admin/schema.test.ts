@@ -9,7 +9,7 @@ import {
   settingsValues,
   singleDraft,
   slugify,
-  socialUrls,
+  socialLinks,
 } from './forms';
 import { parseDraft, validate } from './schema';
 import { checkUpload } from './uploads';
@@ -32,10 +32,21 @@ describe('admin schema', () => {
       'Too long: 141 of 140 characters.',
     );
     const contact = singleDraft('contact', defaultDataset.profile, defaultDataset.socialLinks);
-    expect(validate('contact', { ...contact, email: 'nope', github: 'github.com/me' })).toEqual({
+    const link = { id: 'leetcode', label: 'LeetCode', url: 'leetcode.com/me' };
+    expect(validate('contact', { ...contact, email: 'nope', links: [link] })).toEqual({
       email: 'Enter a valid email address.',
-      github: 'Enter a full address starting with https://',
+      links: 'LeetCode: enter a full address starting with https://',
     });
+    // A link needs a label; its URL may stay empty (hidden on the site); eight at most.
+    expect(validate('contact', { ...contact, links: [{ ...link, label: ' ' }] }).links).toBe(
+      'Link 1 needs a label.',
+    );
+    expect(validate('contact', { ...contact, links: [{ ...link, url: '' }] })).toEqual({});
+    const nine = Array.from({ length: 9 }, (_, i) => ({ ...link, id: `l${i}`, url: '' }));
+    expect(validate('contact', { ...contact, links: nine }).links).toBe('8 links at most.');
+    // The server refuses a malformed list outright: a duplicate id, or an id that is no key.
+    expect(parseDraft('contact', { ...contact, links: [link, link] })).toBeNull();
+    expect(parseDraft('contact', { ...contact, links: [{ ...link, id: 'a b' }] })).toBeNull();
     const hero = singleDraft('hero', defaultDataset.profile, []);
     expect(validate('hero', { ...hero, headlineHighlight: 'zebra' }).headlineHighlight).toBe(
       '“zebra” does not appear in the headline.',
@@ -71,11 +82,9 @@ describe('admin schema', () => {
     expect(
       applySingle('hero', p, { ...singleDraft('hero', p, []), headlineHighlight: ' ' }),
     ).toMatchObject({ headlineHighlight: null, name: p.name });
-    expect(socialUrls({ github: ' https://github.com/me ', x: '' })).toMatchObject({
-      github: 'https://github.com/me',
-      x: '',
-      linkedin: '',
-    });
+    expect(
+      socialLinks({ links: [{ id: 'github', label: ' GitHub ', url: ' https://github.com/me ' }] }),
+    ).toEqual([{ id: 'github', label: 'GitHub', url: 'https://github.com/me' }]);
 
     // An unchanged year keeps its stored month; a new year starts in January.
     const stored = { ...defaultDataset.experience[0], startDate: '2021-06', endDate: '2023-03' };
