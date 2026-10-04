@@ -92,6 +92,7 @@ describe.skipIf(!url || !key)('Supabase dev project', () => {
           .eq('id', q.id);
       }
       await service.from('article').delete().like('slug', `${tag}%`); // planted + admin-written
+      await service.from('social_link').delete().eq('id', `${tag}-link`); // the admin-write check's
       // Deleting a user cascades to admin_user.
       for (const id of userIds) await service.auth.admin.deleteUser(id);
     });

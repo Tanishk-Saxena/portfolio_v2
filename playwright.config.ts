@@ -33,6 +33,9 @@ export default defineConfig({
     command: `npx next start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false, // always the current build
+    // Fixtures at run time too, whatever `.env.local` says: a page revalidated after an admin
+    // save would otherwise re-render from the database, and the admin journey would write to it.
+    env: { DATA_SOURCE: 'fixtures' },
     timeout: 60_000,
   },
 });

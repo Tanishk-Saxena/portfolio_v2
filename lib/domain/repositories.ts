@@ -121,10 +121,13 @@ export interface AdminRepositories {
     get(): Promise<Stamped<Settings>>;
     update(settings: Settings): Promise<Stamped<Settings>>;
   };
-  /** All four fixed links, empty URLs included (an empty URL hides the link, Q-A10). */
+  /**
+   * Every link, empty URLs included (an empty URL hides the link, Q-A10). `replace` makes
+   * the list exactly what it is given, in that order: new ids are added, missing ones removed.
+   */
   socialLinks: {
     list(): Promise<SocialLink[]>;
-    setUrls(urls: Record<string, string>): Promise<void>;
+    replace(links: Omit<SocialLink, 'sortOrder'>[]): Promise<void>;
   };
   experience: AdminCollection<Experience>;
   projects: AdminCollection<Project>;

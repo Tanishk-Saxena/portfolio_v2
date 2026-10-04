@@ -205,7 +205,17 @@ export async function checkAdminWrites(admin: AdminRepositories, tag: string) {
   expect(settingsStamp).not.toBeNull();
 
   const links = await admin.socialLinks.list();
-  await admin.socialLinks.setUrls(Object.fromEntries(links.map((l) => [l.id, l.url])));
-  expect(await admin.socialLinks.list()).toEqual(links);
+  // The list becomes exactly what it is given: a new link last, then first, then gone.
+  const added = { id: `${tag}-link`, label: 'LeetCode', url: 'https://leetcode.com/me' };
+  const plain = links.map(({ sortOrder: _o, ...link }) => link);
+  await admin.socialLinks.replace([...plain, added]);
+  expect((await admin.socialLinks.list()).at(-1)).toMatchObject(added);
+  await admin.socialLinks.replace([added, ...plain]);
+  expect((await admin.socialLinks.list()).map((l) => l.id)).toEqual([
+    added.id,
+    ...plain.map((l) => l.id),
+  ]);
+  await admin.socialLinks.replace(plain);
+  expect((await admin.socialLinks.list()).map(({ sortOrder: _o, ...link }) => link)).toEqual(plain);
   return created.id;
 }
