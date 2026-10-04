@@ -162,7 +162,7 @@ error line, **Sign in** (48px filled pill), "← Back to the site" (13px muted, 
 | **Field** [F] | One component for every input, driven by the schema. Header row: label (+ `*`) left, aside right (live count `n / max`, tag count, `words · min`, range value). Then the control, then hint, then error (`role="alert"`). |
 | Text / URL / email / date | 44px, radius 6, `1px --line-input`, `--field`, padding 0 12px, 16px. Focus: border accent + `0 0 0 3px` accent at 82% transparent. `aria-invalid` when in error |
 | Textarea | Same well, padding 11px 12px, 16/1.6, `resize: vertical`, `rows` from the schema |
-| Markdown | Bordered well with a tab strip: **Write** / **Preview** (32px, active `--paper2` + 500) and a hint `## heading · > quote · blank line = paragraph`. Write: borderless textarea, min-height 420, 16/1.75. Preview: min-height 420, max 680px, `clamp(18px,3vw,32px)` padding; "Nothing to preview yet." when empty |
+| Markdown | Bordered well with a tab strip: **Write** / **Preview** (32px, active `--paper2` + 500) and a hint "Markdown supported" (owner, §14; the mockup's `## heading · > quote · blank line = paragraph` read as the whole syntax). Write: borderless textarea, min-height 420, 16/1.75. Preview: min-height 420, max 680px, `clamp(18px,3vw,32px)` padding; "Nothing to preview yet." when empty |
 | Select → **pills** | `role="radiogroup"`, pills `role="radio"` 38px, padding 0 16px, 13.5px; active = ink fill, paper text |
 | Toggle | `role="switch"` button, min 44px high: 40×24 track (accent when on, `--line-input` when off), 18px cream knob, `translateX(16px)`, `.2s cubic-bezier(.3,.8,.3,1)`; text = the schema's on/off label |
 | Tags | Wrapping box, min 44px, padding 6: chips 30px (accent 92% wash, 13.5px) with a 24px remove ×; inline input (16px, min 120px). Enter, comma or blur adds; Backspace on empty removes the last; duplicates ignored |
@@ -170,8 +170,8 @@ error line, **Sign in** (48px filled pill), "← Back to the site" (13px muted, 
 | Range | Native, 32px high, `accent-color` |
 | Readonly | 44px, ink 95% transparent fill, muted 14.5px |
 | Theme toggle | The site's half-filled dial; turns 180° over `.45s cubic-bezier(.3,.8,.3,1)`; label names the mode it switches to ("Switch to dark mode") |
-| Toast | Fixed, centred, bottom 24px; ink pill, paper text 14px, min 46px, `padding 6px 8px 6px 18px`; optional **Undo** (32px outline pill); `role="status"` `aria-live="polite"`; in: opacity .25s + rise 24px over .3s `cubic-bezier(.2,.8,.3,1)`. 3s, or 6s with Undo |
-| Confirm dialog | `role="alertdialog"`, `min(420px,100%)`, radius 10, padding 26, gap 12: title, body, buttons right-aligned (42px outline cancel, 42px filled OK). Overlay click and Escape cancel |
+| Toast | Fixed, centred, bottom 24px; **stacked** (owner, §14): newest lowest, 8px apart, three at most. Each a pill in the theme's surface (`--paper2`) with ink text 14px and an accent-tinted border (the mockup's ink pill turned white in dark mode), min 46px, `padding 6px 8px 6px 18px`; optional **Undo** (32px outline pill, accent text); `role="status"` `aria-live="polite"`; in: opacity + rise 24px over .3s `cubic-bezier(.2,.8,.3,1)`. 3s, or 6s with Undo. The same plain message again replaces the one showing; toasts with Undo each stay |
+| Confirm dialog | `role="alertdialog"`, `min(420px,100%)`, radius 10, padding 26, gap 12: title, body, an optional "Changed" list, buttons right-aligned (42px outline cancel, 42px filled OK). Overlay click and Escape cancel. Opens with the focus on the filled button (owner, §14) |
 | Buttons | Filled: `--accent-fill`, `#FDF8F0`, 500, radius 999, hover opacity .9. Outline: `--line` border, hover border accent. One filled button per screen |
 
 **[ASSUMED]** Press feedback uses the site's ripple (`components/site/ripple-host.tsx`, DESIGN-SPEC
@@ -219,6 +219,10 @@ From [AN], with the mockup's exact copy.
 - **Quick toggle**: the status pill is a button. Articles Published ↔ Draft, projects
   Published ↔ Hidden, quotes Shown ↔ Skipped. Labels: "Publish" / "Unpublish", "Publish" /
   "Hide from site", "Put in rotation" / "Take out of rotation". Optimistic, toast with **Undo**.
+  The request goes **700ms after the last press** on a pill (the reorder's delay) and carries only the final state;
+  presses that cancel out send nothing (owner, §14).
+- **Delete** (owner, §14): a bin button ends every row, in every collection. Same confirm,
+  toast and Undo as the editor's Delete (§7.2).
   An article with nothing to show can't be published this way: toast "Add a body before
   publishing".
 - **Skills** hold at most 4 groups. At 4, **New group** is disabled with "The skills grid holds
@@ -236,7 +240,19 @@ From [AN], with the mockup's exact copy.
   entry it returns to the list.
 - Leaving a dirty entry (another section or entry, Back, Sign out) asks **"Discard unsaved
   changes?"** / "Your edits to this entry have not been saved and will be lost." /
-  **Keep editing** · **Discard**. Closing the tab uses the browser's prompt (`beforeunload`).
+  **Keep editing** · **Discard**. Under the body, "Changed" lists the labels of the edited
+  fields (owner, §14). Closing the tab uses the browser's prompt (`beforeunload`).
+- **Save is disabled while there is nothing to save** (owner, §14), like Discard; `⌘S` then
+  does nothing. A new entry is compared with a blank one, so a Duplicate's copy can be
+  created at once.
+- **Focus** (owner, §14): a new entry opens with its first field focused (fine pointers
+  only, so a phone's keyboard doesn't open by itself); sign-in focuses Email; a dialog its
+  filled button.
+- **One request per action** (owner, §14). Debounced, final state only: status pills and
+  reorder arrows (700ms after the last press). Locked while in flight: Save, Delete and its Undo (per entry),
+  uploads, sign-in, sign-out. Search and filters send nothing; Duplicate only navigates.
+- **Settings** has **Reset to defaults** in the side panel: it puts the shipped look
+  (`DEFAULT_SETTINGS`) in the form, Save applies it; disabled when the form already holds it.
 - **Early validation** (owner, §14): a field shows its error as soon as it is edited, in
   every section, and so does a filled field whose rule reads the one just edited (the
   highlighted word after the headline, the end year after the start year, the External URL

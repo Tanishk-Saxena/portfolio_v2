@@ -6,12 +6,15 @@ import { FILLED_PILL } from './admin-classes';
 /*
  * The admin's confirm (ADMIN-DESIGN-SPEC §5): a native modal `<dialog>` with
  * `role="alertdialog"`, so the browser traps focus and returns it on close (§12). Escape and
- * a click on the overlay cancel. `askConfirm()` from anywhere resolves true on OK.
+ * a click on the overlay cancel. `askConfirm()` from anywhere resolves true on OK. It opens
+ * with the focus on its primary action (owner, §14), so Enter confirms.
  */
 
 export interface ConfirmOptions {
   title: string;
   body: string;
+  /** Listed under the body: the fields a Discard would lose. */
+  details?: string[];
   ok: string;
   cancel: string;
 }
@@ -28,11 +31,12 @@ export function askConfirm(options: ConfirmOptions): Promise<boolean> {
   });
 }
 
-/** §7.2: leaving an entry with unsaved edits. */
-export const confirmDiscard = () =>
+/** §7.2: leaving an entry with unsaved edits; `changed` names the edited fields. */
+export const confirmDiscard = (changed: string[] = []) =>
   askConfirm({
     title: 'Discard unsaved changes?',
     body: 'Your edits to this entry have not been saved and will be lost.',
+    details: changed,
     ok: 'Discard',
     cancel: 'Keep editing',
   });
@@ -45,6 +49,7 @@ function settle(ok: boolean) {
 
 export function ConfirmHost() {
   const ref = useRef<HTMLDialogElement>(null);
+  const primary = useRef<HTMLButtonElement>(null);
   const request = useSyncExternalStore(
     (l) => (listeners.add(l), () => listeners.delete(l)),
     () => pending,
@@ -53,7 +58,10 @@ export function ConfirmHost() {
 
   useEffect(() => {
     const dialog = ref.current;
-    if (request && !dialog?.open) dialog?.showModal();
+    if (request && !dialog?.open) {
+      dialog?.showModal();
+      primary.current?.focus();
+    }
     if (!request && dialog?.open) dialog.close();
   }, [request]);
 
@@ -75,6 +83,16 @@ export function ConfirmHost() {
           <p id="confirm-body" className="text-admin-nav text-muted">
             {request.body}
           </p>
+          {request.details && request.details.length > 0 && (
+            <div className="flex flex-col gap-1 text-meta">
+              <p className="text-label tracking-eyebrow text-muted uppercase">Changed</p>
+              <ul className="flex max-h-40 list-disc flex-col gap-0.5 overflow-y-auto pl-5">
+                {request.details.map((detail) => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <div className="mt-2 flex flex-wrap justify-end gap-2">
             <button
               type="button"
@@ -85,6 +103,7 @@ export function ConfirmHost() {
               {request.cancel}
             </button>
             <button
+              ref={primary}
               type="button"
               onClick={() => settle(true)}
               data-ripple="paper"

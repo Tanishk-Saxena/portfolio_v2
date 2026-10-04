@@ -138,14 +138,14 @@ test('admin: signed in — create, edit, toggle, delete and undo, settings', asy
   });
 
   await test.step('deletes it, then undoes the delete', async () => {
-    await page.getByRole('link', { name: title }).click();
-    await page.getByRole('button', { name: 'Delete quote' }).click();
+    await page.getByRole('button', { name: `Delete quote: ${title}` }).click();
     await page
       .getByRole('alertdialog')
       .getByRole('button', { name: 'Delete', exact: true })
       .click();
     await expect(page.getByText('Deleted, removed from the site')).toBeVisible();
-    await page.getByRole('button', { name: 'Undo' }).click();
+    // Toasts stack, newest lowest: the delete's Undo is the last one.
+    await page.getByRole('button', { name: 'Undo' }).last().click();
     await expect(page.getByText('Restored')).toBeVisible();
     await page.reload();
     await expect(

@@ -57,3 +57,17 @@ export function SmallCloseIcon(props: IconProps) {
     </svg>
   );
 }
+
+/** Delete, on a list row (owner, ADMIN-DESIGN-SPEC §14; not in the mockup). */
+export function TrashIcon(props: IconProps) {
+  return (
+    <svg {...base(16, 16)} {...props}>
+      <path
+        d="M2.5 4.5h11M6.5 4.5v-2h3v2M4 4.5l.6 9h6.8l.6-9M6.7 7.2v3.8M9.3 7.2v3.8"
+        strokeWidth="1.3"
+        strokeLinejoin="round"
+        {...stroke}
+      />
+    </svg>
+  );
+}

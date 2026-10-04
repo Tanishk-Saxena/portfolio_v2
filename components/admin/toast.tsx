@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 
 /*
- * The admin's toast (ADMIN-DESIGN-SPEC §5): one at a time, centred at the bottom, an ink
- * pill. `showToast()` from anywhere; the host lives in the signed-in layout. With `undo`
- * it shows an Undo button and stays 6s instead of 3s.
+ * The admin's toasts (ADMIN-DESIGN-SPEC §5, owner §14): centred at the bottom, stacked with
+ * the newest lowest, three at most. Each is a pill in the theme's surface with the accent on
+ * its border and its Undo. `showToast()` from anywhere; the host lives in the signed-in
+ * layout. With `undo` a toast shows an Undo button and stays 6s instead of 3s.
  */
 
 interface ToastMessage {
@@ -14,13 +15,27 @@ interface ToastMessage {
   undo?: () => void;
 }
 
-let current: ToastMessage | null = null;
+const MAX_SHOWN = 3;
+const EMPTY: ToastMessage[] = [];
+
+let toasts = EMPTY;
+let lastId = 0;
 const listeners = new Set<() => void>();
-const notify = () => listeners.forEach((l) => l());
+
+function set(next: ToastMessage[]) {
+  toasts = next;
+  listeners.forEach((l) => l());
+}
+
+const dismiss = (id: number) => set(toasts.filter((t) => t.id !== id));
 
 export function showToast(text: string, options: { undo?: () => void } = {}) {
-  current = { id: (current?.id ?? 0) + 1, text, undo: options.undo };
-  notify();
+  const id = ++lastId;
+  // The same plain message again replaces the one showing; one with an Undo stays, as each
+  // undoes its own action.
+  const kept = toasts.filter((t) => t.undo || t.text !== text);
+  set([...kept, { id, text, undo: options.undo }].slice(-MAX_SHOWN));
+  window.setTimeout(() => dismiss(id), options.undo ? 6000 : 3000);
 }
 
 function subscribe(onChange: () => void) {
@@ -29,40 +44,39 @@ function subscribe(onChange: () => void) {
 }
 
 export function ToastHost() {
-  const message = useSyncExternalStore(
+  const shown = useSyncExternalStore(
     subscribe,
-    () => current,
-    () => null,
+    () => toasts,
+    () => EMPTY,
   );
-  const [expired, setExpired] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (!message) return;
-    const timer = window.setTimeout(() => setExpired(message.id), message.undo ? 6000 : 3000);
-    return () => window.clearTimeout(timer);
-  }, [message]);
-
-  const open = message !== null && expired !== message.id;
   return (
     // The live region is always there, so screen readers hear each new message.
     <div
       role="status"
       aria-live="polite"
-      className={`fixed bottom-6 left-1/2 z-50 flex min-h-11.5 max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-3.5 rounded-full bg-ink py-1.5 pl-4.5 text-meta whitespace-nowrap text-paper shadow-toast transition-[opacity,translate] duration-300 ease-toast motion-reduce:translate-y-0 [:root:has([data-bottom-bar])_&]:@max-wide:mb-19 ${message?.undo ? 'pr-2' : 'pr-4.5'} ${open ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-6 opacity-0'}`}
+      className="pointer-events-none fixed bottom-6 left-1/2 z-50 flex max-w-[calc(100vw-24px)] -translate-x-1/2 flex-col items-center gap-2 [:root:has([data-bottom-bar])_&]:@max-wide:mb-19"
     >
-      <span className="truncate">{message?.text}</span>
-      {open && message?.undo && (
-        <button
-          type="button"
-          onClick={() => {
-            setExpired(message.id);
-            message.undo?.();
-          }}
-          className="hit-44 relative h-8 flex-none cursor-pointer rounded-full border border-paper/40 px-3.5 text-small font-medium text-paper hover:border-paper"
+      {shown.map((toast) => (
+        <div
+          key={toast.id}
+          className={`pointer-events-auto flex min-h-11.5 max-w-full items-center gap-3.5 rounded-full border border-border-control bg-surface py-1.5 pl-4.5 text-meta whitespace-nowrap text-ink shadow-toast transition-[opacity,translate] duration-300 ease-toast motion-reduce:transition-none starting:translate-y-6 starting:opacity-0 ${toast.undo ? 'pr-2' : 'pr-4.5'}`}
         >
-          Undo
-        </button>
-      )}
+          <span className="truncate">{toast.text}</span>
+          {toast.undo && (
+            <button
+              type="button"
+              onClick={() => {
+                dismiss(toast.id); // gone at once, so Undo can't fire twice
+                toast.undo?.();
+              }}
+              className="hit-44 relative h-8 flex-none cursor-pointer rounded-full border border-border-control px-3.5 text-small font-medium text-accent hover:border-accent"
+            >
+              Undo
+            </button>
+          )}
+        </div>
+      ))}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useFormStatus } from 'react-dom';
 import { signOut } from '@/app/admin/actions';
 import { hasUnsaved, leaveGuarded } from './guarded-link';
 
@@ -18,13 +19,22 @@ export function SignOutButton({ className }: { className: string }) {
         void leaveGuarded(() => form.requestSubmit()); // the guard is clear on the resubmit
       }}
     >
-      <button
-        type="submit"
-        data-ripple="press-row"
-        className={`w-full cursor-pointer text-left text-muted ${className}`}
-      >
-        Sign out
-      </button>
+      <Submit className={className} />
     </form>
+  );
+}
+
+/** Off while the sign-out is on its way, so a second press sends nothing. */
+function Submit({ className }: { className: string }) {
+  const { pending } = useFormStatus();
+  return (
+    <button
+      type="submit"
+      disabled={pending}
+      data-ripple="press-row"
+      className={`w-full cursor-pointer text-left text-muted disabled:cursor-default ${className}`}
+    >
+      {pending ? 'Signing out…' : 'Sign out'}
+    </button>
   );
 }

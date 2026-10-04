@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) done · next: 9.3's roadmap C (admin UI/UX, items 8–15), then D–F, then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done · next: 9.3's roadmap D (site UI/UX, items 16–21), then E–F, then 9.2 (site title and description), 9.5 (re-evaluation outcomes and chosen features); alongside, the owner's prod smoke test on a phone. Phase 10, the final audit, is last
 
 ---
 
@@ -509,7 +509,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
-| 9.3 | `fix/phase-9-admin-rules` (B), then one per group | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C next |
+| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), then one per group | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 
@@ -523,6 +523,21 @@ Everything Phase 9 will do, with the owner's answers to every open question. A n
 picks up from the first unchecked item. Owner decisions are final (brief §0.1); record each
 design change in DESIGN-SPEC §10 (site) or ADMIN-DESIGN-SPEC §14 (admin) as it lands. Item
 numbers are stable: refer to them in PRs.
+
+**Checklist** (kept current with every PR; the items below hold the detail). 33 numbered
+items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
+
+| Group | Items | Done | Left |
+|---|---|---|---|
+| A. Test infrastructure (9.4) | 1, 2, 2b, 3 | 1, 2, 2b, 3 | — |
+| B. Bugs (9.3) | 4–7 | 4, 5, 6, 7 | — |
+| C. Admin UI/UX (9.3) | 8–15 | 8, 9, 10, 11, 12, 13, 14, 15 | — |
+| D. Site UI/UX (9.3) | 16–21 | — | 16, 17, 18, 19, 20 (owner picks), 21 |
+| E. Drag to reorder (9.3) | 22 | — | 22 |
+| F. Media (9.3) | 23 | — | 23 |
+| G. Site title and description (9.2) | 24 | — | 24 |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | — | 25 (owner picks), 29e, 30, 31, 32, then 28a + 29c last |
+| I. Carried checks | 33 | — | 33 (owner, prod on a phone) |
 
 **A. Test infrastructure (9.4, first)**
 - [x] 1. **One test admin.** CI signs in to the admin with **one** account (owner,
@@ -553,17 +568,17 @@ numbers are stable: refer to them in PRs.
 - [x] 7. B4 · every rule that can show early does, the same way in every section.
 
 **C. Admin UI/UX (9.3)**
-- [ ] 8. #6 Save disabled when there is nothing to save.
-- [ ] 9. #8 The Markdown hint says Markdown is supported, nothing partial.
-- [ ] 10. #4 Toasts stack, and follow the theme and accent.
-- [ ] 11. #11 Autofocus: a delete confirmation focuses Delete; dialogs their primary action.
-- [ ] 12. #16 Reset to defaults on Settings.
-- [ ] 13. #9 Every button and request audited for double fires (owner: not just toggles):
+- [x] 8. #6 Save disabled when there is nothing to save.
+- [x] 9. #8 The Markdown hint says Markdown is supported, nothing partial.
+- [x] 10. #4 Toasts stack, and follow the theme and accent.
+- [x] 11. #11 Autofocus: a delete confirmation focuses Delete; dialogs their primary action.
+- [x] 12. #16 Reset to defaults on Settings.
+- [x] 13. #9 Every button and request audited for double fires (owner: not just toggles):
       **debounce** where only the final state matters (toggles, reorder arrows, search and
       filter typing); an **in-flight lock** where each press is a real action (Save,
       Duplicate, Delete, Undo, uploads, sign-in, sign-out). The PR lists every one.
-- [ ] 14. #5 Delete from the list, for every kind of entry.
-- [ ] 15. #17 The leave dialog lists what changed.
+- [x] 14. #5 Delete from the list, for every kind of entry.
+- [x] 15. #17 The leave dialog lists what changed.
 
 **D. Site UI/UX (9.3)**
 - [ ] 16. #2 The no-image placeholder reads like "No preview to show".
@@ -680,8 +695,8 @@ numbers are stable: refer to them in PRs.
 - B3: `validate()` puts "An article has a body or an External URL, not both. Clear one." on
   External URL. Migration `20261004000000_article_body_or_external.sql` adds the check; for a
   row holding both it first clears the External URL, which the site never used (the body
-  wins on `/articles/[slug]`). Pushed to **dev** (2026-10-04, the owner's OK); **prod** before
-  the PR merges (`docs/SUPABASE.md`, Day to day).
+  wins on `/articles/[slug]`). Pushed to **dev** and **prod** (2026-10-04, the owner's OK), ahead
+  of the merge (`docs/SUPABASE.md`, Day to day).
 - Cleared to fit (owner, 2026-10-04: clear every entry outside the new limits). Dev and prod
   held no live entry outside them (four groups of 4–5 items, no article with both). Removed:
   dev's soft-deleted fifth group "Languages (copy)" (the B1 bug's leftover), and the stress
@@ -691,6 +706,34 @@ numbers are stable: refer to them in PRs.
   Save, as does the summary above the fields. Before this, nothing showed until a failed
   Save, then everything showed live: the mix the owner saw.
 - Tests: unit 47, unchanged in count (the schema, save and migration tests gain assertions).
+
+**9.3 notes, roadmap C (items 8–15; same branch and PR as B, owner's call).**
+- 8: Save (both bars) is disabled unless the draft differs from the stored record; `⌘S` then
+  does nothing. A new entry is compared with a blank one, so a Duplicate's copy is unsaved
+  from the start (it also gets the leave guard).
+- 9: the Markdown hint reads "Markdown supported".
+- 10: `components/admin/toast.tsx` holds a stack (newest lowest, three at most), each with its
+  own timer; the pill is the theme's surface with ink text and an accent-tinted border and
+  Undo. A repeated plain message replaces the one showing; toasts with Undo each stay.
+- 11: the confirm dialog opens focused on its filled button (Delete, Discard); a new entry
+  focuses its first field on fine pointers; sign-in focuses Email.
+- 12: **Reset to defaults** in Settings' side panel fills the form with `DEFAULT_SETTINGS`
+  (now in `lib/domain/types.ts`, the fixtures' settings read it); Save applies it.
+- 13, every button and request:
+  - Debounced, final state only: status pills (700ms, raised from 400 then 500 at the owner's call;
+    presses that cancel out send nothing; a pending one is sent with `keepalive` on
+    leaving), reorder arrows (700ms, as before).
+  - Locked while in flight: Save (a ref, since state lags a second press in one frame),
+    Delete and Undo (per entry, `components/admin/delete-entry.ts`; Undo's toast goes on
+    press), uploads (one per field), sign-in (`pending`), sign-out (`useFormStatus`).
+  - Nothing to guard: search and filters (no request), Duplicate and Discard (navigation or
+    local), the theme toggle, Reset to defaults, Write / Preview.
+- 14: a bin button ends every list row; it shares the editor's confirm, toast and Undo
+  through `delete-entry.ts`.
+- 15: the leave dialog lists the changed fields' labels under "Changed".
+- Checked in a browser on a fixtures build, desktop and phone, light and dark (a one-off
+  spec, removed): each item above. Tests: unit 47, unchanged; the smoke journey now deletes
+  its quote from the list (item 14) and presses the newest toast's Undo; e2e 24 passed.
 
 **9.2 scope (owner, 2026-10-03).** The tab title and the search/share description are
 hard-coded in `app/layout.tsx` (`NAME`, `DESCRIPTION`: "Tanishk Saxena — Software Engineer",

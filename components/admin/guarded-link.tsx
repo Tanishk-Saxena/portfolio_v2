@@ -6,21 +6,22 @@ import type { ComponentProps, MouseEvent } from 'react';
 import { confirmDiscard } from './confirm-dialog';
 
 /*
- * The unsaved-changes guard (ADMIN-DESIGN-SPEC §7.2). The editor reports whether it holds
- * unsaved edits; in-app links and Sign out ask before leaving. Closing the tab uses the
+ * The unsaved-changes guard (ADMIN-DESIGN-SPEC §7.2). The editor reports which fields hold
+ * unsaved edits; in-app links and Sign out ask before leaving, naming them. Closing the tab uses the
  * browser's own prompt (the editor's `beforeunload`).
  */
 
-let unsaved = false;
-export const setUnsaved = (value: boolean) => {
-  unsaved = value;
+let unsaved: string[] | null = null;
+/** The labels of the edited fields, or false when nothing is unsaved. */
+export const setUnsaved = (changed: string[] | false) => {
+  unsaved = changed || null;
 };
-export const hasUnsaved = () => unsaved;
+export const hasUnsaved = () => unsaved !== null;
 
 /** Runs `leave` now, or after the owner agrees to drop their edits. */
 export async function leaveGuarded(leave: () => void) {
-  if (unsaved && !(await confirmDiscard())) return;
-  unsaved = false;
+  if (unsaved && !(await confirmDiscard(unsaved))) return;
+  unsaved = null;
   leave();
 }
 

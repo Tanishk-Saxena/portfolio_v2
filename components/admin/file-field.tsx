@@ -59,7 +59,7 @@ export function FileField({
   const src = typeof value === 'string' ? value : (value?.src ?? '');
 
   async function take(file: File | undefined) {
-    if (!file) return;
+    if (!file || busy) return; // one upload at a time
     const refused = checkUpload(kind, file.type, file.size);
     if (refused) {
       showToast(refused);

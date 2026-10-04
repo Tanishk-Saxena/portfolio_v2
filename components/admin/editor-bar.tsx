@@ -12,6 +12,8 @@ export interface EditorState {
   /** New · Unsaved changes · Saving… · Saved (§7.2). */
   status: 'new' | 'dirty' | 'saving' | 'saved';
   dirty: boolean;
+  /** There is something to save and no save in flight (owner, §14). */
+  canSave: boolean;
   saveLabel: string;
   onDiscard: () => void;
   onSave: () => void;
@@ -110,9 +112,9 @@ export function EditorBar({
             <button
               type="button"
               onClick={state.onSave}
-              disabled={state.status === 'saving'}
+              disabled={!state.canSave}
               data-ripple="paper"
-              className={`${FILLED_PILL} h-10 disabled:cursor-default`}
+              className={`${FILLED_PILL} h-10 disabled:cursor-default disabled:opacity-45`}
             >
               {state.saveLabel}
             </button>

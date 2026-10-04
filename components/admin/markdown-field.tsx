@@ -44,7 +44,7 @@ export function MarkdownField({
           Preview
         </button>
         <span className="ml-auto hidden pr-2 text-label text-muted @wide:inline">
-          ## heading · &gt; quote · blank line = paragraph
+          Markdown supported
         </span>
       </div>
       {preview ? (
