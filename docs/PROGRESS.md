@@ -509,7 +509,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 |---|---|---|---|---|
 | 9.1 | `feat/phase-9-lighthouse` | Lighthouse CI on every PR as a reading (mobile + desktop), pinned scores, warnings under budget | — | ✅ |
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
-| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), then F | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D ✅ · E ✅ · F next |
+| 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), then F | The owner's findings from the admin test (list below) | B–F (4–23) | B ✅ · C ✅ · D ✅ · E ✅ · F next |
 | 9.2 | — | Editable site title and description; the name's other hard-coded spots | G (24) | after 9.3 |
 | 9.5 | — | The re-evaluation outcomes and the features the owner chose | H (25–32) | after 9.2 |
 

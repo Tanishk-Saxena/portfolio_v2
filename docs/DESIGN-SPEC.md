@@ -429,7 +429,7 @@ component-level containers are allowed later, but nothing in the mockup needs th
 | Quotes | `max-width: 44ch`, centred; box height `clamp(215px, 24vw, 240px)` | Same |
 | Contact | Statement 32px; socials wrap (gap 28px) | Statement up to 64px |
 | Footer | `min-height: calc(off + 96px)`; two spans `space-between`, wrap gap `6px 12px`; 13px muted | Same |
-| Project modal | `width: min(100%, 420px); height: 600px`; column; image full-width `aspect-ratio: 16/9`; body padding 20px, gap 12px, top-aligned | `880px × 420px`; row; image pane 392px wide; body padding 32px, gap 14px, vertically centred. Both capped by `max-height: 88svh; max-width: 100%` |
+| Project modal | `width: min(100%, 420px); height: 600px`; column; image full-width `aspect-ratio: 16/9`; body padding 20px, gap 12px, top-aligned | `880px × 420px`; row; image pane 392px wide; body padding 32px, gap 14px, vertically centred. Both capped by `max-height: 88svh; max-width: 100%`. **Revised, §10**: wide is 880×460, and both are capped at 60svh |
 | Nav arc radius | 250px | 334px (wheel variant: 150px at every width) |
 | Article | `measure-article`; same clamps | Same |
 
@@ -517,14 +517,14 @@ The "Ship" notes in the table override the mockup column.
 | **Project modal open** | Curtain `opacity .34s ease`, `backdrop-filter blur(0→16px) .34s ease`, `background .34s ease`. **Ship [ASSUMED] (Q11):** `::backdrop` has static `backdrop-filter: blur(16px)` + scrim colour and fades via `opacity .34s ease` only. Card `transform translate(dx,dy) scale(s) → none .46s ease-out-soft`, `opacity 0→1 .3s ease`; starts after 2× `requestAnimationFrame`; `s = clamp(.22, cardRectHeight / min(innerHeight × .8, 620), .8)`; `dx, dy` = clicked card centre − viewport centre | **Card scale skipped**; opacity kept |
 | Modal close | Reverse of the above; unmount after `320ms`; scroll restored with `scroll-behavior: auto` | Same |
 | **Nav open (arc / wheel)** | Per item `i` (0–5): pivot `rotate(θ+200° → θ)`, arm `translateX(0 → R)`, node counter-rotate + `scale(.35→1)`, all `.82s ease-spiral-out` delay `i × .062s`; node `opacity .34s ease` same delay | **Spiral skipped** (rule); opacity kept |
-| Nav close | Same properties reversed, `1.02s ease-spiral-in`, delay `(5 − i) × .07s`; `opacity .5s ease` | Spiral skipped |
+| Nav close (**revised, §10**) | Same properties reversed, `1.02s ease-spiral-in`, delay `(5 − i) × .07s`; `opacity .5s ease` | Spiral skipped |
 | Nav geometry | Arc: θ from `−177°` to `−93°` (bottom-right) or `−158°` to `−22°` (bottom-centre), evenly spaced; R = 334px wide / 250px narrow. Wheel: θ = `−90° + 360° × i / 6`, R = 150px, dock slides to the viewport centre (`transform .72s ease-spiral-out`) | — |
 | Nav curtain | `opacity .5s ease, backdrop-filter blur(0→14px) .5s ease, background .5s ease`. **Ship [ASSUMED] (Q11):** static `backdrop-filter: blur(14px)` + scrim colour; the curtain fades via `opacity .5s ease` only | Opacity kept |
 | Nav item colour | `background .25s ease, color .25s ease, border-color .25s ease` | Keep |
 | FAB icon | Icon swaps to × and `rotate(0→90deg) .5s ease-out-soft` | [ASSUMED] Icon swap without rotation (Q12) |
 | FAB appear | `opacity .35s ease`, `transform scale(.7→1) .4s ease-out-soft`, `background .4s ease, color .4s ease` | [ASSUMED] Opacity and colour kept; scale instant (Q12) |
 | Back-to-top appear | `opacity .3s ease`, `transform translateY(10px) scale(.7) → none .4s ease-out-soft` | [ASSUMED] Opacity kept; transform instant (Q12) |
-| **Quote rotation** | Every `7000ms` (paused while `document.hidden`); figure `opacity .7s ease, transform translateY(10px→0) .7s ease-out-soft`. **Ship [ASSUMED] (Q13):** also paused on `:hover`, on `:focus-within` and by the pause toggle. The dot indicator animates `transform: scaleX(10/22 → 1)` on a 22px bar (`transform-origin: center`) instead of `width` (Q11); duration and easing unchanged | [ASSUMED] Opacity cross-fade kept; translate instant; **auto-advance off**; the rotator starts paused and is user-driven by dots (Q12, Q13) |
+| **Quote rotation** (the change itself **revised, §10**) | Every `7000ms` (paused while `document.hidden`); figure `opacity .7s ease, transform translateY(10px→0) .7s ease-out-soft`. **Ship [ASSUMED] (Q13):** also paused on `:hover`, on `:focus-within` and by the pause toggle. The dot indicator animates `transform: scaleX(10/22 → 1)` on a 22px bar (`transform-origin: center`) instead of `width` (Q11); duration and easing unchanged | [ASSUMED] Opacity cross-fade kept; translate instant; **auto-advance off**; the rotator starts paused and is user-driven by dots (Q12, Q13) |
 | Contact email | `border-color .3s ease` | Keep |
 | Article back link / "More writing" | `color .2s ease` | Keep |
 | Listen button | `background .25s ease, color .25s ease, border-color .25s ease` | Keep |

@@ -30,7 +30,7 @@ const TYPE = [
   ['body-sm', 'text-body-sm text-muted', 'Experience note copy.'],
   ['small', 'text-small tracking-years text-accent tabular-nums', '2024 — now'],
   ['label', 'text-label tracking-eyebrow uppercase text-muted', 'Eyebrow label'],
-  ['micro', 'text-micro tracking-label uppercase text-muted', 'Project image'],
+  ['micro', 'text-micro tracking-label uppercase text-muted', 'No preview to show'],
   ['signature', 'font-script font-semibold text-signature', 'Tanishk Saxena'],
 ] as const;
 

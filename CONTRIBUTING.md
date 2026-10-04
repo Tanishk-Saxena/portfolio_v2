@@ -68,4 +68,6 @@ resolution required) · require status check `check` with "branch must be up to 
 bypass actors, so admins go through PRs too.
 
 Auto-merge is **allowed** but never on by default. It merges a PR only when someone opts that PR in
-(`gh pr merge <n> --auto`). Merging is the owner's call.
+(`gh pr merge <n> --auto`). Merging is the owner's call: Claude never opts a PR in to
+auto-merge, and merges one only when the owner says its work is finished and to merge it
+(owner, 2026-10-04).
