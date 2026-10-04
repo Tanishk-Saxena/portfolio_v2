@@ -690,8 +690,21 @@ eye, phone and real files settle these. Anything flagged comes before bucket 2.
 | 28a | **Handwriting out** | The hero word leaves Caveat for a non-handwritten treatment (Claude proposes options); the signature becomes a proper signature font, drawn stroke by stroke | **yes: owner picks the hero-word treatment and the font** |
 | 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
 
-After bucket 2: **Phase 10**, the final audit (P-1 LCP, the full Lighthouse audit, the a11y
-and performance sweep on real devices).
+After bucket 2: **Phase 10**, revised by the owner (2026-10-04; brief §6): a one-time job
+that closes the implementation and is never rerun as a gate.
+- 10.1: a **standing audit** workflow, run by hand or weekly: Lighthouse on prod's public
+  pages and on the dev admin signed in as the test admin; warnings only.
+- 10.2: the **one-time fixes** from its first run, P-1 (phone LCP) first; scores recorded.
+
+Then the owner's end-to-end test round (bucket 1 and everything else) runs on the tuned
+site. Whatever it turns up, and every later request, is an ordinary PR: CI's per-PR
+Lighthouse and axe steps read it, and Phase 10 stays closed.
+
+What each check covers today, for reference (`.github/workflows/ci.yml`, `lighthouserc.cjs`):
+smoke (blocking) and axe (a warning) cover the **site and the signed-in admin**, every admin
+screen included; the per-PR **Lighthouse** covers home, an article and the admin's
+**sign-in page only**, on a CI build with fixtures. The signed-in admin's Lighthouse scores
+and anything about the deployment are what 10.1 adds.
 
 **9.4 notes (roadmap A).**
 - Roles, built then dropped (owner, 2026-10-04): a migration gave `admin_user` an

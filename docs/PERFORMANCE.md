@@ -6,7 +6,8 @@ miss never holds up a phase, a merge or a deploy; it becomes an open item here a
 addressed separately. Since Phase 9.1, CI's `lighthouse` job reads every PR (home, the
 article, the admin sign-in; mobile and desktop; median of 3) and pins the scores to the PR,
 with a warning under budget; `npm run lighthouse` runs the same locally. Phase 10, the last
-phase, is the dedicated audit (brief §6).
+phase, fixes P-1 once and adds a standing audit of the deployed site and the signed-in dev
+admin, run by hand or weekly (brief §6, revised 2026-10-04); it is not rerun as a gate.
 
 Targets (brief §3): Lighthouse mobile performance ≥ 95, accessibility 100; LCP < 2.0 s;
 CLS < 0.1; axe clean.
