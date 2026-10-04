@@ -1,7 +1,7 @@
 import { type Page } from '@playwright/test';
 
 /*
- * The dev project's test admin (an editor) that the signed-in admin tests use: smoke and
+ * The dev project's test admin that the signed-in admin tests use: smoke and
  * axe (Phase 9 roadmap items 1–2b). CI passes the credentials from repository secrets;
  * locally they live in `.env.local`. The tests run on a fixtures build, so sign-in goes
  * through the dev project while every save changes only the server's in-memory copy of
