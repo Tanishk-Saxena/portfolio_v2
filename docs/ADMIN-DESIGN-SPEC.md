@@ -222,7 +222,9 @@ From [AN], with the mockup's exact copy.
   An article with nothing to show can't be published this way: toast "Add a body before
   publishing".
 - **Skills** hold at most 4 groups. At 4, **New group** is disabled with "The skills grid holds
-  4 columns. Delete one to add another."
+  4 columns. Delete one to add another."; the editor has no **Duplicate**, and
+  `/admin/skills/new` returns to the list. The server refuses a fifth with 409 on create
+  (Duplicate included) and on restore; the toast (Undo's too) says the same sentence (§14).
 - Empty states: "No {section} yet" / "Create the first {singular} to show this section on the
   site." vs "Nothing matches" / "Try a different search or filter."
 
@@ -235,6 +237,11 @@ From [AN], with the mockup's exact copy.
 - Leaving a dirty entry (another section or entry, Back, Sign out) asks **"Discard unsaved
   changes?"** / "Your edits to this entry have not been saved and will be lost." /
   **Keep editing** · **Discard**. Closing the tab uses the browser's prompt (`beforeunload`).
+- **Early validation** (owner, §14): a field shows its error as soon as it is edited, in
+  every section, and so does a filled field whose rule reads the one just edited (the
+  highlighted word after the headline, the end year after the start year, the External URL
+  and Status after the body). An untouched field stays quiet until Save. Saving or
+  discarding clears them.
 - Save validates first. Invalid fields show their message; a summary at the top says "One
   field needs attention before this can be saved." / "`n` fields need …"; the toast says "One
   field needs attention" / "`n` fields need attention". Nothing is sent.
@@ -350,7 +357,7 @@ so experience sorts by `sortOrder` like the others. The seeded order is identica
 | Publish date (side) | `publishedAt` | ISO date |
 | Read time (side) | `readMinutes` | blank = auto, `max(1, round(words / 220))`. **[ASSUMED]** stored as a nullable override; the repository returns the estimate when it's null (Q-A11) |
 | Listen button (toggle, side) | **`listen`** | "Text-to-speech shown" / "Hidden". Per-article switch for the Listen button |
-| — | `externalUrl` | **[ASSUMED]** added as an optional side field "External URL" (the site already links out for articles without a body). Publish needs a body **or** an external URL (Q-A12) |
+| — | `externalUrl` | **[ASSUMED]** added as an optional side field "External URL" (the site already links out for articles without a body). Publish needs a body **or** an external URL (Q-A12). **Never both** (owner, §14): rejected in the editor, on the server, and by the database check `article_body_or_external` |
 | — | `excerpt` | not edited; the site falls back to the body's first paragraph (Q-A12) |
 
 A draft's `/articles/[slug]` is a 404, like any unknown URL. Previewing drafts on the site is
@@ -359,7 +366,9 @@ out of scope [AH].
 ### 8.7 Skills → `skill_group` (ordered, max 4)
 
 Column heading * → `title`; Items (tags) → `items[]`, "Shown in this order. Four to six per
-column." At most 4 groups, enforced on the server too.
+column." At most 4 groups, enforced on the server too. Four to six items is a hard limit
+(owner, §14), client and server: the tag box takes no seventh ("6 at most: remove one to add
+another") and shows "`n` / 6".
 
 ### 8.8 Quotes → `quote` (ordered)
 
@@ -460,7 +469,9 @@ every route handler (the server repeats every client rule).
 | Highlighted word not in the headline | "“{word}” does not appear in the headline." |
 | Duplicate article slug | "Another article already uses this slug." |
 | End year missing on a past role | "Add an end year or mark this as the current role." |
-| More than 4 skill groups | server: 409; client: New group disabled |
+| More than 4 skill groups | server: 409 (`{ full: true }`) on create and restore; client: New group disabled, no Duplicate; toast "The skills grid holds 4 columns. Delete one to add another." |
+| Fewer than 4 or more than 6 items in a skill group | "Add 4 to 6 items: there are `n`." |
+| An article with a body and an External URL | "An article has a body or an External URL, not both. Clear one." (on External URL) |
 | Publishing an article with nothing to show | "Add a body before publishing" (quick toggle); on Save, the same rule on the Status field **[ASSUMED]** |
 
 ## 12. Auth and accessibility

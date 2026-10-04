@@ -15,6 +15,7 @@ import {
   socialUrls,
 } from './forms';
 import type { Draft, FieldErrors } from './schema';
+import { type CollectionSection, type CollectionSlug, SECTIONS } from './sections';
 
 /*
  * Loading a form and saving it, on the server (ADMIN-DESIGN-SPEC §9). Pages load through
@@ -63,6 +64,17 @@ async function assertSlugFree(slug: EntrySlug, draft: Draft, exceptId: string | 
   if ((await takenSlugs(exceptId)).includes(String(draft.slug).trim())) {
     throw new Rejected({ slug: 'Another article already uses this slug.' });
   }
+}
+
+/** The list is full (four skill groups, §7.1): creating or restoring one more is a 409. */
+export class Full extends Error {}
+
+/** Whether a capped list already holds its maximum of live entries. */
+export async function isFull(slug: CollectionSlug): Promise<boolean> {
+  const section: CollectionSection = SECTIONS[slug];
+  if (section.max === undefined || slug === 'writing') return false;
+  const r = await getAdminRepositories();
+  return (await (r[slug] as AdminCollection<never>).list()).length >= section.max;
 }
 
 /**
@@ -120,6 +132,7 @@ export async function loadEntry(slug: EntrySlug, id: string): Promise<LoadedForm
 
 export async function createEntry(slug: EntrySlug, draft: Draft) {
   await assertSlugFree(slug, draft, null);
+  if (await isFull(slug)) throw new Full();
   const r = await getAdminRepositories();
   const created = await entries(r, slug).create(entryValues(slug, draft));
   markSiteStale();

@@ -34,7 +34,8 @@ export function SidePanel({
   updatedAt: string | null;
   isNew: boolean;
   fields: ReactNode[];
-  onDuplicate: () => void;
+  /** Absent when the list is full: a copy would be one too many (§7.1). */
+  onDuplicate?: () => void;
   onDelete: () => void;
 }) {
   const entry = section.kind === 'collection' && !isNew;
@@ -61,13 +62,15 @@ export function SidePanel({
         </a>
         {entry && (
           <>
-            <button
-              type="button"
-              onClick={onDuplicate}
-              className="flex h-10 cursor-pointer items-center self-start px-1 text-left hover:text-accent"
-            >
-              Duplicate
-            </button>
+            {onDuplicate && (
+              <button
+                type="button"
+                onClick={onDuplicate}
+                className="flex h-10 cursor-pointer items-center self-start px-1 text-left hover:text-accent"
+              >
+                Duplicate
+              </button>
+            )}
             <button
               type="button"
               onClick={onDelete}

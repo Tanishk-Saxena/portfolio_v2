@@ -75,6 +75,12 @@ function fieldError(field: FieldDef, value: DraftValue): string | undefined {
   if (field.max && typeof value === 'string' && value.length > field.max) {
     return `Too long: ${value.length} of ${field.max} characters.`;
   }
+  if (field.type === 'tags' && Array.isArray(value)) {
+    const [min, max] = [field.minItems ?? 0, field.maxItems ?? Infinity];
+    if (value.length < min || value.length > max) {
+      return `Add ${min} to ${max} items: there ${value.length === 1 ? 'is' : 'are'} ${value.length}.`;
+    }
+  }
   if (!text && field.type !== 'image') return undefined;
   switch (field.type) {
     case 'url':
@@ -104,6 +110,16 @@ function fieldError(field: FieldDef, value: DraftValue): string | undefined {
   }
   return undefined;
 }
+
+/**
+ * Fields whose rule also reads another field: editing the key can change the error on the
+ * listed ones, so the editor rechecks them at once (§11, early validation).
+ */
+export const RECHECKS: Partial<Record<FormSlug, Record<string, string[]>>> = {
+  hero: { headline: ['headlineHighlight'] },
+  experience: { startYear: ['endYear'], current: ['endYear'] },
+  writing: { body: ['externalUrl', 'status'], externalUrl: ['status'] },
+};
 
 /** Every rule from §11, keyed by field. Empty when the draft can be saved. */
 export function validate(
@@ -141,9 +157,13 @@ export function validate(
       }
     }
     // §11: publishing needs something to show (a body, or an external URL, Q-A12).
-    const nothingToShow = !String(draft.body).trim() && !String(draft.externalUrl).trim();
-    if (draft.status === 'published' && nothingToShow) {
+    const [body, external] = [String(draft.body).trim(), String(draft.externalUrl).trim()];
+    if (draft.status === 'published' && !body && !external) {
       errors.status = 'Add a body before publishing';
+    }
+    // One or the other, never both (owner, §14): the site could only show one.
+    if (body && external && !errors.externalUrl) {
+      errors.externalUrl = 'An article has a body or an External URL, not both. Clear one.';
     }
   }
   return errors;

@@ -50,7 +50,9 @@ export function Field({
 
   let aside = '';
   if (field.max && typeof value === 'string') aside = `${value.length} / ${field.max}`;
-  if (field.type === 'tags' && Array.isArray(value) && value.length) aside = String(value.length);
+  if (field.type === 'tags' && Array.isArray(value) && (value.length || field.maxItems)) {
+    aside = field.maxItems ? `${value.length} / ${field.maxItems}` : String(value.length);
+  }
   if (field.type === 'markdown' && typeof value === 'string') {
     aside = `${countWords(value)} words · ${estimateReadMinutes(value)} min`;
   }
@@ -146,6 +148,7 @@ export function Field({
         <TagsInput
           {...control}
           tags={Array.isArray(value) ? value : []}
+          max={field.maxItems}
           placeholder={field.placeholder}
           onChange={onChange}
         />

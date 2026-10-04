@@ -1,5 +1,5 @@
 import { getAdmin } from '@/lib/auth/server';
-import { Conflict, Rejected } from './save';
+import { Conflict, Full, Rejected } from './save';
 import { type Draft, type FormSlug, isFormSlug, parseDraft, validate } from './schema';
 
 /**
@@ -7,7 +7,8 @@ import { type Draft, type FormSlug, isFormSlug, parseDraft, validate } from './s
  * and validate the draft with the shared schema → write → respond. The write marks the site
  * stale itself (`save.ts`). Responses:
  *   401 not the admin · 404 no such form or entry · 400 not a draft · 422 `{ errors }`
- *   409 the record changed since the editor opened it (the body's `updatedAt`)
+ *   409 the record changed since the editor opened it (the body's `updatedAt`), or
+ *       `{ full: true }`: the list already holds its maximum (four skill groups)
  *   200 `{ id?, updatedAt }` · 500 the write failed (the editor keeps the draft)
  */
 export async function handleSave(
@@ -45,6 +46,7 @@ export async function handleSave(
     if (error instanceof Conflict) {
       return Response.json({ error: 'Changed elsewhere' }, { status: 409 });
     }
+    if (error instanceof Full) return Response.json({ error: 'Full', full: true }, { status: 409 });
     console.error(error);
     return Response.json({ error: 'The write failed' }, { status: 500 });
   }

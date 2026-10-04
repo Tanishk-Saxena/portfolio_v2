@@ -38,6 +38,9 @@ export interface FieldDef {
   off?: string;
   /** Pills for `select`. */
   options?: { value: string; label: string }[];
+  /** `tags`: how many the list holds, a hard limit (owner, ADMIN-DESIGN-SPEC §14). */
+  minItems?: number;
+  maxItems?: number;
   /** `range`: bounds, step and the unit shown beside the value. */
   min?: number;
   step?: number;
@@ -242,7 +245,7 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       type: 'url',
       side: true,
       placeholder: 'https://',
-      hint: 'Where the article lives if it has no body here, like Medium.',
+      hint: 'Instead of a body: where the article lives, like Medium. One or the other.',
     },
   ],
   skills: [
@@ -251,6 +254,8 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       key: 'items',
       label: 'Items',
       type: 'tags',
+      minItems: 4,
+      maxItems: 6,
       placeholder: 'Add and press Enter',
       hint: 'Shown in this order. Four to six per column.',
     },

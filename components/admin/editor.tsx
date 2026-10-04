@@ -20,15 +20,18 @@ export function Editor({
   entryId,
   initial,
   takenSlugs,
+  full = false,
 }: {
   slug: FormSlug;
   section: Section;
   entryId: string | null;
   initial: LoadedForm;
   takenSlugs?: string[];
+  /** The list holds its maximum: no Duplicate (§7.1). */
+  full?: boolean;
 }) {
   const editor = useEditor({ slug, section, entryId, initial, takenSlugs });
-  const { draft, errors, errorCount } = editor;
+  const { draft, errors, summaryCount } = editor;
 
   const title =
     section.kind === 'collection'
@@ -51,11 +54,11 @@ export function Editor({
       <div className="flex max-w-admin-editor flex-wrap items-start gap-admin-gap px-admin-x pt-admin-editor-top pb-30">
         <div className="flex max-w-admin-main min-w-0 flex-[1_1_440px] flex-col gap-6.5">
           <h1 className="font-serif text-admin-editor-title text-pretty">{title}</h1>
-          {errorCount > 0 && (
+          {summaryCount > 0 && (
             <div role="alert" className="rounded-row bg-wash-error px-3.5 py-3 text-meta">
-              {errorCount === 1
+              {summaryCount === 1
                 ? 'One field needs attention before this can be saved.'
-                : `${errorCount} fields need attention before this can be saved.`}
+                : `${summaryCount} fields need attention before this can be saved.`}
             </div>
           )}
           {shown.filter((f) => !f.side).map(field)}
@@ -65,7 +68,7 @@ export function Editor({
           updatedAt={editor.updatedAt}
           isNew={editor.isNew}
           fields={shown.filter((f) => f.side).map(field)}
-          onDuplicate={editor.duplicate}
+          onDuplicate={full ? undefined : editor.duplicate}
           onDelete={() => editor.remove(title)}
         />
       </div>
