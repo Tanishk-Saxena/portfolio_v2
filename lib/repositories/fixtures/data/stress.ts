@@ -107,16 +107,17 @@ export const stressDataset: FixtureDataset = {
     },
   ],
   skillGroups: [
-    ...defaultDataset.skillGroups,
+    // The admin's limits hold here too: four groups, four to six items each.
+    ...defaultDataset.skillGroups.slice(0, 3),
     {
       id: 'many',
-      title: 'A group with a long title and many items',
+      title: 'A group with a long title and as many items as one holds',
       items: [
         'Item one',
         'A considerably longer skill name that wraps',
-        ...Array.from({ length: 10 }, (_, i) => `Item ${i + 3}`),
+        ...Array.from({ length: 4 }, (_, i) => `Item ${i + 3}`),
       ],
-      sortOrder: 5,
+      sortOrder: 4,
     },
   ],
   quotes: [

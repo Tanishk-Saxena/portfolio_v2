@@ -675,13 +675,17 @@ numbers are stable: refer to them in PRs.
   At four, the editor has no Duplicate and `/admin/skills/new` returns to the list.
 - B2: `minItems` / `maxItems` on the schema's tags field (4 and 6 for skill items), checked by
   the shared `validate()`, so client and server agree: "Add 4 to 6 items: there are `n`." The
-  tag box takes no seventh and shows "`n` / 6". A stored group outside the range (dev data,
-  the stress fixtures) still opens and must be brought into range to save.
+  tag box takes no seventh and shows "`n` / 6". A stored group outside the range would still
+  open and must be brought into range to save (none exists: see "Cleared to fit").
 - B3: `validate()` puts "An article has a body or an External URL, not both. Clear one." on
   External URL. Migration `20261004000000_article_body_or_external.sql` adds the check; for a
   row holding both it first clears the External URL, which the site never used (the body
-  wins on `/articles/[slug]`). **To push**: dev, then prod before the PR merges
-  (`docs/SUPABASE.md`, Day to day); the owner's OK first, as it edits rows.
+  wins on `/articles/[slug]`). Pushed to **dev** (2026-10-04, the owner's OK); **prod** before
+  the PR merges (`docs/SUPABASE.md`, Day to day).
+- Cleared to fit (owner, 2026-10-04: clear every entry outside the new limits). Dev and prod
+  held no live entry outside them (four groups of 4–5 items, no article with both). Removed:
+  dev's soft-deleted fifth group "Languages (copy)" (the B1 bug's leftover), and the stress
+  fixtures' fifth group and 12-item group (now four groups, the long one with six items).
 - B4: a field shows its error once edited, in every section; a filled field whose rule reads
   the edited one shows too (`RECHECKS` in `lib/admin/schema.ts`). Untouched fields wait for
   Save, as does the summary above the fields. Before this, nothing showed until a failed
