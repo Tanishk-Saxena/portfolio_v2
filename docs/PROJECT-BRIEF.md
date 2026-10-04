@@ -391,12 +391,23 @@ scores as it lands and nothing has to be measured twice.
     `/uses`, draft preview on the site.
   Watch each PR's Lighthouse reading.
 
-**Phase 10 — Final audit (the last step)**
-Measure the whole site's overall performance and accessibility scores (Lighthouse
-performance / accessibility / best practices / SEO) on the deployed public pages and the
-admin portal, fix what falls short (including P-1, `docs/PERFORMANCE.md`), and record the
-scores in the ledger.
-*Verify:* the scores meet §3 on the live site.
+**Phase 10 — Final audit (the last step; revised by the owner, 2026-10-04)**
+A one-time job that closes the implementation, not a gate to rerun: testing and everyday use
+will keep bringing fixes and requests, and none of them reopens it.
+- 10.1 *The standing audit.* One GitHub Actions workflow, started by hand (`workflow_dispatch`)
+  and on a weekly schedule, that runs Lighthouse (performance / accessibility / best practices
+  / SEO; mobile and desktop) against the **deployed prod public pages** and against the
+  **admin on dev, signed in as the dev test admin** (prod has no test account, Phase 9
+  roadmap item 1). Scores go to the run's Summary; a score under budget is a warning, never
+  a failure. It sees what the PR reading can't: real hosting, real content, changes made in
+  the admin with no PR, and the signed-in admin screens.
+- 10.2 *The one-time fixes.* Fix what the first run shows under target, P-1 (phone LCP,
+  `docs/PERFORMANCE.md`) first, and record the scores in the ledger.
+*Verify:* the scores meet §3 on the live site, once; Phase 10 then closes. From then on a fix
+or a request is an ordinary PR, read by CI's per-PR Lighthouse and axe steps (Phase 9.1,
+9.4); the standing audit and Vercel Speed Insights watch the live site.
+Order: after Phase 9.5's enhancements and before the owner's end-to-end test round, so that
+round runs on the tuned site.
 
 ---
 
