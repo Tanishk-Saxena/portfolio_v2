@@ -60,7 +60,6 @@ export interface ProjectRow {
   title: string;
   kind: ProjectKind;
   year: number;
-  summary: string;
   description: string;
   tags: string[];
   image: Image | null;
@@ -145,7 +144,6 @@ export const toProject = (r: ProjectRow): Project => ({
   title: r.title,
   kind: r.kind,
   year: r.year,
-  summary: r.summary,
   description: r.description,
   tags: r.tags,
   image: r.image,
@@ -231,7 +229,6 @@ export const fromProject = (p: Project): ProjectRow => ({
   title: p.title,
   kind: p.kind,
   year: p.year,
-  summary: p.summary,
   description: p.description,
   tags: p.tags,
   image: p.image,

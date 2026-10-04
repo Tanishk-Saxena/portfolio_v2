@@ -52,7 +52,9 @@ export function ProjectCard({
               style={{ objectPosition: image.focalPoint }}
             />
           ) : (
-            <span className="text-micro tracking-label text-muted uppercase">Project image</span>
+            <span className="text-micro tracking-label text-muted uppercase">
+              No preview to show
+            </span>
           )}
         </div>
 
