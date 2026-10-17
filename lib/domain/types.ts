@@ -160,6 +160,7 @@ export const DEFAULT_SETTINGS: Settings = {
   menuLayout: 'arc',
   pressFeedback: 'ripple',
   scriptFont: 'allura',
+  signatureIntro: true,
   mediaAutoRotate: false,
   siteTitle: 'Tanishk Saxena — Software Engineer',
   siteDescription:
@@ -181,6 +182,8 @@ export interface Settings {
   menuLayout: MenuLayout;
   pressFeedback: PressFeedback;
   scriptFont: ScriptFont;
+  /** The home page opens with the signature written large, then flown into the navbar. */
+  signatureIntro: boolean;
   /** A project's modal media moves on by itself (5s an image; a video when it ends). */
   mediaAutoRotate: boolean;
   /** The home page's tab title, and its title when shared or found in a search. */

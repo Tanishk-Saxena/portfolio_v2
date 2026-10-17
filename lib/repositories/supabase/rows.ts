@@ -48,6 +48,7 @@ export interface SettingsRow {
   press_feedback: PressFeedback;
   media_auto_rotate: boolean;
   script_font: Settings['scriptFont'];
+  signature_intro: boolean;
   site_title: string;
   github_username: string;
   site_description: string;
@@ -139,6 +140,7 @@ export const toSettings = (r: SettingsRow): Settings => ({
   pressFeedback: r.press_feedback,
   mediaAutoRotate: r.media_auto_rotate,
   scriptFont: r.script_font ?? 'allura',
+  signatureIntro: r.signature_intro ?? true,
   siteTitle: r.site_title,
   githubUsername: r.github_username ?? '',
   siteDescription: r.site_description,
@@ -231,6 +233,7 @@ export const fromSettings = (s: Settings): SettingsRow => ({
   press_feedback: s.pressFeedback,
   media_auto_rotate: s.mediaAutoRotate,
   script_font: s.scriptFont,
+  signature_intro: s.signatureIntro,
   site_title: s.siteTitle,
   github_username: s.githubUsername,
   site_description: s.siteDescription,

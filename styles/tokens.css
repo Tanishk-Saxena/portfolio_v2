@@ -104,13 +104,19 @@
  * then the underline draws. While writing, the name's box grows by its swashes (padding,
  * cancelled by margins) so the mask never cuts them. Reduced motion: never set.
  */
-html[data-sign='write'] [data-signature-name] {
+html[data-sign='write'] [data-signature-name],
+html[data-intro='write'] [data-signature-name] {
   margin: -0.25em -0.4em -0.25em -0.3em;
   padding: 0.25em 0.4em 0.25em 0.3em;
   mask: linear-gradient(100deg, #000 45%, transparent 55%) 0 0 / 250% 100% no-repeat;
   animation: sign-write 1.3s cubic-bezier(0.45, 0.05, 0.35, 1) 0.2s both;
 }
-html[data-sign='write'] [data-signature-line] {
+html[data-intro='wait'] [data-signature-name],
+html[data-intro='wait'] [data-signature-line] {
+  opacity: 0;
+}
+html[data-sign='write'] [data-signature-line],
+html[data-intro='write'] [data-signature-line] {
   animation: sign-line 0.5s cubic-bezier(0.3, 0, 0.2, 1) 1.35s both;
 }
 @keyframes sign-write {
@@ -128,6 +134,46 @@ html[data-sign='write'] [data-signature-line] {
   to {
     clip-path: inset(-8px -4px -8px 0);
   }
+}
+
+/*
+ * The signature intro (spec §10 "Signature intro"; lib/signature.ts sets the states). A paper
+ * overlay covers the page and everything fixed on it (the floating nav included); the header
+ * rises above it with its own glass and rule cleared and the theme toggle hidden, leaving
+ * the navbar mark, which is moved to the middle of the screen, enlarged, and written. Then
+ * it flies home on the mockup's flip curve while the overlay fades, and lands exactly where
+ * it lives, because it is the same element. The page's own entrance waits for it (--enter).
+ */
+html[data-intro] body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  background: var(--paper);
+  pointer-events: none;
+}
+html[data-intro='fly'] body::after {
+  opacity: 0;
+  transition: opacity 0.75s ease 0.3s;
+}
+html[data-intro] .site-header {
+  z-index: 71;
+  background-color: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+}
+html[data-intro] .site-header button {
+  opacity: 0;
+}
+html[data-intro='fly'] .site-header button {
+  opacity: 1;
+  transition: opacity 0.5s ease 0.5s;
+}
+html[data-intro='write'] [data-signature-mark] {
+  transform: translate(var(--intro-x), var(--intro-y)) scale(var(--intro-k));
+}
+html[data-intro='fly'] [data-signature-mark] {
+  transition: transform 0.95s var(--ease-flip);
 }
 
 /* About + Contact accent bands re-point the tokens for their contents (spec §1.2).

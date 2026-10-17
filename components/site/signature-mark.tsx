@@ -5,7 +5,7 @@ export const SIGNATURE_PATH = 'M4,7 C70,2 214,1 292,6 C298,6.5 299,9 290,10';
 
 export function SignatureMark({ name }: { name: string }) {
   return (
-    <span className="flex flex-col items-stretch leading-none">
+    <span data-signature-mark className="flex flex-col items-stretch leading-none">
       <span
         data-signature-name
         className="block font-script text-signature font-(--script-weight) whitespace-nowrap text-ink"
