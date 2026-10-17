@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done; the daily storage job (item 32's revision, PR #44; **prod needs its migration and two Vault secrets**) done · **the owner has picked** for items 25 and 28a (9.5 notes, "The owner's picks") · 25 (skills as rows of chips) done, PR #45 · **next: build 28a and 29c** (paused by the owner on 2026-10-04 as 25 began; see "Where to pick up" under "What's left of Phase 9" below); each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done; the daily storage job (item 32's revision, PR #44; **prod needs its migration and two Vault secrets**) done · **the owner has picked** for items 25 and 28a (9.5 notes, "The owner's picks") · 25 (skills as rows of chips) done, PR #45; 28a (the script face as a setting, Allura or Caveat; the signature writes itself) done, PR #46 · **next: build 29c** (paused by the owner on 2026-10-04 as 25 began; see "Where to pick up" under "What's left of Phase 9" below); each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32, 25 (open PRs #40–#45, not merged yet) | 28a + 29c last (picked, not built) |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32, 25, 28a (open PRs #40–#46, not merged yet) | 29c, last |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -622,11 +622,14 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 - 26. **External URL on articles: kept**, as either/or with a body (item 6). No pulling in
       articles from elsewhere. Decided, nothing to build.
 - 27. **Name and Location on Hero, Footer note on Contact: kept** (Q-A8). Decided.
-- [ ] 28a. **Handwriting out.** The Caveat hero word and signature aren't coming out well
+- [x] 28a. **Handwriting out.** The Caveat hero word and signature aren't coming out well
       and aren't worth more iterations. Refine the fonts instead: the hero word moves to a
       non-handwritten treatment (Claude proposes options), and the signature becomes a proper
       signature font with a stroke-by-stroke animation, as if written by hand. Goes with
-      29c. **Last in Phase 9** (owner: it will take time), together with 29c.
+      29c. **Last in Phase 9** (owner: it will take time), together with 29c. **As picked
+      and built:** the hero word keeps its accent block; a Settings choice of script face,
+      Allura (default) or Caveat, for it and the signature; the signature writes itself left
+      to right on each full page load.
 - 28b. **Experience stays rows** (no card/modal treatment). Decided.
 - 28c. **The quote section stays** (with item 18's calmer rotation). Decided.
 - 29a. Medium RSS blog: **skipped** (the Writing section and External URL cover it).
@@ -658,30 +661,29 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
 Groups A–G (items 1–24) are built and merged. What is left to **build** is group H (9.5),
-the enhancements below, in this order (done so far: 30, 31, 32, 29e, 25):
+the enhancements below, in this order (done so far: 30, 31, 32, 29e, 25, 28a):
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
-| 28a | **Signature and hero-word font** | **Picked:** the hero word stays as it is today (the accent block). A **Settings choice between Allura and Caveat**, applied to both the signature and the hero word, kept for some time. The signature is written left to right (a soft, slanted reveal, then the underline), never showing later letters early | no (picked 2026-10-04); the default font is Claude's call: Allura planned, the owner's favourite |
-| 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
+| 29c | **Signature intro** | With the new signature (the Settings face) and its left-to-right writing; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last** | no |
 
 **Where to pick up (paused by the owner, 2026-10-04).**
 - **Open PRs, a stack, none merged:** #40 (30) → #41 (31) → #42 (32) → #43 (29e) → #44 (32's
   daily job). Each is based on the one before. CI has not been checked on any of them.
-- **Built since (2026-10-17):** 25, PR #45 (`feat/phase-9-skills-layout`, stacked on #44).
-- **Next to build:** 28a, then 29c, each its own PR on top of the stack.
-- **Plan for 28a and 29c (Claude's, not yet reviewed by the owner):** a `scriptFont` setting
-  (`allura` | `caveat`) set as `data-script` on `<html>`, with the per-font size, weight and
-  padding of the hero word and signature in `styles/tokens.css` (Allura has one weight, so
-  the `font-semibold` on script text must go); a `signatureIntro` setting (on by default).
+- **Built since (2026-10-17):** 25, PR #45 (`feat/phase-9-skills-layout`, stacked on #44);
+  28a, PR #46 (`feat/phase-9-script-font`, stacked on #45; its migration
+  `20261012000000_settings_script_font.sql` is on dev, not prod).
+- **Next to build:** 29c, its own PR on top of the stack.
+- **Plan for 29c (Claude's, not yet reviewed by the owner):** a `signatureIntro` setting (on
+  by default).
   The intro animates **the navbar mark itself**, enlarged and centred over a paper overlay,
   written with the reveal, then flown back to its own place with a FLIP transform, so
   there is no second element to hand off to and no glyph data to ship (the two problems
   that shelved it). A small inline script drives it, so it does not wait for hydration;
   skipped under reduced motion, on arrival from an article, and on any input.
-- **The owner's steps before the merges** (wait until 28a/29c are built: they add one more
-  migration): push the migrations to prod (`20261009…`, `20261010…`, `20261011…` and the
-  one to come); add the two Vault secrets in prod (`docs/SUPABASE.md`); create a read-only
+- **The owner's steps before the merges** (wait until 29c is built: it adds one more
+  migration): push the migrations to prod (`20261009…`, `20261010…`, `20261011…`,
+  `20261012…` and the one to come); add the two Vault secrets in prod (`docs/SUPABASE.md`); create a read-only
   `GITHUB_TOKEN` for `.env.local` and Vercel.
 - **Then** (owner, 2026-10-04): a docs and memory pass before each merge; Claude merges the
   PRs one by one, in order; the ledger and the owner's test list are brought up to date;
@@ -746,6 +748,11 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
       the older ones) and on
       a wide screen (the year), in both accents and both modes. Click or press Enter on
       it: your GitHub profile opens. Clear the username: it goes.
+- [ ] **Script face** (item 28a): Settings → Script face, Allura then Caveat; check the navbar
+      signature and the hero's highlighted word (still on its accent block) in both, on a
+      phone and a wide screen, light and dark. Reload: the signature writes itself left to
+      right, then the underline draws; nothing to the right of the pen shows early. With
+      reduced motion on, it is simply there.
 - [ ] **Skills layout** (item 25): on a wide screen, each group is a ruled row with its label
       on the left and its items as chips; on a phone, the label sits above its chips with no
       rules. Try a group with six long items (the admin allows six) on both.

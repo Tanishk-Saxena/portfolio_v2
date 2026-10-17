@@ -31,7 +31,7 @@ export const COLUMNS = {
   profile:
     'name, eyebrow, headline, headline_highlight, standfirst, cta_label, about_lead, about_paragraphs, portrait, resume_url, email, contact_statement, location, footer_note',
   settings:
-    'accent, grain, nav_position, menu_layout, press_feedback, media_auto_rotate, site_title, site_description, github_username',
+    'accent, grain, nav_position, menu_layout, press_feedback, media_auto_rotate, site_title, site_description, github_username, script_font',
   experience: 'id, role, org, start_date, end_date, summary, sort_order',
   project:
     'id, title, kind, year, description, tags, image, media, repo_url, live_url, published, sort_order',

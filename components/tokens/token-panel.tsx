@@ -31,7 +31,7 @@ const TYPE = [
   ['small', 'text-small tracking-years text-accent tabular-nums', '2024 — now'],
   ['label', 'text-label tracking-eyebrow uppercase text-muted', 'Eyebrow label'],
   ['micro', 'text-micro tracking-label uppercase text-muted', 'No preview to show'],
-  ['signature', 'font-script font-semibold text-signature', 'Tanishk Saxena'],
+  ['signature', 'font-script font-(--script-weight) text-signature', 'Tanishk Saxena'],
 ] as const;
 
 const RADII = ['rounded-xs', 'rounded-sm', 'rounded-row', 'rounded-card', 'rounded-modal'] as const;
