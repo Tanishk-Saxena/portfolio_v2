@@ -112,8 +112,10 @@ account.
   day at 21:30 UTC (job `clean-media`). It removes, through the Storage API (pg_net), every
   upload in `media` that is a day old or more and that no record points at; a deleted
   project's files count as pointed at for ten minutes. It needs two **Vault secrets**, set
-  once per project in the SQL Editor (dev has them; **prod needs them**, and until then the
-  job does nothing):
+  once per project in the SQL Editor (dev has them since 2026-10-04; the job is scheduled in
+  prod since 2026-10-18 but **prod's secrets are still to add**, and until then it does
+  nothing). They hold the project's own URL and **secret key**, which is why they are set by
+  hand and never in a migration:
 
   ```sql
   select vault.create_secret('https://<project-ref>.supabase.co', 'project_url');

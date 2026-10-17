@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done; the daily storage job (item 32's revision, PR #44; **prod needs its migration and two Vault secrets**) done · **the owner has picked** for items 25 and 28a (9.5 notes, "The owner's picks") · 25 (skills as rows of chips) done, PR #45; 28a (the script face as a setting, Allura or Caveat; the signature writes itself) done, PR #46; 29c (the signature intro, with a Settings switch) done, PR #47 · **all of Phase 9 is built** · next: the owner's prod steps, then the merges, one by one (see "Where to pick up" under "What's left of Phase 9" below) (paused by the owner on 2026-10-04 as 25 began; see "Where to pick up" under "What's left of Phase 9" below); each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · 9.5 (re-evaluation outcomes and chosen features: items 25, 28a, 29c, 29e, 30, 31, 32) done, merged as one PR, #48 (the reviewed PRs #40–#47 folded into it) · **Phase 9 is complete**; its five migrations are on prod (2026-10-18) · two owner steps remain open, neither blocking: prod's Vault secrets for the storage cleanup job, and a `GITHUB_TOKEN` for the heat map (see "Where to pick up" under "What's left of Phase 9" below) · **next: Phase 10**, the final audit (a standing Lighthouse audit, then the one-time fixes, P-1 first). **The owner's test list** (below) is the running list of what to verify by hand, kept apart from the remaining work
 
 ---
 
@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e), `feat/phase-9-storage-job` (32, the daily job), `feat/phase-9-skills-layout` (25), `feat/phase-9-script-font` (28a), `feat/phase-9-signature-intro` (29c) | The re-evaluation outcomes and the features the owner chose | H (25–32) | built: all in PRs #40–#47, merging |
+| 9.5 | `feat/phase-9-5` (PR #48), folding in the reviewed `feat/phase-9-experience-markdown` (30, #40), `feat/phase-9-contact-links` (31, #41), `feat/phase-9-storage-cleanup` (32, #42), `feat/phase-9-heat-map` (29e, #43), `feat/phase-9-storage-job` (32, the daily job, #44), `feat/phase-9-skills-layout` (25, #45), `feat/phase-9-script-font` (28a, #46), `feat/phase-9-signature-intro` (29c, #47) (owner, 2026-10-18: one PR into `main`) | The re-evaluation outcomes and the features the owner chose | H (25–32) | ✅ |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 25, 28a, 29c, 29e, 30, 31, 32 (open PRs #40–#47, not merged yet) | — |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 25, 28a, 29c, 29e, 30, 31, 32 (PR #48) | — |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -659,28 +659,27 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 
 **Not in Phase 9:** P-1 (LCP) and the full Lighthouse audit, Phase 10.
 
-### What's left of Phase 9 (as of 2026-10-17): start the next session here
+### What's left of Phase 9 (as of 2026-10-18): nothing to build
 
-Every Phase 9 item is **built** (groups A–G merged; group H, 9.5, in open PRs). Nothing is
-left to build. What remains is merging, then Phase 10.
+Every Phase 9 item is built and merged (groups A–G one PR each; group H, 9.5, as PR #48, into
+which the reviewed PRs #40–#47 were folded in order, owner, 2026-10-18). Item 33, the
+owner's prod phone test, sits on the owner's test list.
 
 **Where to pick up.**
-- **Open PRs, a stack, none merged:** #40 (30) → #41 (31) → #42 (32) → #43 (29e) → #44 (32's
-  daily job) → #45 (25) → #46 (28a) → #47 (29c). Each is based on the one before. CI was
-  green on #40–#44 when last checked (2026-10-17).
-- **The owner's steps before the merges:**
-  1. Push the migrations to prod (`npx supabase db push --db-url "$SUPABASE_PROD_DB_URL"
-     --dry-run`, then without `--dry-run`): `20261009…` (storage policy), `20261010…`
-     (GitHub username), `20261011…` (cleanup job), `20261012…` (script face),
-     `20261013…` (signature intro). All additive; dev has them all.
-  2. Add the two Vault secrets in prod's SQL Editor (`docs/SUPABASE.md`, "The storage
-     cleanup job").
-  3. Create a read-only `GITHUB_TOKEN` for `.env.local` and Vercel (Production, Preview).
-- **Then** (owner, 2026-10-04): a docs and memory pass before each merge; Claude merges the
-  PRs one by one, in order; the ledger and the owner's test list are brought up to date;
-  Phase 10 starts.
+- **Done by Claude (2026-10-18):** the five 9.5 migrations pushed to prod (`20261009…` storage
+  policy, `20261010…` GitHub username, `20261011…` cleanup job, `20261012…` script face,
+  `20261013…` signature intro); the live site's reads checked afterwards; prod's `clean-media`
+  job is scheduled.
+- **The owner's two open steps** (neither blocks anything; each feature stays quietly off
+  until done):
+  1. Prod's two Vault secrets, in prod's SQL Editor (`docs/SUPABASE.md`, "The storage
+     cleanup job"): until then the daily cleanup asks for nothing. Dev has them since
+     2026-10-04.
+  2. A read-only GitHub token as `GITHUB_TOKEN` in Vercel (Production, Preview) and
+     `.env.local`, then the username in Settings: until then the heat map is not shown.
+- **Next: Phase 10**, below.
 
-After these: **Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
+**Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
 words, the one-time fixes the first audit highlights, and setting up the audit pipeline. It
 closes the implementation and is never rerun as a gate.
 - 10.1: a **standing audit** workflow, run by hand or weekly: Lighthouse on prod's public
@@ -783,8 +782,8 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   repositories. `saveSingle` (Hero, About), `updateEntry` (projects) and a project delete
   call `releaseFiles` after the write. Migration `20261009000000_admin_reads_media.sql`
   (additive: a select policy on storage objects for the admin; a delete reaches only rows
-  the role can select, so removes were silently deleting nothing). **Pushed to dev;
-  prod is the owner's call before this PR merges** (`docs/SUPABASE.md`). Tests: unit 50
+  the role can select, so removes were silently deleting nothing). Pushed to dev at
+  the time; on prod since 2026-10-18 (with the other 9.5 migrations). Tests: unit 50
   (+2, `lib/admin/storage.test.ts`; the migration test also proves the admin's delete
   lands and a stranger's does not), live 10 (+1: a planted file removed by the signed-in
   admin). Dev's bucket still holds files orphaned before this (five images, two PDFs
@@ -798,8 +797,9 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   `public.clean_media()` (asks the Storage API to delete each, via pg_net and two Vault
   secrets) and the pg_cron job `clean-media` at 21:30 UTC. Server role only. **On dev:**
   migration pushed, secrets set, one run made by hand: it removed the two orphans older
-  than a day (a PDF and an image from 2026-10-03), both answered 200. **Prod: push the
-  migration and add the two Vault secrets** (`docs/SUPABASE.md`). Tests: unit 53 (+1: the
+  than a day (a PDF and an image from 2026-10-03), both answered 200. On prod: the
+  migration since 2026-10-18 (the job is scheduled); the two Vault secrets are the owner's
+  to add (`docs/SUPABASE.md`). Tests: unit 53 (+1: the
   job's selection in PGlite, and that a signed-in user cannot run it).
 - Item 29e: a `contributions` repository on the public `Repositories`
   (`get(username)` → a calendar or null). Fixtures return a made-up year
@@ -807,8 +807,8 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
   `lib/repositories/github/github-contributions.ts` (GraphQL, `GITHUB_TOKEN`,
   `next: { revalidate }` of a day, null on any failure). `components/sections/contributions.tsx`
   renders it inside `Skills`. Settings gains `githubUsername` (migration
-  `20261010000000_settings_github_username.sql`, additive, default empty; **pushed to dev;
-  prod before the merge**, since the site's settings read names the column). The fixtures'
+  `20261010000000_settings_github_username.sql`, additive, default empty; on dev
+  first, on prod since 2026-10-18, before the code that names the column merged). The fixtures'
   settings carry the owner's username so fixture builds show the map; `DEFAULT_SETTINGS`
   leaves it empty. Tests: unit 52 (+2, the GitHub mapping and its failure paths; the
   contract checks the calendar's shape); smoke 8 and site axe 12 green on a fixtures build
