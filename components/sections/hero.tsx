@@ -7,7 +7,10 @@ import { ScrollCue } from './scroll-cue';
 /** Stagger offsets after --enter (spec §5.3 hero entrance: .05 / .14 / .24 / .34s). */
 const offset = (s: number) => ({ '--enter-offset': `${s}s` }) as CSSProperties;
 
-/** Hero (spec §7): eyebrow, poster-scale line with one handwritten word, standfirst, CTAs. */
+/**
+ * Hero (spec §7): eyebrow, poster-scale line with one word on the accent block in the script
+ * face (Allura or Caveat, from Settings; its sizes live in styles/tokens.css), standfirst, CTAs.
+ */
 export function Hero({ profile }: { profile: Profile }) {
   const { before, word, after } = splitHighlight(profile.headline, profile.headlineHighlight);
 
@@ -34,7 +37,7 @@ export function Hero({ profile }: { profile: Profile }) {
       >
         {before}
         {word && (
-          <em className="mx-[-0.04em] inline-block rounded-sm bg-accent-fill pt-[.04em] pr-[.16em] pb-[.1em] pl-[.14em] align-[-.03em] font-script text-[1.1em] leading-[.84] font-semibold text-on-accent not-italic">
+          <em className="mx-[-0.04em] inline-block rounded-sm bg-accent-fill p-(--script-word-pad) align-(--script-word-shift) font-script text-(length:--script-word-size) leading-(--script-word-leading) font-(--script-weight) text-on-accent not-italic">
             {word}
           </em>
         )}

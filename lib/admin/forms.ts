@@ -129,6 +129,7 @@ export const settingsDraft = (s: Settings): Draft => ({
   navPosition: s.navPosition,
   menuLayout: s.menuLayout,
   pressFeedback: s.pressFeedback,
+  scriptFont: s.scriptFont,
   mediaAutoRotate: s.mediaAutoRotate,
 });
 
@@ -141,6 +142,7 @@ export const settingsValues = (d: Draft): Settings => ({
   navPosition: d.navPosition as Settings['navPosition'],
   menuLayout: d.menuLayout as Settings['menuLayout'],
   pressFeedback: d.pressFeedback as Settings['pressFeedback'],
+  scriptFont: d.scriptFont as Settings['scriptFont'],
   mediaAutoRotate: d.mediaAutoRotate === true,
 });
 

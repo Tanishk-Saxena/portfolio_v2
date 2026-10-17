@@ -76,6 +76,60 @@
   --accent-dark-mix: 32%;
 }
 
+/*
+ * Settings → Script face (spec §10 "Phase 9 picks"): the signature and the hero's highlighted
+ * word. The faces differ in weight (Allura has one) and in how big they read, so each brings
+ * its own weight and the hero word's size, leading, padding and baseline nudge.
+ */
+:root {
+  --script-face: var(--font-allura), cursive;
+  --script-weight: 400;
+  --script-word-size: 1.16em;
+  --script-word-leading: 0.8;
+  --script-word-pad: 0.08em 0.2em 0.06em 0.16em;
+  --script-word-shift: -0.02em;
+}
+[data-script='caveat'] {
+  --script-face: var(--font-caveat), cursive;
+  --script-weight: 600;
+  --script-word-size: 1.1em;
+  --script-word-leading: 0.84;
+  --script-word-pad: 0.04em 0.16em 0.1em 0.14em;
+  --script-word-shift: -0.03em;
+}
+
+/*
+ * The navbar signature writes itself on a full page load (lib/signature.ts sets data-sign):
+ * a soft, slanted edge crosses the name left to right, so nothing ahead of it shows early,
+ * then the underline draws. While writing, the name's box grows by its swashes (padding,
+ * cancelled by margins) so the mask never cuts them. Reduced motion: never set.
+ */
+html[data-sign='write'] [data-signature-name] {
+  margin: -0.25em -0.4em -0.25em -0.3em;
+  padding: 0.25em 0.4em 0.25em 0.3em;
+  mask: linear-gradient(100deg, #000 45%, transparent 55%) 0 0 / 250% 100% no-repeat;
+  animation: sign-write 1.3s cubic-bezier(0.45, 0.05, 0.35, 1) 0.2s both;
+}
+html[data-sign='write'] [data-signature-line] {
+  animation: sign-line 0.5s cubic-bezier(0.3, 0, 0.2, 1) 1.35s both;
+}
+@keyframes sign-write {
+  from {
+    mask-position: 100% 0;
+  }
+  to {
+    mask-position: 0 0;
+  }
+}
+@keyframes sign-line {
+  from {
+    clip-path: inset(-8px 100% -8px 0);
+  }
+  to {
+    clip-path: inset(-8px -4px -8px 0);
+  }
+}
+
 /* About + Contact accent bands re-point the tokens for their contents (spec §1.2).
    Token overrides stay unlayered (they're variables); the paint lives in utilities. */
 .band {

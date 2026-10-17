@@ -63,7 +63,7 @@
   /* fonts — next/font CSS variables are set on <html> in app/layout.tsx */
   --font-serif: var(--font-newsreader), Georgia, serif;
   --font-sans: var(--font-plex-sans), system-ui, sans-serif;
-  --font-script: var(--font-caveat), cursive;
+  --font-script: var(--script-face); /* Allura or Caveat, from Settings (styles/tokens.css) */
   --font-mono: var(--font-plex-mono), monospace;
 
   /* type */

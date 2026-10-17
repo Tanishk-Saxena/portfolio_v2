@@ -54,6 +54,8 @@ cost on a slow phone. **Next:** read Speed Insights field data once there are a 
 visits; if real phones are under 2.0 s, lower the priority. Levers, in order:
 
 1. Newsreader `opsz` axis costs 72 KB (128 vs 56 KB); the owner decides fidelity vs bytes.
-2. Caveat preload (50 KB) could drop (the signature intro is shelved).
+2. Script-face preloads: since Phase 9 item 28a both Allura (the default) and Caveat are
+   preloaded while Settings lets the owner switch (Caveat ≈50 KB); once the owner settles on
+   one, drop the other face entirely (`lib/fonts.ts`).
 3. The grain layer's full-viewport blend (paint cost).
 4. The hydration JS footprint (TBT 170–340 ms).

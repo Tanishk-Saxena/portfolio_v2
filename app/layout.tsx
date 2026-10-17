@@ -2,11 +2,12 @@ import type { CSSProperties } from 'react';
 import type { Metadata, Viewport } from 'next';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import { caveat, newsreader, plexSans } from '@/lib/fonts';
+import { allura, caveat, newsreader, plexSans } from '@/lib/fonts';
 import { InlineScript } from '@/components/site/inline-script';
 import { getRepositories } from '@/lib/container';
 import { OG_SIZE } from '@/lib/og/size';
 import { siteUrl } from '@/lib/site';
+import { signatureInitScript } from '@/lib/signature';
 import { themeInitScript } from '@/lib/theme';
 import './globals.css';
 
@@ -47,7 +48,8 @@ export const viewport: Viewport = {
 
 /**
  * The saved style settings (ADMIN-DESIGN-SPEC §8.9) that reach every page: the accent
- * (`data-accent`, styles/tokens.css), the press feedback (`data-press`) and the grain's opacity. Defaults are the shipped look.
+ * (`data-accent`, styles/tokens.css), the press feedback (`data-press`), the script face
+ * (`data-script`) and the grain's opacity. Defaults are the shipped look.
  */
 export default async function RootLayout({ children }: LayoutProps<'/'>) {
   const settings = await getRepositories().settings.get();
@@ -57,13 +59,15 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       data-theme="light"
       data-accent={settings.accent}
       data-press={settings.pressFeedback}
+      data-script={settings.scriptFont}
       style={{ '--grain-opacity': settings.grain / 100 } as CSSProperties}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
-      className={`${newsreader.variable} ${plexSans.variable} ${caveat.variable}`}
+      className={`${newsreader.variable} ${plexSans.variable} ${allura.variable} ${caveat.variable}`}
     >
       <head>
         <InlineScript html={themeInitScript} />
+        <InlineScript html={signatureInitScript} />
       </head>
       <body className="font-sans">
         {children}

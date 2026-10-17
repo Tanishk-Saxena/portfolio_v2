@@ -53,6 +53,7 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       expect(['right', 'centre']).toContain(s.navPosition);
       expect(['arc', 'wheel']).toContain(s.menuLayout);
       expect(['ripple', 'ring', 'press']).toContain(s.pressFeedback);
+      expect(['allura', 'caveat']).toContain(s.scriptFont);
       expect(s.siteTitle.trim()).not.toBe('');
       expect(s.siteDescription.length).toBeLessThanOrEqual(200);
       // No username, no heat map; with one, a calendar of weeks of at most seven days, or none.

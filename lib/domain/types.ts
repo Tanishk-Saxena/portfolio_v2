@@ -159,6 +159,7 @@ export const DEFAULT_SETTINGS: Settings = {
   navPosition: 'right',
   menuLayout: 'arc',
   pressFeedback: 'ripple',
+  scriptFont: 'allura',
   mediaAutoRotate: false,
   siteTitle: 'Tanishk Saxena — Software Engineer',
   siteDescription:
@@ -169,6 +170,9 @@ export const DEFAULT_SETTINGS: Settings = {
 /** What a press looks like, on the site and the admin (spec §10). */
 export type PressFeedback = 'ripple' | 'ring' | 'press';
 
+/** The script face of the signature and the hero's highlighted word (spec §10). */
+export type ScriptFont = 'allura' | 'caveat';
+
 export interface Settings {
   accent: Accent;
   /** Paper grain opacity, in percent (0–24, step 0.5). */
@@ -176,6 +180,7 @@ export interface Settings {
   navPosition: NavPosition;
   menuLayout: MenuLayout;
   pressFeedback: PressFeedback;
+  scriptFont: ScriptFont;
   /** A project's modal media moves on by itself (5s an image; a video when it ends). */
   mediaAutoRotate: boolean;
   /** The home page's tab title, and its title when shared or found in a search. */

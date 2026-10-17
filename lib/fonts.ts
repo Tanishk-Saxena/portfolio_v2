@@ -1,4 +1,4 @@
-import { Caveat, IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from 'next/font/google';
+import { Allura, Caveat, IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from 'next/font/google';
 
 // Spec §2.1 / Q20–Q21: self-hosted, subset, swap, automatic size-adjusted fallbacks.
 // Only fonts the first screen needs are preloaded; article-only faces load on that route.
@@ -27,6 +27,16 @@ export const plexSans = IBM_Plex_Sans({
   weight: ['400', '500'],
   display: 'swap',
   variable: '--font-plex-sans',
+});
+
+// The script face is a setting (spec §10 "Phase 9 picks"): Allura by default, Caveat the
+// other. Both stay declared, and preloaded, while the owner decides; the one not in use costs
+// a preload (docs/PERFORMANCE.md) and goes once the choice is settled.
+export const allura = Allura({
+  subsets: ['latin'],
+  weight: ['400'],
+  display: 'swap',
+  variable: '--font-allura',
 });
 
 export const caveat = Caveat({

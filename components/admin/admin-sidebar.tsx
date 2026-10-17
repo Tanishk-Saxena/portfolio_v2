@@ -13,7 +13,7 @@ export async function AdminSidebar({ counts }: { counts: SectionCounts }) {
     <aside className="sticky top-0 hidden h-svh w-admin-sidebar flex-none flex-col gap-6.5 overflow-y-auto border-r border-line px-3.5 pt-6.5 pb-4.5 @wide:flex">
       <div className="flex items-start justify-between gap-2 pl-2.5">
         <div className="flex min-w-0 flex-col gap-0.75">
-          <span className="font-script text-admin-mark-sm font-semibold whitespace-nowrap">
+          <span className="font-script text-admin-mark-sm font-(--script-weight) whitespace-nowrap">
             {await siteName()}
           </span>
           <span className={`text-micro ${CAPS_LABEL}`}>Content admin</span>

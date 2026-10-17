@@ -6,7 +6,9 @@ import { SheetButton } from './sheet-button';
 export async function AdminHeader() {
   return (
     <header className="sticky top-0 z-6 flex h-admin-bar items-center justify-between gap-3 border-b border-line bg-paper-fade-strong pr-2 pl-4 backdrop-blur-bar @wide:hidden">
-      <span className="font-script text-admin-mark-sm font-semibold">{await siteName()}</span>
+      <span className="font-script text-admin-mark-sm font-(--script-weight)">
+        {await siteName()}
+      </span>
       <div className="flex items-center gap-2">
         <ThemeToggle variant="admin" />
         <SheetButton variant="pill" />

@@ -363,6 +363,16 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       hint: 'What a press looks like, on the site and here.',
     },
     {
+      key: 'scriptFont',
+      label: 'Script face',
+      type: 'select',
+      options: [
+        { value: 'allura', label: 'Allura' },
+        { value: 'caveat', label: 'Caveat' },
+      ],
+      hint: 'The signature and the hero’s highlighted word.',
+    },
+    {
       key: 'mediaAutoRotate',
       label: 'Project media',
       type: 'toggle',
