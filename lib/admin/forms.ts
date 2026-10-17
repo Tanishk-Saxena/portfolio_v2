@@ -130,6 +130,7 @@ export const settingsDraft = (s: Settings): Draft => ({
   menuLayout: s.menuLayout,
   pressFeedback: s.pressFeedback,
   scriptFont: s.scriptFont,
+  signatureIntro: s.signatureIntro,
   mediaAutoRotate: s.mediaAutoRotate,
 });
 
@@ -143,6 +144,7 @@ export const settingsValues = (d: Draft): Settings => ({
   menuLayout: d.menuLayout as Settings['menuLayout'],
   pressFeedback: d.pressFeedback as Settings['pressFeedback'],
   scriptFont: d.scriptFont as Settings['scriptFont'],
+  signatureIntro: d.signatureIntro === true,
   mediaAutoRotate: d.mediaAutoRotate === true,
 });
 

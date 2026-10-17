@@ -373,6 +373,13 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       hint: 'The signature and the hero’s highlighted word.',
     },
     {
+      key: 'signatureIntro',
+      label: 'Signature intro',
+      type: 'toggle',
+      on: 'Written large when the home page opens, then flown into the navbar',
+      off: 'Off: the signature writes itself in the navbar',
+    },
+    {
       key: 'mediaAutoRotate',
       label: 'Project media',
       type: 'toggle',
