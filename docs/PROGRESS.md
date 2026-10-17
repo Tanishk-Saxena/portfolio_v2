@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done; the daily storage job (item 32's revision, PR #44; **prod needs its migration and two Vault secrets**) done · **the owner has picked** for items 25 and 28a (9.5 notes, "The owner's picks") · **next: build 25, 28a and 29c** (paused by the owner on 2026-10-04 as 25 began; see "Where to pick up" under "What's left of Phase 9" below); each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · **9.5 under way** (re-evaluation outcomes and chosen features): items 30 (experience descriptions in Markdown), 31 (contact links as a list) and 32 (storage cleanup; **its migration is on dev, push it to prod before merging**) done; 29e (the GitHub heat map; **its migration is on dev: push it to prod before merging, the deployed site reads the new column**) done; the daily storage job (item 32's revision, PR #44; **prod needs its migration and two Vault secrets**) done · **the owner has picked** for items 25 and 28a (9.5 notes, "The owner's picks") · 25 (skills as rows of chips) done, PR #45 · **next: build 28a and 29c** (paused by the owner on 2026-10-04 as 25 began; see "Where to pick up" under "What's left of Phase 9" below); each item built also adds a line to **the owner's test list** (a running list of what to verify by hand, kept apart from the remaining work). Phase 10, the final audit, is last
 
 ---
 
@@ -511,7 +511,7 @@ Phase 10, the final audit, last. The full plan is the **Phase 9 roadmap** below 
 | 9.4 | `feat/phase-9-test-infra` | Test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; the site's unaudited states | A (1–3) | ✅ |
 | 9.3 | `fix/phase-9-admin-rules` (B and C, one PR at the owner's call), `feat/phase-9-site-ux` (D and E, one PR at the owner's call), `fix/phase-9-review-3` (their last review fixes), `feat/phase-9-media` (F) | The owner's findings from the admin test (list below) | B–F (4–23) | ✅ (B–F) |
 | 9.2 | `feat/phase-9-site-meta` | Editable site title and description; the name's other hard-coded spots | G (24) | ✅ |
-| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e), `feat/phase-9-storage-job` (32, the daily job) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e done |
+| 9.5 | `feat/phase-9-experience-markdown` (30), `feat/phase-9-contact-links` (31), `feat/phase-9-storage-cleanup` (32), `feat/phase-9-heat-map` (29e), `feat/phase-9-storage-job` (32, the daily job), `feat/phase-9-skills-layout` (25) | The re-evaluation outcomes and the features the owner chose | H (25–32) | under way: 30, 31, 32, 29e, 25 done |
 
 Work order: 9.4 → 9.3 → 9.2 → 9.5, one PR per roadmap group or smaller. (9.4 comes first so
 every later PR is checked by it.) The handwriting work (28a with the signature intro, 29c)
@@ -538,7 +538,7 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 | E. Drag to reorder (9.3) | 22 | 22 | — |
 | F. Media (9.3) | 23 | 23 | — |
 | G. Site title and description (9.2) | 24 | 24 | — |
-| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32 (open PRs #40–#44, not merged yet) | 25 (picked, not built), then 28a + 29c last (picked, not built) |
+| H. Re-evaluation outcomes (9.5) | 25, 28a, 29c, 29e, 30, 31, 32 | 29e, 30, 31, 32, 25 (open PRs #40–#45, not merged yet) | 28a + 29c last (picked, not built) |
 | I. Carried checks | 33 | — | 33 (the owner's; first on the owner's test list) |
 
 **A. Test infrastructure (9.4, first)**
@@ -616,8 +616,9 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
       admin wordmark) read the profile's Name.
 
 **H. Re-evaluation outcomes (9.5)**
-- [ ] 25. **Skills layout.** Claude presents two or three alternatives to the four columns,
-      like #7's press feedback; the columns stay until the owner picks one.
+- [x] 25. **Skills layout.** Claude presents two or three alternatives to the four columns,
+      like #7's press feedback; the columns stay until the owner picks one. **Picked and
+      built:** ruled rows of chips on wide screens (E), stacked chips on phones (C).
 - 26. **External URL on articles: kept**, as either/or with a body (item 6). No pulling in
       articles from elsewhere. Decided, nothing to build.
 - 27. **Name and Location on Hero, Footer note on Contact: kept** (Q-A8). Decided.
@@ -657,22 +658,18 @@ items, 5 of them decided with nothing to build (26, 27, 28b, 28c, 29a/b/d).
 ### What's left of Phase 9 (as of 2026-10-04): start the next session here
 
 Groups A–G (items 1–24) are built and merged. What is left to **build** is group H (9.5),
-the enhancements below, in this order (done so far: 30, 31, 32, 29e):
+the enhancements below, in this order (done so far: 30, 31, 32, 29e, 25):
 
 | # | Item | What it needs | Owner input first? |
 |---|---|---|---|
-| 25 | **Skills layout** | **Picked:** option E on wide screens (ruled rows, the label in a column beside its chips), option C on phones (the label stacked over its chips, no rules). The heat map stays under it | no (picked 2026-10-04) |
 | 28a | **Signature and hero-word font** | **Picked:** the hero word stays as it is today (the accent block). A **Settings choice between Allura and Caveat**, applied to both the signature and the hero word, kept for some time. The signature is written left to right (a soft, slanted reveal, then the underline), never showing later letters early | no (picked 2026-10-04); the default font is Claude's call: Allura planned, the owner's favourite |
 | 29c | **Signature intro** | With the new signature and stroke animation; a Settings switch to turn it off; fix the hand-off shift and load cost that shelved it (`git stash` "wip: signature intro"). **Last**, with 28a | no (after 28a) |
 
 **Where to pick up (paused by the owner, 2026-10-04).**
 - **Open PRs, a stack, none merged:** #40 (30) → #41 (31) → #42 (32) → #43 (29e) → #44 (32's
   daily job). Each is based on the one before. CI has not been checked on any of them.
-- **Next to build:** 25, then 28a and 29c together (they share one Settings migration: the
-  font choice and the intro switch). Branch `feat/phase-9-skills-layout` exists locally, cut
-  from `feat/phase-9-storage-job`, with **uncommitted, unverified work** for 25 in
-  `components/sections/skills.tsx` and `app/globals.css` (the edit was written just as the
-  session was stopped; it has not been built, looked at or tested: review it or redo it).
+- **Built since (2026-10-17):** 25, PR #45 (`feat/phase-9-skills-layout`, stacked on #44).
+- **Next to build:** 28a, then 29c, each its own PR on top of the stack.
 - **Plan for 28a and 29c (Claude's, not yet reviewed by the owner):** a `scriptFont` setting
   (`allura` | `caveat`) set as `data-script` on `<html>`, with the per-font size, weight and
   padding of the hero word and signature in `styles/tokens.css` (Allura has one weight, so
@@ -749,6 +746,9 @@ Nothing on it blocks the build; whatever the owner flags from it becomes an ordi
       the older ones) and on
       a wide screen (the year), in both accents and both modes. Click or press Enter on
       it: your GitHub profile opens. Clear the username: it goes.
+- [ ] **Skills layout** (item 25): on a wide screen, each group is a ruled row with its label
+      on the left and its items as chips; on a phone, the label sits above its chips with no
+      rules. Try a group with six long items (the admin allows six) on both.
 - [ ] Then remove the **sample media** from the first two projects in dev and prod
       (`docs/SUPABASE.md`) when real media goes in.
 
