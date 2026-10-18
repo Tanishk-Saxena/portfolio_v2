@@ -1,20 +1,20 @@
 /*
- * The signature's two entrances (spec §10 "Phase 9 picks", "Signature intro"), run by one
- * inline script in <head> before first paint, so nothing shows in the wrong state first.
- * Both are skipped under reduced motion, where the name is simply there.
+ * The signature intro (spec §10 "Signature intro"), run by an inline script in <head> before
+ * first paint, so nothing shows in the wrong state first. Skipped under reduced motion.
  *
- * The intro (Settings → Signature intro, `data-intro-setting` on <html>) plays on a fresh
- * visit to the home page: not on a reload, back/forward, a #section link or a page turn in
- * the app. It moves **the navbar mark itself**: enlarged and centred over a paper overlay,
+ * With Settings → Signature intro on (`data-intro-setting` on <html>) it plays when the home
+ * page loads at the top: a fresh visit or a reload (owner, 2026-10-18); not for a #section
+ * URL, back/forward, a visit from another page of the site (an article) or a page turn in
+ * the app. Anywhere else, and with the setting off, the name is simply there: no animation.
+ * It moves **the navbar mark itself**: enlarged and centred over a paper overlay,
  * written left to right, then flown home with a transform. There is no second copy to hand
  * off to, so it lands with no shift, and no glyph data to ship (what shelved the first
  * version, Phase 4 notes). States on <html> (styles/tokens.css): `data-intro` = `wait`
  * (overlay up, mark hidden until measured), `write`, `fly`, then removed. Any key, click,
- * wheel or touch ends it at once; a fallback ends it if anything stalls.
- *
- * Otherwise the navbar mark writes itself in place (`data-sign`) on every full page load.
- * Either way the attribute comes off at the end, so a header that mounts later (a page turn
- * in the app) shows the name at rest.
+ * wheel or touch ends it at once; a fallback ends it if anything stalls. The hero's own
+ * entrance is held while `data-intro` is set (styles/tokens.css), so it starts once the name
+ * is home, never behind it. The attribute comes off at the end, so a header that mounts later
+ * (a page turn in the app) shows the name at rest.
  */
 
 /** The navbar name's font size (`--text-signature`); the intro enlarges from it. */
@@ -28,8 +28,6 @@ const FLY_AT_MS = 2300;
 /** The flight (.95s) and the overlay's fade, then the end. */
 const LAND_MS = 1100;
 const FALLBACK_MS = 8000;
-/** The page's own entrance waits for the intro (spec §5.3: `--enter` 2.3s while it plays). */
-const ENTER_AFTER_INTRO = '2.4s';
 /** The mark's tilt in the navbar (`-rotate-4` on its slot), undone when aiming it. */
 const TILT_RAD = (4 * Math.PI) / 180;
 
@@ -44,18 +42,15 @@ function start(){if(ended)return;mark=document.querySelector('[data-signature-ma
 var c=centre();place(c[0],c[1]);d.setAttribute('data-intro','write');
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(ended||d.getAttribute('data-intro')!=='write')return;var c=centre();place(c[0]-dx,c[1]-dy)});
 setTimeout(function(){if(ended)return;d.setAttribute('data-intro','fly');setTimeout(end,${LAND_MS})},${FLY_AT_MS})}
-d.setAttribute('data-intro','wait');d.style.setProperty('--enter','${ENTER_AFTER_INTRO}');
+d.setAttribute('data-intro','wait');
 inputs.forEach(function(t){addEventListener(t,end,{capture:true,passive:true})});setTimeout(end,${FALLBACK_MS});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();`;
 
-const write = `
-var done=function(){d.removeAttribute('data-sign')};d.setAttribute('data-sign','write');
-d.addEventListener('animationend',function(e){if(e.animationName==='sign-line')done()});setTimeout(done,${FALLBACK_MS});`;
-
 export const signatureInitScript =
   `(function(){try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;var d=document.documentElement;
-var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0];
-if(d.getAttribute('data-intro-setting')==='on'&&location.pathname==='/'&&!location.hash&&(!nav||nav.type==='navigate')){${intro}}else{${write}}}catch(e){}})()`.replace(
+var nav=performance.getEntriesByType&&performance.getEntriesByType('navigation')[0],type=nav?nav.type:'navigate';
+var fromSite=type==='navigate'&&document.referrer.indexOf(location.origin+'/')===0;
+if(d.getAttribute('data-intro-setting')==='on'&&location.pathname==='/'&&!location.hash&&(type==='navigate'||type==='reload')&&!fromSite){${intro}}}catch(e){}})()`.replace(
     /\n/g,
     '',
   );

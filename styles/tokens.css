@@ -99,12 +99,11 @@
 }
 
 /*
- * The navbar signature writes itself on a full page load (lib/signature.ts sets data-sign):
- * a soft, slanted edge crosses the name left to right, so nothing ahead of it shows early,
- * then the underline draws. While writing, the name's box grows by its swashes (padding,
- * cancelled by margins) so the mask never cuts them. Reduced motion: never set.
+ * The intro writes the signature (lib/signature.ts sets data-intro): a soft, slanted edge
+ * crosses the name left to right, so nothing ahead of it shows early, then the underline
+ * draws. While writing, the name's box grows by its swashes (padding, cancelled by margins)
+ * so the mask never cuts them. Reduced motion: never set.
  */
-html[data-sign='write'] [data-signature-name],
 html[data-intro='write'] [data-signature-name] {
   margin: -0.25em -0.4em -0.25em -0.3em;
   padding: 0.25em 0.4em 0.25em 0.3em;
@@ -115,7 +114,6 @@ html[data-intro='wait'] [data-signature-name],
 html[data-intro='wait'] [data-signature-line] {
   opacity: 0;
 }
-html[data-sign='write'] [data-signature-line],
 html[data-intro='write'] [data-signature-line] {
   animation: sign-line 0.5s cubic-bezier(0.3, 0, 0.2, 1) 1.35s both;
 }
@@ -142,8 +140,13 @@ html[data-intro='write'] [data-signature-line] {
  * rises above it with its own glass and rule cleared and the theme toggle hidden, leaving
  * the navbar mark, which is moved to the middle of the screen, enlarged, and written. Then
  * it flies home on the mockup's flip curve while the overlay fades, and lands exactly where
- * it lives, because it is the same element. The page's own entrance waits for it (--enter).
+ * it lives, because it is the same element. The hero's animations are held until it ends
+ * (owner, 2026-10-18): they start once the name is home, not behind it.
  */
+html[data-intro] #hero,
+html[data-intro] #hero * {
+  animation-play-state: paused;
+}
 html[data-intro] body::after {
   content: '';
   position: fixed;
@@ -405,8 +408,7 @@ html[data-intro='fly'] [data-signature-mark] {
 
 /* ------------------------------------------------------------------ Phase 4: motion */
 
-/* The signature intro (spec §5.3) is shelved until after Milestone A; the hero enters
-   straight away. */
+/* The hero entrance's start. While the signature intro plays, it is held (above). */
 :root {
   --enter: 0.05s;
 }
