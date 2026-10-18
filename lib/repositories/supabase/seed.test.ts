@@ -80,7 +80,7 @@ describe('the seed is content the admin would save', () => {
     expect(d.articles.some((a) => a.status === 'draft')).toBe(true);
     expect(d.quotes.some((q) => q.text.length === 140)).toBe(true);
     expect(d.quotes.some((q) => !q.active)).toBe(true);
-    expect(d.socialLinks.some((l) => l.url === '')).toBe(true);
+    expect(d.socialLinks.some((l) => l.label.length === 40)).toBe(true);
     expect(d.skillGroups.some((s) => s.items.length === 6)).toBe(true);
   });
 });

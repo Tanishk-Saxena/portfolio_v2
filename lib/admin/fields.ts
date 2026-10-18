@@ -132,7 +132,7 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       type: 'links',
       max: 40,
       maxItems: 8,
-      hint: 'Shown in this order. A link with no URL is hidden on the site.',
+      hint: 'Shown in this order.',
     },
     { key: 'footerNote', label: 'Footer note', type: 'text' }, // [ASSUMED] Q-A8
   ],
@@ -144,7 +144,8 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       label: 'Description',
       type: 'markdown',
       simple: true,
-      hint: 'Shown when the row is expanded. Paragraphs, “- ” lists, **bold**, *italic* and <u>underline</u>.',
+      // Owner, §14: the simple set is this site's own, so the hint says what is in and out.
+      hint: 'Shown when the row is expanded. Simple Markdown: paragraphs, “- ” and “1.” lists, **bold**, *italic* and <u>underline</u>. Headings, links and images stay as typed.',
     },
     {
       key: 'startYear',

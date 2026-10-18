@@ -84,4 +84,4 @@ insert into public.social_link (id, label, url, sort_order) values
   ('read-cv', 'Read.cv', 'https://read.cv/', 3),
   ('x', 'X', 'https://x.com/', 4),
   ('stress-mastodon', 'Mastodon', 'https://example.com/mastodon', 5),
-  ('stress-hidden-link', 'A long label for a link', '', 6);
+  ('stress-long-link', 'A long label for a link, at the limit ok', 'https://example.com/long-label', 6);

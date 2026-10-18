@@ -325,7 +325,7 @@ motion: the dial, knob and toasts fade only. Control boundaries use `--line-inpu
 | Q-A7 | Admin theme stored apart from the site's |
 | Q-A8 | Name and Location on Hero, Footer note on Contact |
 | Q-A9 | Portrait alt "Portrait of {name}" |
-| Q-A10 | Social links stay a table; an empty URL hides the link |
+| Q-A10 | Social links stay a table; the site hides a link with an empty URL (the admin no longer saves one, §14) |
 | Q-A11 | Read time is a nullable override of the estimate |
 | Q-A12 | Articles keep External URL; body or URL, never both; excerpt not edited |
 | Q-A13 | Superseded (Settings, §8.9) |
@@ -352,7 +352,8 @@ motion: the dial, knob and toasts fade only. Control boundaries use `--line-inpu
 | Saved = live | The toast confirms the database write; nothing reloads |
 | Accent in images | Share cards and icons follow the saved accent from the next deploy |
 | Experience description | The Markdown field's `simple` form (§5), previewed with the site's limited renderer; the article preview shows underline too |
-| Contact links | One **Links** field: rows of label + URL; **Add a link** (up to eight); × removes; drag or arrows reorder; on phones the label sits above the URL. Every row needs a label (≤ 40); a URL is a full address or empty (empty = hidden). Saving replaces the stored list (new rows inserted, removed ones soft-deleted, order renumbered) |
+| Contact links | One **Links** field: each link one card (grip, label \| URL, ↑ ↓, ×; on phones the label sits above the URL); drag or arrows reorder; × removes. New links come from a composer row under the list (label, URL, **Add link**; Enter adds), which takes only a complete link, so the list never holds an empty one (owner, 2026-10-18); up to eight, then the composer goes. Every link needs a label (≤ 40) and a full address. Saving replaces the stored list (new rows inserted, removed ones soft-deleted, order renumbered) |
+| Simple Markdown hint | The experience description's hint lists the set (paragraphs, lists, bold, italic, underline) and says headings, links and images stay as typed: the set is this site's own, not a convention (owner, 2026-10-18) |
 | Storage cleanup | Saving Hero, About or a project removes from the `media` bucket every upload it **no longer points at**, only when **no record** points at it and only the app's own uploads (`folder/uuid.ext` in this project's bucket); it never fails the save. Everything else is a **daily database job**, `public.clean_media()` (pg_cron, 21:30 UTC): uploads a day old or more that no record points at (deleted projects' files, never-saved uploads). Needs two Vault secrets per project (`docs/SUPABASE.md`) |
 | GitHub username | A Settings field under the description; empty hides the heat map; not reset |
 | Signature intro | A Settings toggle after Script face, on by default; reset by Reset to defaults |

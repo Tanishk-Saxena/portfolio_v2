@@ -37,12 +37,16 @@ describe('admin schema', () => {
       email: 'Enter a valid email address.',
       links: 'LeetCode: enter a full address starting with https://',
     });
-    // A link needs a label; its URL may stay empty (hidden on the site); eight at most.
+    // A link needs a label and an address (no empty links); eight at most.
     expect(validate('contact', { ...contact, links: [{ ...link, label: ' ' }] }).links).toBe(
       'Link 1 needs a label.',
     );
-    expect(validate('contact', { ...contact, links: [{ ...link, url: '' }] })).toEqual({});
-    const nine = Array.from({ length: 9 }, (_, i) => ({ ...link, id: `l${i}`, url: '' }));
+    expect(validate('contact', { ...contact, links: [{ ...link, url: ' ' }] }).links).toBe(
+      'LeetCode needs an address.',
+    );
+    const ok = { ...link, url: 'https://leetcode.com/me' };
+    expect(validate('contact', { ...contact, links: [ok] })).toEqual({});
+    const nine = Array.from({ length: 9 }, (_, i) => ({ ...ok, id: `l${i}` }));
     expect(validate('contact', { ...contact, links: nine }).links).toBe('8 links at most.');
     // The server refuses a malformed list outright: a duplicate id, or an id that is no key.
     expect(parseDraft('contact', { ...contact, links: [link, link] })).toBeNull();
