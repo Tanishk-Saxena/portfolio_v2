@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3), the site title and description (9.2) and the re-evaluation outcomes (9.5) done: Phase 9 complete (2026-10-18); Phase 10, the final audit, complete (2026-10-18: one reading of prod and the admin, and the one-time fixes; no standing audit, owner; P-1, the phone LCP, stays a flagged item, never a gate). Next: the owner's end-to-end test round, from the ledger's test list; later work is ordinary PRs. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3), the site title and description (9.2) and the re-evaluation outcomes (9.5) done: Phase 9 complete (2026-10-18); Phase 10, the final audit, complete (2026-10-18: one reading of prod and the admin, and the one-time fixes; no standing audit, owner; P-1, the phone LCP, stays a flagged item, never a gate). Next: a docs cleanup, then one data path (Supabase only, local Supabase in CI), then the owner's end-to-end test round; later work is ordinary PRs. Current step: `docs/PROGRESS.md`
 
 ---
 
