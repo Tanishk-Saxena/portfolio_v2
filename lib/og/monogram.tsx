@@ -3,7 +3,8 @@ import { join } from 'node:path';
 import { ImageResponse } from 'next/og';
 
 /**
- * App icon: the handwritten initial on the accent chip, the hero's highlight in miniature.
+ * App icon: the handwritten initials, TS (owner, spec §10), on the accent chip, the hero's
+ * highlight in miniature.
  * `radius` is a fraction of the size (0 for Apple's own mask); `accent` is the saved one.
  */
 export async function renderMonogram(size: number, accent: string, radius = 0.22) {
@@ -20,12 +21,13 @@ export async function renderMonogram(size: number, accent: string, radius = 0.22
         borderRadius: size * radius,
         color: '#fdf8f0',
         fontFamily: 'Caveat',
-        fontSize: size * 0.9,
+        fontSize: size * 0.72,
+        letterSpacing: -size * 0.03,
         lineHeight: 1,
-        padding: `0 ${size * 0.12}px ${size * 0.02}px 0`,
+        padding: `${size * 0.06}px ${size * 0.2}px 0 0`,
       }}
     >
-      T
+      TS
     </div>,
     {
       width: size,
