@@ -3,9 +3,10 @@
 Where the build stands, and how it got here. Updated in every PR that changes it. The full
 step-by-step diary is this file's git history before the 2026-10-18 cleanup.
 
-**Now:** the build is complete (Phases 0–10). **Next:** one data path (`refactor/one-data-path`,
-below), then the owner's end-to-end test round from **the owner's test list**. Later work is
-ordinary PRs.
+**Now:** the build is complete (Phases 0–10), on one data path (Supabase, tested against a
+local one in CI). The owner is entering real content on dev, to copy to prod when ready.
+**Next:** the owner's end-to-end test round from **the owner's test list**, and the owner's
+list of changes. Later work is ordinary PRs.
 
 ## Phases
 
@@ -101,24 +102,20 @@ audit workflow was built and then **dropped by the owner before merge**: it repe
 checks and Speed Insights. That set the rule for what follows: simplicity and reliability, no
 process that repeats existing checks, test the paths prod runs.
 
-## Next: one data path (owner, 2026-10-18)
+**Docs cleanup (PR #50).** Docs from ~3,600 lines to ~1,300; the design mockups removed (git
+history keeps them); this history kept in their place.
 
-Simplicity and reliability over plug-and-play. The app gets **one runtime path, Supabase**,
-the one prod runs; which database it reads is only a matter of keys (CI's throwaway, dev,
-prod).
-
-1. Remove `DATA_SOURCE` and the fixture repositories; `lib/container.ts` always builds
-   Supabase.
-2. One fixed test dataset: `supabase/seed.sql`, the shipped content plus the stress cases
-   (long titles, empty optional fields, extra items) and the test admin. The fixture data
-   files stay only as its source and as unit-test data.
-3. CI starts a local Supabase (`supabase start`: migrations + seed), then runs unit, smoke,
-   axe and Lighthouse, **the signed-in admin included**, through the real paths: queries, RLS,
-   sign-in, uploads. Fresh every run; no dev secrets.
-4. The signed-in journey saves once per kind of section, uploads a file and checks the site.
-   The Supabase contract tests move into CI. The PGlite migration and RLS tests stay.
-5. Dev and prod are never touched by tests. Docker is optional locally (CI runs e2e);
-   `npm run check` needs none.
+**One data path (PR #51).** The owner chose reliability over plug-and-play: the fixture
+repositories and `DATA_SOURCE` went, and the app always runs on Supabase. The content files
+became one seed (`lib/seed`): the shipped placeholders plus stress cases at the real limits,
+which a unit test holds to the admin's own validation. CI starts a throwaway local Supabase
+with that seed and its own test admin (no secrets; dev and prod untouched; tests that write
+refuse any other Supabase), then runs the database suite, the e2e journeys (new: every kind of
+save checked on the site, an upload included) and Lighthouse, now with the signed-in admin
+(its budget is accessibility only). The same checks run by hand from the Actions tab. And so
+real content never needs an audit, accessibility was closed in code: the article renderer
+(one h1, named links, safe hrefs), validation (image descriptions, link words), modal media
+named from the project and held muted, and the grain capped at 7% for contrast.
 
 ## Open items
 
@@ -127,6 +124,10 @@ prod).
 - **Owner:** the GitHub username in **prod's** Settings (the live heat map stays hidden until
   then). Prod's Vault secrets and `GITHUB_TOKEN` are set (2026-10-18).
 - **Owner:** pick one script face (Allura or Caveat); then the other is deleted (`lib/fonts.ts`).
+- **Owner, optional tidy-up** (nothing reads them any more): the dev test admin
+  `e2e-admin@example.com` and its allowlist row; the repository secrets `E2E_SUPABASE_URL`,
+  `E2E_SUPABASE_PUBLISHABLE_KEY`, `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; the Vercel variable
+  `DATA_SOURCE`.
 
 ## The owner's test list
 
@@ -149,6 +150,8 @@ anything flagged becomes an ordinary fix.
 - [ ] **Signature intro**: a fresh home visit writes the name large, then flies it into the navbar with no jump; any input ends it; a reload, `#section` link or return from an article skips it; Settings off writes it in place. On a real phone.
 - [ ] **Script face**: Allura then Caveat; the signature and the hero word, phone and wide, both modes. A reload writes the signature left to right; reduced motion shows it at rest.
 - [ ] **Skills layout**: wide = ruled rows, label left, chips right; phone = label over chips. A group of six long items on both.
+- [ ] **Grain**: Settings now goes up to 7% (capped for contrast); a higher stored value shows as 7% and must be lowered to save.
+- [ ] **Accessible content**: in an article body, an image without a description (`![](…)`) or a link without words (`[](…)`) is refused on save; a `#` heading renders as a section heading.
 - [ ] Remove the **sample media** from the first two projects in dev and prod when real media goes in (`docs/SUPABASE.md`).
 
 ## Phase 9 roadmap: item index

@@ -1,23 +1,17 @@
 import { type Page } from '@playwright/test';
 
 /*
- * The dev project's test admin that the signed-in admin tests use: smoke and
- * axe (Phase 9 roadmap items 1–2b). CI passes the credentials from repository secrets;
- * locally they live in `.env.local`. The tests run on a fixtures build, so sign-in goes
- * through the dev project while every save changes only the server's in-memory copy of
- * the fixtures, never the dev database.
+ * The test admin the signed-in tests use (smoke, axe, the admin's Lighthouse reading): an
+ * allowlisted account in CI's local Supabase, made by `scripts/test-admin.mjs` from
+ * E2E_ADMIN_EMAIL / E2E_ADMIN_PASSWORD. Its saves are real writes, to that throwaway
+ * database only.
  */
-
-try {
-  process.loadEnvFile('.env.local'); // never overrides variables already set (CI secrets)
-} catch {
-  // no .env.local: rely on the environment
-}
 
 export const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? '';
 export const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? '';
-export const NO_ADMIN = !ADMIN_EMAIL || !ADMIN_PASSWORD;
-export const NO_ADMIN_REASON = 'needs E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD';
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  throw new Error('The signed-in tests need E2E_ADMIN_EMAIL and E2E_ADMIN_PASSWORD');
+}
 
 /** Signs in through the form and lands on the admin's start page. */
 export async function signIn(page: Page) {

@@ -4,12 +4,10 @@ import { estimateReadMinutes } from '@/lib/utils/read-time';
 /**
  * An article as stored: `hasBody` is derived, never authored, and `readMinutes` is an
  * optional override (`null` = estimate from the body, ADMIN-DESIGN-SPEC Q-A11).
- * Shared by every implementation, so derivation is identical whatever the source.
+ * Shared by the repositories and the seed, so derivation is identical everywhere.
  */
 export type ArticleRecord = Omit<Article, 'hasBody' | 'readMinutes'> & {
   readMinutes: number | null;
-  /** Fixtures only: set once an article is created or its slug edited in the admin. */
-  id?: string;
 };
 
 export function toArticle(record: ArticleRecord): Article {

@@ -355,23 +355,6 @@ html[data-intro='fly'] [data-signature-mark] {
   }
 }
 
-@keyframes char-in {
-  from {
-    opacity: 0;
-    transform: translateY(7px) rotate(-2deg);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@keyframes sig-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
 /* The quote change (spec §10): one strip moving left. The old quote travels off as the next
    one travels in behind it, both fading at the edges, so it reads as moving along a row of
    quotes, not as one replacing another in place. */

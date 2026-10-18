@@ -1,24 +1,21 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createRepositories, resolveDataSource } from './container';
 
 describe('composition root', () => {
-  afterEach(() => vi.unstubAllEnvs());
-
-  it('picks the data source: fixtures by default, stress on request, unknown fails loudly', async () => {
-    expect(resolveDataSource(undefined)).toBe('fixtures');
-    expect(resolveDataSource('')).toBe('fixtures');
-    expect(() => resolveDataSource('mongo')).toThrow(/Unknown DATA_SOURCE/);
-    const normal = await createRepositories('fixtures').experience.list();
-    const stress = await createRepositories('fixtures-stress').experience.list();
-    expect(stress.length).toBeGreaterThan(normal.length);
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
   });
 
-  it('builds Supabase only with keys, never silently falling back', () => {
+  it('builds Supabase only with its keys, never silently falling back', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '');
-    expect(() => createRepositories('supabase')).toThrow(/NEXT_PUBLIC_SUPABASE_URL/);
+    const empty = await import('./container');
+    expect(() => empty.getRepositories()).toThrow(/NEXT_PUBLIC_SUPABASE_URL/);
+
+    vi.resetModules();
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', 'https://example.supabase.co');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'sb_publishable_test');
-    expect(typeof createRepositories('supabase').profile.get).toBe('function');
+    const keyed = await import('./container');
+    expect(typeof keyed.getRepositories().profile.get).toBe('function');
   });
 });

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { NO_ADMIN, NO_ADMIN_REASON, signIn } from './admin-account';
+import { signIn } from './admin-account';
 
 // Smoke tests: the site's major flows still work. Deliberately coarse: they check outcomes
 // (a page opens, a thing appears), never timings, pixels or animation details, so UI
@@ -39,7 +39,7 @@ test('home: hydrates without errors, a project opens and closes, lists page, the
       await expect(shown).toHaveCount(3);
       const more = section.getByRole('button', { name: 'Show more' });
       const less = section.getByRole('button', { name: 'Show less' });
-      // Each press shows more, until the button turns into Show less (fixtures: 7 and 10).
+      // Each press shows more, until the button turns into Show less (the seed: 9 and 12).
       for (let count = 3, presses = 0; !(await less.isVisible()); presses++) {
         expect(presses).toBeLessThan(5);
         await more.click();
@@ -98,13 +98,11 @@ test('admin: locked — pages go to sign-in, the API answers 401', async ({ page
   expect(api.status()).toBe(401);
 });
 
-// Signed in as the test admin (`admin-account.ts`). On the fixtures build every save changes
-// only the server's in-memory copy, so the journey makes its own quote and never touches the
-// dev database. Skips without the credentials.
+// Signed in as the test admin (`admin-account.ts`), writing to CI's local Supabase. Each
+// viewport makes its own quote, so the two runs never touch the same row.
 test('admin: signed in — create, edit, toggle, delete and undo, settings', async ({
   page,
 }, info) => {
-  test.skip(NO_ADMIN, NO_ADMIN_REASON);
   test.setTimeout(90_000);
   const text = `Smoke test quote (${info.project.name} ${Date.now()})`;
   const title = `“${text}”`; // how the list names a quote row
@@ -156,5 +154,85 @@ test('admin: signed in — create, edit, toggle, delete and undo, settings', asy
   await test.step('opens Settings', async () => {
     await page.goto('/admin/settings');
     await expect(page.getByText('Accent', { exact: true })).toBeVisible();
+  });
+});
+
+// Every kind of save, end to end: a single form, an upload, an article published from the
+// editor, a style setting; each checked on the site itself. Desktop only: Hero, About and
+// Settings are single records, and two viewports saving them at once would collide (409).
+test('admin: saves reach the site — a form, an upload, an article, a setting', async ({
+  page,
+}, info) => {
+  test.skip(info.project.name !== 'desktop', 'single records: one writer at a time');
+  test.setTimeout(120_000);
+  const stamp = Date.now();
+  const save = page
+    .getByRole('button', { name: /^(Create|Save|Publish)$/ })
+    .locator('visible=true');
+  const saved = (text: string | RegExp) => expect(page.getByText(text).last()).toBeVisible();
+  // A save marks the pages stale; the next visit renders them again.
+  const onSite = async (path: string, check: () => Promise<void>) =>
+    expect(async () => {
+      await page.goto(path);
+      await check();
+    }).toPass({ timeout: 20_000 });
+
+  await test.step('signs in', () => signIn(page));
+
+  await test.step('Hero: a single form saves and the home page shows it', async () => {
+    const eyebrow = `Smoke eyebrow ${stamp}`;
+    await page.goto('/admin/hero');
+    await page.getByRole('textbox', { name: /^Eyebrow/ }).fill(eyebrow);
+    await save.click();
+    await saved('Saved, live on the site');
+    await onSite('/', () => expect(page.getByText(eyebrow)).toBeVisible());
+  });
+
+  await test.step('About: a portrait uploads to Storage and shows on the site', async () => {
+    await page.goto('/admin/about');
+    // A 2×2 PNG: decodable, so the admin can read its size before uploading.
+    const png = Buffer.from(
+      'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVR4nGP8z8DwnwEJMDGgAQYGBgAkHQIEPkB5ZQAAAABJRU5ErkJggg==',
+      'base64',
+    );
+    await page.getByLabel('Portrait').setInputFiles({
+      name: `portrait-${stamp}.png`,
+      mimeType: 'image/png',
+      buffer: png,
+    });
+    await expect(page.getByRole('button', { name: 'Remove file' })).toBeVisible();
+    await save.click();
+    await saved('Saved, live on the site');
+    await onSite('/', async () => {
+      const portrait = page.locator('#about img[alt^="Portrait of"]');
+      await expect(portrait).toBeVisible();
+      expect(await portrait.getAttribute('src')).toContain('storage');
+    });
+  });
+
+  await test.step('Writing: an article published from the editor has its own page', async () => {
+    const title = `Smoke article ${stamp}`;
+    await page.goto('/admin/writing/new');
+    await page.getByRole('textbox', { name: /^Title/ }).fill(title);
+    await page.getByRole('textbox', { name: /^Body/ }).fill('## A heading\n\nA paragraph.');
+    await page.getByRole('radio', { name: 'Published' }).click();
+    await save.click();
+    await saved(`Live at /articles/smoke-article-${stamp}`);
+    await onSite(`/articles/smoke-article-${stamp}`, () =>
+      expect(page.getByRole('heading', { level: 1 })).toHaveText(title),
+    );
+  });
+
+  await test.step('Settings: the accent changes the site, then goes back', async () => {
+    for (const [label, accent] of [
+      ['Slate blue', 'slate'],
+      ['Terracotta', 'terracotta'],
+    ] as const) {
+      await page.goto('/admin/settings');
+      await page.getByRole('radio', { name: label }).click();
+      await save.click();
+      await saved('Saved, live on the site');
+      await onSite('/', () => expect(page.locator('html')).toHaveAttribute('data-accent', accent));
+    }
   });
 });

@@ -17,10 +17,11 @@ const eslintConfig = defineConfig([
               group: [
                 '@/lib/repositories/*',
                 '**/lib/repositories/**',
-                '**/repositories/fixtures/**',
+                '@/lib/seed',
+                '**/lib/seed/**',
               ],
               message:
-                'UI must not import repository implementations or fixtures. Use getRepositories() from @/lib/container.',
+                'UI must not import repository implementations or the seed. Use getRepositories() from @/lib/container.',
             },
           ],
         },
@@ -43,7 +44,7 @@ const eslintConfig = defineConfig([
     'out/**',
     'build/**',
     'next-env.d.ts',
-    // Design reference files (generated mockup runtime), not app code.
+    // Docs, not app code.
     'docs/**',
   ]),
 ]);

@@ -162,7 +162,7 @@
   --spacing-section: clamp(56px, 8vh, 96px);
   --spacing-grid-projects: clamp(16px, 2.4vw, 26px);
   --spacing-grid-about: clamp(30px, 5vw, 72px);
-  /* owner: the portrait was dominating; 224px on phones, a 280px column when wide */
+  /* owner: the portrait was dominating; 224px on phones, a 360px column when wide */
   --spacing-portrait: 224px;
   --spacing-portrait-wide: 360px;
   --spacing-skills-label: 180px; /* the label column of the skills rows, wide only */

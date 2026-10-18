@@ -1,7 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { PGlite } from '@electric-sql/pglite';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { defaultDataset } from '../fixtures/data';
+import { seedContent } from '@/lib/seed';
 
 /*
  * The migrations and seed, executed in Postgres (PGlite, in-process WASM) with the few
@@ -87,9 +87,9 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
     // Constraints don't depend on the grants, so they run once; RLS runs in both modes.
     if (autoExpose)
       describe('migrations + seed', () => {
-        const d = defaultDataset;
+        const d = seedContent;
 
-        it('seed the shipped content and reject what the site cannot show', async () => {
+        it('seed lib/seed and reject what the site cannot show', async () => {
           expect(await count('authenticated', 'public.project', ADMIN)).toBe(d.projects.length + 1);
           expect(await count('authenticated', 'public.article', ADMIN)).toBe(d.articles.length + 1);
           expect(await count('authenticated', 'public.quote', ADMIN)).toBe(d.quotes.length + 1);
@@ -122,12 +122,18 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
       });
 
     describe('RLS', () => {
-      const d = defaultDataset;
+      const d = seedContent;
+      // What the site shows: the seed holds hidden rows of its own (its stress cases).
+      const shown = {
+        projects: d.projects.filter((p) => p.published).length,
+        articles: d.articles.filter((a) => a.status === 'published').length,
+        quotes: d.quotes.filter((q) => q.active).length,
+      };
 
       it('anonymous visitors read only what the site shows, and write nothing', async () => {
-        expect(await count('anon', 'public.project')).toBe(d.projects.length);
-        expect(await count('anon', 'public.article')).toBe(d.articles.length);
-        expect(await count('anon', 'public.quote')).toBe(d.quotes.length);
+        expect(await count('anon', 'public.project')).toBe(shown.projects);
+        expect(await count('anon', 'public.article')).toBe(shown.articles);
+        expect(await count('anon', 'public.quote')).toBe(shown.quotes);
         expect(await count('anon', 'public.experience')).toBe(d.experience.length - 1);
         expect(await count('anon', 'public.profile')).toBe(1);
         await expect(count('anon', 'public.admin_user')).rejects.toThrow(); // no privilege at all
@@ -143,7 +149,7 @@ describe.each([{ autoExpose: true }, { autoExpose: false }])(
 
       it('only the allowlisted admin sees hidden rows and writes', async () => {
         // A signed-in stranger reads like the public and writes nothing.
-        expect(await count('authenticated', 'public.project', STRANGER)).toBe(d.projects.length);
+        expect(await count('authenticated', 'public.project', STRANGER)).toBe(shown.projects);
         const ignored = await as(
           'authenticated',
           `update public.profile set name = 'x' returning name`,

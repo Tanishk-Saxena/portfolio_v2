@@ -1,19 +1,17 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page, test } from '@playwright/test';
-import { NO_ADMIN, NO_ADMIN_REASON, signIn } from './admin-account';
+import { signIn } from './admin-account';
 
 /*
  * Axe (WCAG 2.1 AA, brief §3) on every admin screen, in both colour modes, signed in as the
- * test admin (`admin-account.ts`; Phase 9 roadmap item 2), on the same fixtures build as the
- * site's tests. Skips without the credentials. Nothing here writes: the dialogs are opened
- * and cancelled.
+ * test admin (`admin-account.ts`; Phase 9 roadmap item 2), over the seed and whatever the
+ * smoke journeys saved before it. Nothing here writes: the dialogs are opened and cancelled.
  *
  * One test per colour mode and viewport walks every screen (signing in once), with a soft
  * assertion per screen so the report names each one that fails.
  */
 
 test.describe.configure({ timeout: 240_000 });
-test.skip(NO_ADMIN, NO_ADMIN_REASON);
 
 const COLLECTIONS = ['writing', 'projects', 'experience', 'skills', 'quotes'] as const;
 const SINGLES = ['hero', 'about', 'contact', 'settings'] as const;

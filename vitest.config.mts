@@ -2,7 +2,7 @@ import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
-const LIVE = '**/live.test.ts';
+const DB = '**/db.test.ts';
 
 export default defineConfig({
   plugins: [react()],
@@ -25,11 +25,11 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: ['**/*.test.{ts,tsx}'],
-          exclude: ['node_modules', '.next', LIVE],
+          exclude: ['node_modules', '.next', DB],
         },
       },
-      // `npm run test:live`: the dev Supabase project (needs .env.local; network-bound, ~15 s).
-      { extends: true, test: { name: 'live', include: [LIVE] } },
+      // `npm run test:db`: a real, local Supabase (CI starts it; network-bound, ~15 s).
+      { extends: true, test: { name: 'db', include: [DB] } },
     ],
   },
 });

@@ -1,8 +1,8 @@
 import { Marked, type MarkedExtension } from 'marked';
 
 /*
- * Article bodies are Markdown authored by the site owner (fixtures now, the admin portal
- * later), rendered on the server to static HTML. Raw HTML inside Markdown is dropped, so a
+ * Article bodies are Markdown authored by the site owner in the admin, rendered on the
+ * server to static HTML. Raw HTML inside Markdown is dropped, so a
  * pasted <script> can never reach the page. [ASSUMED] Owner-only authoring; if others ever
  * write content, add a sanitiser here.
  *
@@ -35,6 +35,37 @@ const underline: MarkedExtension = {
 
 const dropHtml = () => ''; // no raw HTML passthrough
 
+const escapeAttr = (s: string) =>
+  s.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
+const SAFE_HREF = /^(https?:|mailto:|\/|#)/i;
+
+/*
+ * Accessible whatever the owner types (no audit needed on real content): the page's own title
+ * is the only h1, so `#` and `##` both become h2 and anything deeper h3 (a valid outline,
+ * never a skipped level); a link always has a name (an empty one reads as its address); a
+ * link to anything but http(s), mailto or the site is plain text. An image's description is
+ * required by the admin's validation (`lib/admin/schema.ts`); here it is always an attribute.
+ */
+const accessible: MarkedExtension = {
+  renderer: {
+    heading({ tokens, depth }) {
+      const level = depth <= 2 ? 2 : 3;
+      return `<h${level}>${this.parser.parseInline(tokens)}</h${level}>\n`;
+    },
+    link({ href, title, tokens }) {
+      const text = this.parser.parseInline(tokens);
+      if (!SAFE_HREF.test(href)) return text;
+      const name = text.trim() ? text : escapeAttr(href);
+      const t = title ? ` title="${escapeAttr(title)}"` : '';
+      return `<a href="${escapeAttr(href)}"${t}>${name}</a>`;
+    },
+    image({ href, text }) {
+      if (!SAFE_HREF.test(href)) return '';
+      return `<img src="${escapeAttr(href)}" alt="${escapeAttr(text)}">`;
+    },
+  },
+};
+
 const marked = new Marked(
   {
     gfm: true,
@@ -42,6 +73,7 @@ const marked = new Marked(
     renderer: { html: dropHtml },
   },
   underline,
+  accessible,
 );
 
 export function renderMarkdown(source: string): string {

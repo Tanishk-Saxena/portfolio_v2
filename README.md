@@ -10,15 +10,15 @@ Auth, Storage) · Vercel.
 
 ```bash
 npm install
-npm run dev        # http://localhost:3000, on the shipped fixture content
+npm run dev        # http://localhost:3000, on the dev Supabase project (keys in .env.local)
 npm run check      # lint + typecheck + format check + unit tests
-npm run lighthouse # after `npm run build`: Lighthouse on mobile + desktop (a reading)
 ```
 
 The site and the admin read their content through repository interfaces
-(`lib/domain/repositories.ts`). `DATA_SOURCE` picks the source for both: `fixtures`
-(default), `fixtures-stress` (awkward content for layout checks) or `supabase` (needs the
-keys in `.env.local`; template: `.env.example`).
+(`lib/domain/repositories.ts`), always from Supabase; the keys in `.env.local` (template:
+`.env.example`) pick the project. The database suite, the e2e journeys and Lighthouse run in
+CI against a throwaway local Supabase loaded with the seed (`lib/seed`); Actions → CI → Run
+workflow runs them on any branch.
 
 ## Where things are
 

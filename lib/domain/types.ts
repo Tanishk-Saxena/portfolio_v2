@@ -1,6 +1,6 @@
 /**
  * Domain models (spec §7, brief §5). Components only ever see these shapes —
- * never fixture- or database-row-shaped data.
+ * never database-row-shaped data.
  *
  * Dates are ISO-8601 strings (`YYYY-MM-DD`, or `YYYY-MM` for month precision) so the
  * same values serialise across the server/client boundary and into Postgres later.
@@ -151,7 +151,13 @@ export type Accent = 'terracotta' | 'slate';
 export type NavPosition = 'right' | 'centre';
 export type MenuLayout = 'arc' | 'wheel';
 
-/** Site-wide style settings (ADMIN-DESIGN-SPEC §8.9). The defaults are the shipped look. */
+/**
+ * The most grain there can be, in %: it sits over the text, and past ~8% muted copy drops
+ * under AA's 4.5:1 in dark mode, which axe can't see. The admin refuses more and the site
+ * clamps a stored value to it ([ASSUMED], DESIGN-SPEC Q5).
+ */
+export const GRAIN_MAX = 7;
+
 /** The shipped look: what a new database holds and what Reset to defaults returns to. */
 export const DEFAULT_SETTINGS: Settings = {
   accent: 'terracotta',

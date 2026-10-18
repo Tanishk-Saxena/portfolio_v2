@@ -1,4 +1,4 @@
-import type { ArticleRecord } from '../dataset';
+import type { ArticleRecord } from './content';
 
 // PLACEHOLDER — titles, dates and read times are mockup copy (Portfolio.dc.html POSTS,
 // Article.dc.html ARTICLES). The first body is the mockup's article text; the rest are stubs.

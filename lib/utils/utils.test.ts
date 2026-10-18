@@ -62,6 +62,20 @@ describe('utils', () => {
     expect(stray).not.toContain('</u>');
   });
 
+  it('markdown: accessible whatever is typed: one h1 (the page’s), named links, safe hrefs', () => {
+    const html = renderMarkdown(
+      '# Big\n\n### Small\n\n###### Tiny\n\n[](https://a.b) [ok](/x) [bad](javascript:alert(1))\n\n![A chart](/c.png) ![x](javascript:1)',
+    );
+    expect(html).not.toContain('<h1');
+    expect(html).toContain('<h2>Big</h2>');
+    expect(html).toContain('<h3>Small</h3>');
+    expect(html).toContain('<h3>Tiny</h3>');
+    expect(html).toContain('<a href="https://a.b">https://a.b</a>'); // never a nameless link
+    expect(html).toContain('<a href="/x">ok</a>');
+    expect(html).not.toContain('javascript');
+    expect(html).toContain('<img src="/c.png" alt="A chart">');
+  });
+
   it('simple markdown: paragraphs, lists, bold, italic, underline; the rest stays text', () => {
     const html = renderSimpleMarkdown(
       'One **b** *i* <u>u</u>.\n\n- first\n- second\n\n# Not a heading\n\n[link](https://a.b) `code`',

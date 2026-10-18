@@ -1,19 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
-import { createFixtureAdminRepositories } from '@/lib/repositories/fixtures/fixture-admin-repositories';
+import { toSummary } from '@/lib/repositories/article-record';
+import { seedContent as d } from '@/lib/seed';
 import { type AdminContent, countLine, filterRows, toRows } from './rows';
 import { findSection, SECTIONS, sectionFromPath } from './sections';
 
+/** The admin's lists as the repositories return them: every row, in display order. */
 async function content(): Promise<AdminContent> {
-  const r = createFixtureAdminRepositories(stressDataset);
-  const [experience, projects, writing, skills, quotes] = await Promise.all([
-    r.experience.list(),
-    r.projects.list(),
-    r.articles.list(),
-    r.skills.list(),
-    r.quotes.list(),
-  ]);
-  return { experience, projects, writing, skills, quotes };
+  return {
+    experience: d.experience,
+    projects: d.projects,
+    writing: d.articles
+      .map((a) => ({ id: a.slug, ...toSummary(a) }))
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)),
+    skills: d.skillGroups,
+    quotes: d.quotes,
+  };
 }
 
 describe('admin lists', () => {
@@ -30,7 +31,7 @@ describe('admin lists', () => {
     expect(writing[0].meta).toMatch(/^[A-Z][a-z]+ \d{4} · \d+ min$/);
 
     const quotes = toRows('quotes', c);
-    expect(quotes.find((r) => r.id === 'skipped')?.status?.label).toBe('Skipped');
+    expect(quotes.find((r) => r.id === 'stress-skipped')?.status?.label).toBe('Skipped');
     expect(quotes.every((r) => r.title.startsWith('“') && r.title.endsWith('”'))).toBe(true);
     expect(toRows('projects', c).every((r) => r.status && r.meta.match(/^\d{4}$/))).toBe(true);
   });

@@ -1,12 +1,13 @@
 // Prepares the CI test report (.github/workflows/ci.yml). Two jobs, in this order:
 //  1. Names each Playwright suite after its viewport ("smoke.spec.ts — desktop"), in place,
 //     so the run summary shows one table per viewport instead of merging both.
-//  2. Prints the short table CI pins to the PR: unit, then e2e per viewport.
+//  2. Prints the short table CI pins to the PR: unit, the database suite, then e2e per viewport.
 // Usage: node scripts/test-summary.mjs <run url> > reports/comment.md
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 
 const FILES = [
   { file: 'unit.xml', label: 'Unit', gate: 'blocks merge', viewports: false },
+  { file: 'db.xml', label: 'Database (local Supabase)', gate: 'blocks merge', viewports: false },
   { file: 'smoke.xml', label: 'E2E smoke', gate: 'blocks merge', viewports: true },
   {
     file: 'a11y.xml',
@@ -77,6 +78,6 @@ console.log(
     '',
     `Every test, with failure details: [run summary](${process.argv[2] ?? ''}). ` +
       'Test time adds up each test; e2e tests run in parallel, so the step takes less. ' +
-      'Live Supabase tests run locally only (`npm run test:live`).',
+      'Everything ran against a throwaway local Supabase loaded with the seed.',
   ].join('\n'),
 );
