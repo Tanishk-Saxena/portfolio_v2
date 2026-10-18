@@ -41,7 +41,7 @@ async function audit(page: Page, screen: string) {
 
 for (const theme of ['light', 'dark'] as const) {
   test(`admin passes axe in ${theme} mode`, async ({ page }, info) => {
-    const phone = info.project.name === 'mobile';
+    const phone = Boolean(info.project.use.isMobile);
     await page.addInitScript((t) => localStorage.setItem('admin-theme', t), theme);
 
     await page.goto('/admin/sign-in');

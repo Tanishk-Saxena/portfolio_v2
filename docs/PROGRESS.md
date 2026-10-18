@@ -126,6 +126,13 @@ must be a real file (a hand-written PNG failed to decode, so the admin refused i
 must audit the settled home page (`docs/PERFORMANCE.md`). Readings after it: accessibility
 100 everywhere; signed-in admin performance 91–94 mobile, 100 desktop.
 
+**Safari and Dependabot (PR #52).** The tests ran in Chrome only, while most phones visiting
+are iPhones: every e2e spec now also runs in Safari's engine on an iPhone profile
+(`iphone-safari`). Dependabot opens update PRs (npm weekly, minor and patch grouped; Actions
+monthly), and the repo's security alerts and fixes are on; with no secrets in CI, those PRs
+run the full checks. Considered and left out (owner): prod's configuration (the owner keeps
+prod identical to dev and the tested schema) and end-to-end tests of unusual uploads.
+
 ## Open items
 
 - **P-1, phone lab LCP** (≈3.2–3.6 s, mobile performance 87–88): flagged, never a gate.

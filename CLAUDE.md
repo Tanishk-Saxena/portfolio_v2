@@ -53,6 +53,8 @@ CI → Run workflow, any branch): `check` (lint, typecheck, format, unit; then a
 with the seed and the test admin, `.github/actions/local-supabase`; the database suite, build,
 smoke e2e, all blocking; axe a warning) and a separate `lighthouse` job (the site and the
 signed-in admin; a reading, never red). No repository secrets; dev and prod are never touched.
+Dependabot (`.github/dependabot.yml`) opens update PRs: npm weekly (minor and patch grouped),
+Actions monthly, security fixes at once; they run the full checks and the owner merges.
 
 Data: one path, Supabase. Pages read via `getRepositories()` (`lib/container.ts`), never
 `lib/repositories/**` or `lib/seed` (ESLint enforces it); the admin via
@@ -74,7 +76,8 @@ Functionality gates; performance and accessibility are flagged, never blocking (
   (`allowedDevOrigins` in `next.config.ts`).
 - **Lean testing.** Unit tests for data and logic (one test per behaviour, several
   assertions). E2E: one smoke journey per area (`e2e/smoke.spec.ts`, blocking) and axe
-  (`e2e/a11y.spec.ts`, `e2e/admin-a11y.spec.ts`, warnings), desktop and phone. Outcomes only:
+  (`e2e/a11y.spec.ts`, `e2e/admin-a11y.spec.ts`, warnings), on three projects: Chrome desktop,
+  Chrome phone, and Safari's engine on an iPhone profile (`iphone-safari`). Outcomes only:
   no timings, pixels or animation details; no tests of purely visual UI. Run what's relevant
   for small fixes, the full suite before a PR.
 - **Accessible by construction, so real content never needs an audit.** Anything content or a

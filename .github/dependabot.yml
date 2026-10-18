@@ -1,0 +1,20 @@
+# Dependency updates as ordinary PRs: CI runs every check on them (it needs no secrets, so
+# Dependabot's PRs get the full suite), and the owner merges. Grouped to stay quiet: one
+# weekly PR for every minor and patch bump, majors one PR each, Actions monthly.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
