@@ -83,7 +83,7 @@ A centred column `min(380px, 100%)`: wordmark + "CONTENT ADMIN", Email and Passw
 | Select | pills, `role="radiogroup"` / `radio`; active = ink fill |
 | Toggle | `role="switch"`, 40×24 track (accent on), cream knob, `.2s`; text = the on/off label |
 | Tags | chips (accent wash) with ×, an inline input: Enter, comma or blur adds; Backspace removes the last; duplicates ignored; chips drag to reorder |
-| File | Empty: a dashed drop zone, "Drop, paste or **browse**" + accepted types. Filled: thumbnail or extension tile, name, **Replace**, ×. A pasted image uploads like a dropped one |
+| File | Empty: a dashed drop zone (§14 "Drop zone"): drop or paste, and **Open files** + accepted types. Filled: thumbnail or extension tile, name, **Replace**, ×. A pasted image uploads like a dropped one |
 | Media list | a project's modal media: rows (drag handle, 48px thumbnail, name, kind, ×) above the drop zone (several at once; JPG, PNG, WebP, GIF, MP4, WebM, ≤ 10 MB each); `n / 6`; the zone goes at six |
 | Links | Contact's list of label + URL rows (§14 "Contact links") |
 | Range | native, `accent-color` |
@@ -355,6 +355,7 @@ motion: the dial, knob and toasts fade only. Control boundaries use `--line-inpu
 | Simple Markdown hint | The experience description's hint lists the set (paragraphs, lists, bold, italic, underline) and says headings, links and images stay as typed: the set is this site's own, not a convention (owner, 2026-10-18) |
 | Settings trimmed | **Navigation button** and **Press feedback** are gone (owner, 2026-10-18): the button is always bottom right, every press is the ripple. Migration `20261018000000_settings_drop_nav_position_press_feedback` drops the columns |
 | Menu button on phones | Always at the right of the bar: the Sections pill on lists, ≡ after the theme toggle in single-record editors (it was at the left there) (owner, 2026-10-18) |
+| Drop zone | The file and media fields' add zone: pressing it only focuses it, ready for a paste (Ctrl+V / ⌘V; a long press → Paste on phones, with no keyboard: an editable box with `inputMode="none"` that refuses typing); a drop lands anywhere on it; only the **Open files** button opens the picker (owner, 2026-10-18) |
 | Storage cleanup | Saving Hero, About or a project removes from the `media` bucket every upload it **no longer points at**, only when **no record** points at it and only the app's own uploads (`folder/uuid.ext` in this project's bucket); it never fails the save. Everything else is a **daily database job**, `public.clean_media()` (pg_cron, 21:30 UTC): uploads a day old or more that no record points at (deleted projects' files, never-saved uploads). Needs two Vault secrets per project (`docs/SUPABASE.md`) |
 | GitHub username | A Settings field under the description; empty hides the heat map; not reset |
 | Signature intro | A Settings toggle after Script face, on by default; reset by Reset to defaults |

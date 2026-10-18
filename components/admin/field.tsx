@@ -130,6 +130,7 @@ export function Field({
       {(field.type === 'image' || field.type === 'pdf') && (
         <FileField
           id={id}
+          aria-labelledby={labelId}
           aria-describedby={describedBy}
           kind={field.type}
           value={value as ImageValue | string | null}
@@ -139,6 +140,7 @@ export function Field({
       {field.type === 'media' && (
         <MediaField
           id={id}
+          aria-labelledby={labelId}
           aria-describedby={describedBy}
           value={Array.isArray(value) ? (value as MediaValue[]) : []}
           max={field.maxItems}

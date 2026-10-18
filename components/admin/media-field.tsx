@@ -1,9 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import type { MediaValue } from '@/lib/admin/schema';
 import { checkUpload, UPLOADS } from '@/lib/admin/uploads';
 import { GripIcon, SmallCloseIcon } from './admin-icons';
+import { DropZone } from './drop-zone';
 import { upload } from './file-field';
 import { showToast } from './toast';
 import { useDragSort } from './use-drag-sort';
@@ -13,7 +14,8 @@ const rule = UPLOADS.media;
 
 /**
  * A project's modal media (owner, ADMIN-DESIGN-SPEC §14): a list of images, GIFs and videos,
- * in the order the modal shows them. Add by dropping, pasting or browsing (several at once);
+ * in the order the modal shows them. Add by dropping, pasting or Open files (several at once;
+ * `DropZone`);
  * drag a row to reorder; × removes. At `max` the add zone goes.
  */
 export function MediaField({
@@ -27,10 +29,9 @@ export function MediaField({
   max?: number;
   onChange: (value: MediaValue[]) => void;
   'aria-describedby'?: string;
+  'aria-labelledby'?: string;
 }) {
   const [busy, setBusy] = useState(false);
-  const [dragging, setDragging] = useState(false);
-  const input = useRef<HTMLInputElement>(null);
   const sort = useDragSort(
     value.map((m) => m.src),
     (src, to) => {
@@ -58,16 +59,7 @@ export function MediaField({
   }
 
   return (
-    <div
-      className="flex flex-col gap-2"
-      // A pasted image lands here while the focus is anywhere inside the field.
-      onPaste={(e) => {
-        const files = [...e.clipboardData.files];
-        if (!files.length) return;
-        e.preventDefault();
-        void take(files);
-      }}
-    >
+    <div className="flex flex-col gap-2">
       {value.length > 0 && (
         <ul className="flex flex-col gap-2">
           {value.map((item) => (
@@ -114,42 +106,14 @@ export function MediaField({
       )}
 
       {value.length < max && (
-        <label
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragging(true);
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragging(false);
-            void take([...e.dataTransfer.files]);
-          }}
-          className={`flex min-h-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-row border border-dashed bg-field p-4 text-center transition-colors duration-150 hover:border-accent has-focus-visible:outline-2 has-focus-visible:outline-accent ${dragging ? 'border-accent' : 'border-line-input'}`}
-        >
-          <span className="text-meta">
-            {busy ? (
-              'Uploading…'
-            ) : (
-              <>
-                Drop, paste or <span className="text-accent">browse</span>
-              </>
-            )}
-          </span>
-          <span className="text-label text-muted">{rule.acceptText}</span>
-          <input
-            ref={input}
-            {...control}
-            type="file"
-            multiple
-            accept={rule.accept}
-            className="sr-only"
-            onChange={(e) => {
-              void take([...(e.target.files ?? [])]);
-              e.target.value = '';
-            }}
-          />
-        </label>
+        <DropZone
+          {...control}
+          accept={rule.accept}
+          acceptText={rule.acceptText}
+          multiple
+          busy={busy}
+          onFiles={(files) => void take(files)}
+        />
       )}
     </div>
   );

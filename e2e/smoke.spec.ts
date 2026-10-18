@@ -198,7 +198,10 @@ test('admin: saves reach the site — a form, an upload, an article, a setting',
   await test.step('About: a portrait uploads to Storage and shows on the site', async () => {
     await page.goto('/admin/about');
     // A real photo (the repo's sample): the admin reads its size before uploading.
-    await page.getByLabel('Portrait').setInputFiles('public/samples/photo-1.jpg');
+    // Only Open files opens the picker (owner, ADMIN-DESIGN-SPEC §14); the zone is for pasting.
+    const chooser = page.waitForEvent('filechooser');
+    await page.getByRole('button', { name: 'Open files' }).click();
+    await (await chooser).setFiles('public/samples/photo-1.jpg');
     await expect(page.getByRole('button', { name: 'Remove file' })).toBeVisible({
       timeout: 15_000,
     });
