@@ -4,9 +4,20 @@ import type { CSSProperties } from 'react';
  * The floating nav's motion values (spec §5.3), kept beside the component that uses them.
  */
 
-/** From the dock's resting place to the viewport's centre (29px = half the 58px button). */
-export const WHEEL_DOCK =
-  'translate(calc(-50vw + var(--spacing-float) + 29px), calc(-50dvh + var(--spacing-float) + 29px))';
+/**
+ * The wheel's slide: from where the dock is now to the centre of the visible screen (owner,
+ * spec §10). Measured when the menu opens, so it holds wherever the dock rests (parked above
+ * the footer too) and on phones, where the visual viewport is what the eye sees as the screen.
+ */
+export function wheelShift(dock: HTMLElement): string {
+  const rect = dock.getBoundingClientRect();
+  const vv = window.visualViewport;
+  const cx = (vv?.offsetLeft ?? 0) + (vv?.width ?? window.innerWidth) / 2;
+  const cy = (vv?.offsetTop ?? 0) + (vv?.height ?? window.innerHeight) / 2;
+  const dx = Math.round(cx - (rect.left + rect.width / 2));
+  const dy = Math.round(cy - (rect.top + rect.height / 2));
+  return `translate(${dx}px, ${dy}px)`;
+}
 
 /*
  * The timings (spec §5.3). Open and close mirror each other (owner, spec §10): the same

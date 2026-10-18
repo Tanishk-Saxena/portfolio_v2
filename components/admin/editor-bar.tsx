@@ -92,7 +92,7 @@ export function EditorBar({
         {/* Phones: the toggle, then ≡ on single records, at the right as on every list (§14). */}
         <div className="ml-auto flex items-center gap-2 @wide:hidden">
           <ThemeToggle variant="admin" />
-          {!collection && <SheetButton variant="icon" />}
+          {!collection && <SheetButton />}
         </div>
         {state && (
           <div className="ml-auto hidden items-center gap-2 @wide:flex">

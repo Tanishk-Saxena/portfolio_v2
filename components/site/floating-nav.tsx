@@ -2,13 +2,14 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
+import { useScrollLock } from '@/lib/hooks/use-scroll-lock';
 import { useSectionHash } from '@/lib/hooks/use-section-hash';
 import { useSectionSpy } from '@/lib/hooks/use-section-spy';
 import { jumpTo } from '@/lib/anchor-jump';
 import type { MenuLayout } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
-import { closeDuration, curtain, dockRewind, spiral, WHEEL_DOCK } from './nav-motion';
+import { closeDuration, curtain, dockRewind, spiral, wheelShift } from './nav-motion';
 import { CLOSE_ICON, MENU_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
@@ -35,6 +36,8 @@ export function FloatingNav({
   const [open, setOpen] = useState(false);
   const menuId = useId();
   const fabRef = useRef<HTMLButtonElement>(null);
+  const dockRef = useRef<HTMLDivElement>(null);
+  const [shift, setShift] = useState('none'); // the wheel's slide, measured on opening
   const menuRef = useRef<HTMLElement>(null);
   const angles = navAngles(sections.length, layout);
   const wheel = layout === 'wheel';
@@ -47,6 +50,7 @@ export function FloatingNav({
   const reducedMotion = useReducedMotion();
   // Reduced motion: the items only fade (.3s), so the close is over by then.
   const closeTotal = reducedMotion ? 0.3 : closeDuration(sections.length);
+  useScrollLock(open); // the page stays still under the open menu (owner, spec §10)
 
   // Escape closes; focus returns to the button that opened the menu.
   useEffect(() => {
@@ -99,13 +103,14 @@ export function FloatingNav({
 
       <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[calc(var(--spacing-float)+114px)] z-60 flex flex-col items-end justify-end pr-float">
         <div
+          ref={dockRef}
           className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
           // The wheel opens round the screen's centre: the dock slides there (spec §5.3), and
           // goes home as that slide rewound (owner, spec §10).
           style={
             wheel
               ? open
-                ? { transform: WHEEL_DOCK }
+                ? { transform: shift }
                 : reducedMotion
                   ? undefined
                   : dockRewind(sections.length)
@@ -161,7 +166,8 @@ export function FloatingNav({
             aria-controls={menuId}
             onClick={() => {
               setPicked(null);
-              setOpen((o) => !o);
+              if (!open && wheel && dockRef.current) setShift(wheelShift(dockRef.current));
+              setOpen(!open);
             }}
             data-ripple="paper"
             className="absolute inset-0 grid cursor-pointer place-items-center rounded-full bg-ink text-paper shadow-fab [transition:background-color_.4s_ease,color_.4s_ease,opacity_.35s_ease] hover:opacity-92"
