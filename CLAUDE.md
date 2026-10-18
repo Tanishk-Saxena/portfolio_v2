@@ -53,7 +53,7 @@ CI → Run workflow, any branch): `check` (lint, typecheck, format, unit; then a
 with the seed and the test admin, `.github/actions/local-supabase`; the database suite, build,
 smoke e2e, all blocking; axe a warning) and a separate `lighthouse` job (the site and the
 signed-in admin; a reading, never red). No repository secrets; dev and prod are never touched.
-Dependabot (`.github/dependabot.yml`) opens update PRs: npm weekly (minor and patch grouped),
+Dependabot (`.github/dependabot.yml`) opens update PRs: npm weekly (minor and patch grouped; no majors),
 Actions monthly, security fixes at once; they run the full checks and the owner merges.
 
 Data: one path, Supabase. Pages read via `getRepositories()` (`lib/container.ts`), never
