@@ -49,14 +49,14 @@ a branch to one reviewable unit: days, not weeks.
 
 ## Safeguards
 
-| Guard                                                                                                               | Where                                   | Status                        |
-| ------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------------------------- |
-| CI `check` job on every PR and every push to `main`                                                                 | `.github/workflows/ci.yml`              | ✅ active                     |
-| Squash/rebase merges only; branches deleted on merge                                                                | GitHub repo settings                    | ✅ active                     |
-| Local hook: no commits directly on `main`                                                                           | `.githooks/pre-commit`                  | ✅ active after `npm install` |
-| Local hook: no pushes to `main`                                                                                     | `.githooks/pre-push`                    | ✅ active after `npm install` |
-| Server-side: PR required, `check` must pass, branch up to date, no force-push or deletion of `main`, linear history | GitHub ruleset `main protection`        | ✅ active (no bypass)         |
-| Dependency updates as PRs (npm weekly, minor + patch grouped; Actions monthly); security alerts and fixes           | `.github/dependabot.yml`, repo settings | ✅ active                     |
+| Guard                                                                                                                | Where                                   | Status                        |
+| -------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ----------------------------- |
+| CI `check` job on every PR and every push to `main`                                                                  | `.github/workflows/ci.yml`              | ✅ active                     |
+| Squash/rebase merges only; branches deleted on merge                                                                 | GitHub repo settings                    | ✅ active                     |
+| Local hook: no commits directly on `main`                                                                            | `.githooks/pre-commit`                  | ✅ active after `npm install` |
+| Local hook: no pushes to `main`                                                                                      | `.githooks/pre-push`                    | ✅ active after `npm install` |
+| Server-side: PR required, `check` must pass, branch up to date, no force-push or deletion of `main`, linear history  | GitHub ruleset `main protection`        | ✅ active (no bypass)         |
+| Dependency updates as PRs (npm weekly, minor + patch grouped, no majors; Actions monthly); security alerts and fixes | `.github/dependabot.yml`, repo settings | ✅ active                     |
 
 The local hooks are installed by `npm install` (the `prepare` script sets
 `core.hooksPath=.githooks`). In a genuine emergency they can be bypassed with
