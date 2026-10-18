@@ -236,7 +236,7 @@ Quote * (≤ 140); Attribution *; side: In rotation (Shown / Skipped).
 | GitHub username (≤ 39) | empty | The heat map under Skills; empty hides it; letters, digits, single hyphens; not reset |
 | Accent | Terracotta · Slate blue | `--accent-base`, `--accent-dark-mix` |
 | Grain | 6% (0–7, step 0.5; capped for AA, DESIGN-SPEC §1.4) | `--grain-opacity` |
-| Menu layout | Arc · Centre wheel | the wheel: R 150px, dock slides to the visible centre (`dvh`; no slide under reduced motion, Q-A26) |
+| Menu layout | Arc · Centre wheel | the wheel: R 150px, dock slides to the visible centre (measured on opening against `visualViewport`, DESIGN-SPEC §10; no slide under reduced motion, Q-A26) |
 | Script face | Allura · Caveat | `data-script`: signature, hero word, admin wordmark |
 | Project media | Stays until swiped · Moves on by itself | modal media rotation |
 | Signature intro | On · Off | `data-intro-setting` |
