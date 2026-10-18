@@ -44,8 +44,11 @@ jobs:
       # The repository contract, RLS, auth and storage against the real Supabase.
       - run: npm run test:db -- --outputFile.junit=reports/db.xml
       - run: npm run build
+      # Safari's engine for the iPhone project (Chrome is already on the runner).
+      - run: npx playwright install --with-deps webkit
       # Critical-path journeys against the production build, the signed-in admin's saves
-      # included (they write to the local Supabase). Functionality gates the PR.
+      # included (they write to the local Supabase), in Chrome (desktop, phone) and Safari's
+      # engine (iPhone). Functionality gates the PR.
       - run: npx playwright test e2e/smoke.spec.ts
         env:
           PLAYWRIGHT_JUNIT_OUTPUT_FILE: reports/smoke.xml

@@ -47,7 +47,7 @@ and ML, DSA, CI/CD.
 | Data | Supabase: Postgres, Auth, Storage. Two projects: **dev** and **prod** (`docs/SUPABASE.md`) |
 | Auth | Supabase Auth, email + password, sign-ups off, an allowlist (`lib/auth/`, `proxy.ts`) |
 | Hosting | Vercel: production at https://tanishk-saxena.vercel.app, a preview per branch |
-| Testing | Vitest (+ Testing Library, PGlite); Playwright + axe; Lighthouse CI; all beyond unit tests against a local Supabase in CI |
+| Testing | Vitest (+ Testing Library, PGlite); Playwright + axe in Chrome and Safari's engine; Lighthouse CI; all beyond unit tests against a local Supabase in CI. Dependabot for updates |
 
 ## 3. Constraints
 

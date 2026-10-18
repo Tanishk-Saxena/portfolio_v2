@@ -1,8 +1,8 @@
-import { defineConfig } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test';
 import { isLocalSupabase } from './lib/supabase-local';
 
-// Smoke + a11y tests for the major flows (brief §2), on the production build and the locally
-// installed Chrome (also on GitHub's ubuntu runners, so no browser download). They run against
+// Smoke + a11y tests for the major flows (brief §2), on the production build: in the installed
+// Chrome (GitHub's ubuntu runners have it) and in Playwright's WebKit (CI installs it). They run against
 // a local Supabase only (CI's, loaded with the seed): the admin journeys write, so they refuse
 // dev and prod.
 const PORT = 3200;
@@ -25,17 +25,26 @@ export default defineConfig({
     : 'list',
   use: {
     baseURL: `http://localhost:${PORT}`,
-    channel: 'chrome',
     trace: 'retain-on-failure',
     reducedMotion: 'reduce', // deterministic; the reduced-motion path must work anyway
   },
   projects: [
-    // Every spec runs on both: smoke and axe alike (owner: a11y and perf are never judged
-    // on one device only).
-    { name: 'desktop', use: { viewport: { width: 1440, height: 900 } } },
+    // Every spec runs on all three: smoke and axe alike (owner: a11y and perf are never
+    // judged on one device only). Chrome on desktop and phone (the runner's own Chrome), and
+    // Safari's engine on an iPhone profile, since most phones visiting are iPhones.
+    { name: 'desktop', use: { channel: 'chrome', viewport: { width: 1440, height: 900 } } },
     {
       name: 'mobile',
-      use: { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true },
+      use: {
+        channel: 'chrome',
+        viewport: { width: 390, height: 844 },
+        hasTouch: true,
+        isMobile: true,
+      },
+    },
+    {
+      name: 'iphone-safari',
+      use: { ...devices['iPhone 13'], viewport: { width: 390, height: 844 } },
     },
   ],
   webServer: {
