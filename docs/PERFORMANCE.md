@@ -23,8 +23,17 @@ phone.
 | 2026-10-18 | live, desktop | home / article | 100 / 100 / 100 / 100 | 0.7 s | ≤ 0.002 | |
 | 2026-10-18 | local, over dev, signed in, mobile | Writing / editor / Hero / Settings | 69 / 64 / 80 / 78; a11y 100 | 3.7–4.1 s | 0 | a private tool: flagged, not a target; SEO 63 = `noindex` |
 | 2026-10-18 | same, desktop | the same four | 98–99; a11y 100 | 0.9 s | 0 | |
+| 2026-10-18 | CI, local Supabase + seed, mobile | home / article / sign-in | 88 / 92 / 96; a11y 100; BP 96 | 2.7–3.5 s | ≤ 0.002 | first per-PR reading on one data path (PR #51); BP 96 = http on localhost |
+| 2026-10-18 | same, mobile, signed in | Writing / editor / Hero / Settings | 91–94; a11y 100 | 3.0–3.5 s | 0 | higher than the laptop reading above, which went over the network to dev |
+| 2026-10-18 | same, desktop | all seven | 97–100; a11y 100 | 0.6–0.7 s | ≤ 0.002 | |
 
 Axe: clean on the site and the admin (last: 2026-10-18).
+
+**Reading the home page settled.** On a fresh home visit the hero's entrance waits for the
+signature intro (~3.6 s). Lighthouse audits right after load, so it once sampled the hero's
+text mid-fade and scored accessibility 96 for "contrast" that no visitor sees at rest. The
+site pages are therefore audited 4 s after load (`pauseAfterLoadMs`, `lighthouserc.cjs`), as
+the axe tests wait for animations to end; load metrics come from the trace, unchanged.
 
 ## Open items
 

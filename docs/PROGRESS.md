@@ -117,6 +117,15 @@ real content never needs an audit, accessibility was closed in code: the article
 (one h1, named links, safe hrefs), validation (image descriptions, link words), modal media
 named from the project and held muted, and the grain capped at 7% for contrast.
 
+The test changes, in short: unit tests read the seed directly (no in-memory repositories);
+`npm run test:live` against dev became `npm run test:db` against the local Supabase, in CI;
+the signed-in tests stopped skipping without credentials (CI always has its test admin);
+the PR's results table gained the database suite. The first CI runs caught three things, now
+fixed: the local Supabase's email provider must stay on (only sign-ups are off); a test image
+must be a real file (a hand-written PNG failed to decode, so the admin refused it); Lighthouse
+must audit the settled home page (`docs/PERFORMANCE.md`). Readings after it: accessibility
+100 everywhere; signed-in admin performance 91–94 mobile, 100 desktop.
+
 ## Open items
 
 - **P-1, phone lab LCP** (≈3.2–3.6 s, mobile performance 87–88): flagged, never a gate.
