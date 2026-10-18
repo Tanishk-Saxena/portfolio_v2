@@ -11,7 +11,7 @@ export async function AdminHeader() {
       </span>
       <div className="flex items-center gap-2">
         <ThemeToggle variant="admin" />
-        <SheetButton variant="pill" />
+        <SheetButton />
       </div>
     </header>
   );

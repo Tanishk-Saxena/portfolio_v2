@@ -192,8 +192,9 @@ anything flagged becomes an ordinary fix. This round's items first (branch
 - [ ] **Ripple everywhere**: buttons, icon buttons (×, ↑ ↓, ‹ ›), Write / Preview tabs, side-panel actions; Settings no longer lists Press feedback or Navigation button.
 - [ ] **Nav button**: bottom right from the first screen; on the hero it shows ☰ and no item is marked; under the intro's overlay while that plays.
 - [ ] **Nav open**: each item spirals out of the button, mirroring the close; arc and wheel.
+- [ ] **Nav menu open**: the page behind doesn't scroll (wheel, touch, keys); the wheel sits at the centre of a phone's screen, at the top of the page and at the very bottom.
 - [ ] **App icon** reads TS: tab, `/favicon.ico`, home-screen icon.
-- [ ] **Admin on a phone**: the menu button is at the right on every page (lists, Hero, About, Contact, Settings, an entry).
+- [ ] **Admin on a phone**: the same round ≡ at the right, after the theme toggle, on every page (lists, Hero, About, Contact, Settings); an entry has back at the left.
 - [ ] **Paste zone** (About → Portrait; Projects → Cover, Modal media; Hero → Résumé): pressing it focuses it (no picker), Ctrl+V / ⌘V uploads; on a phone, long-press → Paste with no keyboard; a drop works; only **Open files** opens the picker.
 - [ ] **Contact links**: Add link takes only a label and a full URL (Enter adds too); an empty one can't be added or saved; edit, reorder, remove, save; check the site. On the phone over the LAN address too.
 - [ ] **Experience description**: hover, focus or tap the dotted "Simple Markdown" for the tooltip (the set, and that headings, links and images stay as typed).

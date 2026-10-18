@@ -57,10 +57,10 @@ One breakpoint at 760px on the admin's own `admin` container (Q-A3).
 
 ### 4.2 Narrow (< 760px)
 
-- Lists: a sticky 60px header with the wordmark, theme toggle and a **Sections** pill opening
+- Lists: a sticky 60px header with the wordmark, theme toggle and a round **≡** opening
   a full-screen **sheet** (`role="dialog"`; groups, rows 56px; View site, Sign out).
-- Editor: the bar replaces the header (back at the left for collections; ≡ at the right, after
-  the theme toggle, for single records, where the list pages keep their Sections pill); the state
+- Editor: the bar replaces the header (back at the left for collections; for single records
+  the same round ≡ at the right, after the theme toggle); the state
   pill reads "Unsaved". A fixed **bottom bar**: a round Discard + a full-width Save (50px),
   above the safe area.
 - Rows: meta under the title, no chevron. The side panel stacks under the fields. Toasts lift
@@ -354,7 +354,7 @@ motion: the dial, knob and toasts fade only. Control boundaries use `--line-inpu
 | Contact links | One **Links** field: each link one card (grip, label \| URL, ↑ ↓, ×; on phones the label sits above the URL); drag or arrows reorder; × removes. New links come from a composer row under the list (label, URL, **Add link**; Enter adds), which takes only a complete link, so the list never holds an empty one (owner, 2026-10-18); up to eight, then the composer goes. Every link needs a label (≤ 40) and a full address. Saving replaces the stored list (new rows inserted, removed ones soft-deleted, order renumbered) |
 | Simple Markdown tooltip | In the experience description's well, "Simple Markdown" is dotted-underlined, on every width; hovering, focusing or tapping it shows the set (paragraphs, lists, bold, italic, underline) and that headings, links and images stay as typed: the set is this site's own, not a convention (owner, 2026-10-18; a tooltip, not the hint, 2026-10-19). The field's hint is "Shown when the row is expanded." |
 | Settings trimmed | **Navigation button** and **Press feedback** are gone (owner, 2026-10-18): the button is always bottom right, every press is the ripple. Migration `20261018000000_settings_drop_nav_position_press_feedback` drops the columns |
-| Menu button on phones | Always at the right of the bar: the Sections pill on lists, ≡ after the theme toggle in single-record editors (it was at the left there) (owner, 2026-10-18) |
+| Menu button on phones | One round **≡**, always at the right of the bar after the theme toggle, on lists and single-record editors alike (owner, 2026-10-18: it was at the left in editors; 2026-10-19: the lists' labelled "Sections" pill went too, as the page heading already names the section) |
 | Drop zone | The file and media fields' add zone: pressing it only focuses it, ready for a paste (Ctrl+V / ⌘V; a long press → Paste on phones, with no keyboard: an editable box with `inputMode="none"` that refuses typing); a drop lands anywhere on it; only the **Open files** button opens the picker (owner, 2026-10-18) |
 | Storage cleanup | Saving Hero, About or a project removes from the `media` bucket every upload it **no longer points at**, only when **no record** points at it and only the app's own uploads (`folder/uuid.ext` in this project's bucket); it never fails the save. Everything else is a **daily database job**, `public.clean_media()` (pg_cron, 21:30 UTC): uploads a day old or more that no record points at (deleted projects' files, never-saved uploads). Needs two Vault secrets per project (`docs/SUPABASE.md`) |
 | GitHub username | A Settings field under the description; empty hides the heat map; not reset |

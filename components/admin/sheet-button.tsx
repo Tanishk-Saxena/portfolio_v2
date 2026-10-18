@@ -1,33 +1,25 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { sectionFromPath } from '@/lib/admin/sections';
 import { CIRCLE_BUTTON } from './admin-classes';
 import { MenuIcon } from './admin-icons';
 import { openSheet, SHEET_ID } from './sections-sheet';
 
 /**
- * Opens the Sections sheet (phones). `pill`: the list header's button, labelled with the
- * current section. `icon`: the editor bar's ≡ on single records (ADMIN-DESIGN-SPEC §4.2).
+ * Opens the Sections sheet (phones): one round ≡, at the right of every bar after the theme
+ * toggle, on lists and editors alike (owner, ADMIN-DESIGN-SPEC §14). The page's own heading
+ * names the section, so the button doesn't repeat it.
  */
-export function SheetButton({ variant }: { variant: 'pill' | 'icon' }) {
-  const label = sectionFromPath(usePathname())?.label ?? 'Sections';
+export function SheetButton() {
   return (
     <button
       type="button"
-      // The pill's name starts with its visible label (WCAG 2.5.3).
-      aria-label={variant === 'pill' ? `${label}, open sections` : 'Open sections'}
+      aria-label="Open sections"
       aria-haspopup="dialog"
       aria-controls={SHEET_ID}
       onClick={openSheet}
       data-ripple="press-row"
-      className={
-        variant === 'icon'
-          ? CIRCLE_BUTTON
-          : 'inline-flex h-11 cursor-pointer items-center gap-2.5 rounded-full border border-line px-4 text-meta font-medium whitespace-nowrap'
-      }
+      className={CIRCLE_BUTTON}
     >
-      {variant === 'pill' && label}
       <MenuIcon />
     </button>
   );
