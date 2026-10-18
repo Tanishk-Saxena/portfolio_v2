@@ -51,16 +51,18 @@ export function ToastHost() {
   );
 
   return (
-    // The live region is always there, so screen readers hear each new message.
+    // The live region is always there, so screen readers hear each new message. It spans
+    // the screen (past the sidebar when wide) and centres its toasts, so a long one stays
+    // centred: a box pinned at left: 50% only had half the screen to fit in.
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed bottom-6 left-1/2 z-50 flex max-w-[calc(100vw-24px)] -translate-x-1/2 flex-col items-center gap-2 [:root:has([data-bottom-bar])_&]:@max-wide:mb-19"
+      className="pointer-events-none fixed inset-x-3 bottom-6 z-50 flex flex-col items-center gap-2 @wide:left-[calc(var(--spacing-admin-sidebar)+12px)] [:root:has([data-bottom-bar])_&]:@max-wide:mb-19"
     >
       {shown.map((toast) => (
         <div
           key={toast.id}
-          className={`pointer-events-auto flex min-h-11.5 max-w-full items-center gap-3.5 rounded-full bg-ink py-1.5 pl-4.5 text-meta whitespace-nowrap text-paper shadow-toast transition-[opacity,translate] duration-300 ease-toast motion-reduce:transition-none starting:translate-y-6 starting:opacity-0 ${toast.undo ? 'pr-2' : 'pr-4.5'}`}
+          className={`pointer-events-auto flex min-h-11.5 max-w-full items-center gap-3.5 rounded-full bg-accent-fill py-1.5 pl-4.5 text-meta whitespace-nowrap text-on-accent shadow-toast transition-[opacity,translate] duration-300 ease-toast motion-reduce:transition-none starting:translate-y-6 starting:opacity-0 ${toast.undo ? 'pr-2' : 'pr-4.5'}`}
         >
           <span className="truncate">{toast.text}</span>
           {toast.undo && (
@@ -70,7 +72,7 @@ export function ToastHost() {
                 dismiss(toast.id); // gone at once, so Undo can't fire twice
                 toast.undo?.();
               }}
-              className="hit-44 relative h-8 flex-none cursor-pointer rounded-full border border-paper/40 px-3.5 text-small font-medium text-paper hover:border-paper"
+              className="hit-44 relative h-8 flex-none cursor-pointer rounded-full border border-on-accent/50 px-3.5 text-small font-medium text-on-accent hover:border-on-accent"
             >
               Undo
             </button>
