@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import type { Project } from '@/lib/domain/types';
 import { formatProjectKind } from '@/lib/utils/format';
-import { CloseIcon, GitHubIcon, GlobeIcon } from '@/components/ui/icons';
+import { GitHubIcon, GlobeIcon } from '@/components/ui/icons';
 import { ProjectMedia } from './project-media';
 
 const CLOSE_MS = 320; // spec §5.3: unmount after the reverse animation
@@ -35,8 +35,10 @@ export function originFrom(card: HTMLElement): ModalOrigin {
  * Project modal (spec §6 ProjectModal, Q16). Native <dialog> + showModal(): focus trap,
  * Escape, inert background and focus return to the trigger come from the platform.
  * Scales out of the clicked card and back into it on close (spec §5 "Signature moments" 3).
- * One fixed size (owner, spec §10): 880×460 wide, 420×600 narrow, never more than 60% of the
- * screen's height, whatever the copy. Wide is 460 and not the mockup's 420 so a full
+ * One fixed size (owner, spec §10): 880×460 wide, never more than 60% of the screen's height;
+ * 420×680 narrow, never more than 70%; whatever the copy. No close button (owner, §10): the
+ * backdrop, Escape and the platform's dismiss gesture close it. The links come before the
+ * description, so they never scroll out of reach. Wide is 460 and not the mockup's 420 so a full
  * Description (320 characters, six lines) fits: at 420 a five-line one overflowed by a pixel
  * and showed a scrollbar. Copy that still doesn't fit scrolls the body, with a thin bar in
  * the theme's colours.
@@ -64,6 +66,7 @@ export function ProjectModal({
     // This render already placed the (closed) dialog at the card; open it there, then
     // transition to the centre two frames later.
     dialog.showModal();
+    dialog.querySelector<HTMLElement>(`#${CSS.escape(titleId)}`)?.focus();
     let second = 0;
     const first = requestAnimationFrame(() => {
       second = requestAnimationFrame(() => setShown(true));
@@ -72,7 +75,7 @@ export function ProjectModal({
       cancelAnimationFrame(first);
       cancelAnimationFrame(second);
     };
-  }, [project]);
+  }, [project, titleId]);
 
   function close() {
     setShown(false);
@@ -102,17 +105,7 @@ export function ProjectModal({
       className="project-modal m-auto max-h-none w-[min(420px,100%-2*var(--spacing-stage))] max-w-none overflow-hidden rounded-modal border border-border-card bg-paper p-0 text-ink shadow-modal @wide/page:w-[min(880px,100%-2*var(--spacing-stage))]"
     >
       {project && (
-        <div className="flex h-[min(600px,60svh)] flex-col @wide/page:h-[min(460px,60svh)] @wide/page:flex-row">
-          <button
-            type="button"
-            aria-label="Close"
-            onClick={close}
-            data-ripple="ink"
-            className="hit-44 absolute top-3 right-3 z-2 grid size-9.5 cursor-pointer place-items-center rounded-full border border-border-close bg-paper text-ink hover:border-accent"
-          >
-            <CloseIcon />
-          </button>
-
+        <div className="flex h-[min(680px,70svh)] flex-col @wide/page:h-[min(460px,60svh)] @wide/page:flex-row">
           <div className="relative grid aspect-video w-full flex-none place-items-center border-b border-border-divider bg-surface @wide/page:aspect-auto @wide/page:w-98 @wide/page:self-stretch @wide/page:border-r @wide/page:border-b-0">
             {project.media.length > 0 ? (
               // Keyed by project, so each opens on its first item.
@@ -142,16 +135,46 @@ export function ProjectModal({
             <span className="text-micro tracking-label text-accent uppercase">
               {formatProjectKind(project.kind)}
             </span>
-            {/* The year sits under the name: beside the type it ran under the close button. */}
+            {/* The year sits under the name (owner, spec §10). */}
             <div className="flex flex-col gap-1">
               <h3
                 id={titleId}
-                className="font-serif text-modal-title @wide/page:text-modal-title-wide"
+                // Opening focuses the title (no close button to land on, owner §10).
+                tabIndex={-1}
+                className="font-serif text-modal-title outline-none @wide/page:text-modal-title-wide"
               >
                 {project.title}
               </h3>
               <span className="text-label text-muted tabular-nums">{project.year}</span>
             </div>
+            {(project.liveUrl || project.repoUrl) && (
+              <div className="flex flex-wrap gap-2.5">
+                {project.liveUrl && (
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-ripple="paper"
+                    className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92"
+                  >
+                    <GlobeIcon />
+                    Live site<span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+                {project.repoUrl && (
+                  <a
+                    href={project.repoUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-ripple="ink"
+                    className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent"
+                  >
+                    <GitHubIcon />
+                    Source<span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                )}
+              </div>
+            )}
             {project.description && (
               <p className="text-body-sm text-muted @wide/page:text-body">{project.description}</p>
             )}
@@ -167,32 +190,6 @@ export function ProjectModal({
                 ))}
               </ul>
             )}
-            <div className="mt-1 flex flex-wrap gap-2.5">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-ripple="paper"
-                  className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92"
-                >
-                  <GlobeIcon />
-                  Live site<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              )}
-              {project.repoUrl && (
-                <a
-                  href={project.repoUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-ripple="ink"
-                  className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent"
-                >
-                  <GitHubIcon />
-                  Source<span className="sr-only"> (opens in a new tab)</span>
-                </a>
-              )}
-            </div>
           </div>
         </div>
       )}
