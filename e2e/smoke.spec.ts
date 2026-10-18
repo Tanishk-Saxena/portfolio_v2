@@ -124,6 +124,9 @@ test('admin: signed in — create, edit, toggle, delete and undo, settings', asy
     await page.getByRole('textbox', { name: /^Attribution/ }).fill('Smoke, edited');
     await save.click();
     await expect(page.getByText('Saved, live on the site')).toBeVisible();
+    // A save refreshes the admin's shell; let that land before typing a new address (WebKit
+    // reports the refresh's URL update as a competing navigation if it lands mid-`goto`).
+    await page.waitForLoadState('networkidle');
   });
 
   await test.step('takes it out of rotation from the list', async () => {
@@ -169,7 +172,11 @@ test('admin: saves reach the site — a form, an upload, an article, a setting',
   const save = page
     .getByRole('button', { name: /^(Create|Save|Publish)$/ })
     .locator('visible=true');
-  const saved = (text: string | RegExp) => expect(page.getByText(text).last()).toBeVisible();
+  // The toast, then the shell's refresh settled, before the next address is typed.
+  const saved = async (text: string | RegExp) => {
+    await expect(page.getByText(text).last()).toBeVisible();
+    await page.waitForLoadState('networkidle');
+  };
   // A save marks the pages stale; the next visit renders them again.
   const onSite = async (path: string, check: () => Promise<void>) =>
     expect(async () => {
