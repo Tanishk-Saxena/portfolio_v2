@@ -4,6 +4,7 @@ import { type ClipboardEvent, useRef, useState } from 'react';
 import type { ImageValue } from '@/lib/admin/schema';
 import { checkUpload, UPLOADS, type UploadKind } from '@/lib/admin/uploads';
 import { SmallCloseIcon } from './admin-icons';
+import { DropZone } from './drop-zone';
 import { showToast } from './toast';
 
 /** An image's own size, read before upload so the site can reserve its space (CLS, §10). */
@@ -36,8 +37,8 @@ export async function upload(kind: UploadKind, file: File): Promise<string | nul
 const fileName = (src: string) => decodeURIComponent(src.split('/').pop() ?? src);
 
 /**
- * The schema's file field (ADMIN-DESIGN-SPEC §5): a drop zone when empty (drop, paste or
- * browse; a paste lands while the focus is inside the field), else a row with a
+ * The schema's file field (ADMIN-DESIGN-SPEC §5): a drop zone when empty (drop, paste, or
+ * Open files; `DropZone`), else a row with a
  * thumbnail (image) or extension tile (PDF), the name, Replace and remove. Image values carry
  * their size; PDF values are the URL.
  */
@@ -52,10 +53,10 @@ export function FileField({
   value: ImageValue | string | null;
   onChange: (value: ImageValue | string | null) => void;
   'aria-describedby'?: string;
+  'aria-labelledby'?: string;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
-  const [dragging, setDragging] = useState(false);
   const rule = UPLOADS[kind];
   const src = typeof value === 'string' ? value : (value?.src ?? '');
 
@@ -134,31 +135,12 @@ export function FileField({
   }
 
   return (
-    <label
-      onPaste={onPaste}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragging(true);
-      }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={(e) => {
-        e.preventDefault();
-        setDragging(false);
-        void take(e.dataTransfer.files[0]);
-      }}
-      className={`flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-row border border-dashed bg-field p-4 text-center transition-colors duration-150 hover:border-accent has-focus-visible:outline-2 has-focus-visible:outline-accent ${dragging ? 'border-accent' : 'border-line-input'}`}
-    >
-      <span className="text-meta">
-        {busy ? (
-          'Uploading…'
-        ) : (
-          <>
-            Drop, paste or <span className="text-accent">browse</span>
-          </>
-        )}
-      </span>
-      <span className="text-label text-muted">{rule.acceptText}</span>
-      {picker}
-    </label>
+    <DropZone
+      {...control}
+      accept={rule.accept}
+      acceptText={rule.acceptText}
+      busy={busy}
+      onFiles={(files) => void take(files[0])}
+    />
   );
 }
