@@ -37,9 +37,9 @@ export function originFrom(card: HTMLElement): ModalOrigin {
  * Scales out of the clicked card and back into it on close (spec §5 "Signature moments" 3).
  * One fixed size (owner, spec §10): 880×460 wide, never more than 60% of the screen's height;
  * 420×680 narrow, never more than 70%; whatever the copy. No close button (owner, §10): the
- * backdrop, Escape and the platform's dismiss gesture close it. The links come before the
- * description, so they never scroll out of reach. Wide is 460 and not the mockup's 420 so a full
- * Description (320 characters, six lines) fits: at 420 a five-line one overflowed by a pixel
+ * backdrop, Escape and the platform's dismiss gesture close it. Focus goes Live site →
+ * Source → the name, starting on the first. The links sit above the description, so they
+ * never scroll out of reach. Wide is 460 and not the mockup's 420 so a full Description (320 characters, six lines) fits: at 420 a five-line one overflowed by a pixel
  * and showed a scrollbar. Copy that still doesn't fit scrolls the body, with a thin bar in
  * the theme's colours.
  */
@@ -66,7 +66,9 @@ export function ProjectModal({
     // This render already placed the (closed) dialog at the card; open it there, then
     // transition to the centre two frames later.
     dialog.showModal();
-    dialog.querySelector<HTMLElement>(`#${CSS.escape(titleId)}`)?.focus();
+    // Focus order (owner, spec §10): Live site → Source → the name; opening starts there.
+    const start = dialog.querySelector<HTMLElement>('[data-modal-link]');
+    (start ?? dialog.querySelector<HTMLElement>(`#${CSS.escape(titleId)}`))?.focus();
     let second = 0;
     const first = requestAnimationFrame(() => {
       second = requestAnimationFrame(() => setShown(true));
@@ -132,29 +134,17 @@ export function ProjectModal({
           </div>
 
           <div className="themed-scroll flex min-h-0 min-w-0 flex-auto flex-col justify-start gap-3 overflow-y-auto p-5 @wide/page:justify-center @wide/page:gap-3.5 @wide/page:p-8">
-            <span className="text-micro tracking-label text-accent uppercase">
-              {formatProjectKind(project.kind)}
-            </span>
-            {/* The year sits under the name (owner, spec §10). */}
-            <div className="flex flex-col gap-1">
-              <h3
-                id={titleId}
-                // Opening focuses the title (no close button to land on, owner §10).
-                tabIndex={-1}
-                className="font-serif text-modal-title outline-none @wide/page:text-modal-title-wide"
-              >
-                {project.title}
-              </h3>
-              <span className="text-label text-muted tabular-nums">{project.year}</span>
-            </div>
+            {/* The links come first in the DOM, so Tab goes Live site → Source → the name
+                (owner, spec §10); `order` keeps them under the name on screen. */}
             {(project.liveUrl || project.repoUrl) && (
-              <div className="flex flex-wrap gap-2.5">
+              <div className="order-3 flex flex-wrap gap-2.5">
                 {project.liveUrl && (
                   <a
                     href={project.liveUrl}
                     target="_blank"
                     rel="noreferrer"
                     data-ripple="paper"
+                    data-modal-link
                     className="inline-flex h-11 items-center gap-2.25 rounded-pill bg-accent-fill px-4.5 text-meta text-on-accent hover:text-on-accent hover:opacity-92"
                   >
                     <GlobeIcon />
@@ -167,6 +157,7 @@ export function ProjectModal({
                     target="_blank"
                     rel="noreferrer"
                     data-ripple="ink"
+                    data-modal-link
                     className="inline-flex h-11 items-center gap-2.25 rounded-pill border border-border-quiet px-4.5 text-meta text-ink hover:border-accent"
                   >
                     <GitHubIcon />
@@ -175,11 +166,28 @@ export function ProjectModal({
                 )}
               </div>
             )}
+            <span className="order-1 text-micro tracking-label text-accent uppercase">
+              {formatProjectKind(project.kind)}
+            </span>
+            {/* The year sits under the name (owner, spec §10). */}
+            <div className="order-2 flex flex-col gap-1">
+              <h3
+                id={titleId}
+                // In the Tab order after the links (owner, spec §10).
+                tabIndex={0}
+                className="font-serif text-modal-title @wide/page:text-modal-title-wide"
+              >
+                {project.title}
+              </h3>
+              <span className="text-label text-muted tabular-nums">{project.year}</span>
+            </div>
             {project.description && (
-              <p className="text-body-sm text-muted @wide/page:text-body">{project.description}</p>
+              <p className="order-4 text-body-sm text-muted @wide/page:text-body">
+                {project.description}
+              </p>
             )}
             {project.tags.length > 0 && (
-              <ul className="flex flex-wrap gap-2" aria-label="Built with">
+              <ul className="order-5 flex flex-wrap gap-2" aria-label="Built with">
                 {project.tags.slice(0, 3).map((tag) => (
                   <li
                     key={tag}

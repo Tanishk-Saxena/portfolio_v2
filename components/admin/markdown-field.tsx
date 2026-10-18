@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { renderMarkdown, renderSimpleMarkdown } from '@/lib/utils/markdown';
+import { SimpleMarkdownTip } from './simple-markdown-tip';
 
 const TAB =
   'h-8 cursor-pointer rounded-sm px-3 text-small text-muted aria-pressed:bg-surface aria-pressed:font-medium aria-pressed:text-ink';
@@ -50,9 +51,13 @@ export function MarkdownField({
         >
           Preview
         </button>
-        <span className="ml-auto hidden pr-2 text-label text-muted @wide:inline">
-          {simple ? 'Simple Markdown' : 'Markdown supported'}
-        </span>
+        {simple ? (
+          <SimpleMarkdownTip />
+        ) : (
+          <span className="ml-auto hidden pr-2 text-label text-muted @wide:inline">
+            Markdown supported
+          </span>
+        )}
       </div>
       {preview ? (
         value.trim() ? (

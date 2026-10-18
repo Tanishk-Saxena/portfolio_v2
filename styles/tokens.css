@@ -382,6 +382,16 @@ html[data-intro='fly'] [data-signature-mark] {
   }
 }
 
+/* The modal media's time left (RotationBar): the bar fills over the item's turn. */
+@keyframes media-turn {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 @keyframes wheel {
   0% {
     transform: translateY(0);

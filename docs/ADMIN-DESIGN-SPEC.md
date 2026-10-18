@@ -88,7 +88,7 @@ A centred column `min(380px, 100%)`: wordmark + "CONTENT ADMIN", Email and Passw
 | Links | Contact's list of label + URL rows (§14 "Contact links") |
 | Range | native, `accent-color` |
 | Theme toggle | the site's dial; its label names the mode it switches to |
-| Toast | bottom-centre, **stacked** (newest lowest, three at most), `--paper2` pill, ink text, accent border; optional **Undo**; `role="status"`; 3s (6s with Undo); a repeated plain message replaces the one showing |
+| Toast | bottom-centre, **stacked** (newest lowest, three at most), an **ink pill with paper text** (the inverse of the page, so it stands out in both modes; owner, 2026-10-19), Undo outlined in paper; optional **Undo**; `role="status"`; 3s (6s with Undo); a repeated plain message replaces the one showing |
 | Confirm dialog | `role="alertdialog"`, `min(420px, 100%)`: title, body, optional "Changed" list, Cancel + the filled action (focused on open); Escape and the overlay cancel |
 | Buttons | filled = `--accent-fill`, cream text; outline = `--line`, accent on hover; one filled button per screen |
 
@@ -352,7 +352,7 @@ motion: the dial, knob and toasts fade only. Control boundaries use `--line-inpu
 | Accent in images | Share cards and icons follow the saved accent from the next deploy |
 | Experience description | The Markdown field's `simple` form (§5), previewed with the site's limited renderer; the article preview shows underline too |
 | Contact links | One **Links** field: each link one card (grip, label \| URL, ↑ ↓, ×; on phones the label sits above the URL); drag or arrows reorder; × removes. New links come from a composer row under the list (label, URL, **Add link**; Enter adds), which takes only a complete link, so the list never holds an empty one (owner, 2026-10-18); up to eight, then the composer goes. Every link needs a label (≤ 40) and a full address. Saving replaces the stored list (new rows inserted, removed ones soft-deleted, order renumbered) |
-| Simple Markdown hint | The experience description's hint lists the set (paragraphs, lists, bold, italic, underline) and says headings, links and images stay as typed: the set is this site's own, not a convention (owner, 2026-10-18) |
+| Simple Markdown tooltip | In the experience description's well, "Simple Markdown" is dotted-underlined, on every width; hovering, focusing or tapping it shows the set (paragraphs, lists, bold, italic, underline) and that headings, links and images stay as typed: the set is this site's own, not a convention (owner, 2026-10-18; a tooltip, not the hint, 2026-10-19). The field's hint is "Shown when the row is expanded." |
 | Settings trimmed | **Navigation button** and **Press feedback** are gone (owner, 2026-10-18): the button is always bottom right, every press is the ripple. Migration `20261018000000_settings_drop_nav_position_press_feedback` drops the columns |
 | Menu button on phones | Always at the right of the bar: the Sections pill on lists, ≡ after the theme toggle in single-record editors (it was at the left there) (owner, 2026-10-18) |
 | Drop zone | The file and media fields' add zone: pressing it only focuses it, ready for a paste (Ctrl+V / ⌘V; a long press → Paste on phones, with no keyboard: an editable box with `inputMode="none"` that refuses typing); a drop lands anywhere on it; only the **Open files** button opens the picker (owner, 2026-10-18) |
