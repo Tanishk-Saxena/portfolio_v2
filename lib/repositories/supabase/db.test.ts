@@ -6,21 +6,17 @@ import {
   checkAdminWrites,
   runRepositoryContract,
 } from '../repository-contract';
+import { isLocalSupabase } from '@/lib/supabase-local';
 import { createPublicClient } from './client';
 import { createSupabaseAdminRepositories } from './supabase-admin-repositories';
 import { createSupabaseRepositories } from './supabase-repositories';
 
 /*
- * Everything that needs the real dev project in .env.local, in one file so the network
- * calls run one after another. Skips without keys (CI). Never point this at production:
- * with the secret key it plants rows and throwaway accounts, and removes them after.
+ * The database suite (`npm run test:db`): the repository contract, RLS, auth and storage
+ * against a real Supabase, in one file so the network calls run one after another. It runs
+ * **only against a local Supabase** (CI's throwaway one, loaded with the seed): it plants rows
+ * and throwaway accounts with the secret key, so it refuses dev and prod outright.
  */
-
-try {
-  process.loadEnvFile('.env.local'); // never overrides variables already set (CI secrets)
-} catch {
-  // no .env.local: rely on the environment
-}
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? '';
@@ -28,7 +24,11 @@ const secret = process.env.SUPABASE_SECRET_KEY ?? '';
 const NO_SESSION = { auth: { persistSession: false, autoRefreshToken: false } };
 const client = (k = key) => createClient(url, k, NO_SESSION);
 
-describe.skipIf(!url || !key)('Supabase dev project', () => {
+if (url && !isLocalSupabase(url)) {
+  throw new Error(`The database suite runs only against a local Supabase, not ${url}`);
+}
+
+describe.skipIf(!url || !key)('Supabase (local)', () => {
   runRepositoryContract('supabase', () => createSupabaseRepositories(createPublicClient()));
 
   it('anonymous visitors cannot write, upload or read the allowlist', async () => {

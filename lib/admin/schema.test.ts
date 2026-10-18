@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { defaultDataset } from '@/lib/repositories/fixtures/data';
+import { seedContent } from '@/lib/seed';
 import {
   applySingle,
   duplicateDraft,
@@ -31,7 +31,7 @@ describe('admin schema', () => {
     expect(validate('quotes', { text: 'x'.repeat(141), author: 'A', active: true }).text).toBe(
       'Too long: 141 of 140 characters.',
     );
-    const contact = singleDraft('contact', defaultDataset.profile, defaultDataset.socialLinks);
+    const contact = singleDraft('contact', seedContent.profile, seedContent.socialLinks);
     const link = { id: 'leetcode', label: 'LeetCode', url: 'leetcode.com/me' };
     expect(validate('contact', { ...contact, email: 'nope', links: [link] })).toEqual({
       email: 'Enter a valid email address.',
@@ -47,7 +47,7 @@ describe('admin schema', () => {
     // The server refuses a malformed list outright: a duplicate id, or an id that is no key.
     expect(parseDraft('contact', { ...contact, links: [link, link] })).toBeNull();
     expect(parseDraft('contact', { ...contact, links: [{ ...link, id: 'a b' }] })).toBeNull();
-    const hero = singleDraft('hero', defaultDataset.profile, []);
+    const hero = singleDraft('hero', seedContent.profile, []);
     expect(validate('hero', { ...hero, headlineHighlight: 'zebra' }).headlineHighlight).toBe(
       '“zebra” does not appear in the headline.',
     );
@@ -75,7 +75,7 @@ describe('admin schema', () => {
   });
 
   it('drafts round-trip to the domain', () => {
-    const p = defaultDataset.profile;
+    const p = seedContent.profile;
     const about = applySingle('about', p, { aboutLead: ' Lead ', aboutBody: 'One.\n\n\nTwo.\n' });
     expect(about.aboutLead).toBe('Lead');
     expect(about.aboutParagraphs).toEqual(['One.', 'Two.']);
@@ -87,7 +87,7 @@ describe('admin schema', () => {
     ).toEqual([{ id: 'github', label: 'GitHub', url: 'https://github.com/me' }]);
 
     // An unchanged year keeps its stored month; a new year starts in January.
-    const stored = { ...defaultDataset.experience[0], startDate: '2021-06', endDate: '2023-03' };
+    const stored = { ...seedContent.experience[0], startDate: '2021-06', endDate: '2023-03' };
     const draft = entryDraft('experience', stored);
     expect(entryValues('experience', draft, stored)).toMatchObject({
       startDate: '2021-06',
@@ -111,6 +111,11 @@ describe('admin schema', () => {
     expect(validate('writing', { ...article, status: 'published' }).status).toBe(
       'Add a body before publishing',
     );
+    // A body real visitors couldn't use is refused: an undescribed image, a wordless link.
+    const body = (b: string) => validate('writing', { ...article, body: b }).body;
+    expect(body('See ![](/chart.png).')).toBe('Describe every image: ![what it shows](address).');
+    expect(body('See [](https://a.b).')).toBe('Every link needs words: [what it is](address).');
+    expect(body('See ![A chart](/c.png) and [the docs](https://a.b).')).toBeUndefined();
     expect(
       validate('writing', { ...article, status: 'published', externalUrl: 'https://medium.com/x' }),
     ).toEqual({});
@@ -142,7 +147,7 @@ describe('admin schema', () => {
   });
 
   it('images and files: sizes kept, portrait alt, focal point, upload limits', () => {
-    const p = { ...defaultDataset.profile, name: 'Ada' };
+    const p = { ...seedContent.profile, name: 'Ada' };
     const image = {
       src: 'https://x.supabase.co/storage/v1/object/public/media/a.jpg',
       width: 900,
@@ -199,15 +204,16 @@ describe('admin schema', () => {
   });
 
   it('settings: the shipped look round-trips; the grain stays on its 0.5 steps', () => {
-    const shipped = defaultDataset.settings;
+    const shipped = seedContent.settings;
     const draft = settingsDraft(shipped);
     expect(validate('settings', draft)).toEqual({});
     expect(settingsValues(draft)).toEqual(shipped);
-    for (const grain of ['0', '6.5', '24']) {
+    for (const grain of ['0', '6.5', '7']) {
       expect(validate('settings', { ...draft, grain })).toEqual({});
     }
-    for (const grain of ['6.3', '25', '-1', 'x']) {
-      expect(validate('settings', { ...draft, grain }).grain).toBe('Choose a value from 0 to 24.');
+    // Capped where muted text would drop under AA (the grain sits over it).
+    for (const grain of ['6.3', '7.5', '24', '-1', 'x']) {
+      expect(validate('settings', { ...draft, grain }).grain).toBe('Choose a value from 0 to 7.');
     }
     expect(parseDraft('settings', { ...draft, accent: 'teal' })).toBeNull();
     // The site's title (required, 70) and description (200), saved as typed.

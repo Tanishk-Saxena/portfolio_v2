@@ -234,7 +234,7 @@ Quote * (≤ 140); Attribution *; side: In rotation (Shown / Skipped).
 | Site title * (≤ 70) · Site description (≤ 200) | the shipped ones | Root metadata and Open Graph; not reset by Reset to defaults |
 | GitHub username (≤ 39) | empty | The heat map under Skills; empty hides it; letters, digits, single hyphens; not reset |
 | Accent | Terracotta · Slate blue | `--accent-base`, `--accent-dark-mix` |
-| Grain | 6% (0–24, step 0.5) | `--grain-opacity` |
+| Grain | 6% (0–7, step 0.5; capped for AA, DESIGN-SPEC §1.4) | `--grain-opacity` |
 | Navigation button | Bottom right · Bottom centre | FAB position and arc span |
 | Menu layout | Arc · Centre wheel | the wheel: R 150px, dock slides to the visible centre (`dvh`; no slide under reduced motion, Q-A26) |
 | Press feedback | Ripple · Ring · Press-in | `data-press`, site and admin |
@@ -295,12 +295,13 @@ allows only this project's bucket. Removed files: §14 "Storage cleanup".
 | Body and External URL | "An article has a body or an External URL, not both. Clear one." |
 | Publishing with nothing to show | "Add a body before publishing" |
 | Uploads | "Images must be JPG, PNG or WebP, up to 5 MB." · "The résumé must be a PDF, up to 10 MB." · "Could not upload. Try again." |
-| Grain | "Choose a value from 0 to 24." |
+| Grain | "Choose a value from 0 to 7." |
+| Article body: an image with no description · a link with no words | "Describe every image: ![what it shows](address)." · "Every link needs words: [what it is](address)." |
 
 ## 12. Auth and accessibility
 
-**Auth:** one owner; Supabase Auth, email + password, sign-ups off, an allowlist (dev also
-holds one test admin for CI; no roles). `proxy.ts` redirects `/admin/*` to sign-in and answers
+**Auth:** one owner; Supabase Auth, email + password, sign-ups off, an allowlist (no roles; CI's
+test admin exists only in its local Supabase). `proxy.ts` redirects `/admin/*` to sign-in and answers
 401 on `/api/admin/*`; every handler re-checks; **RLS is the real boundary**. Wrong
 credentials or a non-allowlisted account: "That email and password don't match."; Auth down:
 "Could not sign in right now. Try again in a moment." (Q-A18, Q-A20). `/admin` is `noindex`.

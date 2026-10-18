@@ -60,7 +60,9 @@ All relative to tokens (`X @ n%` = X mixed with transparent to n% strength):
 
 A fixed full-viewport SVG noise layer (`feTurbulence fractalNoise .9`, 3 octaves, 190px
 tile), `pointer-events: none`, `multiply` (light) / `screen` (dark). Opacity from Settings
-(default 6%, `--grain-opacity`). Not in the admin (Q5).
+(default 6%, `--grain-opacity`), **at most 7%** (`GRAIN_MAX`): the grain sits over the text,
+and past ~8% muted copy drops under 4.5:1 in dark mode, which axe can't see. The admin refuses
+more and the site clamps a stored value. Not in the admin (Q5).
 
 ### 1.5 Contrast (ship values, WCAG 2.x)
 
@@ -259,7 +261,7 @@ where the visual is smaller (Q4). Nothing can be disabled on the site.
 | Floating nav | FAB `aria-label="Jump to section"`, `aria-expanded`, `aria-controls`; the menu is `inert` when closed; opening focuses the active item; Tab cycles inside; Escape, the curtain or a choice closes and returns focus; the active item has `aria-current`; the FAB is last in DOM order (Q26) |
 | Back to top | a plain `#hero` link, shown with the FAB once the hero is passed (Q14) |
 | Listen (articles) | `aria-pressed`; hidden without `speechSynthesis`; per-article switch (Q18) |
-| Article body | `<article>`; h1 → h2 → h3; the first paragraph is the lead; blocks 26px apart; pull-quote with a 2px accent left rule, serif italic 300 |
+| Article body | `<article>`; h1 → h2 → h3; the first paragraph is the lead; blocks 26px apart; pull-quote with a 2px accent left rule, serif italic 300. Whatever is typed stays accessible: `#` and `##` render as h2, deeper as h3 (the page title is the only h1); an empty link reads as its address; only http(s), mailto and site links are links; images need a description to be saved (ADMIN-DESIGN-SPEC §11) |
 | Footer | `<footer>`: the footer note and "© {year} {Name}", `space-between`, wrapping, 13px muted |
 | Contact | `mailto:` email; social links `min-height: 44px` |
 | 404 | §10 |
@@ -295,7 +297,7 @@ Implemented: `app/globals.css` (`@theme`) maps every token to utilities; `@wide:
 | Q2 | Dark accent derived (24% white; slate 32%); `accent-fill` = the base accent in both modes; band muted .89, band paper2 .09 |
 | Q3 | Focus: `2px solid accent`, offset 2px; inset on rows; the card's ring via `:has()` |
 | Q4 | Visual sizes as designed; hit areas extended invisibly to 44×44; text links `min-height: 44px` |
-| Q5 | Grain 6% by default, fixed, both routes (now a Setting) |
+| Q5 | Grain 6% by default, both routes; a Setting, capped at 7% for AA (2026-10-18) |
 | Q6 | Theme toggle 46×46 on every route |
 | Q7 | Colour mode: system preference, then the stored choice, set before paint |
 | Q8 | Defaults: terracotta, bottom-right, arc (the other options are Settings, §10) |
@@ -348,7 +350,7 @@ Settled by the owner after building and testing on real devices. They win over e
 | Quotes | No dots or pause control; every 7s; pauses on hover and focus; static under reduced motion. The change **travels** as one strip moving left: the old quote moves 72px left and fades (`quote-out .8s cubic-bezier(.45,0,.2,1)`) while the next comes in from 72px right, `.12s` later |
 | Nav close | The opening in reverse on gentler curves: last item out first, `.062s` apart, each `.96s cubic-bezier(.32,.5,.3,1)`, fading over its last `.34s`; the curtain lifts over the last `.5s`; in the wheel the dock's slide reverses too |
 | Project modal | The year under the name; Description only (none when empty). One fixed size: 880×460 wide, 420×600 narrow, never taller than 60svh; copy that doesn't fit scrolls the body with a thin accent bar. No image: "No preview to show", on the card and in the modal |
-| Modal media | Up to six images, GIFs or videos in the image pane (the card keeps the cover), in a scroll-snap strip: swipe on phones; ‹ › on hover/focus when wide; ← → with focus; dots when more than one. Videos muted, inline, looping; only the one in view plays. Nothing moves unless Settings turns **Project media** on: then an image stays 5s, a video until it ends, pausing on hover/focus. Reduced motion: no rotation or autoplay; videos show controls |
+| Modal media | Up to six images, GIFs or videos in the image pane (the card keeps the cover), in a scroll-snap strip: swipe on phones; ‹ › on hover/focus when wide; ← → with focus; dots when more than one. Videos muted, inline, looping; only the one in view plays. Nothing moves unless Settings turns **Project media** on: then an image stays 5s, a video until it ends, pausing on hover/focus. Reduced motion: no rotation or autoplay; videos show controls. Each item is named from the project ("Ledger, video 2 of 3"), and videos stay muted even with controls (never audio without captions) |
 | Experience descriptions | Simple Markdown: paragraphs, `- ` and numbered lists, bold, italic, and underline as a bare matched `<u>…</u>` (articles accept it too; every other raw tag is dropped). Nothing else is markup in a summary. Rendered on the server (`renderSimpleMarkdown`). Bold in ink 500; lists indent 20px; blocks 12px apart |
 | Contributions | A GitHub heat map closes Skills (no section or nav entry): a caps "Contributions" label, the year's total at the right, then 53 week columns (Sunday first, 3px gaps, square 2px-radius cells, month names above). **In the accent, never GitHub's green**: empty ink 7%, levels accent at 26 / 50 / 74 / 100%. Phones: it scrolls sideways (11px columns), opening on the latest weeks (laid out right to left, no script). The whole map is one link to the profile, named by the total; cells hidden from assistive tech, with tooltips. Server-side GraphQL with `GITHUB_TOKEN`, refetched at most daily. No token, username or data: not rendered |
 | Phase 9 picks | **Skills layout:** items are outlined chips (pill, `border-control`, 14px Plex); wide = ruled rows with a 180px label column, centred on the chips; phones = label 12px over its chips, groups 26px apart, no rules. **Hero word:** the accent block, unchanged. **Script face:** Allura (default) or Caveat, for the signature and hero word (`data-script`); share cards and the app icon keep Caveat. **Signature writing:** on every full load a soft slanted edge (a 100° gradient mask, 1.3s from .2s) reveals the name left to right, then the underline draws (.5s from 1.35s); set before first paint (`data-sign`); off under reduced motion |

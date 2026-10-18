@@ -116,7 +116,12 @@ export function ProjectModal({
           <div className="relative grid aspect-video w-full flex-none place-items-center border-b border-border-divider bg-surface @wide/page:aspect-auto @wide/page:w-98 @wide/page:self-stretch @wide/page:border-r @wide/page:border-b-0">
             {project.media.length > 0 ? (
               // Keyed by project, so each opens on its first item.
-              <ProjectMedia key={project.id} items={project.media} autoRotate={autoRotate} />
+              <ProjectMedia
+                key={project.id}
+                items={project.media}
+                title={project.title}
+                autoRotate={autoRotate}
+              />
             ) : project.image ? (
               <Image
                 src={project.image.src}

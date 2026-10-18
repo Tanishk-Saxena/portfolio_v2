@@ -1,4 +1,4 @@
--- Generated from the fixtures by lib/repositories/supabase/seed.ts. Do not edit by hand.
+-- Generated from lib/seed by lib/repositories/supabase/seed.ts. Do not edit by hand.
 
 insert into public.profile (name, eyebrow, headline, headline_highlight, standfirst, cta_label, about_lead, about_paragraphs, portrait, resume_url, email, contact_statement, location, footer_note) values
   ('Tanishk Saxena', 'Tanishk Saxena — SDE, Delhi', 'I build quiet, careful software for the web.', 'web', 'Six years turning tangled requirements into interfaces people can actually use. Currently working on developer tooling and design systems.', 'Get in touch', 'I care about the unglamorous parts: the empty state, the error copy, the second render.', array['I started out writing Django views for a logistics company and stayed because I liked watching people use the thing I made. Since then I have worked mostly at the seam between design and engineering — building component libraries, arguing about spacing scales, and shipping the boring infrastructure that makes a product feel fast.', 'Away from the editor I read a lot of non-fiction, run slowly, and keep a notebook of interfaces I wish existed. If you are building something thoughtful, I would like to hear about it.'], null, '/placeholder/resume.pdf', 'hello@example.com', 'Tell me what you are building.', 'Delhi', 'Designed and built in Delhi');
@@ -12,7 +12,11 @@ insert into public.experience (id, role, org, start_date, end_date, summary, sor
 - Cut first-paint **by half**.
 - Made the component API something designers can *read*.', 1),
   ('kettle', 'Product Engineer', 'Kettle', '2021-01', '2023-01', 'Second engineering hire. Built the billing flow, the onboarding, and most of the internal tooling that replaced it.', 2),
-  ('gravel-logistics', 'Software Engineer', 'Gravel Logistics', '2019-01', '2021-01', 'Django and a lot of spreadsheets. Learned to ask what the operations team actually does before shipping anything.', 3);
+  ('gravel-logistics', 'Software Engineer', 'Gravel Logistics', '2019-01', '2021-01', 'Django and a lot of spreadsheets. Learned to ask what the operations team actually does before shipping anything.', 3),
+  ('stress-long-role', 'Senior Software Engineer II, Frontend Platform & Developer Experience (Trading Systems)', 'A Company With An Unreasonably Long Legal Name Private Limited', '2019-04', '2019-12', 'Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks that run it all day, then wrote the migration guide the other teams actually used. Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks that run it all day, then wrote the migration guide the other teams actually used. Rebuilt the order-e.
+
+Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks that run it all day, then wrote the migration guide the other teams actually used. Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks th.', 4),
+  ('stress-empty-summary', 'Engineer', 'ION', '2018-07', '2019-03', '', 5);
 
 insert into public.project (id, title, kind, year, description, tags, image, media, repo_url, live_url, published, sort_order) values
   ('marginalia', 'Marginalia', 'open-source', 2025, 'Readers highlight a passage and leave a note in the margin; maintainers see every note as a queue. A 9kb script with no framework dependency, now running on a few hundred documentation sites.', array['TypeScript', 'Web Components', 'Postgres'], null, '[{"kind":"image","src":"/samples/photo-1.jpg"},{"kind":"image","src":"/samples/loop.gif"},{"kind":"video","src":"/samples/clip.mp4"},{"kind":"image","src":"/samples/photo-2.jpg"}]'::jsonb, 'https://example.com/source/marginalia', 'https://example.com/marginalia', true, 1),
@@ -21,7 +25,10 @@ insert into public.project (id, title, kind, year, description, tags, image, med
   ('halfstep', 'Halfstep', 'side-project', 2023, 'A metronome that listens and follows your tempo instead of forcing one on you. Onset detection runs in a worklet so the click never drifts, and it works offline on a phone in a practice room.', array['Web Audio', 'Rust', 'WASM'], null, '[]'::jsonb, 'https://example.com/source/halfstep', 'https://example.com/halfstep', true, 4),
   ('paperweight', 'Paperweight', 'open-source', 2022, 'A static site generator that emits one self-contained HTML file: styles, fonts and images inlined. Built for documentation that has to survive being emailed around as an attachment.', array['Node', 'Markdown', 'Esbuild'], null, '[]'::jsonb, 'https://example.com/source/paperweight', 'https://example.com/paperweight', true, 5),
   ('northbound', 'Northbound', 'client-work', 2022, 'Route planning rebuilt around how dispatchers actually work: keyboard first, every action undoable, and a map that stays responsive with four thousand stops on screen.', array['React', 'Python', 'PostGIS'], null, '[]'::jsonb, 'https://example.com/source/northbound', 'https://example.com/northbound', true, 6),
-  ('fieldnote', 'Fieldnote', 'open-source', 2021, 'An offline-first notebook for survey teams working without signal. Conflict resolution happens on the device, so two people editing the same record in the field merge cleanly when they reconnect.', array['CRDT', 'Svelte', 'SQLite'], null, '[]'::jsonb, 'https://example.com/source/fieldnote', 'https://example.com/fieldnote', true, 7);
+  ('fieldnote', 'Fieldnote', 'open-source', 2021, 'An offline-first notebook for survey teams working without signal. Conflict resolution happens on the device, so two people editing the same record in the field merge cleanly when they reconnect.', array['CRDT', 'Svelte', 'SQLite'], null, '[]'::jsonb, 'https://example.com/source/fieldnote', 'https://example.com/fieldnote', true, 7),
+  ('stress-long-name', 'An Exceptionally Long Project Name That Wraps Onto Two Lines At Least', 'open-source', 2019, 'Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks that run it all day, then wrote the migration guide the other teams actually used. Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks that run it all day, t.', array['One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven'], null, '[{"kind":"image","src":"/placeholder/media-1.svg"},{"kind":"image","src":"/placeholder/media-2.svg"},{"kind":"image","src":"/placeholder/media-3.svg"}]'::jsonb, null, null, true, 8),
+  ('stress-empty', 'P', 'client-work', 2018, '', '{}'::text[], null, '[]'::jsonb, 'https://example.com/source/stress-empty', null, true, 9),
+  ('stress-hidden', 'A hidden project that must never reach the site', 'side-project', 2018, 'Hidden.', array['Tag'], null, '[]'::jsonb, null, null, false, 10);
 
 insert into public.article (slug, title, excerpt, published_at, read_minutes, body, external_url, status, listen) values
   ('second-render', 'The second render is the one users feel', '', '2026-08-14', 6, 'Every performance conversation starts at the first paint, because that is the number the tooling hands you. The moment users actually judge, though, is the second render: the one that happens after they touch something.
@@ -49,13 +56,16 @@ The rest is discipline: keep the work small, keep it off the main thread when yo
   ('empty-states', 'The empty state is the first screen most people see', '', '2025-03-01', 6, 'This is a placeholder for “The empty state is the first screen most people see”. The full article is still being written.', null, 'published', true),
   ('estimates', 'Why my estimates got better when they got vaguer', '', '2024-12-01', 4, 'This is a placeholder for “Why my estimates got better when they got vaguer”. The full article is still being written.', null, 'published', true),
   ('typography-ui', 'Reading the interface: type choices that carry weight', '', '2024-10-01', 8, 'This is a placeholder for “Reading the interface: type choices that carry weight”. The full article is still being written.', null, 'published', true),
-  ('first-90-days', 'Notes from ninety days on an unfamiliar codebase', '', '2024-07-01', 5, 'This is a placeholder for “Notes from ninety days on an unfamiliar codebase”. The full article is still being written.', null, 'published', true);
+  ('first-90-days', 'Notes from ninety days on an unfamiliar codebase', '', '2024-07-01', 5, 'This is a placeholder for “Notes from ninety days on an unfamiliar codebase”. The full article is still being written.', null, 'published', true),
+  ('external-only', 'An article that only lives on Medium, so the row links out', '', '2024-05-01', 45, null, 'https://medium.com/', 'published', true),
+  ('very-long-title', 'A very long article title that keeps going well past the point where any sensible editor would have cut it, just to see what the row does', '', '2023-01-15', null, 'Short.', null, 'published', false),
+  ('draft-only', 'A draft that must never reach the site', '', '2026-09-30', null, 'Not ready yet.', null, 'draft', true);
 
 insert into public.skill_group (id, title, items, sort_order) values
   ('languages', 'Languages', array['TypeScript', 'Python', 'Go', 'SQL'], 1),
   ('frontend', 'Frontend', array['React', 'Angular', 'Svelte', 'CSS architecture'], 2),
   ('backend', 'Backend', array['Node', 'Django', 'Postgres', 'Redis'], 3),
-  ('practice', 'Practice', array['Design systems', 'Accessibility', 'Performance', 'Technical writing'], 4);
+  ('stress-many', 'A group with a long title and as many items as one holds', array['Item one', 'A considerably longer skill name that wraps', 'Three', 'Four', 'Five', 'Six'], 4);
 
 insert into public.quote (id, text, author, active, sort_order) values
   ('quote-1', 'Simplicity is prerequisite for reliability.', 'Edsger W. Dijkstra', true, 1),
@@ -63,10 +73,15 @@ insert into public.quote (id, text, author, active, sort_order) values
   ('quote-3', 'Premature optimization is the root of all evil.', 'Donald Knuth', true, 3),
   ('quote-4', 'Design is not just what it looks like and feels like. Design is how it works.', 'Steve Jobs', true, 4),
   ('quote-5', 'Talk is cheap. Show me the code.', 'Linus Torvalds', true, 5),
-  ('quote-6', 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', 'Martin Fowler', true, 6);
+  ('quote-6', 'Any fool can write code that a computer can understand. Good programmers write code that humans can understand.', 'Martin Fowler', true, 6),
+  ('stress-short', 'Ship it.', 'Anon', true, 7),
+  ('stress-long', 'Rebuilt the order-entry blotter around a virtualised grid and cut steady-state CPU by a third on the desks that run it all day, then wrote .', 'Someone With A Very Long Attribution Line, Author Of Several Books', true, 8),
+  ('stress-skipped', 'Out of rotation.', 'Anon', false, 9);
 
 insert into public.social_link (id, label, url, sort_order) values
   ('github', 'GitHub', 'https://github.com/', 1),
   ('linkedin', 'LinkedIn', 'https://www.linkedin.com/', 2),
   ('read-cv', 'Read.cv', 'https://read.cv/', 3),
-  ('x', 'X', 'https://x.com/', 4);
+  ('x', 'X', 'https://x.com/', 4),
+  ('stress-mastodon', 'Mastodon', 'https://example.com/mastodon', 5),
+  ('stress-hidden-link', 'A long label for a link', '', 6);

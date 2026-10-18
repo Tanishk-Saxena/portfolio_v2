@@ -15,8 +15,8 @@
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",
     "prepare": "git config core.hooksPath .githooks || true",
     "test:e2e": "playwright test",
-    "test:live": "vitest run --project live",
-    "lighthouse": "lhci autorun && lhci autorun --collect.settings.preset=desktop --upload.outputDir=.lighthouseci/desktop && node scripts/lighthouse-summary.mjs reports/lighthouse.md"
+    "test:db": "vitest run --project db",
+    "lighthouse": "node scripts/lighthouse.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

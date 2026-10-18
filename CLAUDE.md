@@ -9,9 +9,9 @@ Guidance for Claude Code in this repository.
 Tanishk Saxena's portfolio (live at https://tanishk-saxena.vercel.app) plus an auth-secured
 admin at `/admin` that edits every piece of its content and its style settings. Next.js 16,
 React 19, Tailwind v4, TypeScript strict, Supabase, Vercel. **The build is complete (Phases
-0–10).** Next: **one data path** (Supabase only, tested against a throwaway local Supabase in
-CI; the plan is in `docs/PROGRESS.md`), then the owner's end-to-end test round. Check
-`docs/PROGRESS.md` before starting work.
+0–10), and there is one data path: Supabase**, tested in CI against a throwaway local
+Supabase loaded with the seed. Next: the owner's end-to-end test round (the owner is entering
+real content on dev, then copies it to prod). Check `docs/PROGRESS.md` before starting work.
 
 ## Sources of truth
 
@@ -41,26 +41,29 @@ npm run lint          # eslint, zero warnings (docs/** ignored)
 npm run typecheck     # next typegen + tsc --noEmit
 npm run format        # prettier --write (Tailwind class sorting); format:check in CI
 npm run test          # unit tests (offline); one file: npx vitest run path/to/file.test.ts
-npm run test:live     # against the dev Supabase project (.env.local); when DB/auth changes
-npm run check         # lint + typecheck + format:check + test
-npm run test:e2e      # Playwright (e2e/) against `next start`, after DATA_SOURCE=fixtures npm run build
-                      # signed-in admin tests need E2E_ADMIN_EMAIL/PASSWORD in .env.local (else skip)
-npm run lighthouse    # after a build: home, article, sign-in; mobile + desktop (a reading)
+npm run check         # lint + typecheck + format:check + test (all that runs without Docker)
+# Need a local Supabase (`npx supabase start`, Docker), so CI runs them; they refuse any other:
+npm run test:db       # the repository contract, RLS, auth, storage
+npm run test:e2e      # Playwright (e2e/) against `next start`, after `npm run build`
+npm run lighthouse    # after a build: site + signed-in admin; mobile + desktop (a reading)
 ```
 
-CI (`.github/workflows/ci.yml`) on every PR and push to `main`: `check` (lint, typecheck,
-format, unit, build, smoke e2e blocking; axe a warning) and a separate `lighthouse` job (a
-reading, never red). `check` builds on fixtures and signs in through the dev project as its
-**test admin** (repository secrets `E2E_*`; no secret key in CI); saves stay in memory.
+CI (`.github/workflows/ci.yml`), on every PR, every push to `main`, and **by hand** (Actions →
+CI → Run workflow, any branch): `check` (lint, typecheck, format, unit; then a local Supabase
+with the seed and the test admin, `.github/actions/local-supabase`; the database suite, build,
+smoke e2e, all blocking; axe a warning) and a separate `lighthouse` job (the site and the
+signed-in admin; a reading, never red). No repository secrets; dev and prod are never touched.
 
-Data source (until the one-data-path refactor): `DATA_SOURCE=fixtures` (default) ·
-`fixtures-stress` (awkward content) · `supabase` (dev keys in `.env.local`). Pages read via
-`getRepositories()` (`lib/container.ts`), never `lib/repositories/**` (ESLint enforces it);
-the admin via `getAdminRepositories()`, as the signed-in admin over Supabase. On fixtures the
-admin's saves change an in-memory copy, lost on restart.
+Data: one path, Supabase. Pages read via `getRepositories()` (`lib/container.ts`), never
+`lib/repositories/**` or `lib/seed` (ESLint enforces it); the admin via
+`getAdminRepositories()`, as the signed-in admin. Which project is only a matter of keys: dev
+in `.env.local`, prod in Vercel, CI's local one in CI. `lib/seed` is the one dataset: the
+shipped placeholders plus stress cases at the real limits; it generates `supabase/seed.sql`
+and feeds unit tests of pure logic.
 
-Visual checks: `npm run build && npx next start -p 3100`, then `node scripts/screenshot.mjs
-<url>` (390 / 1440 × light / dark). For 390px, headless Chrome needs a 390px-wide `<iframe>`.
+Visual checks: `npm run build && npx next start -p 3100` (reads dev, from `.env.local`), then
+`node scripts/screenshot.mjs <url>` (390 / 1440 × light / dark). For 390px, headless Chrome
+needs a 390px-wide `<iframe>`.
 
 ## Constraints
 
@@ -74,6 +77,11 @@ Functionality gates; performance and accessibility are flagged, never blocking (
   (`e2e/a11y.spec.ts`, `e2e/admin-a11y.spec.ts`, warnings), desktop and phone. Outcomes only:
   no timings, pixels or animation details; no tests of purely visual UI. Run what's relevant
   for small fixes, the full suite before a PR.
+- **Accessible by construction, so real content never needs an audit.** Anything content or a
+  setting could break is closed in code: the renderer (one h1, named links, safe hrefs), the
+  admin's validation (image descriptions, link words, labels, caps), names derived from
+  content (portrait, modal media), clamps (grain ≤ `GRAIN_MAX`). A new content-driven risk
+  gets the same treatment; the PR checks and Vercel's metrics are the only readings.
 - LCP < 2.0 s, CLS < 0.1 (`docs/PERFORMANCE.md`); never hide the LCP text behind an opacity-0
   entrance. WCAG 2.1 AA, keyboard operable, 44px hit areas, reduced motion fully usable. No
   scroll hijacking. Components survive long, empty and extra content.

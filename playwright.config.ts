@@ -1,8 +1,17 @@
 import { defineConfig } from '@playwright/test';
+import { isLocalSupabase } from './lib/supabase-local';
 
 // Smoke + a11y tests for the major flows (brief §2), on the production build and the locally
-// installed Chrome (also on GitHub's ubuntu runners, so no browser download).
+// installed Chrome (also on GitHub's ubuntu runners, so no browser download). They run against
+// a local Supabase only (CI's, loaded with the seed): the admin journeys write, so they refuse
+// dev and prod.
 const PORT = 3200;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+if (!isLocalSupabase(supabaseUrl)) {
+  throw new Error(
+    `e2e runs only against a local Supabase (npx supabase start), not ${supabaseUrl ?? 'none'}`,
+  );
+}
 
 export default defineConfig({
   testDir: './e2e',
@@ -33,9 +42,6 @@ export default defineConfig({
     command: `npx next start -p ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: false, // always the current build
-    // Fixtures at run time too, whatever `.env.local` says: a page revalidated after an admin
-    // save would otherwise re-render from the database, and the admin journey would write to it.
-    env: { DATA_SOURCE: 'fixtures' },
     timeout: 60_000,
   },
 });

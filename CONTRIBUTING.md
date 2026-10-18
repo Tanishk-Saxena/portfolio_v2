@@ -14,11 +14,12 @@ a second trunk would only drift.
 2. **Commit in small, reviewable steps.** Use conventional commits (`feat:`, `fix:`,
    `chore:`, `docs:`, `refactor:`, `test:`, `ci:`, `perf:`, `style:`).
 3. **Push and open a pull request into `main`.** Fill in the template. CI (`check`: lint,
-   typecheck, format, unit tests, build, smoke e2e; axe is a warning only) must be green.
-   The separate `lighthouse` job only reads: it pins scores to the PR, warns under budget,
-   and is never required. `check` also signs in to the admin (the dev project's test admin,
-   from repository secrets) for a blocking admin journey in the smoke suite and axe on every
-   admin screen; without the secrets (a fork's PR) those tests skip.
+   typecheck, format, unit tests, then a throwaway local Supabase with the seed: the database
+   suite, build, smoke e2e including the signed-in admin's saves; axe is a warning only) must
+   be green. The separate `lighthouse` job only reads (the site and the signed-in admin): it
+   pins scores to the PR, warns under budget, and is never required. No secrets are needed, so
+   a fork's PR runs everything too. To run the same checks without a PR: Actions → CI → Run
+   workflow, on any branch.
 4. **Merge on GitHub**, then delete the branch (automatic). Pull `main` locally.
 
 Nothing reaches `main` except through a pull request.

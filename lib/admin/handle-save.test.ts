@@ -4,6 +4,17 @@ import { Conflict, createEntry, Full, isFull } from './save';
 
 const auth = vi.hoisted(() => ({ admin: null as { id: string; email: string } | null }));
 vi.mock('@/lib/auth/server', () => ({ getAdmin: async () => auth.admin }));
+// The caps are counted from the admin's lists: the seed's (four skill groups), never written.
+const create = vi.hoisted(() => vi.fn());
+vi.mock('@/lib/container', async () => {
+  const { seedContent } = await import('@/lib/seed');
+  return {
+    getAdminRepositories: async () => ({
+      skills: { list: async () => seedContent.skillGroups, create },
+      quotes: { list: async () => seedContent.quotes, create },
+    }),
+  };
+});
 
 const post = (body: unknown) =>
   new Request('http://admin.test/api/admin/quotes', {
@@ -80,10 +91,11 @@ describe('admin saves (route handlers)', () => {
       },
     );
     expect([full.status, await full.json()]).toEqual([409, { error: 'Full', full: true }]);
-    // The shipped fixtures hold four groups: a fifth is refused before any write.
+    // The seed holds four groups: a fifth is refused before any write.
     expect([await isFull('skills'), await isFull('quotes')]).toEqual([true, false]);
     const fifth = { title: 'Fifth', items: ['a', 'b', 'c', 'd'] };
     await expect(createEntry('skills', fifth)).rejects.toBeInstanceOf(Full);
+    expect(create).not.toHaveBeenCalled();
 
     vi.spyOn(console, 'error').mockImplementation(() => {});
     const failed = await handleSave(

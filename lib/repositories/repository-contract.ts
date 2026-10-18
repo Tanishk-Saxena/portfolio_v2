@@ -2,10 +2,9 @@ import { describe, expect, it } from 'vitest';
 import type { AdminRepositories, Repositories } from '@/lib/domain/repositories';
 
 /*
- * The repository contract, written against the interfaces only. Every implementation
- * (fixtures and Supabase) runs this same suite; Supabase passing it unchanged is what
- * proved the migration (brief §4 rule 4). Each test reads what it needs once, so the live
- * run makes few round trips.
+ * The repository contract, written against the interfaces only, run against a real Supabase
+ * (`lib/repositories/supabase/db.test.ts`: CI's local one, loaded with the seed). Each test
+ * reads what it needs once, so the run makes few round trips.
  */
 
 /** Ascending (dir 1) or descending (dir -1); equal neighbours are fine either way. */

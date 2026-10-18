@@ -60,7 +60,9 @@ accessibility are targets**, always measured and flagged (amber in CI, open item
   `next/font` with size-adjusted fallbacks; images with explicit dimensions.
 - **Accessibility:** WCAG 2.1 AA; everything keyboard-operable with a visible focus ring;
   icon-only controls named; 44×44 touch targets; `prefers-reduced-motion` gives a static but
-  fully usable site; axe clean.
+  fully usable site; axe clean. **By construction**: whatever content or a setting can change
+  is made accessible in code (the article renderer, the admin's validation, names derived from
+  content, clamps), so real content never needs an audit.
 - **Mobile first:** built at 390px first; nothing load-bearing depends on hover.
 - **Motion:** prefer `transform` and `opacity`; no scroll hijacking (no Lenis and the like);
   View Transitions for page changes.
@@ -69,11 +71,17 @@ accessibility are targets**, always measured and flagged (amber in CI, open item
 
 ## 4. Architecture
 
-**The repository boundary is the core rule.** Components never import fixtures or call
-Supabase. All data goes through the interfaces in `lib/domain/repositories.ts`, returning the
-types in `lib/domain/types.ts`. Implementations live in `lib/repositories/`; `lib/container.ts`
-is the one composition root. Every repository method is `async`. Repository tests target the
-interface. (ESLint enforces the boundary.)
+**The repository boundary is the core rule.** Components never call Supabase or import the
+seed. All data goes through the interfaces in `lib/domain/repositories.ts`, returning the
+types in `lib/domain/types.ts`. `lib/container.ts` is the one composition root. Every
+repository method is `async`. (ESLint enforces the boundary.)
+
+**One data path** (owner, 2026-10-18: simplicity and reliability over plug-and-play): the app
+always runs on Supabase (`lib/repositories/supabase/`), the path production runs; which
+project is only a matter of keys (dev, prod, or CI's throwaway local one). Tests go through the
+same path: CI starts a local Supabase loaded with the seed (`lib/seed`: the shipped
+placeholders plus stress cases at the real limits) and runs the repository contract, RLS, the
+e2e journeys and Lighthouse against it. Tests that write refuse any Supabase that isn't local.
 
 ```
 app/(site)/            the public page and /articles/[slug]
@@ -81,8 +89,9 @@ app/admin/, app/api/admin/   the admin and its write endpoints (each re-checks g
 proxy.ts               optimistic /admin + /api/admin guard; RLS is the real boundary
 components/{sections,ui,site,article,admin}/
 lib/{domain,repositories,admin,auth,utils}/
+lib/seed/              the one dataset: shipped placeholders + stress cases
 styles/tokens.css      every token, both modes, reduced motion
-supabase/              migrations, seed.sql (generated from the fixtures), config
+supabase/              migrations, seed.sql (generated from lib/seed), config
 ```
 
 Conventions:
@@ -136,9 +145,11 @@ All built (2026-10-18). One line each; what happened and why: the ledger's **His
   fixes (Caveat no longer preloaded). **No standing audit** (owner, 2026-10-18): per-PR
   Lighthouse and axe, and Speed Insights on the live site, already cover it. P-1 stays a
   flagged item.
+- **After 10, one data path** (2026-10-18) — the fixture repositories and `DATA_SOURCE`
+  removed; CI tests against a local Supabase with the seed; signed-in admin Lighthouse on every
+  PR; accessibility closed in code for anything content can change (§3).
 
-Next: one data path (the ledger), then the owner's end-to-end test round. After that every
-fix or request is an ordinary PR.
+Next: the owner's end-to-end test round. After that every fix or request is an ordinary PR.
 
 ## 7. Out of scope
 

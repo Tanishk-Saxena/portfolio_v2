@@ -1,4 +1,4 @@
-import type { FixtureDataset } from '../fixtures/dataset';
+import type { SeedContent } from '@/lib/seed';
 import {
   fromArticleRecord,
   fromExperience,
@@ -11,9 +11,9 @@ import {
 } from './rows';
 
 /*
- * The seed SQL for a dataset: the shipped placeholders become the database's starting content
- * (brief §5). Written through the same row mappers the reads use, so the two can't drift.
- * `supabase/seed.sql` is this function's output for the default dataset, kept in sync by
+ * The seed SQL for the seed content (`lib/seed`): the database's starting content, which CI's
+ * local Supabase loads on every run. Written through the same row mappers the reads use, so
+ * the two can't drift. `supabase/seed.sql` is this function's output, kept in sync by
  * seed.test.ts (regenerate with `npx vitest run seed -u`).
  */
 
@@ -47,9 +47,9 @@ function insert(table: string, rows: object[]): string {
   return `insert into public.${table} (${columns.join(', ')}) values\n${values};\n`;
 }
 
-export function seedSql(data: FixtureDataset): string {
+export function seedSql(data: SeedContent): string {
   return [
-    '-- Generated from the fixtures by lib/repositories/supabase/seed.ts. Do not edit by hand.\n',
+    '-- Generated from lib/seed by lib/repositories/supabase/seed.ts. Do not edit by hand.\n',
     insert('profile', [fromProfile(data.profile)]),
     insert('settings', [fromSettings(data.settings)]),
     insert('experience', data.experience.map(fromExperience)),

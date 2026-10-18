@@ -1,5 +1,6 @@
 import { networkInterfaces } from 'node:os';
 import type { NextConfig } from 'next';
+import { isLocalSupabase } from './lib/supabase-local';
 
 /**
  * This machine's own LAN addresses. The dev server only serves its JS to `localhost` by
@@ -22,9 +23,16 @@ const mediaPattern = supabaseUrl
   ? [new URL('/storage/v1/object/public/media/**', supabaseUrl)]
   : [];
 
+/**
+ * CI's throwaway Supabase runs on this machine (127.0.0.1), which Next 16 refuses to optimise
+ * images from unless told to. Only ever for a local Supabase: dev and prod are remote.
+ */
 const nextConfig: NextConfig = {
   allowedDevOrigins: lanAddresses,
-  images: { remotePatterns: mediaPattern },
+  images: {
+    remotePatterns: mediaPattern,
+    dangerouslyAllowLocalIP: isLocalSupabase(supabaseUrl),
+  },
 };
 
 export default nextConfig;

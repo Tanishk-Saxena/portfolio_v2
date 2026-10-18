@@ -1,3 +1,4 @@
+import { GRAIN_MAX } from '@/lib/domain/types';
 import type { SectionSlug } from './sections';
 
 /*
@@ -332,7 +333,7 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       ],
       hint: 'The dark-mode accent is derived from this.',
     },
-    { key: 'grain', label: 'Grain', type: 'range', min: 0, max: 24, step: 0.5, unit: '%' },
+    { key: 'grain', label: 'Grain', type: 'range', min: 0, max: GRAIN_MAX, step: 0.5, unit: '%' },
     {
       key: 'navPosition',
       label: 'Navigation button',

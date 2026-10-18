@@ -175,6 +175,18 @@ export const RECHECKS: Partial<Record<FormSlug, Record<string, string[]>>> = {
   writing: { body: ['externalUrl', 'status'], externalUrl: ['status'] },
 };
 
+/**
+ * An article body that real visitors could not use: an image with no description (a screen
+ * reader would skip it) or a link with no text (a nameless link). The renderer handles the
+ * rest (headings, unsafe links; `lib/utils/markdown.ts`), so no audit of real content is
+ * ever needed.
+ */
+export function bodyAccessibilityError(body: string): string | null {
+  if (/!\[\s*\]\(/.test(body)) return 'Describe every image: ![what it shows](address).';
+  if (/(^|[^!\]])\[\s*\]\(/.test(body)) return 'Every link needs words: [what it is](address).';
+  return null;
+}
+
 /** Every rule from §11, keyed by field. Empty when the draft can be saved. */
 export function validate(
   slug: FormSlug,
@@ -226,6 +238,9 @@ export function validate(
     if (body && external && !errors.externalUrl) {
       errors.externalUrl = 'An article has a body or an External URL, not both. Clear one.';
     }
+    // Accessible by construction: what the renderer can't supply itself, the body must.
+    const bodyError = bodyAccessibilityError(body);
+    if (bodyError && !errors.body) errors.body = bodyError;
   }
   return errors;
 }

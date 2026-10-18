@@ -1,19 +1,20 @@
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { defaultDataset } from '@/lib/repositories/fixtures/data';
-import { stressDataset } from '@/lib/repositories/fixtures/data/stress';
-import { createFixtureRepositories } from '@/lib/repositories/fixtures/fixture-repositories';
+import { seedContent } from '@/lib/seed';
 import { ACCENT_BASE } from './og/accent';
 import { resolveSiteUrl } from './site';
 import { personJsonLd, profilePageJsonLd, serializeJsonLd } from './structured-data';
 
 // What search engines and share cards read: the canonical origin and the JSON-LD.
 
-async function load(dataset = defaultDataset) {
-  const repos = createFixtureRepositories(dataset);
-  return Promise.all([repos.profile.get(), repos.experience.list(), repos.socialLinks.list()]);
-}
+/** What the public repositories hand the page: hidden links (empty URLs) left out. */
+const load = () =>
+  [
+    seedContent.profile,
+    seedContent.experience,
+    seedContent.socialLinks.filter((l) => l.url !== ''),
+  ] as const;
 
 describe('seo', () => {
   it('site URL: NEXT_PUBLIC_SITE_URL, then the Vercel production domain, then localhost', () => {
@@ -28,8 +29,8 @@ describe('seo', () => {
     expect(resolveSiteUrl({}).origin).toBe('http://localhost:3000');
   });
 
-  it('person JSON-LD: job title from the current role, only real profile links, any content', async () => {
-    const [profile, experience, links] = await load();
+  it('person JSON-LD: job title from the current role, only real profile links, any content', () => {
+    const [profile, experience, links] = load();
     const person = personJsonLd(profile, experience, links);
     expect(person).toMatchObject({ '@type': 'Person', name: profile.name });
     expect(person.jobTitle).toBe(experience.find((e) => e.endDate === null)?.role);
@@ -40,8 +41,8 @@ describe('seo', () => {
     ]);
     expect(filtered.sameAs).toEqual(['https://github.com/someone']);
 
-    const stress = await load(stressDataset);
-    expect(() => serializeJsonLd(profilePageJsonLd(personJsonLd(...stress)))).not.toThrow();
+    // The seed's stress cases (long roles, empty summaries, a hidden link) serialise too.
+    expect(() => serializeJsonLd(profilePageJsonLd(person))).not.toThrow();
   });
 
   it('JSON-LD cannot close its script tag', () => {

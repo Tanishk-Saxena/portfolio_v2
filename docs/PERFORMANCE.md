@@ -3,10 +3,12 @@
 Always measured and flagged, never blocking (brief §3). Targets: Lighthouse mobile
 performance ≥ 95, accessibility 100; LCP < 2.0 s; CLS < 0.1; axe clean.
 
-How it's read: CI's `lighthouse` job on every PR (home, an article, the admin sign-in; mobile
-and desktop; median of 3; `npm run lighthouse` locally); axe in CI on the site, its open states
-and every signed-in admin screen, both modes and viewports; Vercel Speed Insights on the live
-site (real visitors). No standing audit (owner, 2026-10-18).
+How it's read: CI's `lighthouse` job on every PR (home, an article, the admin sign-in, and
+the signed-in admin: Writing, an editor, Hero, Settings; mobile and desktop; median of 3);
+axe in CI on the site, its open states and every signed-in admin screen, both modes and
+viewports; all over CI's local Supabase with the seed's stress cases. Vercel Speed Insights
+reads the live site (real visitors). No audit, ever: anything real content could break is
+closed in code (brief §3). The admin's budget is accessibility only; its speed is read.
 
 ## Readings
 

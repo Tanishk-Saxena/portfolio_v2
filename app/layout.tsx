@@ -5,6 +5,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import { allura, caveat, newsreader, plexSans } from '@/lib/fonts';
 import { InlineScript } from '@/components/site/inline-script';
 import { getRepositories } from '@/lib/container';
+import { GRAIN_MAX } from '@/lib/domain/types';
 import { OG_SIZE } from '@/lib/og/size';
 import { siteUrl } from '@/lib/site';
 import { signatureInitScript } from '@/lib/signature';
@@ -62,7 +63,7 @@ export default async function RootLayout({ children }: LayoutProps<'/'>) {
       data-press={settings.pressFeedback}
       data-script={settings.scriptFont}
       data-intro-setting={settings.signatureIntro ? 'on' : 'off'}
-      style={{ '--grain-opacity': settings.grain / 100 } as CSSProperties}
+      style={{ '--grain-opacity': Math.min(settings.grain, GRAIN_MAX) / 100 } as CSSProperties}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={`${newsreader.variable} ${plexSans.variable} ${allura.variable} ${caveat.variable}`}

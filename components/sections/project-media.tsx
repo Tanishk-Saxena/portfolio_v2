@@ -18,8 +18,20 @@ const ARROW =
  * Videos play muted. Nothing moves by itself unless Settings turns rotation on: then an
  * image stays 5s and a video until it ends, pausing while hovered or focused. Under reduced
  * motion nothing rotates or autoplays; videos show their controls.
+ *
+ * Accessible whatever is uploaded: every item is named from the project's title and its place
+ * ("Ledger, video 2 of 3"), and videos stay muted even with controls showing, so there is
+ * never audio without captions (WCAG 1.2.2); the modal's description is their text.
  */
-export function ProjectMedia({ items, autoRotate }: { items: Media[]; autoRotate: boolean }) {
+export function ProjectMedia({
+  items,
+  title,
+  autoRotate,
+}: {
+  items: Media[];
+  title: string;
+  autoRotate: boolean;
+}) {
   const strip = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
   const [held, setHeld] = useState(false);
@@ -85,37 +97,44 @@ export function ProjectMedia({ items, autoRotate }: { items: Media[]; autoRotate
         }}
         className="flex size-full snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
       >
-        {items.map((item, i) => (
-          <div
-            key={`${item.src}:${i}`}
-            aria-hidden={many && i !== index ? true : undefined}
-            className="relative size-full flex-none snap-center"
-          >
-            {item.kind === 'video' ? (
-              <video
-                data-slide={i}
-                src={item.src}
-                muted
-                playsInline
-                loop={!rotating}
-                controls={reducedMotion}
-                preload={i === 0 ? 'auto' : 'metadata'}
-                onEnded={() => rotating && go(i + 1)}
-                className="size-full object-cover"
-              />
-            ) : (
-              <Image
-                src={item.src}
-                alt=""
-                fill
-                sizes="(min-width: 760px) 392px, 420px"
-                // GIFs keep their frames, and local placeholders their format.
-                unoptimized={/\.(gif|svg)$/i.test(item.src)}
-                className="object-cover"
-              />
-            )}
-          </div>
-        ))}
+        {items.map((item, i) => {
+          const name = `${title}, ${item.kind === 'video' ? 'video' : 'image'}${many ? ` ${i + 1} of ${items.length}` : ''}`;
+          return (
+            <div
+              key={`${item.src}:${i}`}
+              aria-hidden={many && i !== index ? true : undefined}
+              className="relative size-full flex-none snap-center"
+            >
+              {item.kind === 'video' ? (
+                <video
+                  data-slide={i}
+                  src={item.src}
+                  aria-label={name}
+                  muted
+                  onVolumeChange={(e) => {
+                    e.currentTarget.muted = true;
+                  }}
+                  playsInline
+                  loop={!rotating}
+                  controls={reducedMotion}
+                  preload={i === 0 ? 'auto' : 'metadata'}
+                  onEnded={() => rotating && go(i + 1)}
+                  className="size-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={item.src}
+                  alt={name}
+                  fill
+                  sizes="(min-width: 760px) 392px, 420px"
+                  // GIFs keep their frames, and local placeholders their format.
+                  unoptimized={/\.(gif|svg)$/i.test(item.src)}
+                  className="object-cover"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {many && (

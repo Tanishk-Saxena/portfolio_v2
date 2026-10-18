@@ -220,7 +220,7 @@ export function entryDraft<S extends EntrySlug>(slug: S, entry?: EntryTypes[S]):
 
 /**
  * Stored dates are `YYYY-MM`; the form edits years. An unchanged year keeps its stored
- * month, a changed one starts in January (as the fixtures do).
+ * month, a changed one starts in January (as the seed does).
  */
 const yearToDate = (year: string, stored?: string | null) =>
   stored?.startsWith(`${year}-`) ? stored : `${year}-01`;

@@ -18,8 +18,8 @@ import type {
 
 /*
  * Repository interfaces — the only way data reaches the UI (brief §4).
- * Every method is async, even over synchronous fixtures, so swapping in Supabase
- * later changes nothing above this line.
+ * Every method is async, and the UI never sees an implementation: it gets them from
+ * `lib/container.ts`.
  *
  * Ordering contract — list methods return items already sorted for display:
  *   articles:   by publish date, newest first

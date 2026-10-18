@@ -1,7 +1,8 @@
 # Supabase
 
-Two projects: **dev** (local work, Vercel previews, `npm run test:live`) and **prod** (the
-live site). RLS is the security boundary: anonymous reads see only published / active,
+Two real projects: **dev** (local work, Vercel previews) and **prod** (the live site), plus
+CI's throwaway **local** one (`npx supabase start`), which every test runs against. Tests never
+touch dev or prod. RLS is the security boundary: anonymous reads see only published / active,
 non-deleted rows; every write, and every read of hidden rows, needs a signed-in user in
 `public.admin_user`. `proxy.ts` and the admin's handlers check the session too, but never
 replace RLS.
@@ -11,31 +12,33 @@ replace RLS.
 | Path | What |
 |---|---|
 | `supabase/migrations/*.sql` | The schema, applied in filename order: tables, constraints, triggers, RLS, the allowlist, the `media` bucket (`images/`, `files/`, `media/`), the cleanup job |
-| `supabase/seed.sql` | The placeholder content, **generated** from the fixtures (`lib/repositories/supabase/seed.ts`; regenerate with `npx vitest run seed -u`) |
+| `supabase/seed.sql` | The test dataset, **generated** from `lib/seed` (the shipped placeholders plus stress cases; `lib/repositories/supabase/seed.ts`; regenerate with `npx vitest run seed -u`). The local Supabase loads it on start. Never pushed to dev or prod |
+| `supabase/config.toml` | The local Supabase (CI): sign-ups off, as on dev and prod |
 | `lib/repositories/supabase/` | Row mappers, the public and admin repositories, the client |
 
 ## Tests
 
-- `migration.test.ts`: migrations, seed and RLS in PGlite (Postgres in WASM). Runs in CI.
-- `live.test.ts` (`npm run test:live`, local only): the repository contract, RLS and auth
-  against **dev** (`.env.local`). Run it when a change touches the database or auth. It
-  plants and removes test rows and throwaway accounts: **never point it at prod**.
+- `migration.test.ts` (unit, offline): migrations, seed and RLS in PGlite (Postgres in WASM).
+- `db.test.ts` (`npm run test:db`): the repository contract, RLS, auth and storage against the
+  **local** Supabase. It plants and removes rows and throwaway accounts, so it refuses any
+  other URL. CI runs it after `npx supabase start` (`.github/actions/local-supabase`), which
+  also makes the **test admin** (`scripts/test-admin.mjs`; `E2E_ADMIN_*` in `ci.yml`, local
+  only). The e2e suite and Lighthouse run against the same local Supabase.
 
 ## Environment
 
-- `.env.local` (template `.env.example`): the **dev** URL, publishable key and secret key;
-  `DATA_SOURCE=supabase` to read and edit dev locally (unset = fixtures; the admin's saves then
-  change only an in-memory copy).
-- Vercel → Environment Variables: **Production** = `DATA_SOURCE=supabase` + prod's URL and
-  publishable key; **Preview** = the same with dev's. Both: `GITHUB_TOKEN` (read-only, for the
-  heat map). The secret key never goes into Vercel.
+- `.env.local` (template `.env.example`): the **dev** URL and publishable key. `npm run dev`
+  then reads and writes dev; that is where content is worked out before it goes to prod.
+- Vercel → Environment Variables: **Production** = prod's URL and publishable key;
+  **Preview** = dev's. Both: `GITHUB_TOKEN` (read-only, for the heat map). The secret key
+  never goes into Vercel. (`DATA_SOURCE` is no longer read; it can be deleted.)
 
 ## Setting up a project (once)
 
 1. Create it on supabase.com (region Mumbai, `ap-south-1`); keep the database password.
 2. **Authentication → Sign In / Providers**: turn off "Allow new users to sign up".
-3. Apply the schema and seed: `npx supabase link --project-ref <ref>`, then
-   `npx supabase db push --include-seed`.
+3. Apply the schema: `npx supabase link --project-ref <ref>`, then `npx supabase db push`
+   (no seed: it is test data; real content goes in through the admin).
 4. **The admin account:** Authentication → Users → Add user (Auto Confirm on), then in the SQL
    Editor:
    ```sql
@@ -52,15 +55,15 @@ replace RLS.
    ```
    Both projects have them (prod since 2026-10-18).
 
-**The test admin (dev only):** `e2e-admin@example.com`, on the allowlist, used by CI's
-signed-in tests. Its password is the repository secret `E2E_ADMIN_PASSWORD` (with
-`E2E_ADMIN_EMAIL`, `E2E_SUPABASE_URL`, `E2E_SUPABASE_PUBLISHABLE_KEY`) and in `.env.local`. To
-rotate: a new password in Authentication → Users, then both places. Prod has no test account.
+**Test accounts:** none on dev or prod. CI's test admin lives only in its local Supabase. (The
+old dev test admin `e2e-admin@example.com` and the repository secrets `E2E_*` are no longer
+used; they can be deleted.)
 
 ## Day to day
 
 - **Content:** dev holds the fictional test persona from `docs/admin-test-content/`
-  (git-ignored); prod holds the seed until the owner replaces it.
+  (git-ignored, filler until the real content is ready); prod holds the original seed until
+  the owner copies the real content over from dev.
 - **Schema changes:** a new migration (`npx supabase migration new <name>`), pushed to dev,
   then prod: `npx supabase db push --db-url "$SUPABASE_DB_URL"` (`--dry-run` first; prod:
   `$SUPABASE_PROD_DB_URL`). Additive migrations go to prod once the PR is approved, before it
