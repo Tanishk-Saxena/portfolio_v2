@@ -36,7 +36,7 @@ const useSaveHint = () =>
 
 /**
  * The editor's sticky bar (ADMIN-DESIGN-SPEC §4.1–4.2). Collections: back + crumb. Single
- * records: the section name, with ≡ on phones. Wide adds the shortcut hint, Discard and
+ * records: the section name, with ≡ at the right on phones. Wide adds the shortcut hint, Discard and
  * Save; phones get them in the bottom bar. Without `state` it only navigates.
  */
 export function EditorBar({
@@ -56,11 +56,6 @@ export function EditorBar({
     <div className="sticky top-0 z-5 border-b border-line bg-paper-fade-strong backdrop-blur-bar">
       <div className="flex min-h-admin-editor-bar flex-wrap items-center gap-3 px-admin-x py-2.5">
         <div className="flex min-w-0 flex-[1_1_220px] items-center gap-2">
-          {!collection && (
-            <span className="@wide:hidden">
-              <SheetButton variant="icon" />
-            </span>
-          )}
           {collection && (
             <>
               <GuardedLink
@@ -94,8 +89,10 @@ export function EditorBar({
             </span>
           )}
         </div>
-        <div className="ml-auto @wide:hidden">
+        {/* Phones: the toggle, then ≡ on single records, at the right as on every list (§14). */}
+        <div className="ml-auto flex items-center gap-2 @wide:hidden">
           <ThemeToggle variant="admin" />
+          {!collection && <SheetButton variant="icon" />}
         </div>
         {state && (
           <div className="ml-auto hidden items-center gap-2 @wide:flex">
