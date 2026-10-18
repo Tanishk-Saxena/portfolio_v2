@@ -131,7 +131,19 @@ are iPhones: every e2e spec now also runs in Safari's engine on an iPhone profil
 (`iphone-safari`). Dependabot opens update PRs (npm weekly, minor and patch grouped; Actions
 monthly), and the repo's security alerts and fixes are on; with no secrets in CI, those PRs
 run the full checks. Considered and left out (owner): prod's configuration (the owner keeps
-prod identical to dev and the tested schema) and end-to-end tests of unusual uploads.
+prod identical to dev and the tested schema) and end-to-end tests of unusual uploads. The
+WebKit run found one race in the tests (a save's refresh landing during a typed navigation;
+the tests now let it settle), not in the app.
+
+**Dependabot's first pass (PRs #52–#65, 2026-10-18).** Turning on the alerts showed 14
+vulnerabilities. The ones that reach the site were fixed: `next` 16.3.8 (#56: SSRF in image
+optimisation, cache poisoning), `sharp` (#53), `source-map-js` (#52); the grouped batch (#63)
+then took `next` to 16.4.1 and React to 19.3.1, green in CI. The major upgrades it proposed
+(TypeScript 7, ESLint 10, `@types/node` 26, a `next` minor already covered) were closed, and
+`dependabot.yml` now skips majors (#64; security updates still come). Actions updates (#57)
+and `@types/node` 24.19 (#65) merged; no PR left open. One CI build failed downloading the
+Google fonts (a network blip; the re-run passed): the owner's rule is to re-run, and to
+self-host the fonts only if it repeats. No change is made unless it is truly needed.
 
 ## Open items
 
@@ -143,7 +155,12 @@ prod identical to dev and the tested schema) and end-to-end tests of unusual upl
 - **Owner, optional tidy-up** (nothing reads them any more): the dev test admin
   `e2e-admin@example.com` and its allowlist row; the repository secrets `E2E_SUPABASE_URL`,
   `E2E_SUPABASE_PUBLISHABLE_KEY`, `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; the Vercel variable
-  `DATA_SOURCE`.
+  `DATA_SOURCE`; in `.env.local`, the `DATA_SOURCE` and `SUPABASE_SECRET_KEY` lines.
+- **Six Dependabot alerts, dev tooling only** (`extract-zip` ×2, `tmp` ×2, `sprintf-js`,
+  `uuid`): never on the live site; their fixes arrive through Dependabot as upstream ships
+  them. Nothing to do meanwhile.
+- **Dependabot PRs:** npm weekly (minor and patch in one PR), Actions monthly, security fixes
+  at once; no majors. Each runs the full checks; the owner merges, or tells Claude to.
 
 ## The owner's test list
 
