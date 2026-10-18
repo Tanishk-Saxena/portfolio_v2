@@ -139,5 +139,10 @@ export const stressQuotes: Omit<Quote, 'sortOrder'>[] = [
 
 export const stressSocialLinks: Omit<SocialLink, 'sortOrder'>[] = [
   { id: 'stress-mastodon', label: 'Mastodon', url: 'https://example.com/mastodon' },
-  { id: 'stress-hidden-link', label: 'A long label for a link', url: '' }, // empty URL = hidden
+  // At the 40-character label limit. Every link has a URL: an empty one is refused (§14).
+  {
+    id: 'stress-long-link',
+    label: 'A long label for a link, at the limit ok',
+    url: 'https://example.com/long-label',
+  },
 ];

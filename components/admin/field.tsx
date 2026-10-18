@@ -152,6 +152,7 @@ export function Field({
           aria-describedby={describedBy}
           value={Array.isArray(value) ? (value as LinkValue[]) : []}
           max={field.maxItems}
+          labelMax={field.max}
           onChange={onChange}
         />
       )}

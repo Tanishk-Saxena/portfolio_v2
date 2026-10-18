@@ -87,6 +87,22 @@ export function parseDraft(slug: FormSlug, input: unknown): Draft | null {
 }
 
 const URL_RE = /^https?:\/\/\S+\.\S+/;
+
+/**
+ * One contact link's problem, or undefined (owner, ADMIN-DESIGN-SPEC §14): a label of at most
+ * `max` and a full address; an empty link is never stored. `name` stands in for no label.
+ */
+export function linkProblem(
+  link: Pick<LinkValue, 'label' | 'url'>,
+  max = Infinity,
+  name = 'The link',
+) {
+  const [label, url] = [link.label.trim(), link.url.trim()];
+  if (!label) return `${name} needs a label.`;
+  if (label.length > max) return `“${label}” is too long: ${label.length} of ${max} characters.`;
+  if (!url) return `${label} needs an address.`;
+  return URL_RE.test(url) ? undefined : `${label}: enter a full address starting with https://`;
+}
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 const YEAR_RE = /^\d{4}$/;
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -124,14 +140,8 @@ function fieldError(field: FieldDef, value: DraftValue): string | undefined {
     const links = value as LinkValue[];
     if (links.length > (field.maxItems ?? Infinity)) return `${field.maxItems} links at most.`;
     for (const [i, link] of links.entries()) {
-      const [label, url] = [link.label.trim(), link.url.trim()];
-      if (!label) return `Link ${i + 1} needs a label.`;
-      if (field.max && label.length > field.max) {
-        return `“${label}” is too long: ${label.length} of ${field.max} characters.`;
-      }
-      if (url && !URL_RE.test(url)) {
-        return `${label}: enter a full address starting with https://`;
-      }
+      const problem = linkProblem(link, field.max, `Link ${i + 1}`);
+      if (problem) return problem;
     }
     return undefined;
   }
