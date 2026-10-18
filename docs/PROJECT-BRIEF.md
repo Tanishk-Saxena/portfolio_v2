@@ -1,7 +1,7 @@
 # Portfolio Site — Project Brief
 
 **Version:** 2 (supersedes everything earlier)
-**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3) and the site title and description (9.2) done; the re-evaluation outcomes (9.5) next, in a new session, from the ledger's "What's left of Phase 9" list (the owner's test list beside it is a running list to verify by hand, not remaining work); then Phase 10, the final audit. Current step: `docs/PROGRESS.md`
+**Status:** Milestone A live; Milestone B done (Phase 8 closed by the owner's admin test, 2026-10-03); Phase 9.1 (Lighthouse CI) and 9.4 (test infrastructure: signed-in admin e2e in CI, a blocking journey and axe) done; the rest of Phase 9 planned in full (the ledger's Phase 9 roadmap, owner, 2026-10-04), the owner's findings (9.3), the site title and description (9.2) and the re-evaluation outcomes (9.5) done: Phase 9 complete (2026-10-18); Phase 10, the final audit, complete (2026-10-18: one reading of prod and the admin, and the one-time fixes; no standing audit, owner; P-1, the phone LCP, stays a flagged item, never a gate). Next: the owner's end-to-end test round, from the ledger's test list; later work is ordinary PRs. Current step: `docs/PROGRESS.md`
 
 ---
 
@@ -391,28 +391,20 @@ scores as it lands and nothing has to be measured twice.
     `/uses`, draft preview on the site.
   Watch each PR's Lighthouse reading.
 
-**Phase 10 — Final audit (the last step; revised by the owner, 2026-10-04)**
+**Phase 10 — Final audit (the last step; revised by the owner, 2026-10-04 and 2026-10-18)**
 A one-time job that closes the implementation, not a gate to rerun: testing and everyday use
 will keep bringing fixes and requests, and none of them reopens it.
-- 10.1 *The standing audit.* One GitHub Actions workflow, started by hand (`workflow_dispatch`)
-  and on a weekly schedule, that runs Lighthouse (performance / accessibility / best practices
-  / SEO; mobile and desktop) against the **deployed prod public pages** and against the
-  **admin on dev, signed in as the dev test admin** (prod has no test account, Phase 9
-  roadmap item 1). Scores go to the run's Summary; a score under budget is a warning, never
-  a failure. It sees what the PR reading can't: real hosting, real content, changes made in
-  the admin with no PR, and the signed-in admin screens.
-  **Signed-in admin Lighthouse lives here, not on every PR** (owner's question, 2026-10-04):
-  the admin is a private, `noindex` tool for one person, so its SEO score means nothing and
-  its speed matters less than the site's; its accessibility is already read on every PR by
-  axe on every signed-in screen (Phase 9.4), and its function by the blocking journey. A
-  per-PR signed-in Lighthouse would need the credentials and a login script in a second job
-  and add minutes to every PR for little. The audit covers a representative set: a list
-  (Writing), an entry editor (an article), a single form (Hero) and Settings.
-- 10.2 *The one-time fixes.* Fix what the first run shows under target, P-1 (phone LCP,
-  `docs/PERFORMANCE.md`) first, and record the scores in the ledger.
-*Verify:* the scores meet §3 on the live site, once; Phase 10 then closes. From then on a fix
-or a request is an ordinary PR, read by CI's per-PR Lighthouse and axe steps (Phase 9.1,
-9.4); the standing audit and Vercel Speed Insights watch the live site.
+- *One reading and the fixes it calls for.* Lighthouse once, by hand, on the deployed prod
+  pages (mobile and desktop), and on the signed-in admin; fix what is under target, P-1
+  (phone LCP, `docs/PERFORMANCE.md`) first, and record the scores.
+- **No standing audit** (owner, 2026-10-18, replacing the 2026-10-04 plan of a weekly
+  workflow): every change already gets Lighthouse and axe on its PR (Phase 9.1, 9.4), axe
+  covers every signed-in admin screen, and Vercel Speed Insights reads the live site from real
+  visitors' phones, which also catches content edited in the admin with no PR. A scheduled lab
+  run would repeat those readings; the admin's own speed matters little for a private tool.
+*Verify:* the reading is recorded and the cheap fixes are in; Phase 10 then closes. From then
+on a fix or a request is an ordinary PR, read by CI's per-PR Lighthouse and axe steps; Speed
+Insights watches the live site.
 Order: after Phase 9.5's enhancements and before the owner's end-to-end test round, so that
 round runs on the tuned site.
 

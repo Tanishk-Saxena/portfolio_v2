@@ -5,9 +5,10 @@ raise. Owner rule (brief §3): these are **always measured and flagged, never bl
 miss never holds up a phase, a merge or a deploy; it becomes an open item here and is
 addressed separately. Since Phase 9.1, CI's `lighthouse` job reads every PR (home, the
 article, the admin sign-in; mobile and desktop; median of 3) and pins the scores to the PR,
-with a warning under budget; `npm run lighthouse` runs the same locally. Phase 10, the last
-phase, fixes P-1 once and adds a standing audit of the deployed site and the signed-in dev
-admin, run by hand or weekly (brief §6, revised 2026-10-04); it is not rerun as a gate.
+with a warning under budget; `npm run lighthouse` runs the same locally. Phase 10
+(2026-10-18) read the deployed prod site and the signed-in admin once and made its one-time
+fixes; there is no standing audit (owner): the per-PR reading and Vercel Speed Insights (real
+visitors) cover the live site (brief §6).
 
 Targets (brief §3): Lighthouse mobile performance ≥ 95, accessibility 100; LCP < 2.0 s;
 CLS < 0.1; axe clean.
@@ -27,6 +28,11 @@ Lab = Lighthouse mobile (simulated slow 4G, mid-tier phone). Field = Vercel Spee
 | 2026-10-02 (9.1) | same, mobile | article | 85 / 100 / 96 / 100 | 3.9 s | — | — | 0 | |
 | 2026-10-02 (9.1) | same, mobile | admin sign-in | 90 / 100 / 96 / 63 | 3.3 s | — | — | 0 | SEO 63 is expected: the admin is `noindex` |
 | 2026-10-02 (9.1) | same, desktop | home / article / sign-in | 99 / 99 / 100 perf; a11y 100; BP 96 | 0.7–0.9 s | — | — | 0 | best practices 96 on every page: for Phase 10 |
+| 2026-10-18 (10) | live, lab, Lighthouse CI by hand, mobile | home | 88 / 100 / 100 / 100 | 3.2 s | 1.5 s | 120–180 ms | 0.002 | median of 3; the Phase 10 reading, before its fixes |
+| 2026-10-18 (10) | same, mobile | article | 87 / 100 / 100 / 100 | 3.6 s | 1.1 s | 110–140 ms | 0 | best practices 100 live: the 96 was localhost's http |
+| 2026-10-18 (10) | same, desktop | home / article | 100 / 100 / 100 / 100 | 0.7 s | 0.3 s | 0 | 0 | |
+| 2026-10-18 (10) | local build over dev, signed in, Lighthouse CI by hand, mobile | Writing / an editor / Hero / Settings | 69 / 64 / 80 / 78 perf; a11y 100; BP 96; SEO 63 | 3.7–4.1 s | — | — | 0 | the private tool: same JS cost as P-1, flagged, not a target; SEO 63 is `noindex`; BP 96 is localhost's http |
+| 2026-10-18 (10) | same, desktop | the same four | 98–99 perf; a11y 100 | 0.9 s | — | — | 0 | |
 
 Accessibility: axe runs in CI on home and article, both modes, desktop and mobile (a warning
 when it fails, never red). Last result: clean. 2026-10-02: one false reading on PR #19 (scroll
@@ -51,11 +57,21 @@ clean after it.
 
 The real network is fast; the simulated LCP comes from the modelled main-thread and JS
 cost on a slow phone. **Next:** read Speed Insights field data once there are a few days of
-visits; if real phones are under 2.0 s, lower the priority. Levers, in order:
+visits; if real phones are under 2.0 s, lower the priority.
 
-1. Newsreader `opsz` axis costs 72 KB (128 vs 56 KB); the owner decides fidelity vs bytes.
-2. Script-face preloads: since Phase 9 item 28a both Allura (the default) and Caveat are
-   preloaded while Settings lets the owner switch (Caveat ≈50 KB); once the owner settles on
-   one, drop the other face entirely (`lib/fonts.ts`).
-3. The grain layer's full-viewport blend (paint cost).
-4. The hydration JS footprint (TBT 170–340 ms).
+**Phase 10 (2026-10-18), what was measured.** The LCP element is text (the hero heading,
+the article's first paragraph) with no load delay: it is all render delay. Lighthouse's
+simulator charges every request that finished before the observed paint to LCP, so on
+simulated slow 4G the heading waits for the fonts (≈245 KB) and the JS (≈150 KB gzipped,
+mostly React and the Next runtime; the 38 KB polyfill chunk is `noModule` and never loads in
+a modern browser). Slow observed first paints on the local machine (up to 2.4 s) were Chrome's
+GPU process starting late, not the page. Levers, as tried (local lab LCP, median of 3):
+
+1. **Done:** Caveat is no longer preloaded (`lib/fonts.ts`): 50 KB off the first paint, home
+   ≈4.1 → 3.6 s. It still loads, behind its size-adjusted fallback, when Settings picks it;
+   once the owner settles on one face, drop the other entirely.
+2. Newsreader's `opsz` axis: 132 KB with it, 58 KB without, for ≤0.15 s. **Not taken**: the
+   optical sizing is the display type's look. A narrower weight range saves nothing (Google
+   serves the same 132 KB file) and Turbopack's `next/font` refuses a range.
+3. The grain layer: deferring it until after `load` changed nothing. **Not taken.**
+4. The hydration JS: the framework's floor; nothing app-specific is large. Open.
