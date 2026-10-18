@@ -1,960 +1,354 @@
-# Design Spec — extracted from the Claude Design mockup
+# Site design spec
 
-**Phase 0 output.** Every value here is transcribed from the mockup source. Nothing is
-rounded, tuned or invented. Anything the mockup did not settle, or that broke a hard
-constraint (WCAG 2.1 AA, visible focus, mobile-first 390px, container queries, a
-reduced-motion fallback for every motion), has been resolved and tagged **`[ASSUMED]`**
-inline. Every assumption is also listed in [§9 Assumed Decisions](#9-assumed-decisions).
-Where an assumption overrides a mockup value, the mockup value stays in place so the two
-can be compared. **Build from the `[ASSUMED]` value.**
+How the public site looks and behaves, as shipped. **§10 (owner revisions) wins** over every
+other section. Values live in code: `styles/tokens.css` (tokens, both modes, motion, reduced
+motion) and `app/globals.css` (`@theme`, the Tailwind mapping); this file gives the rules and
+the reasons. `[ASSUMED]` decisions are listed in §9 by id (Q1–Q32); code comments cite them.
+The admin: `docs/ADMIN-DESIGN-SPEC.md`.
 
-> **Revision 2:** the owner's direction (brief §0.1) is that the mockup wins every
-> contradiction and perf rules apply by intent. §9 rows marked **R2** (Q4, Q9, Q11, Q18,
-> Q22) override the inline text for those items.
-
-Sources (abbreviated in citations):
-
-| Tag | File |
-|---|---|
-| **[P]** | `docs/design/artifacts/Portfolio.dc.html` — main page; markup + `renderVals()` logic |
-| **[A]** | `docs/design/artifacts/Article.dc.html` — article route |
-| **[DN]** | `docs/design/artifacts/Dev notes.dc.html` — behaviour spec |
-| **[MP]** | `docs/design/artifacts/Mobile preview.dc.html` — 390×844 frame + option controls |
-| **[H]** | `docs/design/HANDOFF.md` |
-| **[D]** | `docs/design/DESIGN.md` |
-
-Notes on reading the source:
-- `style-hover="…"` / `style-active="…"` attributes are compiled by `support.js` into
-  `:hover` / `:active` pseudo-class rules. There are **no** `:focus` / `:focus-visible`
-  rules anywhere in the mockup, and no disabled states.
-- Many inline `var(--accent,#2F5D72)` fallbacks name slate blue. They never apply,
-  because `--accent` is always set on the root by `theme`. Fallbacks are not tokens.
-- `Dev notes.dc.html` and `Mobile preview.dc.html` use their own chrome colours
-  (`#4A443C`, `#DED5C6`, `#26231F`, `#E8DFD2`, `#9A9188`, `#C0662F`, …). Those are
-  documentation-page colours, not product tokens, and are excluded.
-- [DN] line 28: *"Numbers given here are the values used in the mockup, not requirements —
-  keep the relationships, tune the constants."* This spec records the numbers as-is.
-  Tuning is a later decision.
+The design came from Claude Design mockups (removed 2026-10-18; in git history under
+`docs/design/`). Where the mockup failed a hard rule (AA, focus, 390px first, reduced motion),
+the shipped value differs and §9 says why.
 
 ---
 
-## 1. Color tokens
+## 1. Colour
 
-Source: [P] `palette()` lines 510–515, `theme` 609–613, band overrides lines 81 / 201;
-[A] `palette()` 139–144; [H] "Design tokens"; [D] §3.
+### 1.1 Palette (per mode)
 
-### 1.1 Core palette (per mode)
-
-| Semantic token | Mockup name | Light | Dark | Usage |
-|---|---|---|---|---|
-| `bg` | `--paper` | `#F5F0E7` | `#191714` | Page ground, modal card, nav item resting fill, back-to-top fill |
-| `surface` | `--paper2` | `#EDE6DA` | `#221F1A` | Wells: project image placeholder, portrait, writing-row hover |
-| `bg-translucent` | `--paperFade` | `rgba(245,240,231,.8)` | `rgba(25,23,20,.8)` | Fixed header behind `backdrop-filter: blur(10px)` |
-| `text-primary` | `--ink` | `#23201C` | `#EDE7DB` | Body headings, row titles; FAB fill |
-| `text-muted` | `--muted` | `#7A7268` | `#938A7D` | Secondary copy, meta, labels |
-| `accent` | `--accent` | `#B4532A` | `color-mix(in oklab, #B4532A, white 16%)` | Section headings, dates, bands, primary button, rules |
-| `on-accent` | literal | `#FDF8F0` | `#FDF8F0` | Text/icons on accent fills; `::selection` text |
-
-- **Dark accent is a formula, not a value.** It is always derived from the light accent:
-  `color-mix(in oklab, <accent>, white 16%)` ([P] 513, [DN] "Theming", [D] §3).
-  The formula resolves to `#C26F4E` for terracotta and `#507587` for slate. These
-  resolved hexes are **computed here for the contrast checks only**. Ship the formula.
-- **Alternative accent:** slate blue `#2F5D72` ([P] data-props `accent.options`; [D] §3).
-  **[ASSUMED] Terracotta.** It is the mockup default in every file, and slate's derived dark
-  accent fails AA (Q8).
-
-### 1.1a Shipping palette `[ASSUMED]` (Q1, Q2)
-
-The mockup palette fails AA in several places (§1.5). These are the smallest changes
-that pass. Each was found by lowering only OKLab lightness (hue and chroma kept), with
-≥4.6:1 targeted for margin:
-
-| Token | Mockup | **Ship** | Why |
+| Token | Light | Dark | Use |
 |---|---|---|---|
-| `text-muted` (light) | `#7A7268` | **`#6D655C`** [ASSUMED] | 5.05:1 on paper, 4.62:1 on paper2 (was 4.17 / 3.82) |
-| `accent-base` (light text **and** fill) | `#B4532A` | **`#A9491F`** [ASSUMED] | 5.06:1 on paper, 4.63:1 on paper2; `#FDF8F0` on it 5.43:1 |
-| `accent` (dark, **text/lines only**) | `color-mix(in oklab, accent, white 16%)` | **`color-mix(in oklab, var(--accent-base), white 24%)`** → `#C17558` [ASSUMED] | Still derived, as [DN] requires; 5.07:1 on dark paper, 4.65:1 on dark paper2 |
-| `accent-fill` (new; both modes) | bands and fills used `--accent` | **`var(--accent-base)`** in light **and** dark [ASSUMED] | Filled surfaces carrying `#FDF8F0` text (About/Contact bands, primary button, hero highlight, active nav item, pressed states, `::selection`) keep the base accent in dark mode, so their text stays at 5.43:1 (the derived colour would give 3.49) |
-| band `--muted` | `rgba(253,248,240,.88)` | **`rgba(253,248,240,.89)`** [ASSUMED] | 4.65:1 on `accent-fill` |
-| band `--paper2` | `rgba(253,248,240,.13)` | **`rgba(253,248,240,.09)`** [ASSUMED] | Portrait-placeholder label (switched to band `--ink`) reaches 4.59:1 |
-| dark `text-muted`, `ink`, `paper`, `paper2`; light `ink`, `paper`, `paper2`, `#FDF8F0` | — | unchanged | Already pass |
+| `paper` | `#F5F0E7` | `#191714` | Page ground, modal card, nav item fill |
+| `surface` (`paper2`) | `#EDE6DA` | `#221F1A` | Wells: placeholders, portrait, row hover |
+| `paper-fade` | `paper` at .8 | `paper` at .8 | Fixed header, behind `blur(10px)` |
+| `ink` | `#23201C` | `#EDE7DB` | Headings, titles; FAB fill |
+| `muted` | `#6D655C` | `#938A7D` | Secondary copy, meta, labels |
+| `accent` | `--accent-base` | `color-mix(in oklab, var(--accent-base), white var(--accent-dark-mix))` | Headings, dates, rules, links |
+| `accent-fill` | `--accent-base` | `--accent-base` | Every filled surface carrying `#FDF8F0` text: bands, primary button, hero word, active nav item, `::selection` |
+| on-accent | `#FDF8F0` | `#FDF8F0` | Text and icons on fills |
 
-### 1.2 Accent-band scope overrides
+### 1.1a Accents
 
-The About and Contact sections paint `background: var(--accent)` and redefine these
-tokens for their contents ([P] lines 81, 201):
+Two, chosen in Settings (§10 "Style settings"): **Terracotta** `#A9491F` (default; dark mix
+24% → `#C17558`) and **Slate blue** `#2F5D72` (dark mix 32% → `#708E9D`). The dark accent is
+always a formula, never a hand-picked value. Rule: an unshipped shade may be adjusted slightly
+to pass AA; a shipped value never changes without the owner (Q1, Q2).
 
-| Token (inside band) | Value |
+### 1.2 Accent bands
+
+About and Contact are full-bleed `accent-fill` bands that redefine tokens for their contents:
+`--ink` and `--accent` → `#FDF8F0`, `--muted` → `#FDF8F0` at .89, `--paper2` → `#FDF8F0` at
+.09. The focus ring therefore turns cream inside a band.
+
+### 1.3 Derived colours
+
+All relative to tokens (`X @ n%` = X mixed with transparent to n% strength):
+`border-header` accent @38% · `border-section` accent @48% · `border-row` accent @32% ·
+`border-control` accent @45% · `border-article` accent @40% · `border-listen` accent @42% ·
+`border-card` ink @14% · `border-divider` ink @12% · `border-close` ink @18% ·
+`border-quiet` ink @22% · `border-navdot` ink @28% · `press-row` accent @12% ·
+`press-writing` accent @14%. Scrims: nav paper @55% + `blur(14px)`; modal (light
+`rgba(232,224,210,.62)`, dark `rgba(18,16,14,.62)`) + `blur(16px)`.
+
+- **Card veil** `linear-gradient(to top, rgba(12,10,8,.82) 0%, rgba(12,10,8,.62) 50%,
+  rgba(12,10,8,.06) 100%)`; card kind text `#FDF8F0` at .9; card icons `#23201C` on
+  `#FDF8F0` at .92 in both modes (Q15).
+- **Focus ring** `2px solid var(--accent)`, offset 2px, on `:focus-visible`, following the
+  element's radius; inset (−2px) on full-width rows (Q3).
+
+### 1.4 Grain
+
+A fixed full-viewport SVG noise layer (`feTurbulence fractalNoise .9`, 3 octaves, 190px
+tile), `pointer-events: none`, `multiply` (light) / `screen` (dark). Opacity from Settings
+(default 6%, `--grain-opacity`). Not in the admin (Q5).
+
+### 1.5 Contrast (ship values, WCAG 2.x)
+
+| Pair | Ratio |
 |---|---|
-| `--ink` | `#FDF8F0` |
-| `--muted` | `rgba(253,248,240,.88)` |
-| `--paper2` | `rgba(253,248,240,.13)` |
-| `--accent` | `#FDF8F0` |
-| `color` | `#FDF8F0` |
+| muted on paper / paper2 (light) | 5.05 / 4.62 |
+| accent on paper / paper2 (light) | 5.06 / 4.63 |
+| `#FDF8F0` on `accent-fill` (both modes) | 5.43 (slate 6.78) |
+| band muted on `accent-fill` | 4.65 |
+| dark accent on dark paper / paper2 | 5.07 / 4.65 (slate 5.15 / 4.73) |
+| dark muted on dark paper | 5.26 |
+| focus ring: on paper (L / D), cream on a band | 5.06 / 5.07 / 5.43 |
+| card name over the veil at 50%, over white | 5.33 |
 
-In dark mode the bands take the *derived* accent as their background.
-
-### 1.3 Derived / alpha colours
-
-All are expressed relative to tokens. "`X` @ n%" below means
-`color-mix(in oklab, X, transparent (100−n)%)`, written the way the source writes it.
-
-| Semantic token | Source expression | Where |
-|---|---|---|
-| `border-header` | accent, `transparent 62%` | Header bottom border; portrait border; project tag border |
-| `border-section` | accent, `transparent 52%` | Top rule between sections |
-| `border-row` | accent, `transparent 68%` | Experience / writing row separators |
-| `border-control` | accent, `transparent 55%` | Outline pill buttons, theme toggle, email underline, "Show more" |
-| `border-article` | accent, `transparent 60%` | Article meta and footer rules [A] |
-| `border-listen` | accent, `transparent 58%` | Listen button (idle) [A] |
-| `border-card` | ink, `transparent 86%` | Project card, modal card, nav label (inactive) |
-| `border-divider` | ink, `transparent 88%` | Modal image/text divider |
-| `border-close` | ink, `transparent 82%` | Modal close button |
-| `border-quiet` | ink, `transparent 78%` | Modal "Source" button, back-to-top |
-| `border-navdot` | ink, `transparent 72%` | Nav item (inactive); quote dot inactive fill |
-| `press-row` | accent, `transparent 88%` | Experience row `:active` background |
-| `press-writing` | accent, `transparent 86%` | Writing row `:active` background |
-| `veil` | `linear-gradient(to top, rgba(12,10,8,.78) 0%, rgba(12,10,8,.34) 44%, rgba(12,10,8,.06) 100%)` | Project card overlay |
-| `card-icon-bg` | `rgba(253,248,240,.92)` + text `#23201C` (fixed, both modes) | Card live/source icon buttons |
-| `card-kind` | `rgba(253,248,240,.78)` | Card "kind — year" caption |
-| `scrim-nav` | light `rgba(245,240,231,.55)` / dark `rgba(25,23,20,.55)` + `blur(14px)` | Nav curtain |
-| `scrim-modal` | light `rgba(232,224,210,.62)` / dark `rgba(18,16,14,.62)` + `blur(16px)` | Modal curtain |
-| `selection` | bg accent, text `#FDF8F0` | `::selection` |
-| `focus-ring` | **not defined in mockup** | **[ASSUMED] `outline: 2px solid var(--accent); outline-offset: 2px`** on `:focus-visible`. Inside bands `--accent` is `#FDF8F0`, so the ring turns cream automatically. Ratios: 5.06 (light paper), 5.07 (dark paper), 5.43 (cream on band). Circular controls follow their `border-radius` (Q3) |
-| `veil` (ship) | — | **[ASSUMED] `linear-gradient(to top, rgba(12,10,8,.82) 0%, rgba(12,10,8,.62) 50%, rgba(12,10,8,.06) 100%)`**; card kind colour **`rgba(253,248,240,.9)`**. A 2-line card name then holds ≥5.33:1, and the kind ≥7.18:1, **even over a pure-white screenshot** (Q15) |
-
-### 1.4 Grain texture
-
-[P] `grainStyle` 577–583; [A] 159–165.
-
-| Property | Value |
-|---|---|
-| Image | SVG `feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'`, full-size rect |
-| `background-size` | `190px 190px` |
-| Position | `position: fixed; inset: 0; z-index: 1; pointer-events: none` |
-| Blend | `multiply` (light) / `screen` (dark) |
-| Opacity | `grain / 100`. Mockup: 6 in [P] props (range 0–24, step 1) but 5.5 in [P] code fallback, [A] props (range 0–14, step .5) and [MP]. **[ASSUMED] `.06` on both routes, not user-adjustable.** [P] props, [D] and [H] all say 6% (Q5) |
-
-### 1.5 WCAG contrast
-
-Computed with WCAG 2.x relative luminance. Alpha colours are composited in sRGB over
-their real background, and the dark accent is resolved via the OKLab mix. Thresholds:
-4.5:1 for normal text; 3:1 for large text (≥24px regular or ≥18.66px bold) and for
-non-text UI.
-
-**Light mode**
-
-| Pair (where used) | Ratio | Need | Result |
-|---|---|---|---|
-| ink `#23201C` on paper `#F5F0E7` | 14.29 | 4.5 | ✅ |
-| ink on paper2 `#EDE6DA` | 13.08 | 4.5 | ✅ |
-| **muted `#7A7268` on paper** — hero standfirst, about body, experience notes, article body 17px, meta, footer, eyebrow, skill labels | **4.17** | 4.5 | ❌ **FAIL** |
-| **muted on paper2** — writing row hover, image placeholders | **3.82** | 4.5 | ❌ **FAIL** |
-| **accent `#B4532A` on paper** — section H2 (21px at mobile), experience years 13px, quote attribution 12px, modal kind 11px, tags 12px, "More writing" 13px | **4.39** | 4.5 | ❌ **FAIL** for small text (passes 3:1 at ≥24px) |
-| accent on paper — article H1 (34–58px, large) | 4.39 | 3 | ✅ |
-| on-accent `#FDF8F0` on accent — primary button 15px/500, band headings, email, nav active label | 4.72 | 4.5 | ✅ |
-| **band muted `rgba(253,248,240,.88)` on accent** — about body 16px, social links 15px | **4.03** | 4.5 | ❌ **FAIL** |
-| **band muted on band paper2** — "Portrait" placeholder 11px | **3.23** | 4.5 | ❌ **FAIL** |
-| paper on ink — FAB icon | 14.29 | 3 | ✅ |
-| **accent text on paper** — primary button `:active` (inverted) | **4.39** | 4.5 | ❌ **FAIL** (transient state) |
-| card name `#FDF8F0` over veil bottom (.78) | 10.63 | 3 | ✅ |
-| card kind `rgba(…,.78)` over veil bottom | 7.20 | 4.5 | ✅ |
-| **card name over veil at 44% stop (.34)** | **2.60** | 3 | ❌ only if a long name wraps upward. **[ASSUMED] Fixed by the ship veil in §1.3 plus a 2-line clamp on the name (Q15)** |
-| card icon `#23201C` on `rgba(253,248,240,.92)` | 13.40 | 3 | ✅ |
-| slate `#2F5D72` on paper / `#FDF8F0` on slate | 6.32 / 6.78 | 4.5 | ✅ |
-
-**Dark mode**
-
-| Pair (where used) | Ratio | Need | Result |
-|---|---|---|---|
-| ink `#EDE7DB` on paper `#191714` | 14.53 | 4.5 | ✅ |
-| ink on paper2 `#221F1A` | 13.33 | 4.5 | ✅ |
-| muted `#938A7D` on paper | 5.26 | 4.5 | ✅ |
-| muted on paper2 | 4.83 | 4.5 | ✅ |
-| accent `#C26F4E` (derived) on paper | 4.85 | 4.5 | ✅ |
-| accent on paper2 | 4.45 | 4.5 | ❌ (no current usage places accent text on paper2) |
-| **`#FDF8F0` on derived accent** — primary button 15px, band H2 at 21px, email at 22px, nav active label 9px | **3.49** | 4.5 | ❌ **FAIL** for normal text (passes 3:1 for large text and icons) |
-| **band muted on derived accent** — about body, social links | **3.06** | 4.5 | ❌ **FAIL** |
-| **band muted on band paper2** — portrait label | **2.55** | 4.5 | ❌ **FAIL** |
-| card name / kind over veil | 18.14 / 11.12 | 3 / 4.5 | ✅ |
-| **slate-derived `#507587` on paper** | **3.62** | 4.5 | ❌ **FAIL** if slate is chosen |
-| `#FDF8F0` on slate-derived | 4.68 | 4.5 | ✅ |
-
-**Non-text (UI) contrast against paper.** None of these borders reach 3:1:
-
-| Border | Light | Dark |
-|---|---|---|
-| `border-section` (accent @48%) | 1.93 | 2.06 |
-| `border-row` (accent @32%) | 1.53 | 1.57 |
-| `border-control` (accent @45%) | 1.84 | 1.96 |
-| `border-navdot` (ink @28%) | 1.78 | 2.27 |
-| `border-card` (ink @14%) | 1.31 | 1.45 |
-
-The rules and card borders are decorative, so 1.4.11 does not apply. The outline pill
-buttons are identified by their text label, so their borders are not required to meet
-3:1 either. They are recorded here so nobody later relies on the border alone. An
-accent focus ring would pass 3:1 on paper in both modes (4.39 / 4.85). It would
-**not** pass on the accent bands, which is why the ring colour is open (Q3).
-
-**[ASSUMED] Every ❌ above is resolved by the shipping palette in §1.1a and the ship veil
-in §1.3 (Q1, Q2, Q15).** Re-verified with the same method:
-
-| Pair (ship values) | Ratio | Need |
-|---|---|---|
-| muted `#6D655C` on paper / paper2 | 5.05 / 4.62 | 4.5 ✅ |
-| accent `#A9491F` on paper / paper2 | 5.06 / 4.63 | 4.5 ✅ |
-| `#FDF8F0` on accent-fill `#A9491F` (both modes) | 5.43 | 4.5 ✅ |
-| band muted `.89` on accent-fill | 4.65 | 4.5 ✅ |
-| band ink `#FDF8F0` on band paper2 `.09` | 4.59 | 4.5 ✅ |
-| dark accent `#C17558` on dark paper / paper2 | 5.07 / 4.65 | 4.5 ✅ |
-| dark muted `#938A7D` on dark paper (unchanged) | 5.26 | 4.5 ✅ |
-| focus ring: accent on paper (L / D), cream on band | 5.06 / 5.07 / 5.43 | 3 ✅ |
-| card name over ship veil @50% (over white / paper2) | 5.33 / 6.13 | 4.5 ✅ |
-| card kind `.9` over ship veil @20% (over white) | 7.18 | 4.5 ✅ |
-| quote-dot inactive (ship: `text-muted`) on paper | 5.05 | 3 ✅ |
+Rules and card borders are decorative (below 3:1 by design); outline buttons are identified by
+their label, so nothing relies on a border alone.
 
 ---
 
 ## 2. Typography
 
-Source: [P] `<helmet>` line 13 and inline styles; [A] line 13 and inline styles;
-[DN] line 12; [D] §3; [H] "Design tokens".
-
 ### 2.1 Families
 
-| Role token | Family | Fallback stack (as written) | Weights used | Weights loaded in mockup |
-|---|---|---|---|---|
-| `font-serif` (display, long-form) | **Newsreader** (variable, `opsz` axis 6..72) | `Newsreader, Georgia, serif` | 300, 400; italic 300 (article pull-quote) | [P]: 300, 400, 500 + italic 300, 400. [A]: 300, 400 + italic 300 |
-| `font-sans` (UI, body) | **IBM Plex Sans** | `'IBM Plex Sans', system-ui, sans-serif` | 400, 500 | 400, 500 |
-| `font-script` (signature + hero word only) | **Allura** or **Caveat**, from Settings (§10 "Phase 9 picks") | `var(--script-face)`: `'Allura', cursive` (default) or `'Caveat', cursive` | Allura 400, Caveat 600 (`--script-weight`) | [P]: Caveat 500, 600. [A]: 600 |
-| `font-mono` | IBM Plex Mono 400 — **only in the Dev notes doc page**, for `code` | `'IBM Plex Mono', monospace` | — | [DN] only |
+| Role | Family | Weights | Notes |
+|---|---|---|---|
+| `font-serif` | Newsreader, variable with `opsz` (optical sizing `auto`) | variable; 300 and 400 in use; italic 300 (articles only) | Display and long-form. `opsz` kept: it is the display type's look (Phase 10 measured dropping it: not worth it) |
+| `font-sans` | IBM Plex Sans | 400, 500 | UI and body |
+| `font-script` | **Allura 400** (default) or **Caveat 600**, from Settings (`data-script`) | — | The signature and the hero's highlighted word only; per-face size, leading and offsets in `tokens.css`. Only the default face is preloaded |
+| `font-mono` | IBM Plex Mono 400 | — | Article `code` / `pre` only, loaded on that route (Q19) |
 
-- **Loading in the mockup:** the Google Fonts CSS API with `display=swap`, plus preconnect
-  to `fonts.googleapis.com` / `fonts.gstatic.com`. The brief overrides this: self-host via
-  `next/font`, variable, subset, with `size-adjust` fallback metrics.
-  **[ASSUMED] `next/font/google` with its default `adjustFontFallback: true`.** It
-  generates `size-adjust` / `ascent-override` / `descent-override` metrics for an
-  automatic fallback face. The declared stacks above follow it. Use `display: 'swap'`
-  (as in the mockup) and `subsets: ['latin']` (Q21).
-- **Optical size:** the `opsz 6..72` axis is loaded, but no `font-variation-settings` or
-  `font-optical-sizing` is set, so the browser default (`auto`) applies.
-  **[ASSUMED] Keep `font-optical-sizing: auto` (Newsreader loaded with `axes: ['opsz']`).
-  Ship only the weights in use: Newsreader 300, 400 + italic 300; Plex Sans 400, 500;
-  Caveat 600. Drop the unused Newsreader 500, italic 400 and Caveat 500 (Q20).**
-- **[ASSUMED] Mono role: IBM Plex Mono 400** for inline `code` and `pre` in article bodies.
-  Style comes from [DN]: `font-size: .88em; background: var(--paper2); padding: 1px 5px;
-  border-radius: 3px`. Load it only on the article route (Q19).
-- Rendering: `-webkit-font-smoothing: antialiased` on `body`.
+All via `next/font/google`: self-hosted, `latin` subset, `display: swap`, automatic
+size-adjusted fallbacks (Q20, Q21). Body text is antialiased.
 
-### 2.2 Type scale by role
+### 2.2 Type scale
 
-Mobile/desktop extremes are the `clamp()` endpoints, exactly as written. Tracking in `em`.
+Sizes are the tokens `--text-*` in `app/globals.css`; fluid sizes are `clamp()` in vw (Q25).
+Key roles:
 
-| Role | Element (source) | Family / weight | Size | Line-height | Tracking | Other |
-|---|---|---|---|---|---|---|
-| **display** | Hero H1 [P] 63 | serif 300 | `clamp(40px, 7.4vw, 92px)` | 1.05 | −.02em | `max-width: 16ch; text-wrap: pretty` |
-| display-highlight | Hero `<em>` "web" [P] `webStyle` | script 600, `font-style: normal` | `1.1em` | .84 | — | bg accent, text `#FDF8F0`, `padding: .04em .16em .1em .14em; margin: 0 -.04em; border-radius: 3px; vertical-align: -.03em; display: inline-block` |
-| signature (intro) | [P] `bigTextStyle` | script 600 | `clamp(54px, 12.5vw, 104px)` | .95 | — | nowrap; rotated `signatureTilt` (default −4deg), origin `0% 80%` |
-| signature (navbar) | [P] `slotTextStyle`, [A] `sigStyle` | script 600 | `31px` | .95 | — | nowrap; `translateY(6px) rotate(-4deg)` [P] / `rotate(-4deg)` [A] |
-| **h1** (article) | Article title [A] 51 | serif 300 | `clamp(34px, 6vw, 58px)` | 1.1 | −.015em | colour accent; `max-width: 20ch; text-wrap: pretty` |
-| h1-alt (contact statement) | Contact H2 #2 [P] 203 | serif 300 | `clamp(32px, 5.4vw, 64px)` | 1.1 | −.015em | `max-width: 18ch; text-wrap: pretty` |
-| lead (about) | About lead [P] 88 | serif 300 | `clamp(23px, 3vw, 34px)` | 1.35 | — | `text-wrap: pretty`; mb 28px |
-| lead (article) | First paragraph [A] 68 | serif 300 | `clamp(20px, 2.6vw, 25px)` | 1.55 | — | `text-wrap: pretty` |
-| quote | Blockquote [P] 192 | serif 300 | `clamp(22px, 3.2vw, 34px)` | 1.45 | — | `text-wrap: pretty`; centred |
-| quote-mark | `“` [P] 188 | serif (400 default) | `clamp(54px, 8vw, 86px)` | .6 | — | colour accent; `height: .42em` |
-| **h2** (section heading) | "About", "Experience", … [P] 82 etc. | serif 400 | `clamp(21px, 2.5vw, 28px)` | 1 | — | colour accent; mb 42px |
-| h2 (article) | [A] 72 | serif 400 | `clamp(24px, 3.4vw, 32px)` | 1.25 | — | margin-top `clamp(16px, 3vh, 26px)` |
-| pull-quote (article) | [A] 77 | serif 300 italic | `clamp(20px, 2.6vw, 26px)` | 1.5 | — | see §6 Article body |
-| **h3** (row title) | Experience role [P] 103 | serif 400 | `clamp(21px, 2.4vw, 27px)` | 1.2 | — | |
-| h3 | Writing title [P] 157 | serif 400 | `clamp(20px, 2.3vw, 26px)` | 1.25 | — | `max-width: 34ch` |
-| h3 | Modal title [P] `pTitleStyle` | serif 400 | 28px (narrow) / 36px | 1.12 | — | |
-| h3 | Card name [P] `nameStyle` | serif 400 | 23px | 1.15 | — | colour `#FDF8F0` |
-| email-display | Contact email [P] 204 | serif (400) | `clamp(22px, 3vw, 32px)` | inherit | — | border-bottom 1px `border-control`; pb 4px |
-| list-serif | Skill item [P] 178 | serif 300 | 19px | 1.3 | — | |
-| **h4** (label) | Skill group title [P] 175 | sans 500 | 12px | inherit | .14em | uppercase; muted; mb 18px |
-| **body-lg** | Hero standfirst [P] 64 | sans 400 | `clamp(16px, 1.5vw, 18px)` | 1.75 | — | muted; `max-width: 52ch` |
-| body-article | Article paragraphs [A] 70 | sans 400 | 17px | 1.85 | — | muted |
-| **body** | About paragraphs [P] 89 | sans 400 | 16px | 1.8 | — | muted |
-| body | Modal note [P] `pNoteStyle` | sans 400 | 15px (narrow) / 16px | 1.75 | — | muted |
-| body-sm | Experience note [P] 113 | sans 400 | 15px | 1.75 | — | muted; `max-width: 62ch` |
-| button | Primary / outline pill [P] 66, 69 | sans 500 / 400 | 15px | — | — | |
-| body-ui | Social links [P] 205 | sans 400 | 15px | — | — | muted |
-| button-sm | Modal Live / Source [P] | sans 400 | 14px | — | — | |
-| meta | Company [P] 104 | sans 400 | 14px | — | — | muted |
-| **small** | Experience years [P] 106 | sans 400 | 13px | — | .06em | accent; `tabular-nums`; nowrap |
-| small | Writing read / date [P] 158–159; footer; article meta; Listen button | sans 400 | 13px | — | — | muted (date: `tabular-nums`) |
-| eyebrow | Hero eyebrow [P] 62 | sans 400 | 12px | — | .16em | uppercase; muted; mb 28px |
-| eyebrow | Quote attribution [P] 193 | sans 400 | 12px | — | .16em | uppercase; accent; mt 22px |
-| label-button | "Show more" [P] `moreBtnStyle` | sans 400 | 12px | — | .13em | uppercase |
-| label | Article back link [A] 45 | sans 400 | 12px | — | .14em | uppercase; muted |
-| tag | Project tag [P] `pTags` | sans 400 | 12px | — | .02em | accent |
-| micro | Modal year | sans 400 | 12px | — | — | muted; `tabular-nums` |
-| micro-caps | Card kind; image placeholders; modal kind | sans 400 | 11px | — | .13em (card kind) / .14em (others) | uppercase |
-| micro-caps | Scroll cue label [P] 76 | sans 400 | 10px | — | .18em | uppercase |
-| micro-caps | Nav item label [P] `labelStyle` | sans 500 | 9px | — | .07em | uppercase |
-| **mono** | Article inline `code` / `pre` [ASSUMED] | IBM Plex Mono 400 | `.88em` | inherit (`pre`: 1.6 [ASSUMED]) | — | bg `surface`, pad `1px 5px`, radius 3px (from [DN]). `pre`: pad 16px, `overflow-x: auto` [ASSUMED] (Q19) |
+| Role | Face | Size | Line-height |
+|---|---|---|---|
+| Hero H1 (display) | serif 300, −.02em, max 16ch | `clamp(40px, 7.4vw, 92px)` | 1.05 |
+| Hero word | script on an `accent-fill` block, radius 3px | per face (`--script-word-size`) | per face |
+| Signature (navbar / intro) | script, −4° tilt | 31px / `clamp(54px, 12.5vw, 104px)` | .95 |
+| Article H1 | serif 300, accent, max 20ch | `clamp(34px, 6vw, 58px)` | 1.1 |
+| Contact statement | serif 300, max 18ch | `clamp(32px, 5.4vw, 64px)` | 1.1 |
+| About lead | serif 300 | `clamp(23px, 3vw, 34px)` | 1.35 |
+| Article lead | serif 300 | `clamp(20px, 2.6vw, 25px)` | 1.55 |
+| Quote | serif 300, centred | `clamp(22px, 3.2vw, 34px)` | 1.45 |
+| Section H2 | serif 400, accent | `clamp(21px, 2.5vw, 28px)` | 1 |
+| Row titles (role, article) | serif 400 | `clamp(21px, 2.4vw, 27px)` / `clamp(20px, 2.3vw, 26px)` | 1.2 / 1.25 |
+| Modal title / card name | serif 400 | 28px (narrow) 36px (wide) / 23px | 1.12 / 1.15 |
+| Hero standfirst | sans 400, muted, max 52ch | `clamp(16px, 1.5vw, 18px)` | 1.75 |
+| Body (about / article / experience) | sans 400, muted | 16 / 17 / 15px | 1.8 / 1.85 / 1.75 |
+| Buttons | sans 500 primary, 400 outline | 15px (modal 14px) | — |
+| Small / meta | sans 400 | 13–14px; years and dates tabular | — |
+| Eyebrows and labels | sans, caps, .13–.18em | 9–12px | — |
+| Mono | Plex Mono, `.88em`, `surface`, 3px radius; `pre` padded 16px, scrolls | — | 1.6 |
+
+Inputs are never under 16px (no iOS zoom).
 
 ---
 
 ## 3. Spacing, radii, shadows, borders
 
-Source: [P] and [A] inline styles and `renderVals()`.
+### 3.1 Spacing
 
-### 3.1 Spacing actually used
-
-The mockup has **no spacing scale**. These are the literal values in use, grouped by kind:
-
-| Kind | Values |
-|---|---|
-| Fixed px (gaps, margins, paddings) | 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 32, 36, 42, 44, 52 |
-| Fluid gaps | `clamp(16px,2.4vw,26px)` (project grid), `clamp(30px,5vw,72px)` (about grid), `clamp(30px,5vw,40px)` × `clamp(22px,4vw,48px)` (skills row × col), `clamp(26px,4vw,38px)` ("Show more" top margin) |
-| Section padding | `clamp(72px,11vh,132px) 0` (standard); About `clamp(76px,12vh,140px) 0`; Contact `clamp(76px,12vh,140px) 0 clamp(72px,10vh,110px)`; Hero `116px 0 78px` |
-| Article | main `clamp(108px,15vh,150px) 0 clamp(70px,10vh,110px)`; back-link mb `clamp(30px,5vh,48px)`; meta mt `clamp(22px,3vh,30px)`, pb `clamp(26px,4vh,36px)`; body mt `clamp(30px,5vh,46px)`, block gap 26px; footer mt `clamp(52px,8vh,84px)`, pt `clamp(26px,4vh,36px)` |
-| Floating-control offset `off` | `clamp(16px,3.4vw,34px)` |
-| Modal stage padding | `clamp(14px,3vw,40px)` |
-
-**[ASSUMED] Keep the literals exactly, and express them on Tailwind's default spacing base
-`--spacing: 0.25rem` (4px).** Every fixed value above is an exact multiple of 0.25 steps
-(3px = `0.75`, 7px = `1.75`, 42px = `10.5`, …), so no value moves and no magic numbers
-appear in markup. The fluid clamps become named tokens (§8): `--spacing-section`,
-`--spacing-band`, `--spacing-band-end`, `--spacing-grid-projects`, `--spacing-grid-about`,
-`--spacing-grid-skills-row` / `-col`, `--spacing-more`, `--spacing-float-offset`,
-`--spacing-stage`, and the `--spacing-article-*` set. Normalising into a coarser scale was
-rejected because it would move mockup values (Q24).
+Tailwind's 4px base (`--spacing: 0.25rem`); every fixed value is a multiple of 0.25 steps.
+Fluid values are named tokens (`--spacing-section`, `--spacing-grid-*`, `--spacing-more`,
+`--spacing-float`, `--spacing-stage`, `--spacing-article-*`, `--spacing-portrait*`). No
+literal in markup (Q24).
 
 ### 3.2 Radii
 
-| Token | Value | Where |
-|---|---|---|
-| `radius-xs` | 2px | Quote-dot bar (defined but not rendered in the mockup; **rendered [ASSUMED], Q13**) |
-| `radius-sm` | 3px | Portrait, hero highlight, `code` [DN] |
-| `radius-row` | 6px | Experience row button (pressed-state background) |
-| `radius-card` | 10px | Project card |
-| `radius-modal` | 14px | Project modal |
-| `radius-pill` | 999px | All pill buttons, tags, nav labels |
-| `radius-full` | 50% | Circular controls (toggle, dial, FAB, nav items, icon buttons, back-to-top) |
+2px quote bar · 3px portrait, hero word, `code` · 6px rows · 10px project card · 14px modal ·
+999px pills, tags · 50% circular controls.
 
-### 3.3 Shadows (each has a light and a dark value)
+### 3.3 Shadows (light / dark)
 
-| Token | Light | Dark | Where |
-|---|---|---|---|
-| `shadow-card-hover` | `0 20px 44px rgba(40,32,22,.2)` | `0 20px 44px rgba(0,0,0,.5)` | Project card hover (rest: `0 0 0 rgba(0,0,0,0)`) |
-| `shadow-modal` | `0 40px 90px rgba(40,32,22,.28)` | `0 40px 90px rgba(0,0,0,.6)` | Project modal |
-| `shadow-fab` | `0 12px 30px rgba(40,32,22,.26)` | `0 12px 30px rgba(0,0,0,.5)` | Nav FAB |
-| `shadow-float` | `0 8px 22px rgba(40,32,22,.16)` | `0 8px 22px rgba(0,0,0,.42)` | Nav items |
-| `shadow-float-top` | `0 8px 22px rgba(40,32,22,.16)` | `0 8px 22px rgba(0,0,0,.4)` | Back-to-top (dark alpha differs: .4 vs .42) |
+`card-hover` `0 20px 44px` (.2 / .5) · `modal` `0 40px 90px` (.28 / .6) · `fab` `0 12px 30px`
+(.26 / .5) · `float` `0 8px 22px` (.16 / .42) · `float-top` the same (.16 / .4). Light shadows
+are warm `rgb(40 32 22)`, dark ones black.
 
 ### 3.4 Borders
 
-All borders are **1px solid**, coloured by the `border-*` tokens in §1.3. The exceptions:
-- Theme dial: `1.5px solid` accent.
-- Article pull-quote: `border-left: 2px solid` accent.
-- Signature underline: SVG stroke (not a border), width 1.8 (intro) / 2.6 (navbar),
-  `stroke-linecap: round`, path `M4,7 C70,2 214,1 292,6 C298,6.5 299,9 290,10` in a
-  `viewBox="0 0 300 12"` stretched with `preserveAspectRatio="none"`, height 9px (intro) /
-  5px (navbar).
+1px solid, coloured by the §1.3 tokens. Exceptions: the theme dial 1.5px; the article
+pull-quote's 2px left rule; the signature underline is an SVG stroke (2.6 navbar).
 
-### 3.5 Z-index layers
+### 3.5 Layers
 
-[P]: grain `1` · header `50` · nav curtain `55` · floating dock `60` · modal curtain `80` ·
-modal stage `81` · intro overlay `100`.
-
-**[ASSUMED] The project modal uses a native `<dialog>` opened with `showModal()` (Q16).** It
-renders in the top layer, which sits above every z-index. Its `::backdrop` takes the
-modal-curtain styling, so the 80/81 values become unnecessary but harmless.
+grain 1 · header 50 · nav curtain 55 · floating dock 60 · intro overlay 70–71. The project
+modal is a native `<dialog>` in the top layer (Q16).
 
 ---
 
 ## 4. Layout
 
-Source: [P] section styles, `footerStyle`, `dockWrapStyle`, `pCardStyle`, `onResize`
-(line 408–412); [A] `main`; [H] "Target"; [DN] "Lists and sections".
+### 4.1 Measures
 
-### 4.1 Containers and measures
-
-| Token | Value |
-|---|---|
-| `measure-page` | `width: min(1140px, 100% - clamp(28px, 5.2vw, 44px)); margin: 0 auto` |
-| `measure-article` | `width: min(760px, 100% - clamp(28px, 5.2vw, 44px))` |
-| Gutter (per side) | half of `clamp(28px, 5.2vw, 44px)` → **14px at 390px**, 22px at ≥846px viewport |
-| `header-height` | 76px (`scroll-margin-top: 76px` on every section) |
-| Deep-link landing offset | 104px ([P] 429). Writing rows have `scroll-margin-top: 120px` |
-
-**[ASSUMED] Two offsets, both CSS (Q29):**
-- **76px** (`scroll-margin-top`) on section anchors, matching the header height.
-- **104px** (`scroll-margin-top`) on `#post-[id]` rows and any other row-level deep link,
-  matching [P]'s JS landing value.
-
-Landing then uses `element.scrollIntoView()`, so the JS and CSS offsets can no longer
-disagree (the mockup's 120px row margin was dead against its own 104px JS offset).
+`measure-page` `min(1140px, 100% − clamp(28px, 5.2vw, 44px))` (a 14px gutter at 390px);
+`measure-article` the same at 760px. Header 76px.
 
 ### 4.2 Section rhythm
 
-- Standard sections (Experience, Projects, Writing, Skills, Quotes) sit inside
-  `measure-page`, with `border-top: 1px border-section` and padding
-  `clamp(72px, 11vh, 132px) 0`.
-- The bands (About, Contact) are full-bleed accent, with `measure-page` inside.
-- The hero has `min-height: 100svh`, a centred flex column, and padding `116px 0 78px`.
-- Section heading → content: 42px.
+Sections sit in `measure-page` with a top `border-section` rule and `--spacing-section`
+(`clamp(56px, 8vh, 96px)`) above and below, the bands included. The hero is `min-height:
+100svh`, a centred column. Heading to content: 42px.
 
-### 4.3 Breakpoint — as a container query
+### 4.3 Breakpoint
 
-The mockup has **one** breakpoint: `narrow = window.innerWidth < 760` ([P] 410). Everything
-else is fluid via `clamp()` / `auto-fit`. Expressed as container queries:
+One: **760px**, as a container query on the `page` container (`@wide:`), mobile first. The
+modal stage and the dock use the same threshold. Fluid type stays in vw/vh (Q25).
 
-| Container | Element | `container-type` | Rule |
-|---|---|---|---|
-| `page` | Root page wrapper (spans the viewport; its width is the viewport minus the native scrollbar, which is restored per Q22) | `inline-size` | `@container page (width >= 760px)` = "wide". Base styles are narrow (mobile-first). |
-| `stage` | Modal stage (`position: fixed; inset: 0`) | `inline-size` | Same 760px threshold for the modal layout |
-| `dock` | Floating dock wrapper (absolute, `left: 0; right: 0`) | `inline-size` | Same 760px threshold for the nav arc radius |
+### 4.4 Per section: phone vs wide
 
-**[ASSUMED] Keep the `clamp()` values in `vw`/`vh` exactly as written (Q25).** They are
-fluid *type and rhythm* values tuned against the viewport. Container queries do all
-*layout switching* (the 760px rule, the modal layout, the arc radius). Additional
-component-level containers are allowed later, but nothing in the mockup needs them.
-
-### 4.4 Per-section behaviour: 390px vs wide (≥760px)
-
-| Section | 390px (narrow) | Wide |
+| Section | Phone (< 760px) | Wide |
 |---|---|---|
-| Header | **Phone layout (<760px) only:** hides (slides up) while reading down; returns on any upward scroll, a tap on the page, keyboard focus inside it, or within 120px of the top. In-page jumps land sections flush at the top, 1px past their divider, with the header tucked away. **Wide layouts:** the header always stays; jumps stop just under it with the divider tucked behind it. Transform only. On the home page the signature is a plain `#hero` link. | Always-visible header; 76px anchor offset |
-| Hero | Clamp minimums: H1 40px, standfirst 16px; CTAs wrap (`flex-wrap`, gap 12px) | Clamp to max: H1 92px @ ≥1243px viewport |
-| Scroll cue | The wheel loops **three times** (1.9s each); the cue fades the moment the third loop's dot disappears (68% into the loop, not after its idle tail) (or on the first scroll past 40px). | Infinite loop, hidden at 8.2s |
-| Section rhythm | Vertical section padding `clamp(56px, 8vh, 96px)` (tighter than the mockup's `clamp(72px, 11vh, 132px)`), top = bottom, for every section including the About and Contact bands. | §4 `--spacing-section` |
-| About | Section rhythm top and bottom (see above). Portrait 224px and centred on phones; when wide, a 360px portrait column with the text filling the rest of the page measure (same width as every section), vertically centred. | `py-band`; portrait up to 360px |
-| Experience | Row padding `20px 6px`; `align-items: flex-start`; role + company **stacked** (column, gap 4px) | Row padding `24px 6px 24px 0`; baseline-aligned; role + company inline (wrap, gap `6px 20px`) |
-| Projects | Cards `flex: 1 1 100%` (one per row); overlay **always visible** | `flex: 1 1 248px; max-width: calc((100% - 2 * gap) / 3)` → 3 per row; partial last row **centred** (`justify-content: center`); overlay on hover |
-| Writing | Rows `flex-wrap`; title wraps above meta | Title · read time · date (`margin-left: auto`) on one line |
-| Skills | (§10 "Phase 9 picks") each group's label stacked over its chips, 26px apart | ruled rows: a 180px label column beside the chips |
-| Quotes | `max-width: 44ch`, centred; box height `clamp(215px, 24vw, 240px)` | Same |
-| Contact | Statement 32px; socials wrap (gap 28px) | Statement up to 64px |
-| Footer | `min-height: calc(off + 96px)`; two spans `space-between`, wrap gap `6px 12px`; 13px muted | Same |
-| Project modal | `width: min(100%, 420px); height: 600px`; column; image full-width `aspect-ratio: 16/9`; body padding 20px, gap 12px, top-aligned | `880px × 420px`; row; image pane 392px wide; body padding 32px, gap 14px, vertically centred. Both capped by `max-height: 88svh; max-width: 100%`. **Revised, §10**: wide is 880×460, and both are capped at 60svh |
-| Nav arc radius | 250px | 334px (wheel variant: 150px at every width) |
-| Article | `measure-article`; same clamps | Same |
+| Header | Hides while reading down; returns on scroll up, a tap, focus inside, or near the top (§10) | Always visible |
+| Hero | H1 from 40px; CTAs wrap | H1 up to 92px |
+| About | Portrait 224px, centred, above the text | 360px portrait column beside the text, vertically centred |
+| Experience | Role and company stacked; dates + caret one group on the first line | Role and company inline |
+| Projects | One card per row; overlay always visible | Three per row; a partial last row centred; overlay on hover |
+| Writing | Read time under the title; date at the right, level with the title's first line | Same |
+| Skills | Label over its chips, groups 26px apart (§10 "Phase 9 picks") | Ruled rows: 180px label column beside the chips |
+| Contributions | The map scrolls sideways, latest weeks first (§10 "Contributions") | The full year |
+| Quotes | `max-width: 44ch`, fixed-height box | Same |
+| Contact | Socials wrap | Statement up to 64px |
+| Footer | Two spans, wrapping; tall enough to clear the floating controls | `space-between` |
+| Project modal | 420 × 600, image on top | 880 × 460, image pane beside; both capped at 60svh (§10 "Project modal") |
+| Nav arc radius | 250px | 334px (wheel: 150px everywhere) |
 
-**[ASSUMED] The project-card overlay is visible when any of these holds (Q15):**
-- the `page` container is narrow (mockup behaviour, kept);
-- `@media (hover: none)` (a touch device at any width, as [H]/[DN] require);
-- `:hover`;
-- `:focus-within` (keyboard).
-
-`(hover: none)` is an input-capability media query, not a layout breakpoint, so it does not
-conflict with the container-query rule.
+The project-card overlay shows when the page is narrow, on `(hover: none)`, on hover, or on
+`:focus-within` (Q15).
 
 ---
 
 ## 5. Motion
 
-Source: [P] `@keyframes` lines 22–25 and every `transition` in `renderVals()`; [A];
-[DN] "Signature intro", "Floating navigation", "Interaction and motion"; [H] checklist.
+### 5.1 Easing
 
-### 5.1 Easing tokens
-
-| Token | Value | Used by |
-|---|---|---|
-| `ease-out-soft` | `cubic-bezier(.2,.85,.25,1)` | Hero `fadeUp`, cue, caret, card lift, card image scale, links/caption, modal, FAB, back-to-top, quote, quote dot |
-| `ease-char` | `cubic-bezier(.3,.7,.3,1)` | Signature letters |
-| `ease-flip` | `cubic-bezier(.62,.02,.2,1)` | Signature flight to navbar |
-| `ease-dial` | `cubic-bezier(.6,0,.2,1)` | Theme dial rotation |
-| `ease-expand` | `cubic-bezier(.32,.72,.3,1)` | Experience row height |
-| `ease-spiral-out` | `cubic-bezier(.16,.9,.24,1)` | Nav open; wheel-variant dock slide |
-| `ease-spiral-in` | `cubic-bezier(.4,.05,.25,1)` | Nav close |
-| `ease-cue` | `cubic-bezier(.4,0,.3,1)` | Scroll-cue wheel loop |
-| `ease` / `ease-out` | CSS keywords | Colour, opacity and underline draw |
+`ease-out-soft` `cubic-bezier(.2,.85,.25,1)` (most entrances and hovers) · `ease-flip`
+`(.62,.02,.2,1)` (the signature's flight) · `ease-dial` `(.6,0,.2,1)` · `ease-expand`
+`(.32,.72,.3,1)` (experience rows) · `ease-spiral-out` `(.16,.9,.24,1)` (nav open) ·
+`ease-cue` `(.4,0,.3,1)` (scroll cue).
 
 ### 5.2 Keyframes
 
-```
-charIn  from { opacity:0; transform:translateY(7px) rotate(-2deg) } to { opacity:1; transform:none }
-fadeUp  from { opacity:0; transform:translateY(14px) }              to { opacity:1; transform:none }
-wheel   0% { transform:translateY(0); opacity:0 } 18% { opacity:1 }
-        68% { transform:translateY(15px); opacity:0 } 100% { transform:translateY(15px); opacity:0 }
-sigdraw to { stroke-dashoffset:0 }        (path pathLength=1, dasharray 1, dashoffset 1)
-```
+In `styles/tokens.css`: `fade-up` (opacity + 14px rise), `rise` (14px, no opacity: the H1),
+`wheel` (scroll cue), `sign-write` / `sign-line` (the signature), `quote-out` / `quote-in`,
+`vt-out` / `vt-in` (page turns).
 
-### 5.3 Per-interaction table
+### 5.3 Interactions
 
-**Reduced-motion rule, verbatim from [DN]:** *"Honour prefers-reduced-motion: skip the
-intro, the spiral, and the card scale, and keep the colour and opacity changes."* [H] adds:
-"drop the intro, spiral and card scale." The fallback column applies that rule.
+**Reduced motion (Q12):** every transform becomes instant (`--motion: 0`); opacity and colour
+keep their durations; loops and auto-advance stop; `scroll-behavior: auto`; the intro and the
+signature writing are skipped. Only `transform`, `opacity` and colour animate, plus the
+contained exceptions in Q11.
 
-**[ASSUMED] General reduced-motion rule for every case it does not name (Q12):**
-- **Every transform-based motion (translate, scale, rotate) becomes instant.** In the token
-  layer, `--dur-move-*` resolves to `0s`.
-- **Opacity and colour transitions keep their durations.**
-- **Looping and auto-advancing motion stops.**
-- `scroll-behavior` becomes `auto`.
-
-**[ASSUMED] Brief compliance (Q11).** The brief allows only `transform` / `opacity`. Colour
-transitions are also allowed: they are paint-only, and the [DN] reduced-motion rule
-explicitly keeps them. Everything else (height, padding, box-shadow, filter,
-backdrop-filter, width) is re-expressed below as transform/opacity, keeping the mockup's
-duration and easing.
-
-The "Ship" notes in the table override the mockup column.
-
-| Interaction | Property · duration · easing · delay | Reduced-motion fallback |
-|---|---|---|
-| **Theme change** (root, header, bands) | `background-color .45s ease, color .45s ease` | Keep (colour) |
-| Theme dial | `transform rotate(0→180deg) .5s ease-dial`; `border-color .4s ease`; `background .4s ease` | [ASSUMED] Rotation instant; colours kept (Q12) |
-| Theme toggle button | `border-color .3s ease, background-color .2s ease` | Keep |
-| **Signature intro — letters** | `charIn .34s ease-char`, stagger `0.055s × index` (14 glyphs; the space is a ` `) | **Skip intro entirely** |
-| Intro — underline | `sigdraw .55s ease-out` delay `1.02s` | Skip |
-| Intro — hold → flip | Flip starts `2050ms` after `document.fonts.ready`; `transform .95s ease-flip` from measured big rect to navbar slot (`translate(tx,ty) scale(k)`, `k = slotWidth / bigWidth`, `transform-origin: top left`) | Skip |
-| Intro — overlay fade | Overlay paper `opacity 1→0 .75s ease .3s` (starts with the flip) | Skip |
-| Intro — hand-off | Phase 2 set `990ms` after the flip starts; big mark hides and navbar mark shows (`opacity 0→1`) **in one frame, no cross-fade** | Navbar mark shown immediately |
-| Intro — skip conditions | `sessionStorage['ts-internal'] === '1'` (set on internal link click, consumed on arrival) or `introEnabled === false`. **[ASSUMED] Also skipped under reduced motion. Any `pointerdown`, `keydown`, `wheel` or `touchstart` during the intro jumps straight to the hand-off. The overlay is `pointer-events: none` throughout (Q10)** | — |
-| **Hero entrance** (`fadeUp`) | Eyebrow `.8s`, H1 `.85s`, standfirst `.85s`, CTAs `.85s`, all `ease-out-soft`, `both`; delays `var(--enter) + .05s / .14s / .24s / .34s`; `--enter` = `2.3s` while the intro plays, `0.05s` otherwise. **Ship [ASSUMED] (Q9):** keyframe `rise` = `from { transform: translateY(14px) } to { transform: none }`, with **no opacity change**. Hero text is painted at full opacity from the first frame (under the intro overlay, when present), so LCP is never gated by the animation. Durations, easing and delays unchanged | [ASSUMED] No animation (Q12) |
-| Scroll cue — loop | `wheel 1.9s ease-cue infinite` | [ASSUMED] Animation off; the wheel dot is shown static at its `0%` position with `opacity: 1` (Q12) |
-| Scroll cue — show/hide | `opacity .6s ease, transform translateY(12px→0) .6s ease-out-soft`; shown only after the intro; hides on first `scrollY > 40` or after `8200ms` | [ASSUMED] Opacity kept; translate instant (Q12) |
-| **Primary pill button** | `transform .25s ease, opacity .25s ease, background-color .18s ease, color .18s ease`; hover `translateY(-2px); opacity: .92` | [ASSUMED] No lift; `opacity: .92` and colour kept (Q12) |
-| Outline pill button | `border-color .25s ease, background-color .18s ease, color .18s ease` | Keep |
-| "Show more" | `background .2s ease, color .2s ease, border-color .2s ease` | Keep |
-| **Experience row expand** | Body `height 0 → measured scrollHeight .5s ease-expand` + `opacity .38s ease`; caret `rotate(0→180deg) .34s ease-out-soft`; row press bg `.2s ease`. **Ship [ASSUMED] (Q11):** the body's height switches in one frame (`hidden` removed). Its inner content animates `opacity 0→1 .38s ease` + `transform translateY(-8px)→none .5s ease-expand`. Collapse reverses, then re-applies `hidden`. The caret is unchanged | [ASSUMED] Instant open/close; content opacity fade kept; caret rotation instant (Q12) |
-| **Writing row hover** | `padding-left 0→16px .3s ease, background-color .3s ease` (to `surface`). **Ship [ASSUMED] (Q11):** row content `transform: translateX(16px) .3s ease`; the row keeps `padding-right: 16px` so a shifted title never touches the date; the background transition is unchanged | [ASSUMED] No shift; background kept (Q12) |
-| **Project card hover** | Card `transform translateY(-3px) .35s ease-out-soft, box-shadow .35s ease`; image `filter blur(0→3px) .4s ease, transform scale(1→1.04) .5s ease-out-soft`; veil `opacity .35s ease`; links `opacity .3s ease, translateY(-6px→0) .35s ease-out-soft`; caption `opacity .3s ease, translateY(8px→0) .38s ease-out-soft`. **Ship [ASSUMED] (Q11):** `shadow-card-hover` lives on a `::after` layer whose `opacity 0→1 .35s ease` replaces the box-shadow transition. **Image blur dropped** (the ship veil in §1.3 carries caption legibility); image scale kept | Card lift, image scale and caption/link translates **skipped**; veil, caption, links and shadow-layer opacity kept |
-| **Project modal open** | Curtain `opacity .34s ease`, `backdrop-filter blur(0→16px) .34s ease`, `background .34s ease`. **Ship [ASSUMED] (Q11):** `::backdrop` has static `backdrop-filter: blur(16px)` + scrim colour and fades via `opacity .34s ease` only. Card `transform translate(dx,dy) scale(s) → none .46s ease-out-soft`, `opacity 0→1 .3s ease`; starts after 2× `requestAnimationFrame`; `s = clamp(.22, cardRectHeight / min(innerHeight × .8, 620), .8)`; `dx, dy` = clicked card centre − viewport centre | **Card scale skipped**; opacity kept |
-| Modal close | Reverse of the above; unmount after `320ms`; scroll restored with `scroll-behavior: auto` | Same |
-| **Nav open (arc / wheel)** | Per item `i` (0–5): pivot `rotate(θ+200° → θ)`, arm `translateX(0 → R)`, node counter-rotate + `scale(.35→1)`, all `.82s ease-spiral-out` delay `i × .062s`; node `opacity .34s ease` same delay | **Spiral skipped** (rule); opacity kept |
-| Nav close (**revised, §10**) | Same properties reversed, `1.02s ease-spiral-in`, delay `(5 − i) × .07s`; `opacity .5s ease` | Spiral skipped |
-| Nav geometry | Arc: θ from `−177°` to `−93°` (bottom-right) or `−158°` to `−22°` (bottom-centre), evenly spaced; R = 334px wide / 250px narrow. Wheel: θ = `−90° + 360° × i / 6`, R = 150px, dock slides to the viewport centre (`transform .72s ease-spiral-out`) | — |
-| Nav curtain | `opacity .5s ease, backdrop-filter blur(0→14px) .5s ease, background .5s ease`. **Ship [ASSUMED] (Q11):** static `backdrop-filter: blur(14px)` + scrim colour; the curtain fades via `opacity .5s ease` only | Opacity kept |
-| Nav item colour | `background .25s ease, color .25s ease, border-color .25s ease` | Keep |
-| FAB icon | Icon swaps to × and `rotate(0→90deg) .5s ease-out-soft` | [ASSUMED] Icon swap without rotation (Q12) |
-| FAB appear | `opacity .35s ease`, `transform scale(.7→1) .4s ease-out-soft`, `background .4s ease, color .4s ease` | [ASSUMED] Opacity and colour kept; scale instant (Q12) |
-| Back-to-top appear | `opacity .3s ease`, `transform translateY(10px) scale(.7) → none .4s ease-out-soft` | [ASSUMED] Opacity kept; transform instant (Q12) |
-| **Quote rotation** (the change itself **revised, §10**) | Every `7000ms` (paused while `document.hidden`); figure `opacity .7s ease, transform translateY(10px→0) .7s ease-out-soft`. **Ship [ASSUMED] (Q13):** also paused on `:hover`, on `:focus-within` and by the pause toggle. The dot indicator animates `transform: scaleX(10/22 → 1)` on a 22px bar (`transform-origin: center`) instead of `width` (Q11); duration and easing unchanged | [ASSUMED] Opacity cross-fade kept; translate instant; **auto-advance off**; the rotator starts paused and is user-driven by dots (Q12, Q13) |
-| Contact email | `border-color .3s ease` | Keep |
-| Article back link / "More writing" | `color .2s ease` | Keep |
-| Listen button | `background .25s ease, color .25s ease, border-color .25s ease` | Keep |
-| Page scroll | `html { scroll-behavior: smooth }`; forced to `auto` during programmatic restores | [ASSUMED] `scroll-behavior: auto` (Q12) |
-
-**Brief conflicts.** The brief allows only `transform` and `opacity` to animate. The mockup
-also animates `height`, `padding-left`, `box-shadow`, `filter`, `backdrop-filter`,
-`width` (quote dot) and colours. **[ASSUMED] Each one is re-expressed in the "Ship" notes
-above. Colour transitions are kept (Q11).**
-
----
-
-## 6. Component inventory
-
-Sources: [P], [A], [DN], [H] "Accessibility". "Pressed" = `:active` from `style-active`.
-**Focus-visible is undefined for every component** (Q3). **The mockup has no disabled
-states.**
-
-**[ASSUMED] Focus-visible, all interactive components (Q3):** the `focus-ring` token (§1.3),
-drawn on the element's own shape. Two exceptions:
-- **Project card:** the ring goes on the card via `:has(> .card-trigger:focus-visible)`,
-  because `overflow: hidden` would clip it.
-- **Rows** (experience, writing): the ring is inset (`outline-offset: -2px`), because rows are
-  full-width against hairlines.
-
-**[ASSUMED] Disabled:** nothing in the design can be disabled. If it ever is,
-`opacity: .45; cursor: not-allowed`, with no hover or pressed change (conventional). Not
-needed in Phase 3.
-
-**[ASSUMED] Missing hover states:** [DN] says every control has one. Controls the mockup
-left without a hover state ("Show more", nav items, back-to-top, modal Live/Source,
-modal close, card icons) get the outline-pill pattern: border → `accent`. Filled controls
-(modal Live) get the primary-pill pattern: `opacity: .92`.
-
-| Component | Variants | Default | Hover | Pressed (`:active`) | A11y requirements |
-|---|---|---|---|---|---|
-| **GrainOverlay** | — | §1.4 | — | — | `aria-hidden`; non-interactive |
-| **Header** | — | Fixed, 76px, `bg-translucent` + `blur(10px)`, bottom `border-header` | — | — | `<header>` landmark |
-| **SignatureMark** (navbar) | page (scroll to top) / article (back to portfolio) | Caveat 31px ink + accent underline, tilted −4deg; hidden until the intro hands off | Global `a:hover` → accent | — | Link. [P] `aria-label="Top of page"` but visible text "Tanishk Saxena". **[ASSUMED] `aria-label="Tanishk Saxena — back to top"` ([P]) / `"Tanishk Saxena — back to portfolio"` ([A]), so the visible name leads the label (WCAG 2.5.3) (Q23)** |
-| **IntroOverlay** | on / off | Full-viewport paper, big signature | — | — | The mockup blocks pointer events during phase 0. **[ASSUMED] `pointer-events: none` throughout; any input skips to the hand-off (Q10)**. `aria-hidden` (duplicate of the name) |
-| **ThemeToggle** | — | 46×46 [P] / 44×44 [A] circle, 1px `border-control`, 17px half-filled dial. **[ASSUMED] 46×46 on both routes** ([P] is the primary page; matches the 46px "Show more" height) (Q6) | border → accent | bg + border → accent | `aria-label="Toggle colour mode"`; **[ASSUMED] `aria-pressed` = dark mode on** |
-| **Button — primary pill** | with icon (download) | h 50, px 24, gap 10, pill, bg accent, text `#FDF8F0`, 15px/500 | `translateY(-2px); opacity: .92` | bg paper, text accent (inverted), no lift | Résumé link uses `download` |
-| **Button — outline pill** | — | h 50, px 24, pill, 1px `border-control`, 15px | border → accent | bg + border accent, text `#FDF8F0` | — |
-| **Button — "Show more"** | — | h 46, px 24, pill, 12px/.13em caps, text ink, 1px `border-control` | — (none defined) | bg + border accent, text `#FDF8F0` | Disappears when the list is exhausted; move focus sensibly when it unmounts (not in mockup) |
-| **ScrollCue** | — | 26×42 mouse glyph + "Scroll", muted, bottom `clamp(22px,4vh,38px)` | — | — | Decorative: `aria-hidden`, `pointer-events: none` |
-| **SectionHeading** | on paper / in band | Serif 400 accent (cream inside a band) | — | — | `<h2>`, one per section |
-| **AccentBand** | About / Contact | Full-bleed accent + token overrides (§1.2) | — | — | Contrast failures (§1.5); **[ASSUMED] background = `accent-fill` in both modes, fixing them (Q2)** |
-| **PortraitFrame** | placeholder / image | `aspect-ratio: 4/5`, `max-width: 360px`, radius 3px, 1px `border-header`, bg `surface`. **[ASSUMED] The placeholder label uses band `--ink` (Q2)** | — | — | Real image needs `alt`; explicit dimensions (CLS) |
-| **ExperienceRow** (accordion) | collapsed / expanded | Top border `border-row`; button row (role · company · years · caret 22×22) | — | bg `press-row`, radius 6px | `<button aria-expanded aria-controls>` ([H]). **[ASSUMED] The collapsed body carries `hidden`** (the mockup only uses height 0 + opacity 0, which leaves content in the a11y tree) |
-| **ProjectCard** | overlay hidden (wide, rest) / shown (hover, or always at narrow) | 4:3, radius 10px, 1px `border-card`, bg `surface`; image; veil; name + "kind — year" bottom-left (16px/14px inset); live/source icons top-right (10px inset, gap 8). **[ASSUMED] Name clamped to 2 lines (`line-clamp: 2`); ship veil (§1.3)** | lift −3px + shadow; image blur 3px + scale 1.04; veil/caption/links fade in (**ship: no blur, Q11**) | Icons: bg accent, text `#FDF8F0` | [P] uses `div role="button" tabindex="0"` with only `onClick`: **no Enter/Space handling**, and it **nests two links inside a button** (invalid). **[ASSUMED] Structure (Q15):** `<article>` wrapper → `<button class="card-trigger" aria-haspopup="dialog">`, stretched over the card with an `::after` hit area, accessible name = project name; the icon links are **siblings** positioned above it (`z-index`), so no nesting and native Enter/Space. The overlay shows per §4.4. Icon links: `aria-label` "Live site" / "Source", `target="_blank" rel="noreferrer"` |
-| **CardIconLink** | live / source | 38×38 circle, bg `card-icon-bg`, icon `#23201C`. **[ASSUMED] 44×44** (the nav-item precedent; 16px icon unchanged) (Q4) | [ASSUMED] bg `#FDF8F0` (opacity 1) | bg accent, icon `#FDF8F0` | **[ASSUMED] The live link is not rendered when `live_url` is null (Q17)** |
-| **ProjectModal** | narrow / wide | §4.4 sizes; radius 14px; 1px `border-card`; `shadow-modal`; image pane; body: kind (accent micro-caps) + year, title, note, ≤3 tags, Live + Source buttons | — | — | [H]: Escape, close button and curtain all close it; **focus trap and return focus to the card (not implemented in mockup — required)**. **[ASSUMED] Native `<dialog>` + `showModal()`** (native focus trap, Escape and inert background) with `aria-labelledby` = title; focus returns to the card trigger; backdrop click closes. **Body keeps the mockup's `overflow-y: auto` as a content-robustness fallback**; copy is authored to fit (Q16). Background scroll-lock: `body{position:fixed; top:-y}` |
-| **ModalClose** | — | 38×38 circle, bg paper, 1px `border-close`, × icon, top/right 12px. **[ASSUMED] 44×44, same position (Q4)** | [ASSUMED] border → accent | bg ink, icon paper | `aria-label="Close"` |
-| **Tag** | — | 12px/.02em, pad `6px 11px`, pill, 1px `border-header`, text accent | — | — | Static text. **[ASSUMED] Passes with the ship accent `#A9491F` (Q1). Modal shows the first 3 tags (mockup `slice(0,3)`) (Q16)** |
-| **Modal Live button** | — | h 44, px 18, gap 9, pill, bg accent, `#FDF8F0`, 14px, globe icon | [ASSUMED] `opacity: .92` | bg paper, text accent | External link. **[ASSUMED] Not rendered when `live_url` is null; Source then stands alone (Q17)** |
-| **Modal Source button** | — | h 44, px 18, pill, 1px `border-quiet`, text ink, GitHub icon | — | bg ink, text paper | External link |
-| **WritingRow** | — | Link row: pad `24px 16px 24px 0`, top `border-row`; title, read time, date | `padding-left: 16px`, bg `surface`, colour inherit (**ship: content `translateX(16px)`, Q11**) | bg `press-writing` | `<a>` containing `<h3>`; `id="post-[id]"` deep-link target (`scroll-margin-top: 104px` [ASSUMED], Q29). Deep link expands the list first ([DN]) |
-| **SkillGroup** | — | `<h4>` label + `<ul>` serif items, gap 11px | — | — | Semantic list |
-| **QuoteRotator** | — | Fixed-height box; `figure > blockquote + figcaption`; stacked absolutely, cross-fading | [ASSUMED] Dots: bar → `accent` | [ASSUMED] Dots/pause: bg `press-row` | WCAG 2.2.2 needs a pause/stop for auto-advancing content (>5s); dot controls exist in code (`dotStyle`, 34×44 targets) but are **not rendered**. **[ASSUMED] (Q13):** below the box, a centred row of 6 dot buttons (visual bar 2px tall, 10px inactive / 22px active, radius 2px; active `accent`, **inactive `text-muted`**, since the mockup's ink@28% gives 1.78:1 against the 3:1 UI minimum; **hit area 44×44**, up from the mockup's 34×44), then a 44×44 pause/play icon button (`aria-pressed`, label "Pause quotes" / "Play quotes"). Wrapper `<section aria-roledescription="carousel" aria-label="Quotes">`; each dot `aria-label="Quote n of 6"`, `aria-current` on the active one; the figure container `aria-live="off"` while auto-rotating and `"polite"` while paused; hidden figures `aria-hidden="true"` |
-| **ContactBlock** | — | Heading, statement, email at display size, socials | Email: underline → accent | Email: `color: accent` (inside the band, accent = cream) | `mailto:` link |
-| **SocialLinks** | GitHub, LinkedIn, Read.cv, X | 15px band-muted, gap 28px | Global `a:hover` → accent (cream in band) | — | Text links: **height < 44px**. **[ASSUMED] `display: inline-flex; align-items: center; min-height: 44px`; the visual line and the 28px gap are unchanged (Q4)** |
-| **Footer** | — | "Designed and built in Delhi" · "© 2026 Tanishk Saxena" | — | — | `<footer>` landmark |
-| **FloatingNav — FAB** | bottom-right / bottom-centre; arc / centre wheel | 58×58 circle, bg ink, icon paper, `shadow-fab`; icon = active section's glyph (× when open); appears after the hero is scrolled past; sticky above the footer | — | bg paper, icon ink | `aria-label="Jump to section"`. **Add `aria-expanded`** (not in mockup). Escape and curtain tap close it. **[ASSUMED] Variant: bottom-right, arc (mockup defaults) (Q8). `aria-controls` → menu; opening moves focus to the active item; Tab/Shift+Tab cycle within items + FAB; Escape, curtain or item choice closes and returns focus to the FAB (Q26)** |
-| **FloatingNav — item** | active / inactive | 44×44 circle, bg paper, icon ink, 1px `border-navdot`, `shadow-float`; label pill below (9px caps, pad `3px 7px`) | Global `a:hover` → accent; **[ASSUMED] border → accent** | bg accent, icon `#FDF8F0` | Link `aria-label` = section name. Active item: bg + border accent, icon/label `#FDF8F0` — add `aria-current` (not in mockup). **Closed items are opacity 0 but still focusable in the mockup. [ASSUMED] The menu container gets `inert` while closed (set after the close transition), and `inert` is removed before the open transition (Q26)** |
-| **NavCurtain** | — | `scrim-nav` + blur | — | — | Click closes; `aria-hidden` |
-| **BackToTop** | — | 42×42 circle, bg paper, 1px `border-quiet`, `shadow-float-top`, 16px above the FAB; hidden while the nav is open. **[ASSUMED] 44×44; `margin-left: -22px`; same 16px gap (Q4)** | [ASSUMED] border → accent | bg + border accent, icon `#FDF8F0` | `aria-label="Back to top"`. **[ASSUMED] Trigger: the mockup code's behaviour, shown together with the FAB once `scrollY > hero.offsetHeight − 140` (Q14)**. Hidden states are `inert` [ASSUMED] |
-| **Article — BackLink** | — | 12px/.14em caps muted, arrow icon, gap 8 | colour accent | colour ink | Label "Writing". Target `/#post-[id]`. **[ASSUMED] `min-height: 44px` (inline-flex, centred), no visual change (Q4)** |
-| **Article — Meta** | — | date · 3px dot · "N min read" · Listen button (`margin-left: auto`); bottom `border-article` | — | — | Dot decorative |
-| **Article — ListenButton (TTS)** | idle ("Listen", speaker icon in accent) / speaking ("Stop", pause icon, filled accent) | h 40, px 16, gap 9, pill, 13px. **[ASSUMED] h 44 (the modal-button precedent) (Q4)** | [ASSUMED] border → accent | bg + border accent, text `#FDF8F0` | Behind the `textToSpeech` flag; uses `speechSynthesis`; cancels on unmount. Add `aria-pressed`. **[ASSUMED] Shipped on (the mockup default), and not rendered when `window.speechSynthesis` is unavailable (Q18)** |
-| **Article — Body** | lead, p, h2, pull-quote | §2.2; column gap 26px; pull-quote `padding-left: clamp(18px,3vw,26px)`, `border-left: 2px accent`, margin `clamp(10px,2vh,18px) 0` | — | — | `<article>`; heading order h1 → h2 |
-| **Article — Footer** | — | "Written by Tanishk Saxena" · "More writing" (13px accent) | — | "More writing" → ink | **[ASSUMED] "More writing": `min-height: 44px` (inline-flex, centred) (Q4)** |
-
-Global rules ([P]/[A] `<style>`):
-- `a { color: inherit; text-decoration: none }` and `a:hover { color: accent }`.
-- `html { scroll-behavior: smooth }`.
-- Scrollbars hidden (`scrollbar-width: none`, zero-size `::-webkit-scrollbar`). **[ASSUMED]
-  Native scrollbars restored**, with `scrollbar-color: color-mix(in oklab, var(--ink),
-  transparent 72%) transparent` (reusing the `border-navdot` mix) and `scrollbar-gutter:
-  stable`. Hidden scrollbars remove the scroll-position cue and make the modal scroll-lock
-  shift the layout (Q22).
-- [DN]: every button and link has a hover state and a pressed state that inverts fill and
-  text. Some mockup controls have no hover style ("Show more", nav items, back-to-top,
-  modal buttons). Those gaps are recorded as-is in the table above. **[ASSUMED] They are
-  filled per the "Missing hover states" rule at the top of §6.**
-
-**Focus order (derived from DOM order in [P]):** Signature → Theme toggle → Hero CTAs →
-Experience rows → Project cards (each: card, live, source) → "Show more" → Writing rows →
-"Show more" → Email → Social links → [dock: nav items → Back-to-top → FAB]. Modal and
-dock markup come **after** `<footer>`, so an open modal must trap focus, and the FAB is
-the last tab stop on the page. **[ASSUMED] Keep the FAB last in DOM order (Q26).** The FAB
-is a convenience duplicate of in-page scrolling; every section is already reachable in
-reading order. Closed nav items are `inert`, so they add no tab stops.
-Order per project card: trigger → live → source.
-
----
-
-## 7. Page / section breakdown and content fields
-
-Source: [P] markup + data constants `SECTIONS`, `ROLES`, `PROJECTS`, `POSTS`, `QUOTES`,
-`skills` (lines 285–347, 773–778); [A] `ARTICLES`; [DN] "Routing".
-
-Order: **Hero → About (band) → Experience → Projects → Writing → Skills → Quotes →
-Contact (band) → Footer**, all on one page with anchors `#hero #about #experience
-#projects #writing #skills #quotes #contact`. The FAB menu lists six: About, Experience,
-Projects, Writing, Skills, Contact (not Hero or Quotes). Articles are the only separate
-route: **`/articles/[id]`** ([DN], [H]).
-
-| Section | Content fields (drive fixture types) | Mobile (390) | Desktop |
-|---|---|---|---|
-| **Header** | `name` (signature text) | §4.4 | Same |
-| **Hero** | `eyebrow` ("Tanishk Saxena — SDE, Delhi"), `headline` + **one highlighted word** ("web"), `standfirst`, `resume_url`, contact CTA label + target (`#contact`) | Stacked, min 100svh | Same, larger clamps |
-| **About** | `portrait_url` (+ alt), `about_lead` (one sentence), `about_paragraphs[]` (2 in mockup) | Portrait above text | Portrait beside text |
-| **Experience** | per role: `role`, `company`, `years` (display string, e.g. "2023 — now"), `note` (**one paragraph**). Paging: none (3 shown) | Stacked meta | Inline meta |
-| **Projects** | per project: `name`, `kind` ("Open source" / "Side project" / "Client work"), `year`, `note` (short), `about` (modal copy), `tags[]` (**modal shows first 3**), `live`, `repo`, image (placeholder). Paged by 3 | 1 column | 3 columns |
-| **Writing** | per post: `id` (slug), `title`, `read` ("6 min"), `date` (list "Aug 2026" vs article "14 August 2026"; **[ASSUMED] one `published_at` ISO date, formatted `MMM yyyy` in the list and `d MMMM yyyy` on the article, both `en-GB` (Q27)**). Paged by 3 | Wrapped row | Single-line row |
-| **Skills** | `groups[]`: `title` + `items[]` (4 groups × 4: Languages, Frontend, Backend, Practice) | stacked chips (§10 "Phase 9 picks") | ruled rows of chips |
-| **Quotes** | `quotes[]`: `text`, `who` (6 in mockup) | Same | Same |
-| **Contact** | section label, `statement` ("Tell me what you are building."), `email`, `social_links[]`: `label`, `url` (GitHub, LinkedIn, Read.cv, X) | Wrapped socials | Same |
-| **Footer** | `footer_left` ("Designed and built in Delhi"), `copyright` ("© 2026 Tanishk Saxena") | Wrap | `space-between` |
-| **Article** (`/articles/[id]`) | `title`, `date`, `read`, body blocks (lead paragraph, paragraphs, h2, pull-quote), author line | `measure-article` | Same |
-
-**Reconciliation with the brief's content model (§5).** The mockup wins on structure, but
-the brief has to be updated before fixtures are written:
-- `experience`: mockup has `note` (one paragraph), `years` as a string, and no
-  `location`/`bullets[]`/`stack[]`. Brief has `bullets[]`, `stack[]`, `location`,
-  `start_date`/`end_date`.
-- `project`: mockup adds `kind`, `year`, `about`, image; brief has `summary` and `featured`
-  (unused in the mockup) and a nullable `live_url` (the mockup has no no-live-URL state).
-- `skill`: mockup uses titled groups of plain names; brief has
-  `tier`/`brand_color`/`icon_slug`.
-- `education`: in the brief, **absent from the mockup**.
-- `quote`: in the mockup, **absent from the brief**.
-- `profile`: mockup adds `eyebrow`, highlighted headline word, `about_lead`,
-  `about_paragraphs[]`, contact `statement`, and footer lines.
-- `blog_post`: brief's `/blog/[slug]` with nullable `body`/`external_url` vs mockup's
-  `/articles/[id]` with an on-site body.
-
-**[ASSUMED] Resolved content model (Q17, Q18, Q28, Q32).** The mockup wins wherever it
-speaks. Every entity has `id`, and `sort_order` where the user controls order. The brief's
-§5 must be updated to match in Phase 2.
-
-| Entity | Fields |
+| Interaction | Motion |
 |---|---|
-| `profile` | `name`, `eyebrow`, `headline`, `headline_highlight` (one word that must appear in `headline`), `standfirst`, `about_lead`, `about_paragraphs[]`, `portrait` (image, nullable), `resume_url`, `email`, `contact_statement`, `location`, `footer_note` |
-| `experience` | `role`, `org`, `start_date`, `end_date` (null = current → rendered "now"), `summary` (simple Markdown: paragraphs, lists, bold, italic, underline; §10 "Experience descriptions"). Display: `yyyy — yyyy` / `yyyy — now`, using the mockup's spaced em dash. **Brief's `location`, `bullets[]`, `stack[]` dropped** |
-| `project` | `title`, `kind` (`open-source` \| `side-project` \| `client-work`; labels as in the mockup), `year`, `description` (modal; the brief's `summary` card line was dropped, §10), `tags[]` (modal shows the first 3), `image` (nullable), `repo_url`, `live_url` (nullable → live icon and Live button not rendered), `sort_order`. **Brief's `featured` dropped** (the mockup orders by list and pages by 3) |
-| `skill_group` | `title`, `items[]` (plain strings), `sort_order`. **Brief's `tier`, `brand_color`, `icon_slug` dropped** |
-| `quote` | `text`, `author`, `sort_order` (**new**) |
-| `article` | `slug`, `title`, `published_at`, `read_minutes`, `body` (Markdown: paragraphs, `##`, `>` pull-quote, code; the first paragraph renders as the lead). Route **`/articles/[slug]`** (the mockup's route segment, keyed by slug). **Brief's `external_url` / nullable body dropped** |
-| `social_link` | `label`, `url`, `sort_order` (unchanged) |
-| `education` | **Dropped**: not in the mockup |
-| `image` (value type) | `src`, `alt`, `width`, `height`. Project images: one source per project at ≥ 1600×1200 (4:3), rendered with `object-fit: cover` into the card (4:3), the narrow modal (16:9) and the wide-modal pane (392×420), plus an optional `focal_point` for `object-position` |
-
-Missing optional media falls back to the mockup's placeholder treatment (bg `surface`,
-11px/.14em caps label), which becomes the designed empty state. All copy in the mockup is
-placeholder; Phase 2 fixtures carry the real career content from the brief.
-
----
-
-## 8. Tailwind v4 mapping (spec only — no CSS files yet)
-
-Installed: `tailwindcss@4.3.3`. Tailwind v4 reads design tokens from `@theme`; container
-query variants use the `--container-*` namespace (`@<name>:` → `@container (width >= value)`).
-
-The runtime-switched colours are raw custom properties on `:root` and `[data-theme="dark"]`
-(both live in `styles/tokens.css` per the brief). `@theme inline` then maps them to utilities.
-Values below are the **ship values** (mockup value in a comment where an assumption overrides it).
-
-```css
-/* styles/tokens.css — raw tokens (switch per mode) */
-:root {
-  --paper: #F5F0E7;  --paper2: #EDE6DA;  --paper-fade: rgba(245,240,231,.8);
-  --ink:   #23201C;
-  --muted: #6D655C;                   /* [ASSUMED] mockup #7A7268 — Q1 */
-  --accent-base: #A9491F;             /* [ASSUMED] mockup #B4532A; terracotta chosen over #2F5D72 — Q1, Q8 */
-  --accent: var(--accent-base);       /* text, lines, rings */
-  --accent-fill: var(--accent-base);  /* [ASSUMED] filled surfaces, both modes — Q2 */
-  --on-accent: #FDF8F0;
-  --scrim-nav:   rgba(245,240,231,.55);
-  --scrim-modal: rgba(232,224,210,.62);
-  --shadow-rgb: 40 32 22;             /* light tint; alphas per shadow in @theme */
-  --shadow-a-card: .2;  --shadow-a-modal: .28;  --shadow-a-fab: .26;
-  --shadow-a-float: .16;  --shadow-a-float-top: .16;
-  --grain-blend: multiply;
-  --grain-opacity: .06;               /* [ASSUMED] Q5 */
-  /* motion durations for transform-based moves; zeroed under reduced motion */
-  --dur-move-scale: 1;
-  color-scheme: light;
-}
-[data-theme="dark"] {
-  --paper: #191714;  --paper2: #221F1A;  --paper-fade: rgba(25,23,20,.8);
-  --ink:   #EDE7DB;  --muted:  #938A7D;
-  --accent: color-mix(in oklab, var(--accent-base), white 24%);  /* [ASSUMED] mockup: white 16% — Q2 */
-  --scrim-nav:   rgba(25,23,20,.55);
-  --scrim-modal: rgba(18,16,14,.62);
-  --shadow-rgb: 0 0 0;
-  --shadow-a-card: .5;  --shadow-a-modal: .6;  --shadow-a-fab: .5;
-  --shadow-a-float: .42;  --shadow-a-float-top: .4;
-  --grain-blend: screen;
-  color-scheme: dark;
-}
-.band { /* About + Contact; background: var(--accent-fill) */
-  --ink: #FDF8F0;
-  --muted: rgba(253,248,240,.89);     /* [ASSUMED] mockup .88 — Q2 */
-  --paper2: rgba(253,248,240,.09);    /* [ASSUMED] mockup .13 — Q2 */
-  --accent: #FDF8F0;
-}
-:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }  /* [ASSUMED] Q3 */
-
-@media (prefers-reduced-motion: reduce) {  /* [ASSUMED] Q12 — see §5.3 */
-  :root { --dur-move-scale: 0; }
-  html { scroll-behavior: auto; }
-  /* every transform transition is written as calc(<mockup duration> * var(--dur-move-scale));
-     opacity/colour transitions are written with plain durations and stay unchanged.
-     Keyframe animations `rise`, `wheel`, `charIn`, `sigdraw` → animation: none. */
-}
-```
-
-```css
-/* app/globals.css — Tailwind theme */
-@theme inline {
-  /* colour */
-  --color-bg: var(--paper);
-  --color-surface: var(--paper2);
-  --color-bg-translucent: var(--paper-fade);
-  --color-text: var(--ink);
-  --color-muted: var(--muted);
-  --color-accent: var(--accent);
-  --color-accent-fill: var(--accent-fill);   /* [ASSUMED] Q2 */
-  --color-on-accent: var(--on-accent);
-  --color-border-header:  color-mix(in oklab, var(--accent), transparent 62%);
-  --color-border-section: color-mix(in oklab, var(--accent), transparent 52%);
-  --color-border-row:     color-mix(in oklab, var(--accent), transparent 68%);
-  --color-border-control: color-mix(in oklab, var(--accent), transparent 55%);
-  --color-border-article: color-mix(in oklab, var(--accent), transparent 60%);
-  --color-border-listen:  color-mix(in oklab, var(--accent), transparent 58%);
-  --color-border-card:    color-mix(in oklab, var(--ink), transparent 86%);
-  --color-border-divider: color-mix(in oklab, var(--ink), transparent 88%);
-  --color-border-close:   color-mix(in oklab, var(--ink), transparent 82%);
-  --color-border-quiet:   color-mix(in oklab, var(--ink), transparent 78%);
-  --color-border-navdot:  color-mix(in oklab, var(--ink), transparent 72%);
-  --color-press-row:      color-mix(in oklab, var(--accent), transparent 88%);
-  --color-press-writing:  color-mix(in oklab, var(--accent), transparent 86%);
-  --color-card-icon-bg:   rgba(253,248,240,.92);
-  --color-card-kind:      rgba(253,248,240,.9);   /* [ASSUMED] mockup .78 — Q15 */
-  --color-scrim-nav: var(--scrim-nav);
-  --color-scrim-modal: var(--scrim-modal);
-
-  /* fonts (next/font variables) */
-  --font-serif:  var(--font-newsreader), Georgia, serif;
-  --font-sans:   var(--font-plex-sans), system-ui, sans-serif;
-  --font-script: var(--font-caveat), cursive;
-  --font-mono:   var(--font-plex-mono), monospace;   /* [ASSUMED] Q19, article route only */
-
-  /* type (fluid values verbatim from §2.2) */
-  --text-display: clamp(40px, 7.4vw, 92px);  --text-display--line-height: 1.05;  --text-display--letter-spacing: -.02em;
-  --text-h1:      clamp(34px, 6vw, 58px);    --text-h1--line-height: 1.1;        --text-h1--letter-spacing: -.015em;
-  --text-statement: clamp(32px, 5.4vw, 64px); --text-statement--line-height: 1.1; --text-statement--letter-spacing: -.015em;
-  --text-lead:    clamp(23px, 3vw, 34px);    --text-lead--line-height: 1.35;
-  --text-lead-article: clamp(20px, 2.6vw, 25px); --text-lead-article--line-height: 1.55;
-  --text-quote:   clamp(22px, 3.2vw, 34px);  --text-quote--line-height: 1.45;
-  --text-quote-mark: clamp(54px, 8vw, 86px); --text-quote-mark--line-height: .6;
-  --text-h2:      clamp(21px, 2.5vw, 28px);  --text-h2--line-height: 1;
-  --text-h2-article: clamp(24px, 3.4vw, 32px); --text-h2-article--line-height: 1.25;
-  --text-pullquote: clamp(20px, 2.6vw, 26px); --text-pullquote--line-height: 1.5;
-  --text-h3-role: clamp(21px, 2.4vw, 27px);  --text-h3-role--line-height: 1.2;
-  --text-h3-post: clamp(20px, 2.3vw, 26px);  --text-h3-post--line-height: 1.25;
-  --text-email:   clamp(22px, 3vw, 32px);
-  --text-signature-intro: clamp(54px, 12.5vw, 104px); --text-signature-intro--line-height: .95;
-  --text-signature: 31px;  --text-signature--line-height: .95;
-  --text-body-lg: clamp(16px, 1.5vw, 18px);  --text-body-lg--line-height: 1.75;
-  --text-body-article: 17px;                 --text-body-article--line-height: 1.85;
-  --text-body:    16px;                      --text-body--line-height: 1.8;
-  --text-body-sm: 15px;                      --text-body-sm--line-height: 1.75;
-  --text-list-serif: 19px;                   --text-list-serif--line-height: 1.3;
-  --text-meta: 14px;  --text-small: 13px;  --text-label: 12px;  --text-micro: 11px;
-  --text-cue: 10px;   --text-nav: 9px;
-  --tracking-eyebrow: .16em;  --tracking-label: .14em;  --tracking-button: .13em;
-  --tracking-cue: .18em;      --tracking-nav: .07em;    --tracking-years: .06em;  --tracking-tag: .02em;
-  --tracking-display: -.02em; --tracking-heading: -.015em;
-
-  /* spacing — Tailwind default base kept: --spacing: 0.25rem (4px); literals are n × base [ASSUMED] Q24 */
-  --spacing-header: 76px;
-  --spacing-anchor-row: 104px;                                  /* [ASSUMED] Q29 */
-  --spacing-section: clamp(72px, 11vh, 132px);
-  --spacing-band: clamp(76px, 12vh, 140px);
-  --spacing-band-end: clamp(72px, 10vh, 110px);
-  --spacing-grid-projects: clamp(16px, 2.4vw, 26px);
-  --spacing-grid-about: clamp(30px, 5vw, 72px);
-  --spacing-grid-skills-row: clamp(30px, 5vw, 40px);
-  --spacing-grid-skills-col: clamp(22px, 4vw, 48px);
-  --spacing-more: clamp(26px, 4vw, 38px);
-  --spacing-float-offset: clamp(16px, 3.4vw, 34px);
-  --spacing-stage: clamp(14px, 3vw, 40px);
-  --spacing-gutters: clamp(28px, 5.2vw, 44px);                  /* total, both sides */
-  --spacing-article-top: clamp(108px, 15vh, 150px);
-  --spacing-article-bottom: clamp(70px, 10vh, 110px);
-  --spacing-article-back: clamp(30px, 5vh, 48px);
-  --spacing-article-meta-top: clamp(22px, 3vh, 30px);
-  --spacing-article-meta-bottom: clamp(26px, 4vh, 36px);
-  --spacing-article-body-top: clamp(30px, 5vh, 46px);
-  --spacing-article-footer-top: clamp(52px, 8vh, 84px);
-  --spacing-article-h2-top: clamp(16px, 3vh, 26px);
-  --spacing-pullquote-inline: clamp(18px, 3vw, 26px);
-  --spacing-pullquote-block: clamp(10px, 2vh, 18px);
-  --spacing-target: 44px;                                        /* [ASSUMED] Q4 minimum hit area */
-
-  /* radii */
-  --radius-xs: 2px;  --radius-sm: 3px;  --radius-row: 6px;  --radius-card: 10px;
-  --radius-modal: 14px;  --radius-pill: 999px;
-
-  /* shadows — tint and alpha switch per mode via raw vars */
-  --shadow-card-hover: 0 20px 44px rgb(var(--shadow-rgb) / var(--shadow-a-card));
-  --shadow-modal:      0 40px 90px rgb(var(--shadow-rgb) / var(--shadow-a-modal));
-  --shadow-fab:        0 12px 30px rgb(var(--shadow-rgb) / var(--shadow-a-fab));
-  --shadow-float:      0 8px 22px rgb(var(--shadow-rgb) / var(--shadow-a-float));
-  --shadow-float-top:  0 8px 22px rgb(var(--shadow-rgb) / var(--shadow-a-float-top));
-
-  /* layout */
-  --container-wide: 760px;          /* @wide: → @container (width >= 760px) — the single breakpoint */
-  --width-page: 1140px;
-  --width-article: 760px;
-
-  /* motion */
-  --ease-out-soft:   cubic-bezier(.2,.85,.25,1);
-  --ease-char:       cubic-bezier(.3,.7,.3,1);
-  --ease-flip:       cubic-bezier(.62,.02,.2,1);
-  --ease-dial:       cubic-bezier(.6,0,.2,1);
-  --ease-expand:     cubic-bezier(.32,.72,.3,1);
-  --ease-spiral-out: cubic-bezier(.16,.9,.24,1);
-  --ease-spiral-in:  cubic-bezier(.4,.05,.25,1);
-  --ease-cue:        cubic-bezier(.4,0,.3,1);
-  --animate-rise: rise .85s var(--ease-out-soft) both;       /* [ASSUMED] replaces fadeUp — Q9 */
-  --animate-cue: wheel 1.9s var(--ease-cue) infinite;
-
-  @keyframes rise { from { transform: translateY(14px); } to { transform: none; } }
-  @keyframes wheel {
-    0%   { transform: translateY(0);    opacity: 0; }
-    18%  { opacity: 1; }
-    68%  { transform: translateY(15px); opacity: 0; }
-    100% { transform: translateY(15px); opacity: 0; }
-  }
-}
-```
-
-Notes:
-- Shadows switch tint **and** alpha per mode through the raw `--shadow-*` vars, so a
-  single utility (`shadow-fab`) is correct in both modes.
-- **[ASSUMED] Theme selection (Q7):** `data-theme="light" | "dark"` on `<html>`. The initial
-  value is resolved **before first paint** by a tiny inline `<head>` script: the stored
-  `localStorage['theme']` if present, else `prefers-color-scheme`. The toggle writes
-  `localStorage` and flips the attribute. With no JS, `:root` stays light, which matches
-  the mockup default.
+| Theme change | colours `.45s ease`; the dial turns 180° `.5s ease-dial` |
+| Signature | written on every full load; the intro on a fresh home visit (§10) |
+| Hero entrance | eyebrow, H1, standfirst, CTAs `.8–.85s ease-out-soft`, delays `--enter` + .05 / .14 / .24 / .34s; the H1 only rises (never hidden, for LCP) (Q9) |
+| Section entrances | each section fades up 14px the first time it scrolls in, 90ms stagger (§10) |
+| Scroll cue | `wheel 1.9s` three times on phones (endless on wide), then fades; hidden on the first scroll past 40px |
+| Primary button hover | lift 2px + opacity .92, `.25s` |
+| Press feedback | Ripple / Ring / Press-in from Settings (§10) |
+| Experience row | height `grid-template-rows 0fr → 1fr .5s ease-expand` + opacity `.38s`; caret 180° `.34s` (Q11) |
+| Writing row hover | content `translateX(16px) .3s`; background to `surface` |
+| Project card hover | lift 3px, shadow layer fades in, image scale 1.04 and blur 3px (hover devices only), veil and caption fade (Q11) |
+| Project modal | grows from the clicked card (`translate + scale → none .46s ease-out-soft`, opacity `.3s`); backdrop fades `.34s`; close reverses |
+| Show more / less | the sequence in §10 |
+| Nav open | each item spirals out `.82s ease-spiral-out`, `.062s` apart; close per §10 |
+| Wheel layout | the dock slides to the screen's centre `.72s` |
+| FAB / back-to-top | fade + scale in `.35–.4s` |
+| Quotes | every 7s, the strip travels left (§10); paused while hidden, hovered or focused |
+| Page ↔ article | the page turns as one sheet (§10) |
 
 ---
 
-## 9. Assumed Decisions
+## 6. Components and accessibility
 
-Every inline `[ASSUMED]` tag maps to one of these rows. Items marked (D7) were open
-questions in [D] §7.
+Every control: a visible focus ring (§1.3), a hover state (outline controls: border → accent;
+filled: opacity .92), and press feedback (§10). 44×44 hit areas everywhere, extended invisibly
+where the visual is smaller (Q4). Nothing can be disabled on the site.
 
-**Revision 2 (owner direction, brief §0.1): the mockup wins every contradiction; perf
-rules are applied by intent.** Rows marked **R2** were re-decided on that basis and
-override any conflicting inline text above.
+| Component | Structure and a11y |
+|---|---|
+| Header | `<header>`, fixed 76px, `paper-fade` + `blur(10px)`, bottom `border-header`; signature left, theme toggle right; behaviour §10 "Header" |
+| Signature (navbar) | Link, `aria-label` "{Name} — back to top" / "— back to portfolio" (Q23) |
+| Theme toggle | 46×46, `aria-label` "Dark mode" + `aria-pressed`; choice stored per device, set before paint (Q6, Q7) |
+| Experience row | `<button aria-expanded aria-controls>`; the closed body is `hidden` |
+| Project card | `<article>` with a stretched `<button class="card-trigger" aria-haspopup="dialog">`; the Live / Source icon links are siblings, not nested; name clamped to 2 lines; no Live link when `live_url` is null (Q15, Q17) |
+| Project modal | native `<dialog>` + `showModal()`: focus trap, Escape, inert page; `aria-labelledby` the title; focus returns to the card; backdrop click closes (Q16) |
+| Writing row | `<a>` holding an `<h3>` |
+| Quotes | `figure > blockquote + figcaption`; pauses on hover and focus; static under reduced motion (§10) |
+| Floating nav | FAB `aria-label="Jump to section"`, `aria-expanded`, `aria-controls`; the menu is `inert` when closed; opening focuses the active item; Tab cycles inside; Escape, the curtain or a choice closes and returns focus; the active item has `aria-current`; the FAB is last in DOM order (Q26) |
+| Back to top | a plain `#hero` link, shown with the FAB once the hero is passed (Q14) |
+| Listen (articles) | `aria-pressed`; hidden without `speechSynthesis`; per-article switch (Q18) |
+| Article body | `<article>`; h1 → h2 → h3; the first paragraph is the lead; blocks 26px apart; pull-quote with a 2px accent left rule, serif italic 300 |
+| Footer | `<footer>`: the footer note and "© {year} {Name}", `space-between`, wrapping, 13px muted |
+| Contact | `mailto:` email; social links `min-height: 44px` |
+| 404 | §10 |
 
-| Item | Chosen value | Reasoning (one line) | Confidence |
-|---|---|---|---|
-| Q1 Light-mode contrast | `text-muted` `#6D655C`, `accent-base` `#A9491F` (lightness-only OKLab shifts) | Smallest change reaching ≥4.6:1 on paper2 while keeping hue/chroma; every small-text use now passes AA | med |
-| Q2 Dark-mode bands and fills | Dark `accent` = `mix(accent-base, white 24%)` → `#C17558`; new `accent-fill` = base accent in both modes; band muted `.89`, band paper2 `.09`, portrait label uses band ink | Keeps [DN]'s "derived, never hand-picked" rule, and cream-on-fill stays 5.43:1 in both modes | med |
-| Q3 Focus-visible | `2px solid var(--accent)`, offset `2px`; inset `-2px` on rows; card ring via `:has()` | Accent already signals hover everywhere; ring becomes cream automatically inside bands; ≥4.6:1 on every ground | high |
-| Q4 Touch targets **R2** | **Visual sizes stay as in the mockup** (38 / 42 / 40px); each hit area is extended invisibly to 44×44 with a centred `::before` (`inset: min(0px, (100% - 44px) / 2)`). Text links: `min-height: 44px`, inline-flex, no visual change | Meets the 44px floor while the mockup look wins | high |
-| Q5 Grain | `.06`, fixed, both routes | [P] props, [D] and [H] all state 6% | high |
-| Q6 Theme toggle | 46×46 on both routes | Main page is the primary reference, and 46 matches the "Show more" height | med |
-| Q7 Initial colour mode | System preference, persisted in `localStorage`, set pre-paint on `<html data-theme>` | Conventional; avoids a flash of the wrong theme; no-JS falls back to the mockup's light default | med |
-| Q8 Tweakables (D7) | Terracotta · bottom-right · arc · tilt −4deg · intro on · TTS on | All are the mockup defaults; slate would also fail dark-mode AA | high |
-| Q9 Intro vs LCP **R2** | Intro plays exactly as mocked. Hero eyebrow, standfirst and CTAs use the mockup `fadeUp` (opacity + rise). **Only the H1** (the LCP element) uses transform-only `rise`, painted from frame one under the overlay; the overlay's own fade reveals it, so it reads the same as the mockup | Mockup look kept; the one element LCP measures is never at opacity 0 | med |
-| Q10 Intro blocking | Overlay `pointer-events: none`; any input skips to hand-off; skipped under reduced motion | The intro must never hold the page hostage; [DN] already skips it on internal navigation | med |
-| Q11 Non-transform motion **R2** | **Experience height animates as mocked** (`grid-template-rows: 0fr → 1fr`, `.5s ease-expand`, + opacity `.38s`); **card image blur restored**, on hover-capable devices only (`@media (hover: hover)`); writing-row shift via `translateX(16px)` (visually identical to the padding change); card shadow via `::after` opacity (identical look); curtain blur static + opacity fade (identical look); dot `scaleX` | Mockup fidelity first; one-element, user-initiated effects are cheap; swaps are made only where they look identical | high |
-| Q12 Reduced motion (all cases) | All transform motion instant via `--dur-move-scale: 0`; opacity/colour kept; loops and auto-advance off; `scroll-behavior: auto` | Direct generalisation of [DN]'s rule, set at the token layer | high |
-| Q13 Quote rotator (D7) | Keep; render the dots (44×44 targets, inactive = `text-muted`), add pause/play, pause on hover/focus, no auto-advance under reduced motion; carousel ARIA | Satisfies WCAG 2.2.2 using controls the mockup already coded | med |
-| Q14 Back-to-top trigger | Appears with the FAB at `scrollY > hero.offsetHeight − 140` | Mockup code is the implemented behaviour; [DN] says its numbers are indicative | med |
-| Q15 Project card | `<article>` + stretched trigger `<button>` + sibling icon links; overlay on narrow / `(hover: none)` / hover / focus-within; name 2-line clamp; veil `.82 → .62@50% → .06`; kind `.9` alpha | Removes nested interactives, gives native keys, and keeps captions ≥4.5:1 even over a white screenshot | med |
-| Q16 Modal | Native `<dialog>` + `showModal()`, `aria-labelledby`, focus return; keep `overflow-y: auto` fallback; 3 tags | Native dialog gives the trap, Escape and inert background [H] asks for; scroll fallback honours the brief's content-robustness rule | med |
-| Q17 Content model | Per §7 table: experience summary + dates; project kind/year/summary/description/image, nullable live; skill groups; quotes added; education dropped | Mockup wins on structure per the brief's own precedence rule | med |
-| Q18 Article route / TTS (D7) **R2** | `/articles/[slug]` with an on-site Markdown body; `body` nullable → the row links to `external_url` (the brief's pattern, visually identical in the list); TTS on, hidden without `speechSynthesis` | Mockup route and default, plus the brief's flexibility at no visual cost | med |
-| Q19 Mono | IBM Plex Mono 400, `.88em`, `surface` bg, 3px radius; article route only | Only mono style anywhere in the mockup set ([DN] `code`) | med |
-| Q20 Font weights | Newsreader 300/400/italic 300 (opsz auto), Plex Sans 400/500, Caveat 600 | Ship only what the mockup uses | high |
-| Q21 Fallback metrics | `next/font/google` default `adjustFontFallback: true`, `display: 'swap'`, `subsets: ['latin']` | Next 16 docs: this generates the size-adjust fallback automatically | high |
-| Q22 Scrollbars **R2** | Hidden, as mocked (`scrollbar-width: none` + zero-size `::-webkit-scrollbar`) | Mockup wins; not a WCAG failure; also means the `page` container = viewport width | high |
-| Q23 Signature label | `aria-label="Tanishk Saxena — back to top"` / `"— back to portfolio"` | Satisfies WCAG 2.5.3 label-in-name | high |
-| Q24 Spacing | Keep literals, expressed on Tailwind's 0.25rem base; fluid clamps as named `--spacing-*` tokens | No mockup value moves, and nothing in markup is a magic number | med |
-| Q25 vw/vh vs cqi | Keep `clamp()` in vw/vh; container queries handle all layout switching | Clamps are viewport-tuned type/rhythm; converting would change rendered values | med |
-| Q26 Floating nav a11y (D7) | Menu `inert` when closed; FAB `aria-expanded`/`aria-controls`; focus to active item on open, cycle within, return on close; FAB stays last in DOM | Standard disclosure-menu pattern; FAB duplicates in-page navigation, so its tab position is harmless | med |
-| Q27 Dates | `published_at` ISO; list `MMM yyyy`, article `d MMMM yyyy`, `en-GB` | Both formats appear verbatim in the mockup | high |
-| Q28 Project images | One ≥1600×1200 4:3 source, `object-fit: cover` into all three crops, optional focal point | Least content burden that still serves card, narrow modal and wide modal | med |
-| Q29 Scroll offsets | 76px on section anchors; 104px on row deep links; landing via `scrollIntoView` | Aligns CSS with the mockup's JS landing value; the 120px margin was never used | med |
-| Q30 Handwriting twice (D7) | Keep Caveat for signature + hero word | [D] chose variant C deliberately ("always means the same thing") | med |
-| Q31 Experience as modal (D7) | No, keep the accordion | [D] §4 rationale: a job has no artefacts to show | high |
-| Q32 Placeholders | Mockup placeholder treatment becomes the designed empty state; real copy arrives in Phase 2 fixtures | Content is out of scope for the design spec | high |
-| Missing hover states | Outline controls: border → accent; filled: `opacity .92`; card icons: bg `#FDF8F0` | [DN] requires hover on every control; reuses the mockup's two hover patterns | high |
-| Disabled state | `opacity .45; cursor: not-allowed`; no hover/pressed | Nothing in the design disables; conventional fallback if ever needed | med |
+Scrollbars are hidden on the site, as designed (Q22). Focus order follows the page: signature,
+theme toggle, hero CTAs, rows, cards (trigger, live, source), Show more, email, socials, then
+the dock.
 
-## 10. Owner revisions (final — override the mockup)
+---
 
-Settled by the owner in Phase 4 after iterating and testing on real devices. These are
-**final** and win over the mockup, §1–§9 and brief §0.1's "mockup wins" rule. Where a row
-below contradicts an earlier section, build from this section.
+## 7. Page structure
 
-| Area | Revision (final) | Replaces |
-|---|---|---|
-| Signature intro | **Revived in Phase 9 (item 29c, 2026-10-17), as a Setting, on by default.** It plays on a fresh visit to the home page (not on a reload, back/forward, a `#section` link or a page turn in the app; never under reduced motion). **The navbar mark itself** is the big signature: it is centred (46% down the screen), enlarged to the mockup's `clamp(54px, 12.5vw, 104px)`, keeps its −4° tilt, and is written left to right like the navbar writing (§10 "Phase 9 picks"), then underlined; a paper overlay covers the page and everything fixed on it, and the header's glass, rule and theme toggle are hidden. At 2.3s it flies home (`transform .95s ease-flip`) while the overlay fades (`.75s` from `.3s`) and the toggle returns; it lands exactly in place because nothing is handed off. Any key, click, wheel or touch ends it at once. The hero's entrance waits for it (`--enter` 2.4s). Driven by an inline script in `<head>` (`lib/signature.ts`, `data-intro`), so it never waits for hydration; no glyph data. Off in Settings: the navbar mark writes itself in place instead. The Phase 4 stash ("wip: signature intro") is obsolete. | §5 "Signature moments" 1; §5.3's intro rows (letters `charIn`, hand-off swap) |
-| Page ↔ article | Wide layouts: the whole page moves as one sheet: going in, the list lifts away (170ms) and the article rises 28px into place; coming back, the article settles out and the home page drops in from 16px above. The two never overlap. The header stays fixed and solid. Cross-fade only under reduced motion. **No title morph.** **Phones, returning home** (Back, More writing, signature): no view transition (snapshotting the full-length home page is slow there); the article slides out (170ms) and the home page settles in from 16px above (420ms), at the restored position. | Title morph (§5, brief §3) |
-| Back from an article / reload | The article's top **Back** link returns to the reader's **exact previous scroll position**, applied before the first paint (no visible scrolling). Opened directly, with no saved position: goes to `/#writing`. **More writing** always goes to `/#writing`. Expanded lists stay expanded for the session. On the home page the URL's `#section` follows the section being read; the top is the plain URL (`#hero` never appears, including after the signature or back to top), and a **reload** opens straight at that section before the first paint (the hero never flashes), positioned exactly once, so scrolling straight away is never yanked back; the browser's pixel restoration is off there because reloaded lists start collapsed. **Articles** keep native restoration: a reload returns to the exact position. | Back → `/#post-<slug>` row (Q29 [DN] routing) |
-| Section entrances | Every section after the hero fades up (14px, the hero's curve, 90ms stagger) the first time it scrolls into view. Sections already on screen at load stay static. None under reduced motion or without JS. | — (hero only) |
-| Header | Hides (slides up) while reading down; returns on any upward scroll, a tap on the page, keyboard focus inside it, or within 120px of the top. Transform only, no layout shift. In-page jumps (nav menu, hash links) land sections **flush at the top**, 1px past their divider so no rule shows at the top edge, and tuck the header away. On the home page the signature is a plain `#hero` link. | Always-visible header; 76px anchor offset |
-| Press feedback (revised 2026-10-04, item 20) | Every `[data-ripple]` control (buttons, rows, FAB, back-to-top, Listen, theme toggle, card icons, modal controls, the admin's) shows the style Settings chose (`data-press` on `<html>`, site and admin alike). **Ripple** (default): a wash of the control's **own text colour** at 20% grows from the touch point and fades as it grows (300ms, `ease-out-soft`), so it stays in the control's colour family: cream on a filled button, ink on a paper one. **Ring**: one accent ring leaves the control's edge and fades (420ms). **Press-in**: the control scales to 96.5% and darkens a step while held. All start on pointer-down, and **nothing waits for them**: Show more, article rows, section-nav items and in-page links act at once. A press that turns into a scroll clears its mark in 120ms. No colour swaps while pressed. Reduced motion: the wash and the ring fade in place | The first ripple: an opaque wave in a per-control "pressed" colour (cream over a filled accent button, accent over an outline one) with the text and border colours swapping under it, 380ms, a 100ms touch delay, actions 180ms after the tap, `data-pressed` styling, the nav item's delayed fill; before that, `active:` background swaps |
-| Show more / Show less | A sequence, starting at once on the tap (no lead for the press feedback, item 20): the Show more button **glides down** to where it ends up (FLIP, 650ms, ease-out cubic) while the section grows on the same curve and the page scrolls with it (native smooth scroll on phones; frame-synced with the growth on wide layouts) just enough to keep the button near the bottom of the screen; then the new cards/rows fade up 14px one by one (from 520ms, 140ms apart). Focus moves to the first new item. Opacity only under reduced motion. Not replayed when returning. Once a list is fully expanded the button becomes **Show less**: the extra items fade out (last first, 240ms, 60ms apart), then the exact reverse of Show more: the section shrinks, the button glides with it and the page scrolls along on the same clock (frame-synced on every screen). Where it lands: if the heading and the button were both on screen at the tap, the heading stays put and only the button moves up; otherwise, if the collapsed section fits on screen, its heading comes to the top; otherwise its button comes to the bottom. focus stays on the button. | Items appear instantly; no collapse |
-| About | Vertical padding is the section rhythm (`clamp(56px, 8vh, 96px)`), top = bottom. Smaller portrait: 224px wide on phones; when wide, a 320px portrait column beside text up to 68ch, vertically centred, filling the measure. | `py-band`; portrait up to 360px |
-| Contact band | Same as About: the section rhythm top and bottom (`clamp(56px, 8vh, 96px)`), on phones and wide screens. The bands are no longer airier than the other sections. | `clamp(76px,12vh,140px) 0 clamp(72px,10vh,110px)` |
-| Writing rows | Read time on its own line under the title; the date on the right, level with the title's first line. Hover still steps in with padding-left. | Title · read time · date on one line |
-| Experience rows | Dates and caret form one group, baseline-aligned with the role's first line (on mobile the caret no longer floats mid-block). | Caret centred on the whole row |
-| Back to top | A plain `#hero` link (no JS): the URL follows, so a reload stays at the top. | Scripted scroll, URL unchanged |
-| 404 | Any unknown URL, including an article that has been taken down: the site header, a `404 · Not found` eyebrow with the **404** in the serif at a larger size, in accent, "This page has wandered off." in the article heading style, one line of explanation, and a filled **Back to writing** button (`/#writing`). | Next's default 404 |
-| Style settings | Owner keeps the mockup's tweakables as admin Settings (ADMIN-DESIGN-SPEC §8.9, §14): accent Terracotta / **Slate blue**, grain, nav button bottom-right / **bottom-centre**, menu **arc / centre wheel** (geometry §5.3). Defaults are what ships. Slate's dark accent derives with **32%** white (`--accent-dark-mix`; terracotta stays 24%) so it passes AA (5.15 / 4.73). Signature tilt dropped; intro stays shelved. Rule: unshipped shades may be tweaked slightly to pass AA; shipped values never change | Q8 (Terracotta, bottom-right, arc, fixed) |
-| Quotes | No dots or pause control; rotates every 7s, pauses on hover/focus, static under reduced motion. | Q13 [ASSUMED] dots + pause |
-| Quote change (2026-10-04, item 18) | It **travels**, as one strip moving left, so it reads as moving along a collection and not as one quote replacing another in place (the owner's call, after a cross-fade and a one-after-the-other slide were tried): the old quote moves 72px left and fades (`quote-out .8s cubic-bezier(.45,0,.2,1)`) while the next moves in from 72px right behind it (`quote-in`, same curve, `.12s` later) | §5.3 `opacity .7s` + `translateY(10px→0) .7s` |
-| Nav close (2026-10-04, item 19) | **The opening's motion in reverse, on the opening's own curves** (the owner's final call; a one-at-a-time close and a mirrored-curve rewind were tried first): the same paths and spans, the last item out leaving first, `.062s` apart, each travelling `.96s` on `cubic-bezier(.32,.5,.3,1)` (quick at first, then settling: `ease-spiral-out` itself started too abruptly, so the curve is gentler and the span a little longer) and fading over its last `.34s`. The curtain lifts over the last `.5s`. In the wheel layout the dock's `.72s` slide to the centre reverses too, on that curve, ending with the close | §5.3 Nav close (`1.02s ease-spiral-in`, `.07s` stagger, `opacity .5s`; the dock returning at once) |
-| Project modal (2026-10-04, items 16, 17, 21) | The **year sits under the project name** (beside the type it ran under the close button). The modal shows **Description only**; an empty one shows no paragraph. **No scroll**: the modal starts at its mocked size (880×420 wide, 420×600 narrow) The modal is **one fixed size** (880×**460** wide, 420×600 narrow: wide is 40px over the mockup so a full six-line Description fits; at 420 a five-line one overflowed by a pixel and showed a scrollbar) and never taller than **60% of the screen** (`min(…, 60svh)`): it does not grow with its copy (a growing modal was tried and looked incoherent, on phones above all). Copy that doesn't fit scrolls the body, with a thin accent bar (`.themed-scroll`). A project without an image reads **"No preview to show"**, on the card and in the modal | Year right of the type; `description || summary`; "Project image"; the fixed 420 / 600px height whose body scrolled |
-| Modal media (2026-10-04, item 23) | A project may carry up to six media items (images, GIFs, videos). The modal shows them in its image pane in place of the cover, side by side in a native scroll-snap strip: **swipe** on a phone; on wide screens **‹ ›** appear on hover or focus; ← → work when the strip has focus. **Dots** under the strip show there is more than one (none for a single item). Videos play muted, in line, looping; only the item in view plays. **Nothing moves by itself** unless Settings turns **Project media** on (default off: a GIF or clip may run longer than any fixed turn, and a phone has no hover to pause on): then an image stays 5s and a video until it ends, pausing while hovered or focused. Reduced motion: no rotation, no autoplay, videos show their controls. The card keeps the cover; with no media the modal shows the cover as before | One image per project (the cover in the modal) |
-| Experience descriptions (2026-10-04, item 30) | An experience row's summary is **simple Markdown**: paragraphs, `- ` and numbered lists, `**bold**`, `*italic*` and underline. Underline is not Markdown, so a bare, matched `<u>…</u>` pair is read as underline, **in articles too**; every other raw tag is still dropped, a `<u>` with attributes or no closing tag included. In a summary nothing else is markup: a `#`, a link or a code span stays the text that was typed. Rendered on the server (`renderSimpleMarkdown`, `lib/utils/markdown.ts`), so the row ships no parser. Bold reads in ink at weight 500; lists indent 20px; blocks sit 12px apart. | §7 `summary` (one paragraph); §6 ExperienceRow's single `<p>` |
-| Contributions (2026-10-04, item 29e) | A **GitHub contribution heat map** closes the Skills section: not a section of its own, no nav entry (owner). Under the skills grid, one grid-row gap down: a caps label "Contributions" in the skills columns' own style, the year's total at the right ("1,396 in the last year", 13px muted, tabular), then the map. A year of days as 53 week columns, Sunday first, each column one flexible track with a 3px gap, cells square with a 2px radius; month names (12px muted) sit above the week a month begins in. **In the site's accent, never GitHub's green** (owner): empty days are ink at 7%, the four levels the accent at 26%, 50%, 74% and 100% (`--color-heat-0…4`), so it follows the accent setting and dark mode. **On phones the map scrolls sideways** in its own box (owner, 2026-10-04): columns keep an 11px width, about half a year fits, and the box opens on the latest weeks with the older ones a swipe away (it lays out right to left, so no script sets the position); wide screens fit the full year (cells about 18px). The whole map is **one link to the GitHub profile** (new tab), named by the total, so its tab stop does something on every screen and a keyboard can scroll the box on phones (owner, 2026-10-04); cells are hidden from assistive tech and carry a tooltip ("3 contributions on 12 Mar 2026"). Static: no motion, no script. Data: GitHub's GraphQL API, on the server only, with a read-only `GITHUB_TOKEN`, cached and refetched at most once a day (the page stays prerendered); the username is a Setting. No token, no username, or GitHub failing: the heat map is not rendered and nothing else changes. Fixtures show a made-up year. | — (not in the mockup) |
-| Phase 9 picks (2026-10-04, items 25 and 28a; **built**) | From the comparison page ("Phase 9 Options"). **Skills layout:** each group's items become outlined chips (full pill, `border-control`, 15px side padding, 14px Plex). Wide screens set the groups as ruled rows (`border-row` between them, 20px each side), the caps label in a 180px column beside its chips, centred on them (option E); phones stack the label 12px over its chips, groups 26px apart, with no rules (option C). The four columns go. **Hero word:** unchanged, the accent block as shipped; this replaces the roadmap's "non-handwritten treatment". **Script font:** a Settings choice between **Allura** (the default, the owner's favourite) and **Caveat**, used by both the signature and the hero word, kept for some time while the owner decides. Set as `data-script` on `<html>`; each face brings its own weight (Allura 400, Caveat 600) and the hero word's size, leading, padding and baseline nudge (`styles/tokens.css`: Allura 1.16em / .8 / .08em .2em .06em .16em / −.02em; Caveat the shipped 1.1em / .84 / .04em .16em .1em .14em / −.03em). Share cards and the app icon keep Caveat. **Signature writing:** on every full page load the navbar signature is revealed left to right by a soft, slanted edge (a 100° gradient mask crossing the name, 1.3s, `cubic-bezier(.45,.05,.35,1)`, from .2s), then the underline draws (.5s from 1.35s, a clip reveal); nothing ahead of the edge shows early. Set before first paint by an inline script (`lib/signature.ts`, `data-sign`); off under reduced motion. | §1.2 fonts (Caveat only), §7 Skills (four columns), "Phase 9 decisions" 28a ("the hero word leaves Caveat for a non-handwritten treatment") |
-| Phase 9 decisions (2026-10-04) | Settled after the owner's admin test; built in Phase 9 (ledger: the **Phase 9 roadmap**, item numbers in brackets). **Handwriting out** (28a): the hero word leaves Caveat for a non-handwritten treatment, and the signature becomes a proper signature font drawn stroke by stroke, as if written by hand. **Signature intro returns** (29c) with that signature and a Settings switch to turn it off. **Project card line dropped** (21): the modal shows Description. **Modal media** (23): a project may carry a list of GIFs, videos or images shown in its modal, swiped or clicked through (as built: no rotation unless Settings turns it on; see the "Modal media" row); the card keeps the cover. **Experience descriptions** take simple Markdown (30: paragraphs, lists, bold, italic, underline); articles gain underline too. The handwriting work (28a, 29c) comes last in Phase 9. **Contact links** become an editable list (31). **Menus close in reverse** (19), the button travelling home last. **Calmer quote rotation** (18). **Press feedback** to be replaced by an option the owner picks (20). **GitHub heat map** added (29e). Kept as they are: Experience rows (28b), the quote section (28c). Skipped: Medium RSS blog, `/uses`, draft preview on the site (29a, b, d). | §1.2 fonts (Caveat hero word), §5 signature moments, §6 project card and modal, §10 "Press feedback" (once replaced) |
+One page: **Hero → About (band) → Experience → Projects → Writing → Skills (+ Contributions) →
+Quotes → Contact (band) → Footer**, anchors `#hero #about #experience #projects #writing
+#skills #quotes #contact`. The nav menu lists About, Experience, Projects, Writing, Skills,
+Contact. Articles live at `/articles/[slug]`. Projects and Writing page by three (Show more).
+Dates: one ISO `published_at`, shown `MMM yyyy` in the list and `d MMMM yyyy` on the article,
+`en-GB` (Q27). The content model is brief §5; missing optional media shows the designed
+placeholder ("No preview to show") (Q28, Q32).
+
+## 8. Tailwind mapping
+
+Implemented: `app/globals.css` (`@theme`) maps every token to utilities; `@wide:` is the
+`page` container query.
+
+---
+
+## 9. Assumed decisions
+
+| # | Decision |
+|---|---|
+| Q1 | Light muted `#6D655C` and accent `#A9491F`: the smallest lightness-only shifts that pass AA |
+| Q2 | Dark accent derived (24% white; slate 32%); `accent-fill` = the base accent in both modes; band muted .89, band paper2 .09 |
+| Q3 | Focus: `2px solid accent`, offset 2px; inset on rows; the card's ring via `:has()` |
+| Q4 | Visual sizes as designed; hit areas extended invisibly to 44×44; text links `min-height: 44px` |
+| Q5 | Grain 6% by default, fixed, both routes (now a Setting) |
+| Q6 | Theme toggle 46×46 on every route |
+| Q7 | Colour mode: system preference, then the stored choice, set before paint |
+| Q8 | Defaults: terracotta, bottom-right, arc (the other options are Settings, §10) |
+| Q9 | Only the H1 (the LCP element) rises without fading, painted from the first frame |
+| Q10 | The intro never blocks: no pointer capture, any input ends it, skipped under reduced motion |
+| Q11 | Contained exceptions to transform/opacity: the experience row's height, the card image's blur on hover devices; everything else re-expressed as transform/opacity with the same look |
+| Q12 | Reduced motion as in §5.3 |
+| Q13 | Superseded by §10 "Quotes" |
+| Q14 | Back-to-top appears with the FAB once the hero is passed |
+| Q15 | The card structure and veil in §1.3 and §6 |
+| Q16 | Native `<dialog>` for the modal |
+| Q17 | Content model reconciled to the design (brief §5) |
+| Q18 | `/articles/[slug]` with an on-site body, or a link out; Listen on, hidden without speech synthesis |
+| Q19 | Plex Mono for article code, article route only |
+| Q20 | Only the weights in use are loaded |
+| Q21 | `next/font` size-adjusted fallbacks, `swap`, `latin` |
+| Q22 | Scrollbars hidden on the site |
+| Q23 | The signature's label starts with the visible name (WCAG 2.5.3) |
+| Q24 | Spacing on the 4px base; fluid values as named tokens |
+| Q25 | Fluid type in vw/vh; container queries switch layout |
+| Q26 | The floating-nav focus model in §6 |
+| Q27 | Date formats in §7 |
+| Q28 | One ≥ 1600×1200 4:3 image per project, `object-fit: cover`, optional focal point |
+| Q29 | Section jumps land per §10 "Header"; row deep links via `scrollIntoView` |
+| Q30 | A script face for the signature and hero word (now a Setting, §10) |
+| Q31 | Experience stays an accordion, not a modal |
+| Q32 | The placeholder treatment is the designed empty state |
+
+---
+
+## 10. Owner revisions (final)
+
+Settled by the owner after building and testing on real devices. They win over everything.
+
+| Area | Revision |
+|---|---|
+| Signature intro | A Setting, on by default. On a fresh home visit (not a reload, back/forward, `#section` link, a page turn, or reduced motion) the **navbar mark itself** is centred 46% down, enlarged to `clamp(54px, 12.5vw, 104px)`, written left to right and underlined over a paper overlay (header glass, rule and theme toggle hidden). At 2.3s it flies home (`transform .95s ease-flip`) as the overlay fades (`.75s` from `.3s`); it lands exactly in place. Any key, click, wheel or touch ends it. The hero waits for it (`--enter` 2.4s). Run by an inline `<head>` script (`lib/signature.ts`, `data-intro`). Off: the mark writes itself in place |
+| Page ↔ article | The page moves as one sheet: going in, the list lifts away (170ms) and the article rises 28px; coming back, the article settles out and home drops in from 16px above; never overlapping; the header stays fixed. Phones returning home skip the view transition (too slow to snapshot): the article slides out, home settles in at the restored position. Cross-fade under reduced motion. No title morph |
+| Back and reload | **Back** returns to the exact previous scroll position before first paint; opened directly, it goes to `/#writing`; **More writing** always goes to `/#writing`. Expanded lists stay expanded for the session. On home the URL's `#section` follows the section being read (never `#hero`), and a reload opens at that section before first paint. Articles keep native restoration |
+| Section entrances | Every section after the hero fades up (14px, 90ms stagger) the first time it scrolls into view; ones on screen at load stay static; none without JS or under reduced motion |
+| Header | Phones: hides while reading down; back on scroll up, a tap, focus inside, or within 120px of the top; transform only. Jumps land sections flush at the top, 1px past their rule, header tucked away. Wide: always visible. On home the signature is a `#hero` link |
+| Press feedback | Every `[data-ripple]` control, site and admin, shows the Settings style (`data-press`): **Ripple** (default) a wash of the control's own text colour at 20% growing from the touch point (300ms); **Ring** one accent ring leaving the edge (420ms); **Press-in** scale 96.5% and a step darker while held. All start on pointer-down and **nothing waits for them**. A press that becomes a scroll clears in 120ms. Reduced motion: the wash and ring fade in place |
+| Show more / less | On the tap: the button glides down to its final place (FLIP, 650ms, ease-out cubic) as the section grows and the page scrolls just enough to keep it near the bottom; the new items fade up 14px one by one (from 520ms, 140ms apart); focus moves to the first new item. Fully expanded, it becomes **Show less**: the extras fade out last-first (240ms, 60ms apart), then the exact reverse; the heading or button stays in view; focus stays on the button. Opacity only under reduced motion |
+| About and Contact | The section rhythm top and bottom, like every section. Portrait per §4.4 |
+| Writing rows | Read time under the title; date at the right, level with the title's first line |
+| Experience rows | Dates and caret one group, baseline-aligned with the role's first line |
+| Back to top | A plain `#hero` link |
+| 404 | Any unknown URL, a taken-down article included: the header, a `404 · Not found` eyebrow (the 404 larger, serif, accent), "This page has wandered off." in the article heading style, one line, and a filled **Back to writing** (`/#writing`) |
+| Style settings | Admin Settings (ADMIN-DESIGN-SPEC §8.9): accent (terracotta / slate blue), grain, nav button (bottom-right / bottom-centre), menu (arc / centre wheel), press feedback, script face, project media rotation, signature intro. Defaults are what shipped. The tilt is fixed at −4° (no setting) |
+| Quotes | No dots or pause control; every 7s; pauses on hover and focus; static under reduced motion. The change **travels** as one strip moving left: the old quote moves 72px left and fades (`quote-out .8s cubic-bezier(.45,0,.2,1)`) while the next comes in from 72px right, `.12s` later |
+| Nav close | The opening in reverse on gentler curves: last item out first, `.062s` apart, each `.96s cubic-bezier(.32,.5,.3,1)`, fading over its last `.34s`; the curtain lifts over the last `.5s`; in the wheel the dock's slide reverses too |
+| Project modal | The year under the name; Description only (none when empty). One fixed size: 880×460 wide, 420×600 narrow, never taller than 60svh; copy that doesn't fit scrolls the body with a thin accent bar. No image: "No preview to show", on the card and in the modal |
+| Modal media | Up to six images, GIFs or videos in the image pane (the card keeps the cover), in a scroll-snap strip: swipe on phones; ‹ › on hover/focus when wide; ← → with focus; dots when more than one. Videos muted, inline, looping; only the one in view plays. Nothing moves unless Settings turns **Project media** on: then an image stays 5s, a video until it ends, pausing on hover/focus. Reduced motion: no rotation or autoplay; videos show controls |
+| Experience descriptions | Simple Markdown: paragraphs, `- ` and numbered lists, bold, italic, and underline as a bare matched `<u>…</u>` (articles accept it too; every other raw tag is dropped). Nothing else is markup in a summary. Rendered on the server (`renderSimpleMarkdown`). Bold in ink 500; lists indent 20px; blocks 12px apart |
+| Contributions | A GitHub heat map closes Skills (no section or nav entry): a caps "Contributions" label, the year's total at the right, then 53 week columns (Sunday first, 3px gaps, square 2px-radius cells, month names above). **In the accent, never GitHub's green**: empty ink 7%, levels accent at 26 / 50 / 74 / 100%. Phones: it scrolls sideways (11px columns), opening on the latest weeks (laid out right to left, no script). The whole map is one link to the profile, named by the total; cells hidden from assistive tech, with tooltips. Server-side GraphQL with `GITHUB_TOKEN`, refetched at most daily. No token, username or data: not rendered |
+| Phase 9 picks | **Skills layout:** items are outlined chips (pill, `border-control`, 14px Plex); wide = ruled rows with a 180px label column, centred on the chips; phones = label 12px over its chips, groups 26px apart, no rules. **Hero word:** the accent block, unchanged. **Script face:** Allura (default) or Caveat, for the signature and hero word (`data-script`); share cards and the app icon keep Caveat. **Signature writing:** on every full load a soft slanted edge (a 100° gradient mask, 1.3s from .2s) reveals the name left to right, then the underline draws (.5s from 1.35s); set before first paint (`data-sign`); off under reduced motion |
