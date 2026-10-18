@@ -2,7 +2,7 @@
 
 import { ThemeToggle } from '@/components/site/theme-toggle';
 import { adminHref, type Section } from '@/lib/admin/sections';
-import { CIRCLE_BUTTON } from './admin-classes';
+import { CIRCLE_BUTTON, PHONE_BAR_ROW } from './admin-classes';
 import { ChevronLeftIcon } from './admin-icons';
 import { GuardedLink } from './guarded-link';
 import { SheetButton } from './sheet-button';
@@ -45,7 +45,9 @@ export function PhoneBar({
   status?: EditorStatus;
 }) {
   return (
-    <header className="sticky top-0 z-6 flex h-admin-bar items-center gap-2 border-b border-line bg-paper-fade-strong px-admin-x backdrop-blur-bar @wide:hidden">
+    <header
+      className={`${PHONE_BAR_ROW} sticky top-0 z-6 bg-paper-fade-strong backdrop-blur-bar @wide:hidden`}
+    >
       {back && (
         <GuardedLink
           href={adminHref(section.slug)}

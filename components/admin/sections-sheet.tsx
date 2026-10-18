@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { ThemeToggle } from '@/components/site/theme-toggle';
 import type { SectionCounts } from '@/lib/admin/sections';
-import { CAPS_LABEL, CIRCLE_BUTTON } from './admin-classes';
+import { CAPS_LABEL, CIRCLE_BUTTON, PHONE_BAR_ROW } from './admin-classes';
 import { SmallCloseIcon } from './admin-icons';
 import { AdminNav } from './admin-nav';
 import { SignOutButton } from './sign-out-button';
@@ -40,7 +40,7 @@ export function SectionsSheet({ counts }: { counts: SectionCounts }) {
       aria-labelledby={`${SHEET_ID}-title`}
       className="m-0 h-dvh max-h-none w-full max-w-none flex-col overflow-y-auto border-0 bg-paper p-0 text-ink open:flex"
     >
-      <div className="sticky top-0 z-1 flex h-admin-bar flex-none items-center justify-between border-b border-line bg-paper pr-2 pl-4">
+      <div className={`${PHONE_BAR_ROW} sticky top-0 z-1 justify-between bg-paper`}>
         <h2 id={`${SHEET_ID}-title`} className={`text-label ${CAPS_LABEL}`}>
           Sections
         </h2>
