@@ -194,7 +194,7 @@ anything flagged becomes an ordinary fix. This round's items first (branch
 - [ ] **Nav open**: each item spirals out of the button, mirroring the close; arc and wheel.
 - [ ] **Nav menu open**: the page behind doesn't scroll (wheel, touch, keys); the wheel sits at the centre of a phone's screen, at the top of the page and at the very bottom.
 - [ ] **App icon** reads TS: tab, `/favicon.ico`, home-screen icon.
-- [ ] **Admin on a phone**: the same round ≡ at the right, after the theme toggle, on every page (lists, Hero, About, Contact, Settings); an entry has back at the left.
+- [ ] **Admin on a phone**: one top bar everywhere (lists, Hero, About, Contact, Settings, an entry): same height and padding; the section name at the left (back before it in an entry; the state pill after it in editors); the theme toggle and ≡ at the right.
 - [ ] **Paste zone** (About → Portrait; Projects → Cover, Modal media; Hero → Résumé): pressing it focuses it (no picker), Ctrl+V / ⌘V uploads; on a phone, long-press → Paste with no keyboard; a drop works; only **Open files** opens the picker.
 - [ ] **Contact links**: Add link takes only a label and a full URL (Enter adds too); an empty one can't be added or saved; edit, reorder, remove, save; check the site. On the phone over the LAN address too.
 - [ ] **Experience description**: hover, focus or tap the dotted "Simple Markdown" for the tooltip (the set, and that headings, links and images stay as typed).
