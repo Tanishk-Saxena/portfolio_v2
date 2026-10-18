@@ -88,7 +88,7 @@ A centred column `min(380px, 100%)`: wordmark + "CONTENT ADMIN", Email and Passw
 | Links | Contact's list of label + URL rows (§14 "Contact links") |
 | Range | native, `accent-color` |
 | Theme toggle | the site's dial; its label names the mode it switches to |
-| Toast | bottom-centre of the content (past the sidebar when wide; a long toast stays centred), **stacked** (newest lowest, three at most), an **accent pill with cream text** (`accent-fill` / `on-accent`, the primary button's pair, so it stands out in both modes; owner, 2026-10-19), Undo outlined in cream; optional **Undo**; `role="status"`; 3s (6s with Undo); a repeated plain message replaces the one showing |
+| Toast | bottom-centre of the window (a long toast stays centred), **stacked** (newest lowest, three at most), an **accent pill with cream text** (`accent-fill` / `on-accent`, the primary button's pair, so it stands out in both modes; owner, 2026-10-19), Undo outlined in cream; optional **Undo**; `role="status"`; 3s (6s with Undo); a repeated plain message replaces the one showing |
 | Confirm dialog | `role="alertdialog"`, `min(420px, 100%)`: title, body, optional "Changed" list, Cancel + the filled action (focused on open); Escape and the overlay cancel |
 | Buttons | filled = `--accent-fill`, cream text; outline = `--line`, accent on hover; one filled button per screen |
 

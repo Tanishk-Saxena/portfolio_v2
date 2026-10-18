@@ -52,12 +52,12 @@ export function ToastHost() {
 
   return (
     // The live region is always there, so screen readers hear each new message. It spans
-    // the screen (past the sidebar when wide) and centres its toasts, so a long one stays
-    // centred: a box pinned at left: 50% only had half the screen to fit in.
+    // the window and centres its toasts, so a long one stays centred: a box pinned at
+    // left: 50% only had half the screen to fit in.
     <div
       role="status"
       aria-live="polite"
-      className="pointer-events-none fixed inset-x-3 bottom-6 z-50 flex flex-col items-center gap-2 @wide:left-[calc(var(--spacing-admin-sidebar)+12px)] [:root:has([data-bottom-bar])_&]:@max-wide:mb-19"
+      className="pointer-events-none fixed inset-x-3 bottom-6 z-50 flex flex-col items-center gap-2 [:root:has([data-bottom-bar])_&]:@max-wide:mb-19"
     >
       {shown.map((toast) => (
         <div
