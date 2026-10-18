@@ -34,6 +34,7 @@ export function MarkdownField({
       <div className="flex items-center gap-1 border-b border-line p-1.5">
         <button
           type="button"
+          data-ripple="paper"
           aria-pressed={!preview}
           onClick={() => setPreview(false)}
           className={TAB}
@@ -42,6 +43,7 @@ export function MarkdownField({
         </button>
         <button
           type="button"
+          data-ripple="paper"
           aria-pressed={preview}
           onClick={() => setPreview(true)}
           className={TAB}

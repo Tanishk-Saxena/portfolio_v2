@@ -228,7 +228,7 @@ contained exceptions in Q11.
 | Section entrances | each section fades up 14px the first time it scrolls in, 90ms stagger (§10) |
 | Scroll cue | `wheel 1.9s` three times on phones (endless on wide), then fades; hidden on the first scroll past 40px |
 | Primary button hover | lift 2px + opacity .92, `.25s` |
-| Press feedback | Ripple / Ring / Press-in from Settings (§10) |
+| Press feedback | the ripple on every control (§10) |
 | Experience row | height `grid-template-rows 0fr → 1fr .5s ease-expand` + opacity `.38s`; caret 180° `.34s` (Q11) |
 | Writing row hover | content `translateX(16px) .3s`; background to `surface` |
 | Project card hover | lift 3px, shadow layer fades in, image scale 1.04 and blur 3px (hover devices only), veil and caption fade (Q11) |
@@ -236,7 +236,7 @@ contained exceptions in Q11.
 | Show more / less | the sequence in §10 |
 | Nav open | each item spirals out `.82s ease-spiral-out`, `.062s` apart; close per §10 |
 | Wheel layout | the dock slides to the screen's centre `.72s` |
-| FAB / back-to-top | fade + scale in `.35–.4s` |
+| Back to top | fade + scale in `.35–.4s` (the FAB is always shown, §10) |
 | Quotes | every 7s, the strip travels left (§10); paused while hidden, hovered or focused |
 | Page ↔ article | the page turns as one sheet (§10) |
 
@@ -339,16 +339,17 @@ Settled by the owner after building and testing on real devices. They win over e
 | Back and reload | **Back** returns to the exact previous scroll position before first paint; opened directly, it goes to `/#writing`; **More writing** always goes to `/#writing`. Expanded lists stay expanded for the session. On home the URL's `#section` follows the section being read (never `#hero`), and a reload opens at that section before first paint. Articles keep native restoration |
 | Section entrances | Every section after the hero fades up (14px, 90ms stagger) the first time it scrolls into view; ones on screen at load stay static; none without JS or under reduced motion |
 | Header | Phones: hides while reading down; back on scroll up, a tap, focus inside, or within 120px of the top; transform only. Jumps land sections flush at the top, 1px past their rule, header tucked away. Wide: always visible. On home the signature is a `#hero` link |
-| Press feedback | Every `[data-ripple]` control, site and admin, shows the Settings style (`data-press`): **Ripple** (default) a wash of the control's own text colour at 20% growing from the touch point (300ms); **Ring** one accent ring leaving the edge (420ms); **Press-in** scale 96.5% and a step darker while held. All start on pointer-down and **nothing waits for them**. A press that becomes a scroll clears in 120ms. Reduced motion: the wash and ring fade in place |
+| Press feedback | Every `[data-ripple]` control, site and admin (buttons, icon buttons, tabs, rows; not inline text links): the **ripple**, a wash of the control's own text colour at 20% growing from the touch point (300ms). It starts on pointer-down and **nothing waits for it**. A press that becomes a scroll clears in 120ms. Reduced motion: the wash fades in place. Ring and Press-in were compared and dropped, with their setting (owner, 2026-10-18) |
 | Show more / less | On the tap: the button glides down to its final place (FLIP, 650ms, ease-out cubic) as the section grows and the page scrolls just enough to keep it near the bottom; the new items fade up 14px one by one (from 520ms, 140ms apart); focus moves to the first new item. Fully expanded, it becomes **Show less**: the extras fade out last-first (240ms, 60ms apart), then the exact reverse; the heading or button stays in view; focus stays on the button. Opacity only under reduced motion |
 | About and Contact | The section rhythm top and bottom, like every section. Portrait per §4.4 |
 | Writing rows | Read time under the title; date at the right, level with the title's first line |
 | Experience rows | Dates and caret one group, baseline-aligned with the role's first line |
 | Back to top | A plain `#hero` link |
 | 404 | Any unknown URL, a taken-down article included: the header, a `404 · Not found` eyebrow (the 404 larger, serif, accent), "This page has wandered off." in the article heading style, one line, and a filled **Back to writing** (`/#writing`) |
-| Style settings | Admin Settings (ADMIN-DESIGN-SPEC §8.9): accent (terracotta / slate blue), grain, nav button (bottom-right / bottom-centre), menu (arc / centre wheel), press feedback, script face, project media rotation, signature intro. Defaults are what shipped. The tilt is fixed at −4° (no setting) |
+| Style settings | Admin Settings (ADMIN-DESIGN-SPEC §8.9): accent (terracotta / slate blue), grain, menu (arc / centre wheel), script face, project media rotation, signature intro. Defaults are what shipped. The tilt is fixed at −4° (no setting) |
 | Quotes | No dots or pause control; every 7s; pauses on hover and focus; static under reduced motion. The change **travels** as one strip moving left: the old quote moves 72px left and fades (`quote-out .8s cubic-bezier(.45,0,.2,1)`) while the next comes in from 72px right, `.12s` later |
 | Nav close | The opening in reverse on gentler curves: last item out first, `.062s` apart, each `.96s cubic-bezier(.32,.5,.3,1)`, fading over its last `.34s`; the curtain lifts over the last `.5s`; in the wheel the dock's slide reverses too |
+| Floating nav button | Always bottom right (the centre position, and its setting, are gone: it cut into content); shown from the first screen, the hero included, under the signature intro's overlay while that plays. Back to top still waits until the hero is passed (owner, 2026-10-18) |
 | Project modal | The year under the name; Description only (none when empty). One fixed size: 880×460 wide, 420×600 narrow, never taller than 60svh; copy that doesn't fit scrolls the body with a thin accent bar. No image: "No preview to show", on the card and in the modal |
 | Modal media | Up to six images, GIFs or videos in the image pane (the card keeps the cover), in a scroll-snap strip: swipe on phones; ‹ › on hover/focus when wide; ← → with focus; dots when more than one. Videos muted, inline, looping; only the one in view plays. Nothing moves unless Settings turns **Project media** on: then an image stays 5s, a video until it ends, pausing on hover/focus. Reduced motion: no rotation or autoplay; videos show controls. Each item is named from the project ("Ledger, video 2 of 3"), and videos stay muted even with controls (never audio without captions) |
 | Experience descriptions | Simple Markdown: paragraphs, `- ` and numbered lists, bold, italic, and underline as a bare matched `<u>…</u>` (articles accept it too; every other raw tag is dropped). Nothing else is markup in a summary. Rendered on the server (`renderSimpleMarkdown`). Bold in ink 500; lists indent 20px; blocks 12px apart |

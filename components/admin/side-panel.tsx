@@ -60,6 +60,7 @@ export function SidePanel({
           href={section.view}
           target="_blank"
           rel="noreferrer"
+          data-ripple="paper"
           className="flex h-10 items-center self-start px-1"
         >
           View on site ↗
@@ -67,6 +68,7 @@ export function SidePanel({
         {onReset !== undefined && (
           <button
             type="button"
+            data-ripple="paper"
             onClick={onReset || undefined}
             disabled={!onReset}
             className="flex h-10 cursor-pointer items-center self-start px-1 text-left hover:text-accent disabled:cursor-default disabled:text-muted disabled:hover:text-muted"
@@ -79,6 +81,7 @@ export function SidePanel({
             {onDuplicate && (
               <button
                 type="button"
+                data-ripple="paper"
                 onClick={onDuplicate}
                 className="flex h-10 cursor-pointer items-center self-start px-1 text-left hover:text-accent"
               >
@@ -87,6 +90,7 @@ export function SidePanel({
             )}
             <button
               type="button"
+              data-ripple="paper"
               onClick={onDelete}
               className="flex h-10 cursor-pointer items-center self-start px-1 text-left font-medium text-accent hover:underline"
             >

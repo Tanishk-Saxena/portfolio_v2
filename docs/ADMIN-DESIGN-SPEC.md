@@ -235,9 +235,7 @@ Quote * (≤ 140); Attribution *; side: In rotation (Shown / Skipped).
 | GitHub username (≤ 39) | empty | The heat map under Skills; empty hides it; letters, digits, single hyphens; not reset |
 | Accent | Terracotta · Slate blue | `--accent-base`, `--accent-dark-mix` |
 | Grain | 6% (0–7, step 0.5; capped for AA, DESIGN-SPEC §1.4) | `--grain-opacity` |
-| Navigation button | Bottom right · Bottom centre | FAB position and arc span |
 | Menu layout | Arc · Centre wheel | the wheel: R 150px, dock slides to the visible centre (`dvh`; no slide under reduced motion, Q-A26) |
-| Press feedback | Ripple · Ring · Press-in | `data-press`, site and admin |
 | Script face | Allura · Caveat | `data-script`: signature, hero word, admin wordmark |
 | Project media | Stays until swiped · Moves on by itself | modal media rotation |
 | Signature intro | On · Off | `data-intro-setting` |
@@ -354,8 +352,9 @@ motion: the dial, knob and toasts fade only. Control boundaries use `--line-inpu
 | Experience description | The Markdown field's `simple` form (§5), previewed with the site's limited renderer; the article preview shows underline too |
 | Contact links | One **Links** field: each link one card (grip, label \| URL, ↑ ↓, ×; on phones the label sits above the URL); drag or arrows reorder; × removes. New links come from a composer row under the list (label, URL, **Add link**; Enter adds), which takes only a complete link, so the list never holds an empty one (owner, 2026-10-18); up to eight, then the composer goes. Every link needs a label (≤ 40) and a full address. Saving replaces the stored list (new rows inserted, removed ones soft-deleted, order renumbered) |
 | Simple Markdown hint | The experience description's hint lists the set (paragraphs, lists, bold, italic, underline) and says headings, links and images stay as typed: the set is this site's own, not a convention (owner, 2026-10-18) |
+| Settings trimmed | **Navigation button** and **Press feedback** are gone (owner, 2026-10-18): the button is always bottom right, every press is the ripple. Migration `20261018000000_settings_drop_nav_position_press_feedback` drops the columns |
 | Storage cleanup | Saving Hero, About or a project removes from the `media` bucket every upload it **no longer points at**, only when **no record** points at it and only the app's own uploads (`folder/uuid.ext` in this project's bucket); it never fails the save. Everything else is a **daily database job**, `public.clean_media()` (pg_cron, 21:30 UTC): uploads a day old or more that no record points at (deleted projects' files, never-saved uploads). Needs two Vault secrets per project (`docs/SUPABASE.md`) |
 | GitHub username | A Settings field under the description; empty hides the heat map; not reset |
 | Signature intro | A Settings toggle after Script face, on by default; reset by Reset to defaults |
-| Script face | Settings pills Allura · Caveat after Press feedback; the admin wordmark follows; reset by Reset to defaults |
+| Script face | Settings pills Allura · Caveat after Menu layout; the admin wordmark follows; reset by Reset to defaults |
 | Phase 9 | Caps on the server (4 groups, 4–6 items); body or External URL; early validation; Save off when clean; stacked themed toasts; autofocus; Reset to defaults; no double requests; Delete from the list; the leave dialog lists changes; drag to reorder with arrows kept; paste images; modal media; the card line removed; site title and description |

@@ -71,11 +71,7 @@ export default async function HomePage() {
         <SiteFooter note={profile.footerNote} name={profile.name} />
       </PageTransition>
       {/* Last in DOM order: a convenience duplicate of in-page navigation (Q26). */}
-      <FloatingNav
-        sections={navSections}
-        position={settings.navPosition}
-        layout={settings.menuLayout}
-      />
+      <FloatingNav sections={navSections} layout={settings.menuLayout} />
       <RevealObserver />
       <ScrollRestore />
     </>

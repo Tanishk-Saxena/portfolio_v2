@@ -570,28 +570,3 @@ html[data-anchoring] body {
   opacity: 0.2;
   transform: translate(-50%, -50%) scale(0);
 }
-/* The ring (Settings: Ring): leaves the control's edge and fades. */
-.press-rings {
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-}
-.press-ring {
-  position: absolute;
-  inset: 0;
-  border: 2px solid color-mix(in oklab, var(--accent), transparent 30%);
-  border-radius: inherit;
-}
-
-/* Press-in (Settings: Press-in): the control sinks a little while held. */
-html[data-press='press'] [data-ripple] {
-  transition-property: scale, filter, color, background-color, border-color, opacity;
-  transition-duration: 0.26s;
-  transition-timing-function: var(--ease-out-soft);
-}
-html[data-press='press'] [data-ripple]:active {
-  scale: 0.965;
-  filter: brightness(0.9);
-  transition-duration: 0.06s;
-}

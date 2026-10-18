@@ -69,6 +69,7 @@ export function LinkComposer({ max, onAdd }: { max?: number; onAdd: (link: LinkV
         />
         <button
           type="button"
+          data-ripple="paper"
           onClick={add}
           className={`${OUTLINE_PILL} cursor-pointer justify-center`}
         >

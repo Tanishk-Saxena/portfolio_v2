@@ -9,19 +9,16 @@ import { splitHighlight } from './split-highlight';
 // sanitising is a security property).
 
 describe('utils', () => {
-  it('arcAngles / navAngles: the mockup geometry for both positions and both layouts', () => {
+  it('arcAngles / navAngles: the mockup geometry for both layouts', () => {
     const angles = arcAngles(6);
     expect(angles[0]).toBe(-177);
     expect(angles[5]).toBe(-93);
     expect(angles[1] - angles[0]).toBeCloseTo(16.8);
     expect(arcAngles(1)).toEqual([-135]);
     expect(arcAngles(0)).toEqual([]);
-    // Settings (ADMIN-DESIGN-SPEC §8.9): the bottom-centre arc, and the wheel from straight up.
-    expect(navAngles(6, 'right', 'arc')).toEqual(angles);
-    const centre = navAngles(6, 'centre', 'arc');
-    expect([centre[0], centre[5]]).toEqual([-158, -22]);
-    expect(navAngles(6, 'right', 'wheel')).toEqual([-90, -30, 30, 90, 150, 210]);
-    expect(navAngles(6, 'centre', 'wheel')).toEqual(navAngles(6, 'right', 'wheel'));
+    // Settings (ADMIN-DESIGN-SPEC §8.9): the arc, and the wheel from straight up.
+    expect(navAngles(6, 'arc')).toEqual(angles);
+    expect(navAngles(6, 'wheel')).toEqual([-90, -30, 30, 90, 150, 210]);
   });
 
   it('format: dates, year ranges and project kinds as mocked', () => {

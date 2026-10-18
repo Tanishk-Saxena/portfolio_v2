@@ -5,17 +5,18 @@ import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
 import { useSectionHash } from '@/lib/hooks/use-section-hash';
 import { useSectionSpy } from '@/lib/hooks/use-section-spy';
 import { jumpTo } from '@/lib/anchor-jump';
-import type { MenuLayout, NavPosition } from '@/lib/domain/types';
+import type { MenuLayout } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
 import { closeDuration, curtain, dockRewind, spiral, WHEEL_DOCK } from './nav-motion';
 import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
- * Floating section navigation (spec §6 FloatingNav, Q26). A round button (bottom right, or
- * bottom centre) shows the current section's icon; it opens an arc of destinations, or a
- * full wheel round the screen's centre, over a blurred curtain (Settings, ADMIN-DESIGN-SPEC
- * §8.9). Appears once the hero is past; sticky, parking above the footer rule.
+ * Floating section navigation (spec §6 FloatingNav, Q26). A round button, always bottom
+ * right (owner, spec §10), shows the current section's icon; it opens an arc of
+ * destinations, or a full wheel round the screen's centre, over a blurred curtain (Settings,
+ * ADMIN-DESIGN-SPEC §8.9). Shown from the first screen, the hero included (owner, spec §10);
+ * sticky, parking above the footer rule.
  *
  * Geometry is pure CSS: each item is rotate(θ) translateX(var(--r)) rotate(-θ), with
  * --r = 250px narrow / 334px wide via the page container query (the wheel: 150px at every
@@ -23,11 +24,9 @@ import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
  */
 export function FloatingNav({
   sections,
-  position = 'right',
   layout = 'arc',
 }: {
   sections: NavSection[];
-  position?: NavPosition;
   layout?: MenuLayout;
 }) {
   const { active, pastHero } = useSectionSpy(sections.map((s) => s.id));
@@ -37,15 +36,13 @@ export function FloatingNav({
   const menuId = useId();
   const fabRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLElement>(null);
-  const angles = navAngles(sections.length, position, layout);
-  const right = position === 'right';
+  const angles = navAngles(sections.length, layout);
   const wheel = layout === 'wheel';
   // A tapped destination is the selection from the tap on (the old one unfills at once), until
   // the section spy catches up after the jump; then the spy leads again.
   const [picked, setPicked] = useState<string | null>(null);
   if (picked !== null && picked === active) setPicked(null);
   const current = sections.find((s) => s.id === (picked ?? active)) ?? sections[0];
-  const shown = pastHero || open;
   const reducedMotion = useReducedMotion();
   // Reduced motion: the items only fade (.3s), so the close is over by then.
   const closeTotal = reducedMotion ? 0.3 : closeDuration(sections.length);
@@ -99,9 +96,7 @@ export function FloatingNav({
         className={`fixed inset-0 z-55 bg-scrim-nav backdrop-blur-[14px] ${open ? '' : 'pointer-events-none invisible opacity-0'}`}
       />
 
-      <div
-        className={`pointer-events-none absolute inset-x-0 top-0 z-60 flex flex-col justify-end ${right ? 'bottom-[calc(var(--spacing-float)+114px)] items-end pr-float' : 'bottom-[calc(var(--spacing-float)+30px)] items-center'}`}
-      >
+      <div className="pointer-events-none absolute inset-x-0 top-0 bottom-[calc(var(--spacing-float)+114px)] z-60 flex flex-col items-end justify-end pr-float">
         <div
           className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
           // The wheel opens round the screen's centre: the dock slides there (spec §5.3), and
@@ -109,7 +104,7 @@ export function FloatingNav({
           style={
             wheel
               ? open
-                ? { transform: WHEEL_DOCK[position] }
+                ? { transform: WHEEL_DOCK }
                 : reducedMotion
                   ? undefined
                   : dockRewind(sections.length)
@@ -163,13 +158,12 @@ export function FloatingNav({
             aria-label="Jump to section"
             aria-expanded={open}
             aria-controls={menuId}
-            inert={!shown}
             onClick={() => {
               setPicked(null);
               setOpen((o) => !o);
             }}
             data-ripple="paper"
-            className={`absolute inset-0 grid cursor-pointer place-items-center rounded-full bg-ink text-paper shadow-fab [transition:background-color_.4s_ease,color_.4s_ease,opacity_.35s_ease,scale_.4s_var(--ease-out-soft),visibility_0s_linear_var(--vis-delay)] hover:opacity-92 ${shown ? '[--vis-delay:0s]' : 'invisible opacity-0 [--vis-delay:.4s] motion-safe:scale-70'}`}
+            className="absolute inset-0 grid cursor-pointer place-items-center rounded-full bg-ink text-paper shadow-fab [transition:background-color_.4s_ease,color_.4s_ease,opacity_.35s_ease] hover:opacity-92"
           >
             {/* The glyph swaps to × and turns a quarter (spec §5.3 FAB icon). */}
             <span

@@ -101,6 +101,7 @@ export function MediaField({
               </span>
               <button
                 type="button"
+                data-ripple="paper"
                 aria-label={`Remove ${fileName(item.src)}`}
                 onClick={() => onChange(value.filter((m) => m.src !== item.src))}
                 className="grid size-9 flex-none cursor-pointer place-items-center rounded-full text-muted hover:text-accent"

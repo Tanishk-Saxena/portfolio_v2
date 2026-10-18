@@ -336,15 +336,6 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
     },
     { key: 'grain', label: 'Grain', type: 'range', min: 0, max: GRAIN_MAX, step: 0.5, unit: '%' },
     {
-      key: 'navPosition',
-      label: 'Navigation button',
-      type: 'select',
-      options: [
-        { value: 'right', label: 'Bottom right' },
-        { value: 'centre', label: 'Bottom centre' },
-      ],
-    },
-    {
       key: 'menuLayout',
       label: 'Menu layout',
       type: 'select',
@@ -352,17 +343,6 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
         { value: 'arc', label: 'Arc' },
         { value: 'wheel', label: 'Centre wheel' },
       ],
-    },
-    {
-      key: 'pressFeedback',
-      label: 'Press feedback',
-      type: 'select',
-      options: [
-        { value: 'ripple', label: 'Ripple' },
-        { value: 'ring', label: 'Ring' },
-        { value: 'press', label: 'Press-in' },
-      ],
-      hint: 'What a press looks like, on the site and here.',
     },
     {
       key: 'scriptFont',
