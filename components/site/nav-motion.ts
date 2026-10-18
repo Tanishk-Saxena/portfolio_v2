@@ -9,18 +9,19 @@ export const WHEEL_DOCK =
   'translate(calc(-50vw + var(--spacing-float) + 29px), calc(-50dvh + var(--spacing-float) + 29px))';
 
 /*
- * The opening's timings (spec §5.3). The close is the opening's motion in reverse (owner,
- * spec §10): the same paths, the last thing to arrive the first to leave. It starts quick and
- * settles slowly like the opening, on a gentler curve and a slightly longer span, so the
- * start isn't abrupt.
+ * The timings (spec §5.3). Open and close mirror each other (owner, spec §10): the same
+ * paths and span, the last thing to arrive the first to leave. The close settles slowly into
+ * the button, so its curl there shows; the opening starts slowly out of it for the same
+ * reason (2026-10-18: on `--ease-spiral-out` it left the centre too fast to read as a
+ * spiral), then lands softly instead of the abrupt stop an exact time-reversal would make.
  */
-const TRAVEL = 0.82;
+const TRAVEL = 0.96;
+const OPEN_EASE = 'cubic-bezier(0.55, 0, 0.3, 1)';
 const STAGGER = 0.062;
 const FADE = 0.34;
 const DOCK = 0.72;
 const CURTAIN = 0.5;
-/** The close: a softer start than `--ease-spiral-out`, over a little longer. */
-const CLOSE_TRAVEL = 0.96;
+const CLOSE_TRAVEL = TRAVEL;
 const CLOSE_EASE = 'cubic-bezier(0.32, 0.5, 0.3, 1)';
 
 /** How long the close takes (the menu hides after it). */
@@ -43,10 +44,10 @@ export const curtain = (open: boolean, total: number, reducedMotion: boolean) =>
 /**
  * The spiral (spec §5.3): each item rides a rotating arm from the button to its place:
  * rotate(θ + 200° → θ), arm length 0 → r, counter-rotated so the icon stays upright, scaling
- * .35 → 1. It opens on a soft overshoot-free curve with a 62ms stagger, each item fading in
- * as it sets off. The close reverses it: the last item out leaves first, each winds back
- * along its arm, quick at first and settling, and fades as it reaches the button. Reduced
- * motion: items fade in place.
+ * .35 → 1. It opens with a 62ms stagger, each item easing out of the button (so the curl
+ * shows) and fading in as it sets off. The close reverses it: the last item out leaves
+ * first, each winds back along its arm, quick at first and settling, and fades as it reaches
+ * the button. Reduced motion: items fade in place.
  */
 export function spiral(
   th: number,
@@ -65,7 +66,7 @@ export function spiral(
     transition: reducedMotion
       ? 'opacity .3s ease'
       : open
-        ? `transform ${TRAVEL}s var(--ease-spiral-out) ${out}s, opacity ${FADE}s ease ${out}s`
+        ? `transform ${TRAVEL}s ${OPEN_EASE} ${out}s, opacity ${FADE}s ease ${out}s`
         : `transform ${CLOSE_TRAVEL}s ${CLOSE_EASE} ${back}s, opacity ${FADE}s ease ${back + CLOSE_TRAVEL - FADE}s`,
   };
 }

@@ -204,7 +204,7 @@ The project-card overlay shows when the page is narrow, on `(hover: none)`, on h
 
 `ease-out-soft` `cubic-bezier(.2,.85,.25,1)` (most entrances and hovers) · `ease-flip`
 `(.62,.02,.2,1)` (the signature's flight) · `ease-dial` `(.6,0,.2,1)` · `ease-expand`
-`(.32,.72,.3,1)` (experience rows) · `ease-spiral-out` `(.16,.9,.24,1)` (nav open) ·
+`(.32,.72,.3,1)` (experience rows) · `ease-spiral-out` `(.16,.9,.24,1)` (the wheel's dock slide) ·
 `ease-cue` `(.4,0,.3,1)` (scroll cue).
 
 ### 5.2 Keyframes
@@ -234,7 +234,7 @@ contained exceptions in Q11.
 | Project card hover | lift 3px, shadow layer fades in, image scale 1.04 and blur 3px (hover devices only), veil and caption fade (Q11) |
 | Project modal | grows from the clicked card (`translate + scale → none .46s ease-out-soft`, opacity `.3s`); backdrop fades `.34s`; close reverses |
 | Show more / less | the sequence in §10 |
-| Nav open | each item spirals out `.82s ease-spiral-out`, `.062s` apart; close per §10 |
+| Nav open | each item spirals out `.96s cubic-bezier(.55,0,.3,1)`, `.062s` apart, mirroring the close (§10) |
 | Wheel layout | the dock slides to the screen's centre `.72s` |
 | Back to top | fade + scale in `.35–.4s` (the FAB is always shown, §10) |
 | Quotes | every 7s, the strip travels left (§10); paused while hidden, hovered or focused |
@@ -348,7 +348,7 @@ Settled by the owner after building and testing on real devices. They win over e
 | 404 | Any unknown URL, a taken-down article included: the header, a `404 · Not found` eyebrow (the 404 larger, serif, accent), "This page has wandered off." in the article heading style, one line, and a filled **Back to writing** (`/#writing`) |
 | Style settings | Admin Settings (ADMIN-DESIGN-SPEC §8.9): accent (terracotta / slate blue), grain, menu (arc / centre wheel), script face, project media rotation, signature intro. Defaults are what shipped. The tilt is fixed at −4° (no setting) |
 | Quotes | No dots or pause control; every 7s; pauses on hover and focus; static under reduced motion. The change **travels** left, one quote at a time, **never two on screen** (owner, 2026-10-18): the old quote moves 40px left and fades out (`quote-out .42s`, ease-in); once it is gone (+60ms) the next comes in from 40px right (`quote-in .6s`, ease-out, from `.48s`) |
-| Nav close | The opening in reverse on gentler curves: last item out first, `.062s` apart, each `.96s cubic-bezier(.32,.5,.3,1)`, fading over its last `.34s`; the curtain lifts over the last `.5s`; in the wheel the dock's slide reverses too |
+| Nav close | The opening in reverse on gentler curves: last item out first, `.062s` apart, each `.96s cubic-bezier(.32,.5,.3,1)`, fading over its last `.34s`; the curtain lifts over the last `.5s`; in the wheel the dock's slide reverses too. **The opening mirrors it** (owner, 2026-10-18): each item eases out of the button so its spiral reads, `.96s cubic-bezier(.55,0,.3,1)`, `.062s` apart, fading in over its first `.34s` |
 | Floating nav button | Always bottom right (the centre position, and its setting, are gone: it cut into content); shown from the first screen, the hero included, under the signature intro's overlay while that plays. Back to top still waits until the hero is passed (owner, 2026-10-18) |
 | App icon | The handwritten initials **TS** in Caveat on the accent chip (favicon, `/favicon.ico`, Apple icon), in place of the lone T (owner, 2026-10-18) |
 | Project modal | The year under the name; then the Live site / Source links; then the Description (none when empty); then the tags (owner, 2026-10-18: links above the copy). **No close button** (owner, 2026-10-18): the backdrop, Escape and the platform's dismiss gesture close it; the title takes focus on open. One fixed size: 880×460 wide, never taller than 60svh; 420×680 narrow, never taller than **70svh** (owner, 2026-10-18); copy that doesn't fit scrolls the body with a thin accent bar. No image: "No preview to show", on the card and in the modal |
