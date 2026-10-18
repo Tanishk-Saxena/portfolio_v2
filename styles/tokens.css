@@ -355,9 +355,9 @@ html[data-intro='fly'] [data-signature-mark] {
   }
 }
 
-/* The quote change (spec §10): one strip moving left. The old quote travels off as the next
-   one travels in behind it, both fading at the edges, so it reads as moving along a row of
-   quotes, not as one replacing another in place. */
+/* The quote change (owner, spec §10): one quote at a time, never two on screen. The old
+   quote leaves to the left and is gone before the next one sets off from the right, so the
+   direction still reads as moving along a row of quotes, with no overlap. */
 @keyframes quote-out {
   from {
     opacity: 1;
@@ -365,13 +365,13 @@ html[data-intro='fly'] [data-signature-mark] {
   }
   to {
     opacity: 0;
-    transform: translateX(-72px);
+    transform: translateX(-40px);
   }
 }
 @keyframes quote-in {
   from {
     opacity: 0;
-    transform: translateX(72px);
+    transform: translateX(40px);
   }
   to {
     opacity: 1;

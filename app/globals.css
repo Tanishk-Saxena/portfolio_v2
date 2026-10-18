@@ -248,8 +248,9 @@
 
   --animate-fade-up: fade-up 0.85s var(--ease-out-soft) both;
   --animate-rise: rise 0.85s var(--ease-out-soft) both;
-  --animate-quote-out: quote-out 0.8s cubic-bezier(0.45, 0, 0.2, 1) both;
-  --animate-quote-in: quote-in 0.8s cubic-bezier(0.45, 0, 0.2, 1) 0.12s both;
+  /* In starts after out ends (+60ms of nothing): the two never show together (owner, §10). */
+  --animate-quote-out: quote-out 0.42s cubic-bezier(0.4, 0, 1, 1) both;
+  --animate-quote-in: quote-in 0.6s cubic-bezier(0, 0, 0.2, 1) 0.48s both;
   --animate-cue: wheel 1.9s var(--ease-cue) 3 forwards; /* owner: three loops, then the cue fades */
 }
 
