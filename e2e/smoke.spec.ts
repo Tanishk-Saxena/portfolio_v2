@@ -190,17 +190,11 @@ test('admin: saves reach the site — a form, an upload, an article, a setting',
 
   await test.step('About: a portrait uploads to Storage and shows on the site', async () => {
     await page.goto('/admin/about');
-    // A 2×2 PNG: decodable, so the admin can read its size before uploading.
-    const png = Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVR4nGP8z8DwnwEJMDGgAQYGBgAkHQIEPkB5ZQAAAABJRU5ErkJggg==',
-      'base64',
-    );
-    await page.getByLabel('Portrait').setInputFiles({
-      name: `portrait-${stamp}.png`,
-      mimeType: 'image/png',
-      buffer: png,
+    // A real photo (the repo's sample): the admin reads its size before uploading.
+    await page.getByLabel('Portrait').setInputFiles('public/samples/photo-1.jpg');
+    await expect(page.getByRole('button', { name: 'Remove file' })).toBeVisible({
+      timeout: 15_000,
     });
-    await expect(page.getByRole('button', { name: 'Remove file' })).toBeVisible();
     await save.click();
     await saved('Saved, live on the site');
     await onSite('/', async () => {
