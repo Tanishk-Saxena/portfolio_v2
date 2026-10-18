@@ -49,9 +49,7 @@ export function runRepositoryContract(name: string, make: () => Repositories) {
       expect(p.email).toMatch(/@/);
       if (p.headlineHighlight) expect(p.headline).toContain(p.headlineHighlight);
       expect(['terracotta', 'slate']).toContain(s.accent);
-      expect(['right', 'centre']).toContain(s.navPosition);
       expect(['arc', 'wheel']).toContain(s.menuLayout);
-      expect(['ripple', 'ring', 'press']).toContain(s.pressFeedback);
       expect(['allura', 'caveat']).toContain(s.scriptFont);
       expect(s.siteTitle.trim()).not.toBe('');
       expect(s.siteDescription.length).toBeLessThanOrEqual(200);

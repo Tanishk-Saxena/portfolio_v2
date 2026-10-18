@@ -104,6 +104,7 @@ export function LinksField({
                 <div className="flex flex-none flex-col @wide:flex-row">
                   <button
                     type="button"
+                    data-ripple="paper"
                     aria-label={`Move ${name} up`}
                     disabled={i === 0}
                     onClick={() => move(link.id, i - 1)}
@@ -113,6 +114,7 @@ export function LinksField({
                   </button>
                   <button
                     type="button"
+                    data-ripple="paper"
                     aria-label={`Move ${name} down`}
                     disabled={i === value.length - 1}
                     onClick={() => move(link.id, i + 1)}
@@ -123,6 +125,7 @@ export function LinksField({
                 </div>
                 <button
                   type="button"
+                  data-ripple="paper"
                   aria-label={`Remove ${name}`}
                   onClick={() => onChange(value.filter((l) => l.id !== link.id))}
                   className={ICON_BUTTON}

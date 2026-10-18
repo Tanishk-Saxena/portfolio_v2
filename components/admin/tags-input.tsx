@@ -56,6 +56,7 @@ export function TagsInput({
           </span>
           <button
             type="button"
+            data-ripple="paper"
             aria-label={`Remove ${tag}`}
             onClick={() => onChange(tags.filter((_, j) => j !== i))}
             className="hit-44 relative grid size-6 cursor-pointer place-items-center rounded-full text-muted hover:text-accent"

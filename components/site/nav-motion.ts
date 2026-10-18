@@ -1,16 +1,12 @@
 import type { CSSProperties } from 'react';
-import type { NavPosition } from '@/lib/domain/types';
 
 /*
  * The floating nav's motion values (spec §5.3), kept beside the component that uses them.
  */
 
 /** From the dock's resting place to the viewport's centre (29px = half the 58px button). */
-export const WHEEL_DOCK: Record<NavPosition, string> = {
-  right:
-    'translate(calc(-50vw + var(--spacing-float) + 29px), calc(-50dvh + var(--spacing-float) + 29px))',
-  centre: 'translate(0px, calc(-50dvh + var(--spacing-float) + 29px))',
-};
+export const WHEEL_DOCK =
+  'translate(calc(-50vw + var(--spacing-float) + 29px), calc(-50dvh + var(--spacing-float) + 29px))';
 
 /*
  * The opening's timings (spec §5.3). The close is the opening's motion in reverse (owner,

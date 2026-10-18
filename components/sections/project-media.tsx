@@ -141,6 +141,7 @@ export function ProjectMedia({
         <>
           <button
             type="button"
+            data-ripple="paper"
             aria-label="Previous"
             onClick={() => go(index - 1)}
             className={`${ARROW} left-3`}
@@ -149,6 +150,7 @@ export function ProjectMedia({
           </button>
           <button
             type="button"
+            data-ripple="paper"
             aria-label="Next"
             onClick={() => go(index + 1)}
             className={`${ARROW} right-3 rotate-180`}

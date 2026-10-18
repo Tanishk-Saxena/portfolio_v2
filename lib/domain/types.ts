@@ -148,7 +148,6 @@ export interface SocialLink {
 }
 
 export type Accent = 'terracotta' | 'slate';
-export type NavPosition = 'right' | 'centre';
 export type MenuLayout = 'arc' | 'wheel';
 
 /**
@@ -162,9 +161,7 @@ export const GRAIN_MAX = 7;
 export const DEFAULT_SETTINGS: Settings = {
   accent: 'terracotta',
   grain: 6, // --grain-opacity: 0.06 (Q5)
-  navPosition: 'right',
   menuLayout: 'arc',
-  pressFeedback: 'ripple',
   scriptFont: 'allura',
   signatureIntro: true,
   mediaAutoRotate: false,
@@ -174,9 +171,6 @@ export const DEFAULT_SETTINGS: Settings = {
   githubUsername: '',
 };
 
-/** What a press looks like, on the site and the admin (spec §10). */
-export type PressFeedback = 'ripple' | 'ring' | 'press';
-
 /** The script face of the signature and the hero's highlighted word (spec §10). */
 export type ScriptFont = 'allura' | 'caveat';
 
@@ -184,9 +178,7 @@ export interface Settings {
   accent: Accent;
   /** Paper grain opacity, in percent (0–24, step 0.5). */
   grain: number;
-  navPosition: NavPosition;
   menuLayout: MenuLayout;
-  pressFeedback: PressFeedback;
   scriptFont: ScriptFont;
   /** The home page opens with the signature written large, then flown into the navbar. */
   signatureIntro: boolean;

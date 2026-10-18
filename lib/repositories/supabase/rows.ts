@@ -4,8 +4,6 @@ import type {
   Experience,
   Image,
   MenuLayout,
-  NavPosition,
-  PressFeedback,
   ProjectMedia,
   Profile,
   Project,
@@ -43,9 +41,7 @@ export interface ProfileRow {
 export interface SettingsRow {
   accent: Accent;
   grain: number;
-  nav_position: NavPosition;
   menu_layout: MenuLayout;
-  press_feedback: PressFeedback;
   media_auto_rotate: boolean;
   script_font: Settings['scriptFont'];
   signature_intro: boolean;
@@ -135,9 +131,7 @@ export const toProfile = (r: ProfileRow): Profile => ({
 export const toSettings = (r: SettingsRow): Settings => ({
   accent: r.accent,
   grain: Number(r.grain), // numeric arrives as a number or a string, depending on the driver
-  navPosition: r.nav_position,
   menuLayout: r.menu_layout,
-  pressFeedback: r.press_feedback,
   mediaAutoRotate: r.media_auto_rotate,
   scriptFont: r.script_font ?? 'allura',
   signatureIntro: r.signature_intro ?? true,
@@ -228,9 +222,7 @@ export const fromProfile = (p: Profile): ProfileRow => ({
 export const fromSettings = (s: Settings): SettingsRow => ({
   accent: s.accent,
   grain: s.grain,
-  nav_position: s.navPosition,
   menu_layout: s.menuLayout,
-  press_feedback: s.pressFeedback,
   media_auto_rotate: s.mediaAutoRotate,
   script_font: s.scriptFont,
   signature_intro: s.signatureIntro,

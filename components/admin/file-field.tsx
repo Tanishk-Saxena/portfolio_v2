@@ -122,6 +122,7 @@ export function FileField({
         </label>
         <button
           type="button"
+          data-ripple="paper"
           aria-label="Remove file"
           onClick={() => onChange(null)}
           className="grid size-9 flex-none cursor-pointer place-items-center rounded-full text-muted hover:text-accent"
