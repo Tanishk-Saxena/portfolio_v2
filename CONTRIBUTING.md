@@ -36,8 +36,8 @@ Nothing reaches `main` except through a pull request.
 | `docs/`                              | Docs only                                    |
 | `refactor/`, `perf/`, `test/`, `ci/` | As named                                     |
 
-Phase work uses `feat/phase-<n>-<scope>`. One phase may span several branches and PRs. Keep
-a branch to one reviewable unit: days, not weeks.
+The build's phases (0–10, all done) used `feat/phase-<n>-<scope>`; work now is ordinary
+`feat/`, `fix/` or `docs/` branches. Keep a branch to one reviewable unit: days, not weeks.
 
 ## Merge method
 

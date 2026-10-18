@@ -259,7 +259,7 @@ where the visual is smaller (Q4). Nothing can be disabled on the site.
 | Writing row | `<a>` holding an `<h3>` |
 | Quotes | `figure > blockquote + figcaption`; pauses on hover and focus; static under reduced motion (§10) |
 | Floating nav | FAB `aria-label="Jump to section"`, `aria-expanded`, `aria-controls`; the menu is `inert` when closed; opening focuses the active item; Tab cycles inside; Escape, the curtain or a choice closes and returns focus; the active item has `aria-current`; the FAB is last in DOM order (Q26) |
-| Back to top | a plain `#hero` link, shown with the FAB once the hero is passed (Q14) |
+| Back to top | a plain `#hero` link, shown once the hero is passed (Q14; the FAB itself is always shown, §10) |
 | Listen (articles) | `aria-pressed`; hidden without `speechSynthesis`; per-article switch (Q18) |
 | Article body | `<article>`; h1 → h2 → h3; the first paragraph is the lead; blocks 26px apart; pull-quote with a 2px accent left rule, serif italic 300. Whatever is typed stays accessible: `#` and `##` render as h2, deeper as h3 (the page title is the only h1); an empty link reads as its address; only http(s), mailto and site links are links; images need a description to be saved (ADMIN-DESIGN-SPEC §11) |
 | Footer | `<footer>`: the footer note and "© {year} {Name}", `space-between`, wrapping, 13px muted |
@@ -306,7 +306,7 @@ Implemented: `app/globals.css` (`@theme`) maps every token to utilities; `@wide:
 | Q11 | Contained exceptions to transform/opacity: the experience row's height, the card image's blur on hover devices; everything else re-expressed as transform/opacity with the same look |
 | Q12 | Reduced motion as in §5.3 |
 | Q13 | Superseded by §10 "Quotes" |
-| Q14 | Back-to-top appears with the FAB once the hero is passed |
+| Q14 | Back-to-top appears once the hero is passed (the FAB, which it once arrived with, is now always shown: §10) |
 | Q15 | The card structure and veil in §1.3 and §6 |
 | Q16 | Native `<dialog>` for the modal |
 | Q17 | Content model reconciled to the design (brief §5) |

@@ -10,10 +10,9 @@ Tanishk Saxena's portfolio (live at https://tanishk-saxena.vercel.app) plus an a
 admin at `/admin` that edits every piece of its content and its style settings. Next.js 16,
 React 19, Tailwind v4, TypeScript strict, Supabase, Vercel. **The build is complete (Phases
 0–10), and there is one data path: Supabase**, tested in CI against a throwaway local
-Supabase loaded with the seed. The owner's review round is merged (PR #67). Next: its
-migration pushed to dev and prod, then the end-to-end test round on prod (the owner is
-entering real content on dev, then copies it to prod). Check `docs/PROGRESS.md` before
-starting work.
+Supabase loaded with the seed. The owner's review round is merged (PR #67) and its migration
+is on dev and prod. Next: the end-to-end test round on prod (the owner is entering real
+content on dev, then copies it to prod). Check `docs/PROGRESS.md` before starting work.
 
 ## Sources of truth
 
