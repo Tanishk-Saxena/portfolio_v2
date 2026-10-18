@@ -18,6 +18,10 @@ module.exports = {
       settings: {
         chromeFlags: '--no-sandbox --headless=new',
         ...(process.env.LH_DEVICE === 'desktop' && { preset: 'desktop' }),
+        // The home page's entrance waits for the signature intro (~3.6 s): audit the settled
+        // page, as the axe tests do, or text caught mid-fade reads as low contrast. Load
+        // metrics come from the trace and are unaffected.
+        ...(process.env.LH_GROUP === 'site' && { pauseAfterLoadMs: 4000 }),
         ...(headers && { extraHeaders: headers }),
       },
     },
