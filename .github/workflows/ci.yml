@@ -30,8 +30,8 @@ jobs:
       contents: read
       pull-requests: write # the pinned test-results comment
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -84,7 +84,7 @@ jobs:
         with:
           header: test-results
           path: reports/comment.md
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure() || steps.a11y.outcome == 'failure'
         with:
           name: playwright-traces
@@ -100,8 +100,8 @@ jobs:
       contents: read
       pull-requests: write # the pinned scores comment
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -122,7 +122,7 @@ jobs:
         with:
           header: lighthouse
           path: reports/lighthouse.md
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: ${{ !cancelled() }}
         with:
           name: lighthouse-reports
