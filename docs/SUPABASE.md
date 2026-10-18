@@ -31,7 +31,7 @@ replace RLS.
   then reads and writes dev; that is where content is worked out before it goes to prod.
 - Vercel → Environment Variables: **Production** = prod's URL and publishable key;
   **Preview** = dev's. Both: `GITHUB_TOKEN` (read-only, for the heat map). The secret key
-  never goes into Vercel. (`DATA_SOURCE` is no longer read; it can be deleted.)
+  never goes into Vercel.
 
 ## Setting up a project (once)
 
@@ -55,9 +55,8 @@ replace RLS.
    ```
    Both projects have them (prod since 2026-10-18).
 
-**Test accounts:** none on dev or prod. CI's test admin lives only in its local Supabase. (The
-old dev test admin `e2e-admin@example.com` and the repository secrets `E2E_*` are no longer
-used; they can be deleted.)
+**Test accounts:** none on dev or prod. CI's test admin lives only in its local Supabase, made
+from values in `ci.yml` (no repository secrets).
 
 ## Day to day
 

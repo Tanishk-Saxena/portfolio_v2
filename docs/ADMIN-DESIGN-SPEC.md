@@ -60,9 +60,11 @@ One breakpoint at 760px on the admin's own `admin` container (Q-A3).
 - **One top bar on every page** (`PhoneBar`; owner, 2026-10-19): sticky, 60px, the page's
   side padding; at the left a round back (inside an entry only), the section's name and, in an
   editor, its state pill ("Unsaved"); at the right the theme toggle and a round **≡** opening
-  a full-screen **sheet** (`role="dialog"`; groups, rows 56px; View site, Sign out). The
-  wordmark lives in the sheet; the wide editor bar is not shown. A fixed **bottom bar**: a round Discard + a full-width Save (50px),
-  above the safe area.
+  a full-screen **sheet** (`role="dialog"`; its header the same row, "Sections", the theme
+  toggle and ×; groups, rows 56px; View site, Sign out). No wordmark on phones (it is in the
+  wide sidebar and on sign-in); the wide editor bar is not shown.
+- Editors: a fixed **bottom bar**: a round Discard + a full-width Save (50px), above the safe
+  area.
 - Rows: meta under the title, no chevron. The side panel stacks under the fields. Toasts lift
   76px above the bottom bar.
 
@@ -177,7 +179,7 @@ Press feedback and the focus ring are the site's (Q-A4).
 
 ### 7.4 Theme
 
-The dial sits in the sidebar header, the phone header, the editor bar and the sheet; stored per
+The dial sits in the sidebar header (wide), the phone bar and the sheet's header; stored per
 device, separately from the site's (`admin-theme`, Q-A7).
 
 ## 8. Content model

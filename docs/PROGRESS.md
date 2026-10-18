@@ -6,8 +6,8 @@ step-by-step diary is this file's git history before the 2026-10-18 cleanup.
 **Now:** the build is complete (Phases 0–10), on one data path (Supabase, tested against a
 local one in CI), and the owner's review round is merged (PR #67). The owner is entering real
 content on dev, to copy to prod when ready.
-**Next:** push the review round's migration to dev and prod (open items), then the
-end-to-end round on prod from **the owner's test list**. Later work is ordinary PRs.
+**Next:** the end-to-end round on prod from **the owner's test list**, once the real content
+is in. Later work is ordinary PRs.
 
 ## Phases
 
@@ -171,22 +171,20 @@ experience description, where headings are off by design); storage cleanup is co
 unit and database tests; rotation "not working" was the Project media setting, off in dev
 and prod. Two local traps, not bugs: the owner's dev server, running through the edits,
 served stale admin markup (hydration errors until restarted); and temporary pages on it
-leave partial route types in `.next/dev/types` (`tsc` noise CI never sees).
+leave partial route types in `.next/dev/types` (`tsc` noise CI never sees). After the merge
+(2026-10-19): its migration pushed to dev, then prod, once the deploy was live (the two
+columns gone, every other setting reading as before); the owner removed what nothing read
+any more (the dev test admin and its allowlist row, the four `E2E_*` repository secrets,
+Vercel's `DATA_SOURCE`, and four `.env.local` lines: `DATA_SOURCE`, `SUPABASE_SECRET_KEY`,
+`E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; CI sets its own, for its local Supabase).
 
 ## Open items
 
-- **After PR #67 deploys to prod:** push migration
-  `20261018000000_settings_drop_nav_position_press_feedback` to dev and prod (it drops two
-  columns, so it goes after the code that no longer reads them; `docs/SUPABASE.md`).
 - **P-1, phone lab LCP** (≈3.2–3.6 s, mobile performance 87–88): flagged, never a gate.
   What's left is framework JS; judged by Speed Insights field data (`docs/PERFORMANCE.md`).
 - **Owner:** the GitHub username in **prod's** Settings (the live heat map stays hidden until
   then). Prod's Vault secrets and `GITHUB_TOKEN` are set (2026-10-18).
 - **Owner:** pick one script face (Allura or Caveat); then the other is deleted (`lib/fonts.ts`).
-- **Owner, optional tidy-up** (nothing reads them any more): the dev test admin
-  `e2e-admin@example.com` and its allowlist row; the repository secrets `E2E_SUPABASE_URL`,
-  `E2E_SUPABASE_PUBLISHABLE_KEY`, `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; the Vercel variable
-  `DATA_SOURCE`; in `.env.local`, the `DATA_SOURCE` and `SUPABASE_SECRET_KEY` lines.
 - **Six Dependabot alerts, dev tooling only** (`extract-zip` ×2, `tmp` ×2, `sprintf-js`,
   `uuid`): never on the live site; their fixes arrive through Dependabot as upstream ships
   them. Nothing to do meanwhile.

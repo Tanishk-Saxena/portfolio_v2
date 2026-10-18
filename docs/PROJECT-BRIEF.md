@@ -119,7 +119,7 @@ non-deleted rows. `image` = `{ src, alt, width, height }` (+ optional focal poin
 | `project` | title, kind (`open-source` \| `side-project` \| `client-work`), year, description (≤ 320), tags[], image, media[] (≤ 6 images/GIFs/videos), repo_url, live_url, published, sort_order |
 | `article` | slug, title, excerpt, published_at, read_minutes (null = estimated), body (Markdown) **or** external_url, status (`draft` \| `published`), listen |
 | `quote` | text (≤ 140), author, active, sort_order |
-| `social_link` | label, url (empty = hidden), sort_order |
+| `social_link` | label, url (the admin requires a full address; the site still hides an empty one), sort_order |
 | `settings` | accent, grain, menu_layout, media_auto_rotate, script_font, signature_intro, site_title, site_description, github_username |
 
 Standing decisions:
@@ -148,8 +148,12 @@ All built (2026-10-18). One line each; what happened and why: the ledger's **His
 - **After 10, one data path** (2026-10-18) — the fixture repositories and `DATA_SOURCE`
   removed; CI tests against a local Supabase with the seed; signed-in admin Lighthouse on every
   PR; accessibility closed in code for anything content can change (§3).
+- **The owner's review round** (PR #67, 2026-10-19) — the owner's test round on dev, answered
+  in one PR and confirmed; two style settings dropped (nav position, press feedback) once
+  settled. The build is done.
 
-Next: the owner's end-to-end test round. After that every fix or request is an ordinary PR.
+Next: the end-to-end round on prod, once the real content is in. Every fix or request from
+here is an ordinary PR.
 
 ## 7. Out of scope
 
