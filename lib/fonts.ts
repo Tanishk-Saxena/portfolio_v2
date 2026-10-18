@@ -30,8 +30,9 @@ export const plexSans = IBM_Plex_Sans({
 });
 
 // The script face is a setting (spec §10 "Phase 9 picks"): Allura by default, Caveat the
-// other. Both stay declared, and preloaded, while the owner decides; the one not in use costs
-// a preload (docs/PERFORMANCE.md) and goes once the choice is settled.
+// other. Both stay declared while the owner decides; only the default is preloaded (Phase 10,
+// P-1): Caveat's 50 KB no longer sits ahead of the first paint, and when it is picked it
+// swaps in behind its size-adjusted fallback. The unused one goes once the choice is settled.
 export const allura = Allura({
   subsets: ['latin'],
   weight: ['400'],
@@ -43,6 +44,7 @@ export const caveat = Caveat({
   subsets: ['latin'],
   weight: ['600'],
   display: 'swap',
+  preload: false,
   variable: '--font-caveat',
 });
 

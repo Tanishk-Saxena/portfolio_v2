@@ -3,7 +3,7 @@
 Current state of the build. Updated before every commit; each commit waits for the owner's
 diff review (brief §8).
 
-**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · 9.5 (re-evaluation outcomes and chosen features: items 25, 28a, 29c, 29e, 30, 31, 32) done, merged as one PR, #48 (the reviewed PRs #40–#47 folded into it) · **Phase 9 is complete**; its five migrations are on prod (2026-10-18) · two owner steps remain open, neither blocking: prod's Vault secrets for the storage cleanup job, and a `GITHUB_TOKEN` for the heat map (see "Where to pick up" under "What's left of Phase 9" below) · **next: Phase 10**, the final audit (a standing Lighthouse audit, then the one-time fixes, P-1 first). **The owner's test list** (below) is the running list of what to verify by hand, kept apart from the remaining work
+**Now:** Phase 9, planned in full (the **Phase 9 roadmap**, owner, 2026-10-04) · 9.1 (Lighthouse CI) and 9.4 (test infrastructure: a dev test admin; a blocking admin journey and admin axe in CI; site open states) complete · 9.3 under way: roadmap B (items 4–7, the bugs) and C (items 8–15, admin UI/UX) done; D (site UI/UX, items 16–21), E (drag to reorder) and F (media) done: **9.3 is complete**; 9.2 (site title and description) done · 9.5 (re-evaluation outcomes and chosen features: items 25, 28a, 29c, 29e, 30, 31, 32) done, merged as one PR, #48 (the reviewed PRs #40–#47 folded into it) · **Phase 9 is complete**; its five migrations are on prod (2026-10-18); prod's Vault secrets and the `GITHUB_TOKEN` are set; one small owner step is left: the GitHub username in **prod's** Settings (no heat map on the live site until then) · **Phase 10 (the final audit) is complete**: one Lighthouse reading of prod and the signed-in admin, and the one-time fixes (the Caveat preload dropped); no standing audit (owner: PR checks and Speed Insights cover it); P-1 (phone LCP) stays open as a flagged item, never a gate (see **Phase 10** below) · **next: the owner's end-to-end test round**, from **the owner's test list** (below), the running list of what to verify by hand; whatever it turns up is an ordinary PR
 
 ---
 
@@ -670,23 +670,30 @@ owner's prod phone test, sits on the owner's test list.
   policy, `20261010…` GitHub username, `20261011…` cleanup job, `20261012…` script face,
   `20261013…` signature intro); the live site's reads checked afterwards; prod's `clean-media`
   job is scheduled.
-- **The owner's two open steps** (neither blocks anything; each feature stays quietly off
-  until done):
-  1. Prod's two Vault secrets, in prod's SQL Editor (`docs/SUPABASE.md`, "The storage
-     cleanup job"): until then the daily cleanup asks for nothing. Dev has them since
-     2026-10-04.
-  2. A read-only GitHub token as `GITHUB_TOKEN` in Vercel (Production, Preview) and
-     `.env.local`, then the username in Settings: until then the heat map is not shown.
-- **Next: Phase 10**, below.
+- **The owner's steps** (none blocks anything): prod's two Vault secrets are set and a
+  working `GITHUB_TOKEN` is in Vercel (Production, Preview) and `.env.local` (both checked
+  2026-10-18). Left: the GitHub username in **prod's** Settings (dev has it); until then the
+  live site shows no heat map.
+- **Phase 10**, below: complete.
 
-**Phase 10**, revised by the owner (2026-10-04; brief §6): in the owner's
-words, the one-time fixes the first audit highlights, and setting up the audit pipeline. It
-closes the implementation and is never rerun as a gate.
-- 10.1: a **standing audit** workflow, run by hand or weekly: Lighthouse on prod's public
-  pages and on the dev admin signed in as the test admin (a list, an entry editor, a single
-  form, Settings); warnings only. The signed-in admin's Lighthouse stays in this audit and
-  off the per-PR step (axe and the journey already read the admin on every PR; brief §6).
-- 10.2: the **one-time fixes** from its first run, P-1 (phone LCP) first; scores recorded.
+**Phase 10**, revised by the owner (2026-10-04, then 2026-10-18; brief §6): one reading and
+the one-time fixes it calls for, P-1 (phone LCP) first. It closes the implementation and is
+never rerun as a gate. **No standing audit** (owner, 2026-10-18): the 2026-10-04 plan of a
+weekly Lighthouse workflow on prod and the signed-in dev admin was built and then dropped
+before merge, because it repeated what the PR checks (Lighthouse, axe on every admin screen)
+and Speed Insights (real visitors, admin edits included) already read.
+
+**Done (2026-10-18), one PR (`feat/phase-10-audit`):**
+- [x] The reading and findings: `docs/PERFORMANCE.md` (2026-10-18 rows, P-1). Prod:
+      desktop 100 on every category; mobile performance 87–88 (LCP 3.2–3.6 s), a11y / best
+      practices / SEO 100 (the old best-practices 96 was localhost's http). Fixed: Caveat is no
+      longer preloaded (`lib/fonts.ts`; 50 KB off the first paint, home lab LCP ≈4.1 → 3.6 s
+      locally). Measured and not taken: deferring the grain (no effect), dropping Newsreader's
+      `opsz` (−74 KB, ≤0.15 s; not worth the display type), a narrower weight range (no
+      saving; Turbopack refuses it). What's left of P-1 is the framework's own JS, which the
+      lab's simulated slow 4G charges to LCP. **[ASSUMED]** P-1 stays open as a flagged
+      item (brief §3: perf never blocks), with real-phone field data (Speed Insights) as its
+      judge, and Phase 10 closes with this PR.
 
 Then the owner's end-to-end test round (the test list below, and everything else) runs on the tuned
 site. Whatever it turns up, and every later request, is an ordinary PR: CI's per-PR
@@ -695,8 +702,8 @@ Lighthouse and axe steps read it, and Phase 10 stays closed.
 What each check covers today, for reference (`.github/workflows/ci.yml`, `lighthouserc.cjs`):
 smoke (blocking) and axe (a warning) cover the **site and the signed-in admin**, every admin
 screen included; the per-PR **Lighthouse** covers home, an article and the admin's
-**sign-in page only**, on a CI build with fixtures. The signed-in admin's Lighthouse scores
-and anything about the deployment are what 10.1 adds.
+**sign-in page only**, on a CI build with fixtures. The deployed site is read by Speed
+Insights.
 
 ### The owner's test list (a running list, not part of what's left to build)
 
