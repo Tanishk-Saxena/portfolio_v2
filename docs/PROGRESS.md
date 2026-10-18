@@ -5,8 +5,8 @@ step-by-step diary is this file's git history before the 2026-10-18 cleanup.
 
 **Now:** the build is complete (Phases 0–10), on one data path (Supabase, tested against a
 local one in CI). The owner is entering real content on dev, to copy to prod when ready.
-**Next:** the owner's end-to-end test round from **the owner's test list**, and the owner's
-list of changes. Later work is ordinary PRs.
+**Next:** the owner checks this review round's fixes (branch `fix/owner-review-round`) from
+**the owner's test list**, then the end-to-end round on prod. Later work is ordinary PRs.
 
 ## Phases
 
@@ -145,7 +145,27 @@ and `@types/node` 24.19 (#65) merged; no PR left open. One CI build failed downl
 Google fonts (a network blip; the re-run passed): the owner's rule is to re-run, and to
 self-host the fonts only if it repeats. No change is made unless it is truly needed.
 
+**The owner's review round (branch `fix/owner-review-round`, 2026-10-18).** The owner's
+test round on dev gave 18 verdicts and three extra asks; one PR answers them. Settled:
+quotes change one at a time (never two on screen); the ripple on every press (Ring,
+Press-in and their setting gone); the nav button always bottom right and shown from the
+hero (its centre setting gone; a migration drops both columns); the TS app icon; the
+admin's phone menu button always at the right; a paste zone whose picker opens only from
+**Open files**; contact links added complete from a composer (an empty URL refused; the
+error on Add came from an empty row failing validation at once, and `crypto.randomUUID`
+missing over plain http); the project modal 70svh on phones, no close button, links above
+the copy, media with no scrollbar, pressable dots, and one play per item when rotating (a
+GIF's length read from the file); the signature intro on reload too, never for a
+`#section` URL or from an article, no animation when off, the hero held until it lands;
+the nav opening mirroring its close; the Simple Markdown hint saying what stays as typed.
+Checked: `##` is h2 in articles (the owner had typed it in an experience description,
+where headings are off by design); storage cleanup is covered by unit and database tests.
+
 ## Open items
+
+- **Owner, after this round deploys to prod:** push migration
+  `20261018000000_settings_drop_nav_position_press_feedback` to dev and prod (it drops two
+  columns, so it goes after the code that no longer reads them; `docs/SUPABASE.md`).
 
 - **P-1, phone lab LCP** (≈3.2–3.6 s, mobile performance 87–88): flagged, never a gate.
   What's left is framework JS; judged by Speed Insights field data (`docs/PERFORMANCE.md`).
@@ -165,26 +185,23 @@ self-host the fonts only if it repeats. No change is made unless it is truly nee
 ## The owner's test list
 
 Built things to verify by hand, on a real phone and with real files. Not remaining work;
-anything flagged becomes an ordinary fix.
+anything flagged becomes an ordinary fix. This round's items first (branch
+`fix/owner-review-round`); the rest passed on dev (2026-10-18).
 
+- [ ] **Quotes**: a change never shows two quotes at once; the old leaves left, then the new comes in from the right.
+- [ ] **Ripple everywhere**: buttons, icon buttons (×, ↑ ↓, ‹ ›), Write / Preview tabs, side-panel actions; Settings no longer lists Press feedback or Navigation button.
+- [ ] **Nav button**: bottom right from the first screen; on the hero it shows ☰ and no item is marked; under the intro's overlay while that plays.
+- [ ] **Nav open**: each item spirals out of the button, mirroring the close; arc and wheel.
+- [ ] **App icon** reads TS: tab, `/favicon.ico`, home-screen icon.
+- [ ] **Admin on a phone**: the menu button is at the right on every page (lists, Hero, About, Contact, Settings, an entry).
+- [ ] **Paste zone** (About → Portrait; Projects → Cover, Modal media; Hero → Résumé): pressing it focuses it (no picker), Ctrl+V / ⌘V uploads; on a phone, long-press → Paste with no keyboard; a drop works; only **Open files** opens the picker.
+- [ ] **Contact links**: Add link takes only a label and a full URL (Enter adds too); an empty one can't be added or saved; edit, reorder, remove, save; check the site. On the phone over the LAN address too.
+- [ ] **Experience description** hint lists the Simple Markdown set and says headings, links and images stay as typed.
+- [ ] **Project modal**: 70% of a phone's height; no ✕ (tap outside or Escape closes); Live site / Source above the description; no scrollbar under the media; dots jump to their item; ‹ › always shown on desktop; ← → with focus.
+- [ ] **Modal media, rotation on**: an image 5s; a GIF one play from its first frame; a video to its end; nothing repeats; a mouse over it or a finger on it pauses, and it carries on when let go. Rotation off: manual.
+- [ ] **Signature intro**: setting on: a fresh visit and a reload at the top play it; a `#section` URL, back/forward and coming from an article don't, and show the name at rest; setting off: no animation at all. The hero's entrance starts as the name lands, not behind it. On a real phone.
+- [ ] **Script face**: Allura or Caveat, still to pick (open items).
 - [ ] Every admin feature on **prod, on a phone**, and a save showing on the live site (roadmap item 33).
-- [ ] **Quote change**: one strip moving left; does it read as moving along a collection?
-- [ ] **Nav close**: the opening in reverse, in the arc and the wheel.
-- [ ] **Press feedback**: Ripple, Ring and Press-in from Settings; settle on one.
-- [ ] **Drag to reorder** with a real finger: list rows and skill chips.
-- [ ] **Project modal** on a phone: fixed size (60% of the screen), scroll when copy is long.
-- [ ] **Modal media**: swipe on a phone; ‹ › and dots on desktop; video and GIF play; Settings → Project media on and off.
-- [ ] **Uploads** against live storage: a pasted image; an image, GIF and video in Projects → Modal media (the six-item limit).
-- [ ] **Site title and description** in Settings, the Name in Hero: tab title and a share preview on the live site.
-- [ ] **Experience Markdown**: paragraph, `- ` list, bold, italic, `<u>underline</u>`; Preview, then the site. `<u>` in an article too.
-- [ ] **Contact links**: add one, drag it to the top, remove another, save; check the site. An empty URL hides its link.
-- [ ] **Storage cleanup**: replace a cover, the portrait, the résumé, a media item; the old file leaves Storage → `media`. A deleted project's files go with the daily job (`select public.clean_media();` to run it now).
-- [ ] **Heat map** (once the username is set): on a phone it opens on the latest weeks and swipes back; on a wide screen the year; both accents and modes; it links to the profile; clearing the username hides it.
-- [ ] **Signature intro**: a fresh home visit writes the name large, then flies it into the navbar with no jump; any input ends it; a reload, `#section` link or return from an article skips it; Settings off writes it in place. On a real phone.
-- [ ] **Script face**: Allura then Caveat; the signature and the hero word, phone and wide, both modes. A reload writes the signature left to right; reduced motion shows it at rest.
-- [ ] **Skills layout**: wide = ruled rows, label left, chips right; phone = label over chips. A group of six long items on both.
-- [ ] **Grain**: Settings now goes up to 7% (capped for contrast); a higher stored value shows as 7% and must be lowered to save.
-- [ ] **Accessible content**: in an article body, an image without a description (`![](…)`) or a link without words (`[](…)`) is refused on save; a `#` heading renders as a section heading.
 - [ ] Remove the **sample media** from the first two projects in dev and prod when real media goes in (`docs/SUPABASE.md`).
 
 ## Phase 9 roadmap: item index
@@ -195,7 +212,7 @@ Code comments cite these numbers. Every item is built and merged (PR #48) unless
 |---|---|---|---|
 | 1 | One dev test admin for CI (no roles) | 18 | Calmer quote change (one strip moving left) |
 | 2 | Admin axe in CI, every screen | 19 | Menus close in reverse |
-| 2b | Blocking signed-in admin journey | 20 | Press feedback: Ripple / Ring / Press-in setting |
+| 2b | Blocking signed-in admin journey | 20 | Press feedback setting (since 2026-10-18: the ripple only) |
 | 3 | Site axe on open states (row, modal, menu) | 21 | Project card line dropped |
 | 4 | Four skill groups at most | 22 | Drag to reorder: lists and skill chips |
 | 5 | 4–6 items per skill group | 23 | Paste images; project modal media |
