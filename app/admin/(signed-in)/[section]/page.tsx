@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { FILLED_PILL, OUTLINE_PILL } from '@/components/admin/admin-classes';
-import { AdminHeader } from '@/components/admin/admin-header';
+import { PhoneBar } from '@/components/admin/phone-bar';
 import { AdminList } from '@/components/admin/admin-list';
 import { Editor } from '@/components/admin/editor';
 import { loadAdminContent } from '@/lib/admin/content';
@@ -39,7 +39,7 @@ export default async function SectionPage(props: PageProps<'/admin/[section]'>) 
 
   return (
     <>
-      <AdminHeader />
+      <PhoneBar section={section} />
       <div className="flex w-[min(var(--width-admin-list),100%)] flex-col gap-5.5 px-admin-x pt-admin-top pb-24">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div className="flex flex-col gap-1.5">
