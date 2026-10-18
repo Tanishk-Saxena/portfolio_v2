@@ -31,6 +31,8 @@ export const NAV_SECTIONS: NavSection[] = [
 ];
 
 export const CLOSE_ICON = 'M6.6 6.6 17.4 17.4M17.4 6.6 6.6 17.4';
+/** The button's glyph on the hero, where no section is current yet. */
+export const MENU_ICON = 'M5 7.5h14M5 12h14M5 16.5h14';
 
 export function SectionGlyph({ d, size = 19 }: { d: string; size?: number }) {
   return (

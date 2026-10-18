@@ -9,7 +9,7 @@ import type { MenuLayout } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
 import { closeDuration, curtain, dockRewind, spiral, WHEEL_DOCK } from './nav-motion';
-import { CLOSE_ICON, SectionGlyph, type NavSection } from './nav-sections';
+import { CLOSE_ICON, MENU_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
  * Floating section navigation (spec §6 FloatingNav, Q26). A round button, always bottom
@@ -42,7 +42,8 @@ export function FloatingNav({
   // the section spy catches up after the jump; then the spy leads again.
   const [picked, setPicked] = useState<string | null>(null);
   if (picked !== null && picked === active) setPicked(null);
-  const current = sections.find((s) => s.id === (picked ?? active)) ?? sections[0];
+  // On the hero no section is current: the button shows the menu glyph (owner, spec §10).
+  const current = sections.find((s) => s.id === (picked ?? active));
   const reducedMotion = useReducedMotion();
   // Reduced motion: the items only fade (.3s), so the close is over by then.
   const closeTotal = reducedMotion ? 0.3 : closeDuration(sections.length);
@@ -123,7 +124,7 @@ export function FloatingNav({
           >
             <ul>
               {sections.map((section, i) => {
-                const on = section.id === current.id;
+                const on = section.id === current?.id;
                 return (
                   <li
                     key={section.id}
@@ -169,7 +170,7 @@ export function FloatingNav({
             <span
               className={`grid place-items-center transition-transform duration-500 ease-out-soft motion-reduce:transition-none ${open ? 'motion-safe:rotate-90' : ''}`}
             >
-              <SectionGlyph d={open ? CLOSE_ICON : current.icon} size={22} />
+              <SectionGlyph d={open ? CLOSE_ICON : (current?.icon ?? MENU_ICON)} size={22} />
             </span>
           </button>
         </div>
