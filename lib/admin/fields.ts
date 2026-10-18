@@ -144,8 +144,7 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       label: 'Description',
       type: 'markdown',
       simple: true,
-      // Owner, §14: the simple set is this site's own, so the hint says what is in and out.
-      hint: 'Shown when the row is expanded. Simple Markdown: paragraphs, “- ” and “1.” lists, **bold**, *italic* and <u>underline</u>. Headings, links and images stay as typed.',
+      hint: 'Shown when the row is expanded.', // the set: the Simple Markdown tooltip (§14)
     },
     {
       key: 'startYear',

@@ -196,9 +196,10 @@ anything flagged becomes an ordinary fix. This round's items first (branch
 - [ ] **Admin on a phone**: the menu button is at the right on every page (lists, Hero, About, Contact, Settings, an entry).
 - [ ] **Paste zone** (About → Portrait; Projects → Cover, Modal media; Hero → Résumé): pressing it focuses it (no picker), Ctrl+V / ⌘V uploads; on a phone, long-press → Paste with no keyboard; a drop works; only **Open files** opens the picker.
 - [ ] **Contact links**: Add link takes only a label and a full URL (Enter adds too); an empty one can't be added or saved; edit, reorder, remove, save; check the site. On the phone over the LAN address too.
-- [ ] **Experience description** hint lists the Simple Markdown set and says headings, links and images stay as typed.
-- [ ] **Project modal**: 70% of a phone's height; no ✕ (tap outside or Escape closes); Live site / Source above the description; no scrollbar under the media; dots jump to their item; ‹ › always shown on desktop; ← → with focus.
-- [ ] **Modal media, rotation on**: an image 5s; a GIF one play from its first frame; a video to its end; nothing repeats; a mouse over it or a finger on it pauses, and it carries on when let go. Rotation off: manual.
+- [ ] **Experience description**: hover, focus or tap the dotted "Simple Markdown" for the tooltip (the set, and that headings, links and images stay as typed).
+- [ ] **Toast** (admin): an ink pill with paper text, easy to tell from the page in both modes.
+- [ ] **Project modal**: 70% of a phone's height; no ✕ (tap outside or Escape closes); Live site / Source above the description; Tab goes Live site → Source → the name, starting on Live site; no scrollbar under the media; dots (solid ring, current filled) jump to their item; ‹ › on desktop hover; ← → with focus.
+- [ ] **Modal media, rotation on** (Settings → Project media: it is **off** in dev and prod today): the time-left bar along the top; an image 5s; a GIF one play from its first frame; a video to its end; nothing repeats; a mouse over it pauses the rotation (the bar stops, the GIF or video keeps playing) and it resumes where it stopped; phones don't pause. Rotation off: manual, no bar.
 - [ ] **Signature intro**: setting on: a fresh visit and a reload at the top play it; a `#section` URL, back/forward and coming from an article don't, and show the name at rest; setting off: no animation at all. The hero's entrance starts as the name lands, not behind it. On a real phone.
 - [ ] **Script face**: Allura or Caveat, still to pick (open items).
 - [ ] Every admin feature on **prod, on a phone**, and a save showing on the live site (roadmap item 33).

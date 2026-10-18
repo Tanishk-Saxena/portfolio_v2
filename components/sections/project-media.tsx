@@ -5,7 +5,7 @@ import { type FocusEvent, useEffect, useRef, useState } from 'react';
 import type { ProjectMedia as Media } from '@/lib/domain/types';
 import { useReducedMotion } from '@/lib/hooks/use-reduced-motion';
 import { GifSlide } from './gif-slide';
-import { MediaControls } from './media-controls';
+import { MediaControls, RotationBar } from './media-controls';
 
 const ROTATE_MS = 5000; // a still image's turn when Settings has rotation on (spec §10)
 
@@ -18,10 +18,13 @@ const isGif = (src: string) => /\.gif$/i.test(src);
  * Videos play muted.
  *
  * Rotation (Settings): each item gets exactly one play and nothing repeats: a still image
- * stays 5s, a GIF one run of its frames from the first, a video until it ends. It pauses only
- * under a mouse or a finger (and while the keyboard is inside it); a video that ends meanwhile
- * moves on once let go. Without rotation it is manual, and videos and GIFs loop. Under
- * reduced motion nothing rotates or autoplays; videos show their controls.
+ * stays 5s, a GIF one run of its frames from the first, a video until it ends. A thin bar
+ * along the top shows the time left, and is the timer itself (`RotationBar`). A mouse over
+ * the media (or the keyboard inside it) pauses the rotation only, never the GIF or video
+ * playing; it resumes where it stopped, and a video that ended meanwhile moves on once let
+ * go. Phones don't pause: a held finger is the phone's long press. Without rotation it is
+ * manual, and videos and GIFs loop. Under reduced motion nothing rotates or autoplays;
+ * videos show their controls.
  *
  * Accessible whatever is uploaded: every item is named from the project's title and its place
  * ("Ledger, video 2 of 3"), and videos stay muted even with controls showing, so there is
@@ -65,24 +68,16 @@ export function ProjectMedia({
     });
   }, [index, reducedMotion]);
 
-  // A still image or a GIF moves on after its turn; a video when it ends (below).
+  // A still image or a GIF moves on when the bar's run ends; a video when it ends (below).
   const current = items[index];
-  const turn =
-    current?.kind === 'image' ? (isGif(current.src) ? (gifMs[index] ?? ROTATE_MS) : ROTATE_MS) : 0;
+  const turn = current && isGif(current.src) ? (gifMs[index] ?? ROTATE_MS) : ROTATE_MS;
   useEffect(() => {
-    if (!rotating) return;
-    if (ended === index) {
-      go(index + 1); // it finished while held
-      return;
-    }
-    if (!turn) return;
-    const timer = window.setTimeout(() => go(index + 1), turn);
-    return () => window.clearTimeout(timer);
-    // `go` reads refs and props only; the timer restarts with the slide.
+    if (rotating && ended === index) go(index + 1); // it finished while held
+    // `go` reads refs and props only.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [rotating, index, turn, ended]);
+  }, [rotating, index, ended]);
 
-  // Held by a mouse over it, a finger on it, or keyboard focus inside (not a click's focus).
+  // Held by a mouse over it, or keyboard focus inside (not a click's focus).
   const onFocus = (e: FocusEvent) => e.target.matches(':focus-visible') && setHeld(true);
 
   return (
@@ -90,9 +85,6 @@ export function ProjectMedia({
       className="group/media absolute inset-0"
       onPointerEnter={(e) => e.pointerType === 'mouse' && setHeld(true)}
       onPointerLeave={() => setHeld(false)}
-      onPointerDown={(e) => e.pointerType === 'touch' && setHeld(true)}
-      onPointerUp={(e) => e.pointerType === 'touch' && setHeld(false)}
-      onPointerCancel={(e) => e.pointerType === 'touch' && setHeld(false)}
       onFocus={onFocus}
       onBlur={(e) => {
         if (!e.currentTarget.contains(e.relatedTarget)) setHeld(false);
@@ -167,6 +159,17 @@ export function ProjectMedia({
         })}
       </div>
 
+      {rotate && (
+        <RotationBar
+          key={index}
+          strip={strip}
+          index={index}
+          video={current?.kind === 'video'}
+          ms={turn}
+          paused={held}
+          onDone={() => go(index + 1)}
+        />
+      )}
       {many && <MediaControls count={items.length} index={index} go={go} />}
     </div>
   );

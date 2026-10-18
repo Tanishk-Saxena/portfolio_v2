@@ -60,7 +60,7 @@ export function ToastHost() {
       {shown.map((toast) => (
         <div
           key={toast.id}
-          className={`pointer-events-auto flex min-h-11.5 max-w-full items-center gap-3.5 rounded-full border border-border-control bg-surface py-1.5 pl-4.5 text-meta whitespace-nowrap text-ink shadow-toast transition-[opacity,translate] duration-300 ease-toast motion-reduce:transition-none starting:translate-y-6 starting:opacity-0 ${toast.undo ? 'pr-2' : 'pr-4.5'}`}
+          className={`pointer-events-auto flex min-h-11.5 max-w-full items-center gap-3.5 rounded-full bg-ink py-1.5 pl-4.5 text-meta whitespace-nowrap text-paper shadow-toast transition-[opacity,translate] duration-300 ease-toast motion-reduce:transition-none starting:translate-y-6 starting:opacity-0 ${toast.undo ? 'pr-2' : 'pr-4.5'}`}
         >
           <span className="truncate">{toast.text}</span>
           {toast.undo && (
@@ -70,7 +70,7 @@ export function ToastHost() {
                 dismiss(toast.id); // gone at once, so Undo can't fire twice
                 toast.undo?.();
               }}
-              className="hit-44 relative h-8 flex-none cursor-pointer rounded-full border border-border-control px-3.5 text-small font-medium text-accent hover:border-accent"
+              className="hit-44 relative h-8 flex-none cursor-pointer rounded-full border border-paper/40 px-3.5 text-small font-medium text-paper hover:border-paper"
             >
               Undo
             </button>
