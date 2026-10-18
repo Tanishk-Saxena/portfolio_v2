@@ -4,9 +4,10 @@ Where the build stands, and how it got here. Updated in every PR that changes it
 step-by-step diary is this file's git history before the 2026-10-18 cleanup.
 
 **Now:** the build is complete (Phases 0–10), on one data path (Supabase, tested against a
-local one in CI). The owner is entering real content on dev, to copy to prod when ready.
-**Next:** the owner checks this review round's fixes (branch `fix/owner-review-round`) from
-**the owner's test list**, then the end-to-end round on prod. Later work is ordinary PRs.
+local one in CI), and the owner's review round is merged (PR #67). The owner is entering real
+content on dev, to copy to prod when ready.
+**Next:** push the review round's migration to dev and prod (open items), then the
+end-to-end round on prod from **the owner's test list**. Later work is ordinary PRs.
 
 ## Phases
 
@@ -145,9 +146,9 @@ and `@types/node` 24.19 (#65) merged; no PR left open. One CI build failed downl
 Google fonts (a network blip; the re-run passed): the owner's rule is to re-run, and to
 self-host the fonts only if it repeats. No change is made unless it is truly needed.
 
-**The owner's review round (branch `fix/owner-review-round`, 2026-10-18).** The owner's
-test round on dev gave 18 verdicts and three extra asks; one PR answers them. Settled:
-quotes change one at a time (never two on screen); the ripple on every press (Ring,
+**The owner's review round (PR #67, 2026-10-18/19).** The owner's test round on dev gave 18
+verdicts and three extra asks; one PR answers them, with the owner's follow-ups folded in.
+Settled: quotes change one at a time (never two on screen); the ripple on every press (Ring,
 Press-in and their setting gone); the nav button always bottom right and shown from the
 hero (its centre setting gone; a migration drops both columns); the TS app icon; the
 admin's phone menu button always at the right; a paste zone whose picker opens only from
@@ -158,15 +159,25 @@ the copy, media with no scrollbar, pressable dots, and one play per item when ro
 GIF's length read from the file); the signature intro on reload too, never for a
 `#section` URL or from an article, no animation when off, the hero held until it lands;
 the nav opening mirroring its close; the Simple Markdown hint saying what stays as typed.
-Checked: `##` is h2 in articles (the owner had typed it in an experience description,
-where headings are off by design); storage cleanup is covered by unit and database tests.
+The follow-ups (2026-10-19): a time-left bar on rotating media that is the timer itself
+(hover pauses the rotation only; phones don't pause, a held finger being the long press);
+modal arrows on hover, bolder dots; focus on Live site and Source only, the name read first;
+the Simple Markdown set as a tooltip; the toast an accent pill, centred (pinned at
+`left: 50%`, a long one had overflowed right); the open nav holding the page still and its
+wheel centred on the visible screen (measured on opening, so parking above the footer no
+longer throws it off); and on phones one admin top bar for every page, which the sections
+sheet's header lines up with. Checked: `##` is h2 in articles (the owner had typed it in an
+experience description, where headings are off by design); storage cleanup is covered by
+unit and database tests; rotation "not working" was the Project media setting, off in dev
+and prod. Two local traps, not bugs: the owner's dev server, running through the edits,
+served stale admin markup (hydration errors until restarted); and temporary pages on it
+leave partial route types in `.next/dev/types` (`tsc` noise CI never sees).
 
 ## Open items
 
-- **Owner, after this round deploys to prod:** push migration
+- **After PR #67 deploys to prod:** push migration
   `20261018000000_settings_drop_nav_position_press_feedback` to dev and prod (it drops two
   columns, so it goes after the code that no longer reads them; `docs/SUPABASE.md`).
-
 - **P-1, phone lab LCP** (≈3.2–3.6 s, mobile performance 87–88): flagged, never a gate.
   What's left is framework JS; judged by Speed Insights field data (`docs/PERFORMANCE.md`).
 - **Owner:** the GitHub username in **prod's** Settings (the live heat map stays hidden until
@@ -185,23 +196,9 @@ where headings are off by design); storage cleanup is covered by unit and databa
 ## The owner's test list
 
 Built things to verify by hand, on a real phone and with real files. Not remaining work;
-anything flagged becomes an ordinary fix. This round's items first (branch
-`fix/owner-review-round`); the rest passed on dev (2026-10-18).
+anything flagged becomes an ordinary fix. Everything built so far passed on dev, the review
+round's fixes included (owner, 2026-10-19: PR #67, phone checks too).
 
-- [ ] **Quotes**: a change never shows two quotes at once; the old leaves left, then the new comes in from the right.
-- [ ] **Ripple everywhere**: buttons, icon buttons (×, ↑ ↓, ‹ ›), Write / Preview tabs, side-panel actions; Settings no longer lists Press feedback or Navigation button.
-- [ ] **Nav button**: bottom right from the first screen; on the hero it shows ☰ and no item is marked; under the intro's overlay while that plays.
-- [ ] **Nav open**: each item spirals out of the button, mirroring the close; arc and wheel.
-- [ ] **Nav menu open**: the page behind doesn't scroll (wheel, touch, keys); the wheel sits at the centre of a phone's screen, at the top of the page and at the very bottom.
-- [ ] **App icon** reads TS: tab, `/favicon.ico`, home-screen icon.
-- [ ] **Admin on a phone**: one top bar everywhere (lists, Hero, About, Contact, Settings, an entry): same height and padding; the section name at the left (back before it in an entry; the state pill after it in editors); the theme toggle and ≡ at the right.
-- [ ] **Paste zone** (About → Portrait; Projects → Cover, Modal media; Hero → Résumé): pressing it focuses it (no picker), Ctrl+V / ⌘V uploads; on a phone, long-press → Paste with no keyboard; a drop works; only **Open files** opens the picker.
-- [ ] **Contact links**: Add link takes only a label and a full URL (Enter adds too); an empty one can't be added or saved; edit, reorder, remove, save; check the site. On the phone over the LAN address too.
-- [ ] **Experience description**: hover, focus or tap the dotted "Simple Markdown" for the tooltip (the set, and that headings, links and images stay as typed).
-- [ ] **Toast** (admin): an accent pill with cream text; centred in the window on a phone and on desktop, a long message included.
-- [ ] **Project modal**: 70% of a phone's height; no ✕ (tap outside or Escape closes); Live site / Source above the description; opening focuses Live site, Tab goes to Source; the name is read first and never takes focus; no scrollbar under the media; dots (solid ring, current filled) jump to their item; ‹ › on desktop hover; ← → with focus.
-- [ ] **Modal media, rotation on** (Settings → Project media: it is **off** in dev and prod today): the time-left bar along the top; an image 5s; a GIF one play from its first frame; a video to its end; nothing repeats; a mouse over it pauses the rotation (the bar stops, the GIF or video keeps playing) and it resumes where it stopped; phones don't pause. Rotation off: manual, no bar.
-- [ ] **Signature intro**: setting on: a fresh visit and a reload at the top play it; a `#section` URL, back/forward and coming from an article don't, and show the name at rest; setting off: no animation at all. The hero's entrance starts as the name lands, not behind it. On a real phone.
 - [ ] **Script face**: Allura or Caveat, still to pick (open items).
 - [ ] Every admin feature on **prod, on a phone**, and a save showing on the live site (roadmap item 33).
 - [ ] Remove the **sample media** from the first two projects in dev and prod when real media goes in (`docs/SUPABASE.md`).
