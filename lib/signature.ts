@@ -11,7 +11,8 @@
  * says when the writing ends, `data-write-ms`), then flown home with a transform. There is no
  * second copy to hand off to, so it lands with no shift. States on <html>
  * (styles/tokens.css): `data-intro` = `wait` (overlay up, mark hidden until measured),
- * `write`, `fly`, then removed. Any key, click, wheel or touch ends it at once; a fallback
+ * `write`, `fly`, then removed. Any key, click, wheel or touch ends it at once (a press that
+ * skips it is spent on that: its click never reaches the page underneath); a fallback
  * ends it if anything stalls. The hero's own entrance is held while `data-intro` is set
  * (styles/tokens.css), so it starts once the name is home, never behind it. The attribute
  * comes off at the end, so a header that mounts later (a page turn in the app) shows the name
@@ -31,12 +32,15 @@ const HOLD_MS = 350;
 /** The flight (.95s) and the overlay's fade, then the end. */
 const LAND_MS = 1100;
 const FALLBACK_MS = 8000;
+/** A press that skips the intro has its click swallowed, if one follows within this. */
+const SKIP_CLICK_MS = 1000;
 /** The mark's tilt in the navbar (`-rotate-4` on its slot), undone when aiming it. */
 const TILT_RAD = (4 * Math.PI) / 180;
 
 const intro = `
 var mark,ended=false,dx=0,dy=0,inputs=['keydown','pointerdown','wheel','touchstart'];
-function end(){if(ended)return;ended=true;d.removeAttribute('data-intro');inputs.forEach(function(t){removeEventListener(t,end,true)})}
+function end(e){if(ended)return;ended=true;d.removeAttribute('data-intro');inputs.forEach(function(t){removeEventListener(t,end,true)});
+if(e&&(e.type==='pointerdown'||e.type==='touchstart')){var eat=function(c){c.preventDefault();c.stopPropagation();removeEventListener('click',eat,true)};addEventListener('click',eat,true);setTimeout(function(){removeEventListener('click',eat,true)},${SKIP_CLICK_MS})}}
 function place(cx,cy){var w=innerWidth,h=innerHeight,k=Math.min(Math.max(${BIG_MIN},w*${BIG_VW}),${BIG_MAX})/${NAV_PX};
 dx=w/2-cx;dy=h*.46-cy;var c=Math.cos(${TILT_RAD}),s=Math.sin(${TILT_RAD}),st=d.style;
 st.setProperty('--intro-x',(dx*c-dy*s)+'px');st.setProperty('--intro-y',(dx*s+dy*c)+'px');st.setProperty('--intro-k',k)}

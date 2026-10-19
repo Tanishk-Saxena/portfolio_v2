@@ -180,12 +180,14 @@ Vercel's `DATA_SOURCE`, and four `.env.local` lines: `DATA_SOURCE`, `SUPABASE_SE
 
 **Cosmetics (2026-10-19).** Two owner asks. Gradients in the same palette, to take the
 generated look off the flat fills (DESIGN-SPEC §10 "Gradients"): the accent fills catch a
-sheen and the hero sits on a soft glow; bands that faded into the paper read as dizzying and
-are still being explored. And the signature intro written by hand, stroke by stroke and
+sheen, the hero sits on a soft glow, and the bands are curved sheets (picked over a faded,
+feathered, glowing and torn edge). And the signature intro written by hand, stroke by stroke and
 letter by letter (§10 "Signature writing"): the server draws the name from the font file (`opentype.js`, home page only), ~7 KB gzipped in
 the HTML plus its copy in the page data. What shelved the Phase 4 pen (a hand-off shift and
 ~31 KB for every glyph) is avoided: only the name's letters, laid over the text itself.
-The intro now runs ~3.7 s, so Lighthouse audits the site 6 s after load.
+The intro now runs ~3.7 s, so Lighthouse audits the site 6 s after load; a press that skips
+it no longer clicks through to the page. The wheel menu's slide to the centre now runs in step
+with its spiral (they read as two steps), and the menu's motion is a fifth quicker.
 
 ## Open items
 
