@@ -30,10 +30,10 @@ phone.
 Axe: clean on the site and the admin (last: 2026-10-18).
 
 **Reading the home page settled.** On a home page load at the top, the hero's entrance is
-held until the signature intro ends (~3.4 s; DESIGN-SPEC §10). Lighthouse audits right after
-load, so it once sampled the hero's text mid-fade and scored accessibility 96 for "contrast"
-that no visitor sees at rest. The
-site pages are therefore audited 4 s after load (`pauseAfterLoadMs`, `lighthouserc.cjs`), as
+held until the signature intro ends (~3.7 s since it writes stroke by stroke, 2026-10-19;
+DESIGN-SPEC §10). Lighthouse audits right after load, so it once sampled the hero's text
+mid-fade and scored accessibility 96 for "contrast" that no visitor sees at rest. The site
+pages are therefore audited 6 s after load (`pauseAfterLoadMs`, `lighthouserc.cjs`), as
 the axe tests wait for animations to end; load metrics come from the trace, unchanged.
 
 ## Open items

@@ -1,3 +1,4 @@
+import type { SignaturePen } from '@/lib/signature-pen';
 import { HomeLink } from './home-link';
 import { HeaderShell } from './header-shell';
 import { SignatureMark } from './signature-mark';
@@ -8,9 +9,17 @@ const SIGNATURE = 'inline-flex origin-[0%_80%] translate-y-1.5 -rotate-4 flex-co
 /**
  * Fixed translucent header (spec §6 Header), auto-hiding on scroll (HeaderShell). The
  * signature returns to the top of the main page, or back to it from an article (label
- * includes the visible name: WCAG 2.5.3, Q23).
+ * includes the visible name: WCAG 2.5.3, Q23). The home page passes the intro's pen.
  */
-export function SiteHeader({ name, onHome }: { name: string; onHome: boolean }) {
+export function SiteHeader({
+  name,
+  onHome,
+  pen,
+}: {
+  name: string;
+  onHome: boolean;
+  pen?: SignaturePen | null;
+}) {
   return (
     <HeaderShell>
       <div className="measure-page flex h-header items-center justify-between gap-4">
@@ -22,7 +31,7 @@ export function SiteHeader({ name, onHome }: { name: string; onHome: boolean }) 
             data-signature-slot
             className={SIGNATURE}
           >
-            <SignatureMark name={name} />
+            <SignatureMark name={name} pen={pen} />
           </a>
         ) : (
           <HomeLink

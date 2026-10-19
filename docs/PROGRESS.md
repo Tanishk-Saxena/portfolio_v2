@@ -178,13 +178,23 @@ any more (the dev test admin and its allowlist row, the four `E2E_*` repository 
 Vercel's `DATA_SOURCE`, and four `.env.local` lines: `DATA_SOURCE`, `SUPABASE_SECRET_KEY`,
 `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; CI sets its own, for its local Supabase).
 
+**Cosmetics (2026-10-19).** Two owner asks. Gradients in the same palette, to take the
+generated look off the flat fills (DESIGN-SPEC §10 "Gradients"): the accent fills catch a
+sheen and the hero sits on a soft glow; bands that faded into the paper read as dizzying and
+are still being explored. And the signature intro written by hand, stroke by stroke and
+letter by letter (§10 "Signature writing"): the server draws the name from the font file (`opentype.js`, home page only), ~7 KB gzipped in
+the HTML plus its copy in the page data. What shelved the Phase 4 pen (a hand-off shift and
+~31 KB for every glyph) is avoided: only the name's letters, laid over the text itself.
+The intro now runs ~3.7 s, so Lighthouse audits the site 6 s after load.
+
 ## Open items
 
 - **P-1, phone lab LCP** (≈3.2–3.6 s, mobile performance 87–88): flagged, never a gate.
   What's left is framework JS; judged by Speed Insights field data (`docs/PERFORMANCE.md`).
 - **Owner:** the GitHub username in **prod's** Settings (the live heat map stays hidden until
   then). Prod's Vault secrets and `GITHUB_TOKEN` are set (2026-10-18).
-- **Owner:** pick one script face (Allura or Caveat); then the other is deleted (`lib/fonts.ts`).
+- **Owner:** pick one script face (Allura or Caveat); then the other is deleted (`lib/fonts.ts`, its
+  pen in `lib/signature-pen.ts`, and Allura's TTF if Caveat wins: share cards keep Caveat).
 - **Six Dependabot alerts, dev tooling only** (`extract-zip` ×2, `tmp` ×2, `sprintf-js`,
   `uuid`): never on the live site; their fixes arrive through Dependabot as upstream ships
   them. Nothing to do meanwhile.

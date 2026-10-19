@@ -99,30 +99,36 @@
 }
 
 /*
- * The intro writes the signature (lib/signature.ts sets data-intro): a soft, slanted edge
- * crosses the name left to right, so nothing ahead of it shows early, then the underline
- * draws. While writing, the name's box grows by its swashes (padding, cancelled by margins)
- * so the mask never cuts them. Reduced motion: never set.
+ * The intro writes the signature by hand (lib/signature.ts sets data-intro; owner,
+ * 2026-10-19): the text gives way to the pen (lib/signature-pen.ts), which inks each letter
+ * stroke by stroke, one letter after another, with nothing ahead of it showing; each stroke's
+ * delay and length are inline, and --sig-write is when the last ends. Then the underline
+ * draws. The pen stays through the flight (fully inked once `write` ends) and the text is back
+ * the moment the intro ends. Reduced motion: never set.
  */
-html[data-intro='write'] [data-signature-name] {
-  margin: -0.25em -0.4em -0.25em -0.3em;
-  padding: 0.25em 0.4em 0.25em 0.3em;
-  mask: linear-gradient(100deg, #000 45%, transparent 55%) 0 0 / 250% 100% no-repeat;
-  animation: sign-write 1.3s cubic-bezier(0.45, 0.05, 0.35, 1) 0.2s both;
+html[data-intro] [data-signature-name]:has([data-signature-pen]) {
+  color: transparent;
+}
+html[data-intro] [data-signature-pen] {
+  display: block;
+}
+html[data-intro='write'] [data-signature-pen] use {
+  stroke-dasharray: 1 1;
+  animation: sign-ink linear both;
 }
 html[data-intro='wait'] [data-signature-name],
 html[data-intro='wait'] [data-signature-line] {
   opacity: 0;
 }
 html[data-intro='write'] [data-signature-line] {
-  animation: sign-line 0.5s cubic-bezier(0.3, 0, 0.2, 1) 1.35s both;
+  animation: sign-line 0.5s cubic-bezier(0.3, 0, 0.2, 1) calc(var(--sig-write, 1.2s) + 0.05s) both;
 }
-@keyframes sign-write {
+@keyframes sign-ink {
   from {
-    mask-position: 100% 0;
+    stroke-dashoffset: 1;
   }
   to {
-    mask-position: 0 0;
+    stroke-dashoffset: 0;
   }
 }
 @keyframes sign-line {
@@ -177,6 +183,45 @@ html[data-intro='write'] [data-signature-mark] {
 }
 html[data-intro='fly'] [data-signature-mark] {
   transition: transform 0.95s var(--ease-flip);
+}
+
+/*
+ * Gradients (spec §10 "Gradients"; owner, 2026-10-19): the flat fills get light and shade, in
+ * the same palette. The accent fills (hero word, résumé button) catch a light sheen: lighter
+ * is capped at 8% white (cream text 4.6:1 on terracotta, 5.6:1 on slate), darker only gains
+ * contrast; all mixed from --accent-fill, so both accents (Settings) follow. The paper gets an
+ * accent glow behind the hero. Static paint; the grain above hides any banding.
+ */
+:root {
+  --accent-light: color-mix(in oklab, var(--accent-fill), white 8%);
+  --accent-deep: color-mix(in oklab, var(--accent-fill), black 30%);
+  --sheen: linear-gradient(120deg, var(--accent-light), var(--accent-fill) 45%, var(--accent-deep));
+  --glow: color-mix(in oklab, var(--accent-fill), transparent 84%);
+  --glow-soft: color-mix(in oklab, var(--accent-fill), transparent 91%);
+}
+[data-theme='dark'] {
+  --glow: color-mix(in oklab, var(--accent-fill), transparent 80%);
+  --glow-soft: color-mix(in oklab, var(--accent-fill), transparent 88%);
+}
+/* The border lets the sheen run under it, so no flat rim shows at the deep end. */
+.sheen {
+  border-color: transparent;
+  background-image: var(--sheen);
+}
+/* Full-bleed, behind the hero's content; the hero is a centred measure, so it is widened to
+   the viewport (scrollbars are hidden on the site, so 100vw adds no overflow). */
+#hero::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  z-index: -1;
+  width: 100vw;
+  translate: -50% 0;
+  pointer-events: none;
+  background:
+    radial-gradient(55% 60% at 88% 18%, var(--glow), transparent 70%),
+    radial-gradient(45% 50% at 6% 92%, var(--glow-soft), transparent 70%);
 }
 
 /* About + Contact accent bands re-point the tokens for their contents (spec §1.2).

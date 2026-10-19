@@ -37,7 +37,7 @@ export function Hero({ profile }: { profile: Profile }) {
       >
         {before}
         {word && (
-          <em className="mx-[-0.04em] inline-block rounded-sm bg-accent-fill p-(--script-word-pad) align-(--script-word-shift) font-script text-(length:--script-word-size) leading-(--script-word-leading) font-(--script-weight) text-on-accent not-italic">
+          <em className="sheen mx-[-0.04em] inline-block rounded-sm bg-accent-fill p-(--script-word-pad) align-(--script-word-shift) font-script text-(length:--script-word-size) leading-(--script-word-leading) font-(--script-weight) text-on-accent not-italic">
             {word}
           </em>
         )}
@@ -57,7 +57,7 @@ export function Hero({ profile }: { profile: Profile }) {
             href={profile.resumeUrl}
             download
             data-ripple="paper"
-            className="inline-flex h-12.5 items-center gap-2.5 rounded-pill border border-accent-fill bg-accent-fill px-6 text-body-sm font-medium text-on-accent transition-[translate,opacity,background-color,color] duration-250 hover:text-on-accent hover:opacity-92 active:translate-y-0 motion-safe:hover:-translate-y-0.5"
+            className="sheen inline-flex h-12.5 items-center gap-2.5 rounded-pill border border-accent-fill bg-accent-fill px-6 text-body-sm font-medium text-on-accent transition-[translate,opacity,background-color,color] duration-250 hover:text-on-accent hover:opacity-92 active:translate-y-0 motion-safe:hover:-translate-y-0.5"
           >
             Download résumé
             <DownloadIcon />
