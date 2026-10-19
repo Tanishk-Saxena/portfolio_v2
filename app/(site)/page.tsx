@@ -16,6 +16,7 @@ import { SiteFooter } from '@/components/site/site-footer';
 import { SiteHeader } from '@/components/site/site-header';
 import { JsonLd } from '@/components/site/json-ld';
 import { getRepositories } from '@/lib/container';
+import { signaturePen } from '@/lib/signature-pen';
 import { personJsonLd, profilePageJsonLd } from '@/lib/structured-data';
 
 export const metadata: Metadata = { alternates: { canonical: '/' } };
@@ -52,7 +53,11 @@ export default async function HomePage() {
   return (
     <>
       <JsonLd data={profilePageJsonLd(personJsonLd(profile, experience, socialLinks))} />
-      <SiteHeader name={profile.name} onHome />
+      <SiteHeader
+        name={profile.name}
+        onHome
+        pen={settings.signatureIntro ? signaturePen(profile.name, settings.scriptFont) : null}
+      />
       <PageTransition>
         <main>
           <Hero profile={profile} />

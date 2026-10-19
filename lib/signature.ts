@@ -7,14 +7,15 @@
  * URL, back/forward, a visit from another page of the site (an article) or a page turn in
  * the app. Anywhere else, and with the setting off, the name is simply there: no animation.
  * It moves **the navbar mark itself**: enlarged and centred over a paper overlay,
- * written left to right, then flown home with a transform. There is no second copy to hand
- * off to, so it lands with no shift, and no glyph data to ship (what shelved the first
- * version, Phase 4 notes). States on <html> (styles/tokens.css): `data-intro` = `wait`
- * (overlay up, mark hidden until measured), `write`, `fly`, then removed. Any key, click,
- * wheel or touch ends it at once; a fallback ends it if anything stalls. The hero's own
- * entrance is held while `data-intro` is set (styles/tokens.css), so it starts once the name
- * is home, never behind it. The attribute comes off at the end, so a header that mounts later
- * (a page turn in the app) shows the name at rest.
+ * written stroke by stroke with the pen the home page carries (lib/signature-pen.ts; the mark
+ * says when the writing ends, `data-write-ms`), then flown home with a transform. There is no
+ * second copy to hand off to, so it lands with no shift. States on <html>
+ * (styles/tokens.css): `data-intro` = `wait` (overlay up, mark hidden until measured),
+ * `write`, `fly`, then removed. Any key, click, wheel or touch ends it at once; a fallback
+ * ends it if anything stalls. The hero's own entrance is held while `data-intro` is set
+ * (styles/tokens.css), so it starts once the name is home, never behind it. The attribute
+ * comes off at the end, so a header that mounts later (a page turn in the app) shows the name
+ * at rest.
  */
 
 /** The navbar name's font size (`--text-signature`); the intro enlarges from it. */
@@ -23,8 +24,10 @@ const NAV_PX = 31;
 const BIG_MIN = 54;
 const BIG_VW = 0.125;
 const BIG_MAX = 104;
-/** From the first written frame to the flight: the writing (1.5s), the underline, a hold. */
-const FLY_AT_MS = 2300;
+/** The writing's length when the mark doesn't say (no pen); after it, the underline and a hold. */
+const WRITE_MS = 1200;
+const LINE_MS = 550;
+const HOLD_MS = 350;
 /** The flight (.95s) and the overlay's fade, then the end. */
 const LAND_MS = 1100;
 const FALLBACK_MS = 8000;
@@ -41,7 +44,7 @@ function centre(){var r=mark.getBoundingClientRect();return[r.left+r.width/2,r.t
 function start(){if(ended)return;mark=document.querySelector('[data-signature-mark]');if(!mark)return end();
 var c=centre();place(c[0],c[1]);d.setAttribute('data-intro','write');
 if(document.fonts&&document.fonts.ready)document.fonts.ready.then(function(){if(ended||d.getAttribute('data-intro')!=='write')return;var c=centre();place(c[0]-dx,c[1]-dy)});
-setTimeout(function(){if(ended)return;d.setAttribute('data-intro','fly');setTimeout(end,${LAND_MS})},${FLY_AT_MS})}
+setTimeout(function(){if(ended)return;d.setAttribute('data-intro','fly');setTimeout(end,${LAND_MS})},(+mark.getAttribute('data-write-ms')||${WRITE_MS})+${LINE_MS + HOLD_MS})}
 d.setAttribute('data-intro','wait');
 inputs.forEach(function(t){addEventListener(t,end,{capture:true,passive:true})});setTimeout(end,${FALLBACK_MS});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();`;
