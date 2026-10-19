@@ -26,23 +26,36 @@ export function wheelShift(dock: HTMLElement): string {
  * reason (2026-10-18: on `--ease-spiral-out` it left the centre too fast to read as a
  * spiral), then lands softly instead of the abrupt stop an exact time-reversal would make.
  */
-const TRAVEL = 0.96;
+const TRAVEL = 0.75;
 const OPEN_EASE = 'cubic-bezier(0.55, 0, 0.3, 1)';
-const STAGGER = 0.062;
-const FADE = 0.34;
-const DOCK = 0.72;
+const STAGGER = 0.05;
+const FADE = 0.28;
 const CURTAIN = 0.5;
 const CLOSE_TRAVEL = TRAVEL;
 const CLOSE_EASE = 'cubic-bezier(0.32, 0.5, 0.3, 1)';
 
-/** How long the close takes (the menu hides after it). */
+/** How long the spiral takes, first item to last; open and close alike (the menu hides after). */
 export const closeDuration = (count: number) => CLOSE_TRAVEL + (count - 1) * STAGGER;
 
-/** The wheel's dock going home: its slide to the centre in reverse, ending with the close. */
-export const dockRewind = (count: number): CSSProperties => ({
-  transitionDelay: `${closeDuration(count) - DOCK}s`,
-  transitionTimingFunction: CLOSE_EASE,
+/*
+ * The wheel's slide runs with the spiral as one motion (owner, 2026-10-20: the slide, then the
+ * spiral, read as two steps): it starts with the first item and stops with the last, on the
+ * spiral's own curve, opening and closing.
+ */
+const dock = (count: number, ease: string): CSSProperties => ({
+  transitionDelay: '0s',
+  transitionDuration: `calc(${closeDuration(count)}s * var(--motion))`,
+  transitionTimingFunction: ease,
 });
+
+/** The wheel's dock sliding to the centre, `shift` from wheelShift. */
+export const dockSlide = (shift: string, count: number): CSSProperties => ({
+  ...dock(count, OPEN_EASE),
+  transform: shift,
+});
+
+/** The wheel's dock going home: its slide to the centre in reverse. */
+export const dockRewind = (count: number): CSSProperties => dock(count, CLOSE_EASE);
 
 /** The curtain, in and out (it lifts over the close's last half second). */
 export const curtain = (open: boolean, total: number, reducedMotion: boolean) =>
@@ -55,7 +68,7 @@ export const curtain = (open: boolean, total: number, reducedMotion: boolean) =>
 /**
  * The spiral (spec §5.3): each item rides a rotating arm from the button to its place:
  * rotate(θ + 200° → θ), arm length 0 → r, counter-rotated so the icon stays upright, scaling
- * .35 → 1. It opens with a 62ms stagger, each item easing out of the button (so the curl
+ * .35 → 1. It opens with a 50ms stagger, each item easing out of the button (so the curl
  * shows) and fading in as it sets off. The close reverses it: the last item out leaves
  * first, each winds back along its arm, quick at first and settling, and fades as it reaches
  * the button. Reduced motion: items fade in place.

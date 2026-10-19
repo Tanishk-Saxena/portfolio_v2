@@ -9,7 +9,7 @@ import { jumpTo } from '@/lib/anchor-jump';
 import type { MenuLayout } from '@/lib/domain/types';
 import { navAngles } from '@/lib/utils/arc';
 import { BackToTop } from './back-to-top';
-import { closeDuration, curtain, dockRewind, spiral, wheelShift } from './nav-motion';
+import { closeDuration, curtain, dockRewind, dockSlide, spiral, wheelShift } from './nav-motion';
 import { CLOSE_ICON, MENU_ICON, SectionGlyph, type NavSection } from './nav-sections';
 
 /**
@@ -106,11 +106,11 @@ export function FloatingNav({
           ref={dockRef}
           className="pointer-events-auto sticky bottom-float size-14.5 transition-transform duration-[calc(720ms*var(--motion))] ease-spiral-out"
           // The wheel opens round the screen's centre: the dock slides there (spec §5.3), and
-          // goes home as that slide rewound (owner, spec §10).
+          // goes home as that slide rewound (owner, spec §10), both in step with the spiral.
           style={
             wheel
               ? open
-                ? { transform: shift }
+                ? dockSlide(shift, sections.length)
                 : reducedMotion
                   ? undefined
                   : dockRewind(sections.length)

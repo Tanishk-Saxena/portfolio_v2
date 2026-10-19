@@ -208,20 +208,45 @@ html[data-intro='fly'] [data-signature-mark] {
   border-color: transparent;
   background-image: var(--sheen);
 }
-/* Full-bleed, behind the hero's content; the hero is a centred measure, so it is widened to
-   the viewport (scrollbars are hidden on the site, so 100vw adds no overflow). */
-#hero::before {
+/* The hero's glows, full bleed behind its content (it is a centred measure, so they are
+   widened to the viewport; scrollbars are hidden on the site, so 100vw adds no overflow): one
+   top right, and a softer one bottom left that runs on under the About band (owner,
+   2026-10-20), so where a shaped band edge leaves paper showing, the glow carries on there
+   instead of stopping at the hero's foot. Its box ends behind the band, out of sight. */
+#hero::before,
+#hero::after {
   content: '';
   position: absolute;
-  inset-block: 0;
+  top: 0;
+  bottom: 0;
   left: 50%;
   z-index: -1;
   width: 100vw;
   translate: -50% 0;
   pointer-events: none;
-  background:
-    radial-gradient(55% 60% at 88% 18%, var(--glow), transparent 70%),
-    radial-gradient(45% 50% at 6% 92%, var(--glow-soft), transparent 70%);
+}
+#hero::before {
+  background: radial-gradient(55% 60% at 88% 18%, var(--glow), transparent 70%);
+}
+#hero::after {
+  bottom: -160px;
+  background: radial-gradient(
+    min(720px, 50vw) 420px at 6% calc(100% - 160px),
+    var(--glow-soft),
+    transparent 70%
+  );
+}
+
+/*
+ * The About and Contact bands are curved sheets (owner, 2026-10-20; spec §10 "Gradients"):
+ * crisp, gently domed top and bottom, like a sheet laid on the page. The hairline rule after
+ * a band goes: the edge is the divide.
+ */
+.band {
+  border-radius: 50% / clamp(22px, 4vw, 52px);
+}
+.band + section {
+  border-top-color: transparent;
 }
 
 /* About + Contact accent bands re-point the tokens for their contents (spec §1.2).
