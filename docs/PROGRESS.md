@@ -4,10 +4,12 @@ Where the build stands, and how it got here. Updated in every PR that changes it
 step-by-step diary is this file's git history before the 2026-10-18 cleanup.
 
 **Now:** the build is complete (Phases 0–10), on one data path (Supabase, tested against a
-local one in CI), and the owner's review round is merged (PR #67). The owner is entering real
-content on dev, to copy to prod when ready.
-**Next:** the end-to-end round on prod from **the owner's test list**, once the real content
-is in. Later work is ordinary PRs.
+local one in CI); the owner's review round (PR #67) and a cosmetic round (PR #69: the
+hand-written intro, gradients and curved bands, the in-step wheel) are merged. The owner is
+entering real content on dev, to copy to prod when ready.
+**Next:** the colour palette: two or three primary colours instead of today's two, explored
+with the owner. Then the end-to-end round on prod from **the owner's test list**, once the
+real content is in. Later work is ordinary PRs.
 
 ## Phases
 
@@ -178,7 +180,7 @@ any more (the dev test admin and its allowlist row, the four `E2E_*` repository 
 Vercel's `DATA_SOURCE`, and four `.env.local` lines: `DATA_SOURCE`, `SUPABASE_SECRET_KEY`,
 `E2E_ADMIN_EMAIL`, `E2E_ADMIN_PASSWORD`; CI sets its own, for its local Supabase).
 
-**Cosmetics (2026-10-19).** Two owner asks. Gradients in the same palette, to take the
+**Cosmetics (PR #69, 2026-10-19/20).** Owner asks. Gradients in the same palette, to take the
 generated look off the flat fills (DESIGN-SPEC §10 "Gradients"): the accent fills catch a
 sheen, the hero sits on a soft glow, and the bands are curved sheets (picked over a faded,
 feathered, glowing and torn edge). And the signature intro written by hand, stroke by stroke and
@@ -210,6 +212,8 @@ anything flagged becomes an ordinary fix. Everything built so far passed on dev,
 round's fixes included (owner, 2026-10-19: PR #67, phone checks too).
 
 - [ ] **Script face**: Allura or Caveat, still to pick (open items).
+- [ ] **On the phone** (PR #69): the hand-written intro (smooth, lands with no jump, a tap skips
+      it without clicking through), the wheel menu in step with its spiral, the curved bands.
 - [ ] Every admin feature on **prod, on a phone**, and a save showing on the live site (roadmap item 33).
 - [ ] Remove the **sample media** from the first two projects in dev and prod when real media goes in (`docs/SUPABASE.md`).
 
