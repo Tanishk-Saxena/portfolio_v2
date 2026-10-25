@@ -12,7 +12,8 @@ React 19, Tailwind v4, TypeScript strict, Supabase, Vercel. **The build is compl
 0–10), and there is one data path: Supabase**, tested in CI against a throwaway local
 Supabase loaded with the seed. The owner's review round is merged (PR #67) and its migration
 is on dev and prod; a cosmetic round followed (PR #69: hand-written intro, gradients, curved
-bands). Next: the colour palette (two or three primary colours), then the end-to-end test
+bands). Next: the palette and a hero background, chosen by the owner on a PR preview through
+the temporary **style lab** (Settings → Style lab; not merged yet), then the end-to-end test
 round on prod (the owner is entering real content on dev, then copies it to prod). Check
 `docs/PROGRESS.md` before starting work.
 

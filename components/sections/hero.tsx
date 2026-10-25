@@ -2,6 +2,7 @@ import type { CSSProperties } from 'react';
 import type { Profile } from '@/lib/domain/types';
 import { splitHighlight } from '@/lib/utils/split-highlight';
 import { DownloadIcon } from '@/components/ui/icons';
+import { HeroBackdrop } from './hero-backdrop/hero-backdrop';
 import { ScrollCue } from './scroll-cue';
 
 /** Stagger offsets after --enter (spec §5.3 hero entrance: .05 / .14 / .24 / .34s). */
@@ -22,6 +23,8 @@ export function Hero({ profile }: { profile: Profile }) {
       // (cue offset + 42px glyph + 10px gap + label + breathing room), whichever is larger.
       className="relative measure-page flex min-h-svh flex-col justify-center pt-29 pb-[max(78px,calc(clamp(22px,4vh,38px)+84px))]"
     >
+      <HeroBackdrop />
+
       <p
         className="enter-fade mb-7 text-label tracking-eyebrow text-muted uppercase"
         style={offset(0.05)}
