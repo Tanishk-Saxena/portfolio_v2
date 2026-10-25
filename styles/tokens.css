@@ -171,10 +171,16 @@ html[data-intro] .site-header {
   border-color: transparent;
   backdrop-filter: none;
 }
-html[data-intro] .site-header button {
+/* [EXPERIMENT] The Lab button shows only while Settings → Style lab is on (lib/style-lab.ts). */
+html:not([data-style-lab='on']) [data-lab-button] {
+  display: none;
+}
+html[data-intro] .site-header button,
+html[data-intro] [data-lab-button] {
   opacity: 0;
 }
-html[data-intro='fly'] .site-header button {
+html[data-intro='fly'] .site-header button,
+html[data-intro='fly'] [data-lab-button] {
   opacity: 1;
   transition: opacity 0.5s ease 0.5s;
 }
@@ -196,17 +202,30 @@ html[data-intro='fly'] [data-signature-mark] {
   --accent-light: color-mix(in oklab, var(--accent-fill), white 8%);
   --accent-deep: color-mix(in oklab, var(--accent-fill), black 30%);
   --sheen: linear-gradient(120deg, var(--accent-light), var(--accent-fill) 45%, var(--accent-deep));
-  --glow: color-mix(in oklab, var(--accent-fill), transparent 84%);
-  --glow-soft: color-mix(in oklab, var(--accent-fill), transparent 91%);
+  --glow-base: var(--accent-fill);
+  --glow: color-mix(in oklab, var(--glow-base), transparent 84%);
+  --glow-soft: color-mix(in oklab, var(--glow-base), transparent 91%);
 }
 [data-theme='dark'] {
-  --glow: color-mix(in oklab, var(--accent-fill), transparent 80%);
-  --glow-soft: color-mix(in oklab, var(--accent-fill), transparent 88%);
+  --glow: color-mix(in oklab, var(--glow-base), transparent 80%);
+  --glow-soft: color-mix(in oklab, var(--glow-base), transparent 88%);
 }
 /* The border lets the sheen run under it, so no flat rim shows at the deep end. */
 .sheen {
   border-color: transparent;
   background-image: var(--sheen);
+}
+/* The hero word has its own colour (--word, on it --on-word) and sheen strength: a word with
+   dark text on it shades lighter rather than darker, so the text keeps its contrast. */
+#hero-heading .sheen {
+  --sheen: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--word), white var(--word-light)),
+    var(--word) 45%,
+    color-mix(in oklab, var(--word), black var(--word-deep))
+  );
+  background-color: var(--word);
+  color: var(--on-word);
 }
 /* The hero's glows, full bleed behind its content (it is a centred measure, so they are
    widened to the viewport; scrollbars are hidden on the site, so 100vw adds no overflow): one
@@ -249,13 +268,429 @@ html[data-intro='fly'] [data-signature-mark] {
   border-top-color: transparent;
 }
 
-/* About + Contact accent bands re-point the tokens for their contents (spec §1.2).
-   Token overrides stay unlayered (they're variables); the paint lives in utilities. */
+/*
+ * About + Contact bands (spec §1.2): each has its own fill and text colour (--band-1 /
+ * --on-band-1 for About, --band-2 / --on-band-2 for Contact; by default both the accent with
+ * cream), and re-points the tokens for its contents to that text colour: muted at .89 (Q2 —
+ * mockup .88), the surface at .09 (Q2 — mockup .13). Unlayered (variables and the fill).
+ */
+:root {
+  --band-1: var(--accent-fill);
+  --on-band-1: #fdf8f0;
+  --band-2: var(--band-1);
+  --on-band-2: var(--on-band-1);
+  --word: var(--accent-fill);
+  --on-word: var(--on-accent);
+  --word-light: 8%;
+  --word-deep: 30%;
+}
 .band {
-  --ink: #fdf8f0;
-  --muted: rgb(253 248 240 / 0.89); /* Q2 — mockup .88 */
-  --paper2: rgb(253 248 240 / 0.09); /* Q2 — mockup .13 */
-  --accent: #fdf8f0;
+  --band-fill: var(--band-1);
+  --on-band: var(--on-band-1);
+  --ink: var(--on-band);
+  --muted: color-mix(in srgb, var(--on-band) 89%, transparent);
+  --paper2: color-mix(in srgb, var(--on-band) 9%, transparent);
+  --accent: var(--on-band);
+  background-color: var(--band-fill);
+}
+#contact {
+  --band-fill: var(--band-2);
+  --on-band: var(--on-band-2);
+}
+
+/*
+ * [EXPERIMENT] Palettes (owner, 2026-10-20: away from cream and terracotta, which read as
+ * Claude's own look). Picked by `?palette=` (lib/theme.ts sets data-palette; temporary,
+ * removed once one is chosen); no parameter: the palette as shipped. Each wins over the accent
+ * setting. Every pairing passes AA (text 4.5:1, the hero word 3:1 as large text), checked in
+ * both modes with the sheens' light and dark ends.
+ */
+html[data-palette] {
+  --paper-fade: color-mix(in srgb, var(--paper) 80%, transparent);
+  --paper-fade-strong: color-mix(in srgb, var(--paper) 88%, transparent);
+  --field: color-mix(in oklab, var(--paper), white 45%);
+  --line: color-mix(in srgb, var(--ink) 14%, transparent);
+  --line-input: color-mix(in srgb, var(--ink) 50%, transparent);
+  --scrim-nav: color-mix(in srgb, var(--paper) 55%, transparent);
+  --scrim-modal: color-mix(in srgb, var(--paper2) 62%, transparent);
+  --word-light: 22%;
+  --word-deep: 14%;
+}
+html[data-palette][data-theme='dark'] {
+  --field: color-mix(in oklab, var(--paper), white 4%);
+  --line: color-mix(in srgb, var(--ink) 13%, transparent);
+  --line-input: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+/* Ultramarine: Bauhaus: ultramarine and ink bands, a lemon hero word, on cool gallery white. */
+html[data-palette='ultramarine'] {
+  --paper: #f1f1ec;
+  --paper2: #e6e6df;
+  --ink: #16161b;
+  --muted: #5c5c64;
+  --accent-base: #2b3acb;
+  --accent-fill: #2b3acb;
+  --on-accent: #fbfbf7;
+  --band-1: #2b3acb;
+  --on-band-1: #fbfbf7;
+  --band-2: #16161b;
+  --on-band-2: #fbfbf7;
+  --word: #f2d649;
+  --on-word: #16161b;
+  --glow-base: #2b3acb;
+}
+html[data-palette='ultramarine'][data-theme='dark'] {
+  --paper: #121217;
+  --paper2: #1b1b22;
+  --ink: #ececf0;
+  --muted: #9a9aa6;
+  --accent-base: #2b3acb;
+  --accent-dark-mix: 48%;
+  --accent-fill: #2b3acb;
+  --on-accent: #fbfbf7;
+  --band-1: #2b3acb;
+  --on-band-1: #fbfbf7;
+  --band-2: #22222b;
+  --on-band-2: #fbfbf7;
+  --word: #f2d649;
+  --on-word: #16161b;
+  --glow-base: #2b3acb;
+}
+/* Forest: botanical: forest and deep-green bands, a brass hero word, on pale sage. */
+html[data-palette='forest'] {
+  --paper: #eef0ea;
+  --paper2: #e2e6dc;
+  --ink: #1a231f;
+  --muted: #56605a;
+  --accent-base: #2d5a43;
+  --accent-fill: #2d5a43;
+  --on-accent: #f7f8f3;
+  --band-1: #2d5a43;
+  --on-band-1: #f7f8f3;
+  --band-2: #1d3328;
+  --on-band-2: #f7f8f3;
+  --word: #c49a45;
+  --on-word: #1a231f;
+}
+html[data-palette='forest'][data-theme='dark'] {
+  --paper: #111613;
+  --paper2: #18201b;
+  --ink: #e5eae3;
+  --muted: #94a097;
+  --accent-base: #2d5a43;
+  --accent-dark-mix: 45%;
+  --accent-fill: #2d5a43;
+  --on-accent: #f7f8f3;
+  --band-1: #2d5a43;
+  --on-band-1: #f7f8f3;
+  --band-2: #1d3328;
+  --on-band-2: #f7f8f3;
+  --word: #c49a45;
+  --on-word: #1a231f;
+}
+/* Plum: editorial: plum and aubergine bands, a blush hero word, on blush white. */
+html[data-palette='plum'] {
+  --paper: #f4f0f1;
+  --paper2: #eae2e5;
+  --ink: #211a1f;
+  --muted: #675c63;
+  --accent-base: #6a2b5b;
+  --accent-fill: #6a2b5b;
+  --on-accent: #fbf7f8;
+  --band-1: #5c2550;
+  --on-band-1: #fbf7f8;
+  --band-2: #2b1f2c;
+  --on-band-2: #fbf7f8;
+  --word: #f0b5c4;
+  --on-word: #3a1733;
+}
+html[data-palette='plum'][data-theme='dark'] {
+  --paper: #161215;
+  --paper2: #1f191d;
+  --ink: #efe7eb;
+  --muted: #a3959d;
+  --accent-base: #6a2b5b;
+  --accent-dark-mix: 50%;
+  --accent-fill: #6a2b5b;
+  --on-accent: #fbf7f8;
+  --band-1: #5c2550;
+  --on-band-1: #fbf7f8;
+  --band-2: #2b1f2c;
+  --on-band-2: #fbf7f8;
+  --word: #f0b5c4;
+  --on-word: #3a1733;
+}
+/* Citrus: bold: an ink band and a chartreuse one, ink buttons with chartreuse text, on bright white. */
+html[data-palette='citrus'] {
+  --paper: #f3f4f0;
+  --paper2: #e7e9e2;
+  --ink: #121412;
+  --muted: #5a5e58;
+  --accent-base: #405c00;
+  --accent-fill: #121412;
+  --on-accent: #c8f24a;
+  --band-1: #121412;
+  --on-band-1: #f3f4f0;
+  --band-2: #c8f24a;
+  --on-band-2: #121412;
+  --word: #c8f24a;
+  --on-word: #121412;
+  --glow-base: #c8f24a;
+}
+html[data-palette='citrus'][data-theme='dark'] {
+  --paper: #0f110f;
+  --paper2: #181b17;
+  --ink: #eceee8;
+  --muted: #9a9f96;
+  --accent-base: #c8f24a;
+  --accent-dark-mix: 0%;
+  --accent-fill: #c8f24a;
+  --on-accent: #121412;
+  --band-1: #272b24;
+  --on-band-1: #eceee8;
+  --band-2: #c8f24a;
+  --on-band-2: #121412;
+  --word: #c8f24a;
+  --on-word: #121412;
+  --glow-base: #c8f24a;
+}
+
+/* Riso: risograph print: federal-blue ink for the text, fluorescent pink headlines and band, a yellow hero word, on newsprint. */
+html[data-palette='riso'] {
+  --paper: #efeee9;
+  --paper2: #e4e2db;
+  --ink: #22306a;
+  --muted: #55608e;
+  --accent-base: #b3125f;
+  --accent-fill: #22306a;
+  --on-accent: #ffe14d;
+  --band-1: #2b3d82;
+  --on-band-1: #f6f4ee;
+  --band-2: #ff74b4;
+  --on-band-2: #141c45;
+  --word: #ffe14d;
+  --on-word: #22306a;
+  --glow-base: #ff5fa8;
+}
+html[data-palette='riso'][data-theme='dark'] {
+  --paper: #12152a;
+  --paper2: #1a1e37;
+  --ink: #eceaf4;
+  --muted: #a3a6c4;
+  --accent-base: #ff5fa8;
+  --accent-dark-mix: 0%;
+  --accent-fill: #ffe14d;
+  --on-accent: #1d2a5e;
+  --band-1: #2b3d82;
+  --on-band-1: #f6f4ee;
+  --band-2: #ff74b4;
+  --on-band-2: #141c45;
+  --word: #ffe14d;
+  --on-word: #22306a;
+  --glow-base: #ff5fa8;
+}
+/* Cyanotype: the blueprint process: Prussian blues on sun-bleached paper, a pale cyan hero word, blue ink for the text. */
+html[data-palette='cyanotype'] {
+  --paper: #e8eef1;
+  --paper2: #dbe4e9;
+  --ink: #0f2a4a;
+  --muted: #46607a;
+  --accent-base: #1c4f8f;
+  --accent-fill: #1c4f8f;
+  --on-accent: #f4f8fa;
+  --band-1: #1c4f8f;
+  --on-band-1: #f4f8fa;
+  --band-2: #0f2a4a;
+  --on-band-2: #f4f8fa;
+  --word: #8fd0ec;
+  --on-word: #0f2a4a;
+  --glow-base: #3c7fc4;
+}
+html[data-palette='cyanotype'][data-theme='dark'] {
+  --paper: #0b1828;
+  --paper2: #112236;
+  --ink: #e2ecf3;
+  --muted: #93a9bd;
+  --accent-base: #1c4f8f;
+  --accent-dark-mix: 50%;
+  --accent-fill: #1c4f8f;
+  --on-accent: #f4f8fa;
+  --band-1: #1c4f8f;
+  --on-band-1: #f4f8fa;
+  --band-2: #16324f;
+  --on-band-2: #f4f8fa;
+  --word: #8fd0ec;
+  --on-word: #0f2a4a;
+  --glow-base: #3c7fc4;
+}
+/* Library: an old reading room: oxblood, bottle green and brass, on bone. */
+html[data-palette='library'] {
+  --paper: #ebe8e1;
+  --paper2: #dfdbd2;
+  --ink: #1d1a17;
+  --muted: #5d5750;
+  --accent-base: #7a1f2b;
+  --accent-fill: #7a1f2b;
+  --on-accent: #f7f3ec;
+  --band-1: #1f4234;
+  --on-band-1: #f3efe6;
+  --band-2: #6e1c27;
+  --on-band-2: #f7f3ec;
+  --word: #c9a24a;
+  --on-word: #1d1a17;
+  --glow-base: #1f4234;
+}
+html[data-palette='library'][data-theme='dark'] {
+  --paper: #151310;
+  --paper2: #1e1b17;
+  --ink: #ece7df;
+  --muted: #a39c92;
+  --accent-base: #7a1f2b;
+  --accent-dark-mix: 50%;
+  --accent-fill: #7a1f2b;
+  --on-accent: #f7f3ec;
+  --band-1: #1f4234;
+  --on-band-1: #f3efe6;
+  --band-2: #6e1c27;
+  --on-band-2: #f7f3ec;
+  --word: #c9a24a;
+  --on-word: #1d1a17;
+  --glow-base: #c9a24a;
+}
+/* Lilac: fashion editorial: olive and lilac, on stone. */
+html[data-palette='lilac'] {
+  --paper: #efefe9;
+  --paper2: #e4e4dc;
+  --ink: #22231c;
+  --muted: #5c5e52;
+  --accent-base: #55591d;
+  --accent-fill: #55591d;
+  --on-accent: #f6f6f0;
+  --band-1: #5b5f22;
+  --on-band-1: #f6f6f0;
+  --band-2: #c6b4e4;
+  --on-band-2: #22231c;
+  --word: #c6b4e4;
+  --on-word: #22231c;
+  --glow-base: #9d86d0;
+}
+html[data-palette='lilac'][data-theme='dark'] {
+  --paper: #131410;
+  --paper2: #1b1c17;
+  --ink: #eaeae0;
+  --muted: #a2a396;
+  --accent-base: #55591d;
+  --accent-dark-mix: 50%;
+  --accent-fill: #c6b4e4;
+  --on-accent: #22231c;
+  --band-1: #4a4e1b;
+  --on-band-1: #f6f6f0;
+  --band-2: #c6b4e4;
+  --on-band-2: #22231c;
+  --word: #c6b4e4;
+  --on-word: #22231c;
+  --glow-base: #9d86d0;
+}
+/* Nordic: a Nordic winter: fjord slate and lingonberry, a pale-sky hero word, on birch. */
+html[data-palette='nordic'] {
+  --paper: #f2f3f1;
+  --paper2: #e5e8e6;
+  --ink: #1b2128;
+  --muted: #57616b;
+  --accent-base: #a3203a;
+  --accent-fill: #a3203a;
+  --on-accent: #fbfbfa;
+  --band-1: #3c596b;
+  --on-band-1: #f6f8f9;
+  --band-2: #9e1f37;
+  --on-band-2: #fbfbfa;
+  --word: #bcd4e6;
+  --on-word: #1b2128;
+  --glow-base: #7fa3bd;
+}
+html[data-palette='nordic'][data-theme='dark'] {
+  --paper: #10151a;
+  --paper2: #172028;
+  --ink: #e6ebef;
+  --muted: #9aa5b0;
+  --accent-base: #a3203a;
+  --accent-dark-mix: 50%;
+  --accent-fill: #a3203a;
+  --on-accent: #fbfbfa;
+  --band-1: #3c596b;
+  --on-band-1: #f6f8f9;
+  --band-2: #8c1b31;
+  --on-band-2: #fbfbfa;
+  --word: #bcd4e6;
+  --on-word: #1b2128;
+  --glow-base: #7fa3bd;
+}
+/* Phosphor: a terminal: phosphor green on a CRT-black band, an amber band, on printout paper. */
+html[data-palette='phosphor'] {
+  --paper: #f2f3ed;
+  --paper2: #e3eadc;
+  --ink: #121611;
+  --muted: #555c52;
+  --accent-base: #1d6e35;
+  --accent-fill: #121611;
+  --on-accent: #5dfc90;
+  --band-1: #0d110d;
+  --on-band-1: #7dfca0;
+  --band-2: #ffb000;
+  --on-band-2: #121611;
+  --word: #5dfc90;
+  --on-word: #0d110d;
+  --glow-base: #5dfc90;
+}
+html[data-palette='phosphor'][data-theme='dark'] {
+  --paper: #0a0d0a;
+  --paper2: #111611;
+  --ink: #d6f2dc;
+  --muted: #8fa894;
+  --accent-base: #5dfc90;
+  --accent-dark-mix: 0%;
+  --accent-fill: #5dfc90;
+  --on-accent: #0d110d;
+  --band-1: #142017;
+  --on-band-1: #7dfca0;
+  --band-2: #ffb000;
+  --on-band-2: #121611;
+  --word: #ffb000;
+  --on-word: #0d110d;
+  --glow-base: #5dfc90;
+}
+/* Eames: mid-century modern: teal, walnut and mustard, on oatmeal. */
+html[data-palette='eames'] {
+  --paper: #ecebe5;
+  --paper2: #e0ded5;
+  --ink: #2a1d15;
+  --muted: #625a52;
+  --accent-base: #1d6463;
+  --accent-fill: #1d6463;
+  --on-accent: #f6f4ee;
+  --band-1: #215f5e;
+  --on-band-1: #f6f4ee;
+  --band-2: #4a2f1f;
+  --on-band-2: #f6f4ee;
+  --word: #e0a526;
+  --on-word: #2a1d15;
+  --glow-base: #e0a526;
+}
+html[data-palette='eames'][data-theme='dark'] {
+  --paper: #16120f;
+  --paper2: #1f1a16;
+  --ink: #efe8dd;
+  --muted: #a89e92;
+  --accent-base: #1d6463;
+  --accent-dark-mix: 45%;
+  --accent-fill: #1d6463;
+  --on-accent: #f6f4ee;
+  --band-1: #215f5e;
+  --on-band-1: #f6f4ee;
+  --band-2: #4a2f1f;
+  --on-band-2: #f6f4ee;
+  --word: #e0a526;
+  --on-word: #2a1d15;
+  --glow-base: #e0a526;
 }
 
 /*

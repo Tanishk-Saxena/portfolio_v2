@@ -79,7 +79,7 @@ export function ProjectCard({
           aria-hidden="true"
           className={`pointer-events-none absolute inset-x-4 bottom-3.5 z-1 flex flex-col gap-0.75 [transition:opacity_.3s_ease,translate_.38s_var(--ease-out-soft)] motion-safe:translate-y-2 ${REVEAL} ${SETTLE}`}
         >
-          <span className="line-clamp-2 font-serif text-card-name text-on-accent">{title}</span>
+          <span className="line-clamp-2 font-serif text-card-name text-card-paper">{title}</span>
           <span className="text-micro tracking-button text-card-kind uppercase">
             {formatProjectKind(kind)} — {year}
           </span>
@@ -114,7 +114,7 @@ function CardLink({ href, label, children }: { href: string; label: string; chil
       rel="noreferrer"
       aria-label={`${label} (opens in a new tab)`}
       data-ripple="accent-fill"
-      className="hit-44 relative grid size-9.5 place-items-center rounded-full bg-card-icon-bg text-card-ink hover:bg-on-accent hover:text-card-ink"
+      className="hit-44 relative grid size-9.5 place-items-center rounded-full bg-card-icon-bg text-card-ink hover:bg-card-paper hover:text-card-ink"
     >
       {children}
     </a>

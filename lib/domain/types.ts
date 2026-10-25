@@ -165,6 +165,7 @@ export const DEFAULT_SETTINGS: Settings = {
   scriptFont: 'allura',
   signatureIntro: true,
   mediaAutoRotate: false,
+  styleLab: false,
   siteTitle: 'Tanishk Saxena — Software Engineer',
   siteDescription:
     'Tanishk Saxena is a frontend engineer in Delhi building quiet, careful software for the web.',
@@ -184,6 +185,8 @@ export interface Settings {
   signatureIntro: boolean;
   /** A project's modal media moves on by itself (5s an image; a video when it ends). */
   mediaAutoRotate: boolean;
+  /** [EXPERIMENT] The Lab button in the header: try candidate palettes and hero backgrounds. */
+  styleLab: boolean;
   /** The home page's tab title, and its title when shared or found in a search. */
   siteTitle: string;
   /** The description search engines and share previews show for the site. */

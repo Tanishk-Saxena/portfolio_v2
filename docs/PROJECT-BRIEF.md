@@ -120,7 +120,7 @@ non-deleted rows. `image` = `{ src, alt, width, height }` (+ optional focal poin
 | `article` | slug, title, excerpt, published_at, read_minutes (null = estimated), body (Markdown) **or** external_url, status (`draft` \| `published`), listen |
 | `quote` | text (≤ 140), author, active, sort_order |
 | `social_link` | label, url (the admin requires a full address; the site still hides an empty one), sort_order |
-| `settings` | accent, grain, menu_layout, media_auto_rotate, script_font, signature_intro, site_title, site_description, github_username |
+| `settings` | accent, grain, menu_layout, media_auto_rotate, script_font, signature_intro, style_lab (an experiment, temporary), site_title, site_description, github_username |
 
 Standing decisions:
 - Projects have no detail route: the modal plus the repo README are the write-up.
