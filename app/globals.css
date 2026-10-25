@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import '../styles/tokens.css';
+@import '../styles/hero-backdrop.css'; /* [EXPERIMENT] the style lab's hero backgrounds */
 
 /* Mode switching is attribute-driven (set pre-paint by the inline theme script). */
 @custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
@@ -57,6 +58,7 @@
   --color-card-icon-bg: rgb(253 248 240 / 0.92);
   --color-card-kind: rgb(253 248 240 / 0.9);
   --color-card-ink: #23201c;
+  --color-card-paper: #fdf8f0; /* the title and the icons' hover on the dark veil, every palette */
   --color-scrim-nav: var(--scrim-nav);
   --color-scrim-modal: var(--scrim-modal);
 

@@ -2,6 +2,7 @@ import type { SignaturePen } from '@/lib/signature-pen';
 import { HomeLink } from './home-link';
 import { HeaderShell } from './header-shell';
 import { SignatureMark } from './signature-mark';
+import { StyleLab } from './style-lab';
 import { ThemeToggle } from './theme-toggle';
 
 const SIGNATURE = 'inline-flex origin-[0%_80%] translate-y-1.5 -rotate-4 flex-col';
@@ -43,7 +44,10 @@ export function SiteHeader({
             <SignatureMark name={name} />
           </HomeLink>
         )}
-        <ThemeToggle />
+        <div className="flex items-center gap-2">
+          <StyleLab />
+          <ThemeToggle />
+        </div>
       </div>
     </HeaderShell>
   );

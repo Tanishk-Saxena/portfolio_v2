@@ -130,6 +130,7 @@ export const settingsDraft = (s: Settings): Draft => ({
   scriptFont: s.scriptFont,
   signatureIntro: s.signatureIntro,
   mediaAutoRotate: s.mediaAutoRotate,
+  styleLab: s.styleLab,
 });
 
 export const settingsValues = (d: Draft): Settings => ({
@@ -142,6 +143,7 @@ export const settingsValues = (d: Draft): Settings => ({
   scriptFont: d.scriptFont as Settings['scriptFont'],
   signatureIntro: d.signatureIntro === true,
   mediaAutoRotate: d.mediaAutoRotate === true,
+  styleLab: d.styleLab === true,
 });
 
 // ── Collections ───────────────────────────────────────────────────────────────────────────

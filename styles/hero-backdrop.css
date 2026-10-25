@@ -1,0 +1,148 @@
+/*
+ * [EXPERIMENT] The hero backgrounds (components/sections/hero-backdrop/), picked in the style
+ * lab. Full bleed behind the hero's words, faint, faded out before the About band; transform
+ * and opacity only where they move; still under reduced motion. Colours from the palette.
+ */
+
+.hero-backdrop {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  z-index: -1;
+  width: 100vw;
+  overflow: hidden;
+  translate: -50% 0;
+  pointer-events: none;
+  mask-image: linear-gradient(#000 70%, transparent 98%);
+}
+.bd-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Gradient mesh: three soft pools of the palette's colours drifting past each other. */
+.bd-blob {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation: bd-drift-1 26s ease-in-out infinite alternate;
+}
+[data-theme='dark'] .bd-blob {
+  opacity: 0.22;
+}
+.bd-blob-1 {
+  top: -25vmax;
+  right: -15vmax;
+  width: 62vmax;
+  background: radial-gradient(closest-side, var(--accent-fill), transparent);
+}
+.bd-blob-2 {
+  top: 8%;
+  right: 22%;
+  width: 42vmax;
+  background: radial-gradient(closest-side, var(--word), transparent);
+  animation-name: bd-drift-2;
+  animation-duration: 32s;
+}
+.bd-blob-3 {
+  bottom: -22vmax;
+  left: -12vmax;
+  width: 50vmax;
+  background: radial-gradient(closest-side, var(--glow-base), transparent);
+  animation-name: bd-drift-3;
+  animation-duration: 38s;
+}
+@keyframes bd-drift-1 {
+  to {
+    transform: translate(-14vw, 10vh) scale(1.15);
+  }
+}
+@keyframes bd-drift-2 {
+  to {
+    transform: translate(12vw, 14vh) scale(0.85);
+  }
+}
+@keyframes bd-drift-3 {
+  to {
+    transform: translate(18vw, -12vh) scale(1.2);
+  }
+}
+
+/* Aurora: tall ribbons of light swaying from the top, on the right, away from the words. */
+.bd-ribbon {
+  position: absolute;
+  top: -15%;
+  width: 20vw;
+  height: 120%;
+  opacity: 0.2;
+  transform-origin: 50% 0;
+  background: linear-gradient(90deg, transparent, var(--c) 50%, transparent);
+  mask-image: linear-gradient(transparent, #000 25%, #000 55%, transparent);
+  animation: bd-sway 17s ease-in-out infinite alternate;
+}
+.bd-ribbon-1 {
+  --c: var(--accent-fill);
+  left: 52%;
+}
+.bd-ribbon-2 {
+  --c: var(--word);
+  left: 66%;
+  animation-duration: 23s;
+  animation-delay: -6s;
+}
+.bd-ribbon-3 {
+  --c: var(--glow-base);
+  left: 80%;
+  animation-duration: 29s;
+  animation-delay: -12s;
+}
+@keyframes bd-sway {
+  from {
+    transform: rotate(-9deg) translateX(-4vw) scaleY(0.9);
+  }
+  to {
+    transform: rotate(7deg) translateX(3vw) scaleY(1.05);
+  }
+}
+
+/* Topographic: contour rings round two peaks, breathing; every third ring has a slow dash. */
+.bd-contours {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1;
+  opacity: 0.3;
+  animation: bd-breathe 30s ease-in-out infinite alternate;
+}
+.bd-contours path {
+  vector-effect: non-scaling-stroke;
+}
+.bd-contour-run {
+  stroke-dasharray: 0.06 0.03;
+  animation: bd-dash 40s linear infinite;
+}
+@keyframes bd-breathe {
+  to {
+    transform: translate(-2vw, 1.5vh) scale(1.06);
+  }
+}
+@keyframes bd-dash {
+  to {
+    stroke-dashoffset: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-backdrop,
+  .hero-backdrop * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

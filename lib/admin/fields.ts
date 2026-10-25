@@ -367,5 +367,12 @@ export const FIELDS: Record<FormSlug, FieldDef[]> = {
       on: 'Moves on by itself: 5 seconds an image, a video when it ends',
       off: 'Stays until swiped or clicked',
     },
+    {
+      key: 'styleLab',
+      label: 'Style lab',
+      type: 'toggle',
+      on: 'A Lab button in the site header tries palettes and hero backgrounds (in your browser only)',
+      off: 'Off: the site as shipped',
+    },
   ],
 };
