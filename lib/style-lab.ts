@@ -11,7 +11,7 @@
 export const LAB_KEYS = { palette: 'lab-palette', backdrop: 'lab-backdrop' } as const;
 
 export const PALETTES = [
-  ['', 'As shipped'],
+  ['terracotta', 'Terracotta (as shipped)'],
   ['riso', 'Riso'],
   ['cyanotype', 'Cyanotype'],
   ['library', 'Library'],

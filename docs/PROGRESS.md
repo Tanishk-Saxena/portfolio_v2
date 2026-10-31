@@ -5,13 +5,14 @@ step-by-step diary is this file's git history before the 2026-10-18 cleanup.
 
 **Now:** the build is complete (Phases 0–10), on one data path (Supabase, tested against a
 local one in CI); the owner's review round (PR #67) and a cosmetic round (PR #69: the
-hand-written intro, gradients and curved bands, the in-step wheel) are merged. The owner is
-entering real content on dev, to copy to prod when ready.
-**Next:** the palette and a hero background. Candidates ship behind the **style lab**
-(DESIGN-SPEC §10 "Style lab"; Settings → Style lab, off by default), and the owner is trying
-them on the live preview over a few days before choosing; then the chosen pair ships and the
-lab goes. Then the end-to-end round on prod from **the owner's test list**, once the real
-content is in. Later work is ordinary PRs.
+hand-written intro, gradients and curved bands, the in-step wheel) are merged, and so is the
+**style lab** (PR #72: candidate palettes and hero backgrounds behind Settings → Style lab,
+off by default; DESIGN-SPEC §10 "Style lab"). The owner is entering real content on dev, to
+copy to prod when ready.
+**Next:** the owner decides the palette and hero background, together with the other open
+settings (the script face); then the choices ship as defaults and the lab, its setting and the
+unneeded options go, in one PR. Then the end-to-end round on prod from **the owner's test
+list**, once the real content is in. Later work is ordinary PRs.
 
 ## Phases
 
@@ -193,15 +194,18 @@ The intro now runs ~3.7 s, so Lighthouse audits the site 6 s after load; a press
 it no longer clicks through to the page. The wheel menu's slide to the centre now runs in step
 with its spiral (they read as two steps), and the menu's motion is a fifth quicker.
 
-**The style lab (PR #72, 2026-10-20/26, open, not merged).** The owner wants a palette that doesn't
+**The style lab (PR #72, 2026-10-20 to 11-01).** The owner wants a palette that doesn't
 read as Claude's own (cream and terracotta) and a background for the hero, and to choose on
 the live site over a few days of normal use. Eleven palettes and ten hero backgrounds sit
 behind a **Lab** button in the header, shown only with Settings → Style lab on (new column
 `style_lab`, off by default; DESIGN-SPEC §10 "Style lab", ADMIN-DESIGN-SPEC §14). The owner
-tries them on the PR's Vercel preview (dev's data; the migration is on dev). Nine backgrounds
-were tried and dropped along the way. Fixed with it: a project card's title, unreadable on
-palettes whose accent text is dark. Once the owner picks: the chosen pair ships as the
-default, and the lab, its setting (a migration drops the column) and the unchosen options go.
+tried them on the PR's Vercel preview; nine backgrounds were tried and dropped along the way.
+Undecided after a few days, the owner had the lab merged as it is, with the shipped palette a
+named choice too (Terracotta), to decide later alongside the other settings (migration on dev
+and prod). Fixed with it: a project card's title, unreadable on palettes whose accent text is
+dark. Once the owner picks: the chosen pair ships as the default, and the lab, its setting (a
+migration drops the column, pushed after the code that stops reading it) and the unchosen
+options go.
 
 ## Open items
 
@@ -209,9 +213,8 @@ default, and the lab, its setting (a migration drops the column) and the unchose
   What's left is framework JS; judged by Speed Insights field data (`docs/PERFORMANCE.md`).
 - **Owner:** the GitHub username in **prod's** Settings (the live heat map stays hidden until
   then). Prod's Vault secrets and `GITHUB_TOKEN` are set (2026-10-18).
-- **Style lab migration on prod:** `20261026000000_settings_style_lab` is on dev only. Push it
-  to prod before PR #72 merges (additive; `docs/SUPABASE.md`), or the live site's
-  settings read fails.
+- **Owner:** pick a palette and a hero background (Settings → Style lab, on the live site);
+  then the lab goes (DESIGN-SPEC §10 "Style lab").
 - **Owner:** pick one script face (Allura or Caveat); then the other is deleted (`lib/fonts.ts`, its
   pen in `lib/signature-pen.ts`, and Allura's TTF if Caveat wins: share cards keep Caveat).
 - **Six Dependabot alerts, dev tooling only** (`extract-zip` ×2, `tmp` ×2, `sprintf-js`,
@@ -230,8 +233,8 @@ round's fixes included (owner, 2026-10-19: PR #67, phone checks too).
 - [x] **On the phone** (PR #69): the hand-written intro (smooth, lands with no jump, a tap skips
       it without clicking through), the wheel menu in step with its spiral, the curved bands
       (owner, 2026-10-20: works).
-- [ ] **Style lab** on PR #72's preview, on a phone: turn Settings → Style lab on, try palettes
-      and hero backgrounds over a few days, and pick one pair (DESIGN-SPEC §10 "Style lab").
+- [ ] **Style lab**, on a phone: turn Settings → Style lab on, try palettes and hero
+      backgrounds, and pick one pair (DESIGN-SPEC §10 "Style lab").
 - [ ] Every admin feature on **prod, on a phone**, and a save showing on the live site (roadmap item 33).
 - [ ] Remove the **sample media** from the first two projects in dev and prod when real media goes in (`docs/SUPABASE.md`).
 

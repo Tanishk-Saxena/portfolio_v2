@@ -7,6 +7,9 @@ type Kind = keyof typeof LAB_KEYS;
 
 const ATTR: Record<Kind, string> = { palette: 'data-palette', backdrop: 'data-backdrop' };
 
+/** The palette as shipped, picked when nothing else is. */
+const SHIPPED = PALETTES[0][0];
+
 /** Sets one choice on <html> and remembers it in this browser ('' clears it). */
 function apply(kind: Kind, value: string) {
   const root = document.documentElement;
@@ -24,14 +27,17 @@ function apply(kind: Kind, value: string) {
  * (styles/tokens.css hides it otherwise). A click outside or Escape closes it. Temporary.
  */
 export function StyleLab() {
-  const [choice, setChoice] = useState<Record<Kind, string>>({ palette: '', backdrop: '' });
+  const [choice, setChoice] = useState<Record<Kind, string>>({
+    palette: SHIPPED,
+    backdrop: '',
+  });
   const ref = useRef<HTMLDetailsElement>(null);
 
   // What the head script set before paint (the URL or this browser), read once on mount.
   useEffect(() => {
     const root = document.documentElement;
     setChoice({
-      palette: root.getAttribute(ATTR.palette) ?? '',
+      palette: root.getAttribute(ATTR.palette) ?? SHIPPED,
       backdrop: root.getAttribute(ATTR.backdrop) ?? '',
     });
   }, []);
